@@ -1,6 +1,9 @@
 import express from "express"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
+import uploadRouter from "./upload/upload.routes.js";
+import path from "node:path";
+import connectDb from "./database/connection.js";
 
 // Env Config
 dotenv.config()
@@ -11,6 +14,13 @@ const port = process.env.PORT || 4000;
 // Middlewares
 app.use(express.json())
 app.use(cookieParser())
+app.use(express.static(path.join(process.cwd(), "public")))
+
+// Routes
+app.use("/api/upload", uploadRouter)
+
+// Databse Connection
+await connectDb()
 
 app.get("/", (req, res) => {
   res.status(200).json("This Is Saher Internal Home Page")
