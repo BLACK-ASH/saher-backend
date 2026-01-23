@@ -1,6 +1,7 @@
 import { Router,Request,Response } from "express";
 import { registerController } from "./register/register.controller.js";
 import { createBankDetailController } from "./bank/bank.controller.js";
+import { validateRegisterInput } from "./register/register.middleware.js";
 
 const authRouter = Router()
 
@@ -10,6 +11,6 @@ authRouter.get("/",(req:Request,res:Response)=>{
 
 authRouter.post("/bank-detail",createBankDetailController)
 
-authRouter.post("/register",registerController)
+authRouter.post("/register",validateRegisterInput,registerController)
 
 export default authRouter

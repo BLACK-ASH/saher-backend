@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    require: true
+    require: true,
+    unique:true
   },
   emailVerified: {
     type: Boolean,
@@ -29,20 +30,20 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  isBanned:{
-    type:Boolean,
-    default:false
+  isBanned: {
+    type: Boolean,
+    default: false
   },
-  deletedAt:{
-    type:Date
+  deletedAt: {
+    type: Date
   },
-  deleteBy:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"User"
+  deleteBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   },
-},{timestamps:true})
+}, { timestamps: true })
 
 export type UserType = mongoose.InferSchemaType<typeof userSchema>
 
-export const User = mongoose.model("User",userSchema)
+export const User = mongoose.model("User", userSchema)
 

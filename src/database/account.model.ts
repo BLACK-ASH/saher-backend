@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 
 const accountSchema = new mongoose.Schema({
-  userId:{
+  user:{
     type:mongoose.Schema.Types.ObjectId,
-    ref:"User"
+    ref:"User",
+    require:true,
+    unique:true
   },
   sessions:{
     type:[String]
