@@ -16,7 +16,7 @@ export const validateBankRegisterSchema = async (req: Request, res: Response, ne
 
 
   if (!parsedBankRegisterInput.success) {
-    return res.status(400).json({ message: parsedBankRegisterInput.error.issues[0] })
+    return res.status(400).json({ success: false, message: parsedBankRegisterInput.error.issues[0] })
   }
 
   req.body = parsedBankRegisterInput.data

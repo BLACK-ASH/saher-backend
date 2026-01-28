@@ -6,10 +6,10 @@ export const createBankDetailController = async (req: Request, res: Response) =>
 
   try {
     const details = await BankDetail.create({ accountHolderName, bankName, ifcs, branch, mobileNumber })
-    return res.status(201).json({ message: "Bank Details Added Succesfull", data: details })
+    return res.status(201).json({ success:true,message: "Bank Details Added Succesfull", data: details })
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Registration failed" });
+    return res.status(500).json({ success:false,message: "Registration failed",data:error });
   }
 }

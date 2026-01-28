@@ -9,7 +9,7 @@ export const registerController = async (req: Request, res: Response) => {
   try {
     const existingUser = await User.findOne({ email: registerInput.email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User With Email already exists" });
     }
 
     // 1. Create User
@@ -44,11 +44,11 @@ export const registerController = async (req: Request, res: Response) => {
 
 
     return res.status(201).json({
-      message: "Employee registered successfully",
+      success: true, message: "Employee registered successfully",data:user._id
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Registration failed" });
+    return res.status(500).json({ success: false, message: "Registration failed", data: null });
   }
 };
 

@@ -7,15 +7,15 @@ export const uploadImageController = async (req: Request, res: Response) => {
   const name = req.body?.name
 
   if (req.fileValidationError) {
-    return res.status(400).json({ message: req.fileValidationError })
+    return res.status(400).json({success:false,message:"File Validation Failed.",data: req.fileValidationError })
   }
 
   if (!file) {
-    return res.status(400).json({ message: "No File Is Provided" })
+    return res.status(400).json({ success:false,message: "No File Is Provided.",data:"" })
   }
 
   if (!name) {
-    return res.status(400).json({ message: "No Name Is Provided" })
+    return res.status(400).json({ success:false,message: "No Name Is Provided." ,data:""})
   }
 
   try {
@@ -24,7 +24,7 @@ export const uploadImageController = async (req: Request, res: Response) => {
     const dbImage = await Media.create({ src: image?.imageUrl, alt: name })
 
     if (!dbImage) {
-      return res.status(400).json({ message: "Image Not Saved" })
+      return res.status(400).json({ success:false,message: "Image Not Saved.",data:"" })
     }
 
     const response = {
@@ -44,10 +44,10 @@ export const uploadImageController = async (req: Request, res: Response) => {
   }
   catch (error: unknown) {
     if (error instanceof Error) {
-      return res.status(400).json({ message: error.message })
+      return res.status(400).json({ success:false,message: "Image Upload Failed",data: error.message })
     }
     console.error("Image Upload Failed", error)
-    return res.status(400).json({ message: "Image Upload Failed" })
+    return res.status(400).json({ success:false,message: "Image Upload Failed",data:error })
 
   }
 }

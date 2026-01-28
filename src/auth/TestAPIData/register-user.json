@@ -1,0 +1,19 @@
+{
+    "name":"John Doe",
+    "email":"johndoe5@gmail.com",
+    "gender":"male",
+    "image":"6973927cb4db65fabb186799",
+    "dateOfBirth":"1990-12-21",
+    "phoneNumber":"9876543210",
+    "dateOfJoining":"2010-12-21",
+    "employeeId":"id-test-1234",
+    "department":"DEPT",
+    "designation":"Jog - E",
+    "employeeType":"full-time",
+    "salaryStructure":"1200000",
+    "address":"jog-e",
+    "bankDetail":"6973921db4db65fabb186797",
+    "aadhar":"6973927cb4db65fabb186799",
+    "pan":"6973927cb4db65fabb186799",
+    "resume":"6973927cb4db65fabb186799"
+}

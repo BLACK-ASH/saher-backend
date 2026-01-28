@@ -6,7 +6,7 @@ const registerSchema = z
   .object({
     name: z.string().trim().min(2),
     displayName: z.string().optional(),
-    image:z.string().optional(),
+    image: z.string().optional(),
 
     email: z.email(),
     password: z.string().optional(),
@@ -50,7 +50,7 @@ export const validateRegisterInput = (req: Request, res: Response, next: NextFun
   const parsedRegisterInput = registerSchema.safeParse(req.body)
 
   if (!parsedRegisterInput.success) {
-    return res.status(400).json({ message: parsedRegisterInput.error.issues[0] })
+    return res.status(400).json({ success: false, message: "Invalid Input", data: parsedRegisterInput.error.issues[0] })
   }
 
   req.body = parsedRegisterInput.data
