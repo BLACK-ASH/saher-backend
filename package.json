@@ -5,10 +5,10 @@
   "main": "index.js",
     "scripts": {
       "dev": "tsx watch src/index.ts",
-      "build": "tsc",
+      "build": "pnpm docs:build && tsc",
       "start": "node dist/index.js",
       "docs:lint": "redocly lint ",
-      "docs:build": "redocly build-docs openapi/openapi.yaml"   ,
+      "docs:build": "npx redocly build-docs openapi/openapi.yaml -o docs/index.html"   ,
       "typecheck": "tsc --noEmit",
       "clean": "rm -rf dist",
       "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start"
