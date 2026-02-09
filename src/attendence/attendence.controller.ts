@@ -2,6 +2,7 @@
 import { Router } from "express"
 import { Attendence } from "../database/attendence.model.js"
 import { User } from "../database/user.model.js"
+import { success } from "zod"
 
 
 
@@ -12,6 +13,12 @@ attendenceRouter.post("/", async (req, res) => {
     try {
         const userID = await User.findOne({email})
     console.log(userID?._id);
+
+    if (!userID){
+        return res.status(404).json({
+            message:"User not found",success:false
+        })
+    }
         
         const newRecord = await Attendence.create({
             user : userID?._id,
