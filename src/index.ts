@@ -6,6 +6,7 @@ import path from "node:path";
 import connectDb from "./database/connection.js";
 import authRouter from "./auth/auth.routes.js";
 import attendenceRouter from "./attendence/attendence.controller.js"
+import attendenceCorrectionRouter from "./attendence/attendenceCorrection.controller.js";
 
 
 // Env Config
@@ -29,6 +30,7 @@ app.use("/api/auth",authRouter)
 
 //Mark attendence
 app.use("/attendence",attendenceRouter)
+app.use("/attendeceCorrection",attendenceCorrectionRouter)
 
 app.get("/", (req, res) => {
   res.status(200).json("This Is Saher Internal Home Page")
