@@ -44,9 +44,6 @@ export const validateBankUpdateSchema = async (req: Request, res: Response, next
     return res.status(400).json({ success: false, message: parsedBankUpdateInput.error.issues[0] })
   }
 
-  req.body = {
-    id: req.body._id || req.body.id,
-    data: parsedBankUpdateInput.data
-  }
+  req.body = parsedBankUpdateInput.data
   next()
 }

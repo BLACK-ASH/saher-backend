@@ -5,6 +5,7 @@ import uploadRouter from "./upload/upload.routes.js";
 import path from "path";
 import connectDb from "./database/connection.js";
 import authRouter from "./auth/auth.routes.js";
+import adminRouter from "./admin/admin.routes.js";
 
 // Env Config
 dotenv.config()
@@ -22,7 +23,8 @@ await connectDb()
 
 // Routes
 app.use("/api/upload", uploadRouter)
-app.use("/api/auth",authRouter)
+app.use("/api/admin", adminRouter)
+app.use("/api/auth", authRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));
 
 app.listen(port, () => {
