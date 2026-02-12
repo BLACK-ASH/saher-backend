@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import { createBankDetailController, deleteBankDetailController, getBankDetailController, updateBankDetailController } from "./bank/bank.controller.js";
 import { validateBankRegisterSchema, validateBankUpdateSchema } from "./bank/bank.middleware.js";
+import { validateAccountRegister } from "./account/account.middleware.js";
+import { accountRegisterController } from "./account/account.controller.js";
 
 const adminRouter = Router()
 
@@ -13,6 +15,8 @@ adminRouter.post("/bank/register", validateBankRegisterSchema, createBankDetailC
   .get("/bank/get/:id", getBankDetailController)
   .put("/bank/update/:id", validateBankUpdateSchema, updateBankDetailController)
   .delete("/bank/delete/:id", deleteBankDetailController)
+
+adminRouter.post("/account/register", validateAccountRegister, accountRegisterController)
 
 
 export default adminRouter
