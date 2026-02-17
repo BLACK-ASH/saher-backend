@@ -13,7 +13,7 @@ export const accountRegisterController = async (req: Request, res: Response) => 
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: "User already exists",
+        message: "User with email already exists.",
         data: null
       });
     }
@@ -32,13 +32,13 @@ export const accountRegisterController = async (req: Request, res: Response) => 
       }], { session });
 
       if (!account.length) {
-        throw new Error("Account creation failed");
+        throw new Error("Account creation failed.");
       }
     });
 
     return res.status(201).json({
       success: true,
-      message: "Employee registered successfully",
+      message: "Employee registered successfully.",
       data: createdUser?._id
     });
 
@@ -46,10 +46,71 @@ export const accountRegisterController = async (req: Request, res: Response) => 
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Registration failed",
+      message: "Registration failed.",
       data: error
     });
   } finally {
     await session.endSession();
   }
 };
+
+export const accountUpdateController = async (req: Request, res: Response) => {
+  const id = req.params.id
+  const updateInput = req.body
+
+  try {
+    const update = await Account.findByIdAndUpdate(id, updateInput)
+
+    if (!update) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found.",
+        data: null
+      });
+
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Employee update successfully.",
+      data: null
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Update failed",
+      data: error
+    });
+  }
+}
+
+export const accountGetController = async (req: Request, res: Response) => {
+  const id = req.params.id
+
+  try {
+    const account = await Account.findById(id)
+
+    if (!account) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found.",
+        data: null
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Employee get successfully.",
+      data: account
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Get failed",
+      data: error
+    });
+  }
+}

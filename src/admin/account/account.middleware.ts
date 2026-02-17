@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import z from "zod";
+import { hashPassword } from "../../libs/password-hash.js";
 
-const userSchema = z.object({
+export const userSchema = z.object({
   name: z.string().trim().min(2),
   displayName: z.string().optional(),
   image: z.string().optional(),
@@ -32,9 +33,10 @@ const accountRegisterSchema = z.object({
   user: userSchema,
   account: accountSchema
 })
-  .transform((data) => {
+  .transform(async (data) => {
     data.user.displayName = data.user.displayName ?? data.user.name
-    data.user.password = data.user.password ?? data.user.password
+    const password = data.user.name.slice(0, 4) ?? data.account.dateOfBirth.getFullYear()
+    data.user.password = await hashPassword(password)
     data.account.secondaryPhoneNumber = data.account.secondaryPhoneNumber ?? data.account.secondaryPhoneNumber
 
     return data;
@@ -45,8 +47,8 @@ const accountUpdateSchema = accountSchema.partial()
 export type AccountRegister = z.infer<typeof accountRegisterSchema>
 export type AccountUpdate = z.infer<typeof accountUpdateSchema>
 
-export const validateAccountRegister = (req: Request, res: Response, next: NextFunction) => {
-  const parsedRegisterInput = accountRegisterSchema.safeParse(req.body)
+export const validateAccountRegister = async (req: Request, res: Response, next: NextFunction) => {
+  const parsedRegisterInput = await accountRegisterSchema.safeParseAsync(req.body)
 
   if (!parsedRegisterInput.success) {
     return res.status(400).json({ success: false, message: "Invalid Input", data: parsedRegisterInput.error.issues[0] })
@@ -56,13 +58,13 @@ export const validateAccountRegister = (req: Request, res: Response, next: NextF
   next()
 }
 
-export const validateAccountUpdate = (req: Request, res: Response, next: NextFunction) => {
-  const parsedUpdateInput = accountUpdateSchema.safeParse(req.body)
+export const validateAccountUpdate =async (req: Request, res: Response, next: NextFunction) => {
+  const parsedUpdateInput =await accountUpdateSchema.safeParseAsync(req.body)
 
   if (!parsedUpdateInput.success) {
     return res.status(400).json({ success: false, message: "Invalid Input", data: parsedUpdateInput.error.issues[0] })
   }
 
-  req.body = parsedUpdateInput
+  req.body = parsedUpdateInput.data
   next()
 }
