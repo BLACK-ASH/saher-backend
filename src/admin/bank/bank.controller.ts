@@ -19,7 +19,7 @@ export const createBankDetailController = async (req: Request, res: Response) =>
 // Get Bank Controller
 export const getBankDetailController = async (req: Request, res: Response) => {
 
-  const id = req.body._id || req.body.id
+  const id = req.params.id
 
   try {
     const details = await BankDetail.findById(id)
@@ -39,7 +39,8 @@ export const getBankDetailController = async (req: Request, res: Response) => {
 // Update Bank Controller
 export const updateBankDetailController = async (req: Request, res: Response) => {
 
-  const { id, data } = req.body
+  const id = req.params.id
+  const data = req.body
 
   try {
     const updated = await BankDetail.findByIdAndUpdate(id, data)
@@ -59,7 +60,7 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
 // Delete Bank Controller
 export const deleteBankDetailController = async (req: Request, res: Response) => {
 
-  const id = req.body._id || req.body.id
+  const id = req.params.id
 
   try {
     const deleted = await BankDetail.findByIdAndDelete(id)
