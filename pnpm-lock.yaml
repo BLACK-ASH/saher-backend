@@ -32,6 +32,9 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.0.2
+      pnpm:
+        specifier: ^10.29.2
+        version: 10.30.0
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -774,6 +777,11 @@ packages:
 
   path-to-regexp@8.3.0:
     resolution: {integrity: sha512-7jdwVIRtsP8MYpdXSwOS0YdD0Du+qOoF/AEPIt88PcCFrZCzx41oxku1jD88hZBwbNUIEfpqvuhjFaMAqMTWnA==}
+
+  pnpm@10.30.0:
+    resolution: {integrity: sha512-K1dT3gFdSA7riPW1th4AUfBbQwGAioLsi4QMnSrfd0jrNSyD9cFZPKcD/xAXKVvD/dMRmruWhu/Ja5/LGCAJNw==}
+    engines: {node: '>=18.12'}
+    hasBin: true
 
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
@@ -1554,6 +1562,8 @@ snapshots:
   parseurl@1.3.3: {}
 
   path-to-regexp@8.3.0: {}
+
+  pnpm@10.30.0: {}
 
   proxy-addr@2.0.7:
     dependencies:
