@@ -7,7 +7,7 @@ import connectDb from "./database/connection.js";
 import authRouter from "./auth/auth.routes.js";
 import attendenceRouter from "./attendence/attendence.controller.js"
 import attendenceCorrectionRouter from "./attendence/attendenceCorrection.controller.js";
-import { verifyToken } from "./attendence/attendence.middleware.js"
+
 
 // Env Config
 dotenv.config()
@@ -29,7 +29,7 @@ app.use("/api/auth",authRouter)
 
 
 //Mark attendence
-app.use("/attendence",verifyToken,attendenceRouter)
+app.use("/attendence",attendenceRouter)
 app.use("/attendeceCorrection",attendenceCorrectionRouter)
 
 app.get("/", (req, res) => {
