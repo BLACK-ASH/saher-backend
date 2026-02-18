@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken"
 
-type TokenInput = {
+export type ReqUser = {
   id: string,
   name: string,
   role: string
 }
 
-export const generateToken = (data: TokenInput) => {
+export const generateToken = (data: ReqUser) => {
   const accessToken = jwt.sign(data, process.env.JWT_ACCESS_SECRET!, { algorithm: "HS384", expiresIn: "7d" })
   const refreshToken = jwt.sign(data, process.env.JWT_REFRESH_SECRET!, { algorithm: "HS512", expiresIn: "90d" })
   return { accessToken, refreshToken }
@@ -14,10 +14,10 @@ export const generateToken = (data: TokenInput) => {
 
 export const verifyAccessToken = async (accessToken: string) => {
   const data = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!, { algorithms: ["HS384"] })
-  return data
+  return data as ReqUser
 }
 
 export const verifyRefreshToken = async (refreshToken: string) => {
   const data = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!, { algorithms: ["HS512"] })
-  return data
+  return data as ReqUser
 }
