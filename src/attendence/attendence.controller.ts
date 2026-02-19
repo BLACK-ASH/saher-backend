@@ -9,7 +9,7 @@ import { success } from "zod"
 const attendenceRouter = Router()
 attendenceRouter.post("/", async (req, res) => {
     //Step 1 - Ask for some data from the user through which you can validate 
-    const { email } = req.body
+    const { email } = req.body || "test@email.com"
     const userID = await User.findOne({ email })
     
     
