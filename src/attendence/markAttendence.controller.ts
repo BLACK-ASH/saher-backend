@@ -1,4 +1,4 @@
-
+import { Request,Response } from "express"
 import { Router } from "express"
 import { Attendence } from "../database/attendence.model.js"
 import { User } from "../database/user.model.js"
@@ -6,8 +6,9 @@ import { success } from "zod"
 
 
 
-const attendenceRouter = Router()
-attendenceRouter.post("/", async (req, res) => {
+
+export const markAttendenceController = async(req:Request,res:Response)=>{
+
     //Step 1 - Ask for some data from the user through which you can validate 
     const { email } = req.body || "test@email.com"
     const userID = await User.findOne({ email })
@@ -68,6 +69,4 @@ attendenceRouter.post("/", async (req, res) => {
         return res.status(404).json({ message: "There was some error", success: false })
 
     }
-})
-
-export default attendenceRouter
+}

@@ -1,13 +1,12 @@
-import { Router } from "express";
+
 import { User } from "../database/user.model.js";
 import { AttendenceCorrection } from "../database/attendenceCorrectrion.model.js";
 import { success } from "zod";
+import { Request,Response } from "express";
 
-const attendenceCorrectionRouter = Router()
 
-attendenceCorrectionRouter.post("/",async(req,res)=>{
-    //Today's Date
-    const currentDate = new Date
+export const attendenceCorrectionController = async(req:Request,res:Response)=>{
+     const currentDate = new Date
     currentDate.setHours(0,0,0,0)
 
     //destrucctring
@@ -48,10 +47,5 @@ attendenceCorrectionRouter.post("/",async(req,res)=>{
         
     }
 
-})
+}
 
-
-
-
-
-export default attendenceCorrectionRouter
