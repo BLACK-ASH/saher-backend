@@ -54,6 +54,6 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
   } catch (error) {
     console.error(error);
-    return res.status(401).json({ success: false, message: "Internal Server Error.", data: error })
+    return res.status(401).json({ success: false, message: "Invalid Token.", data: error })
   }
 }
