@@ -11,7 +11,7 @@ const attendeceCorrectionSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    dateOfCorrection:{
+    dateForCorrection:{
         type:Date,
         required:true
     },
@@ -19,6 +19,10 @@ const attendeceCorrectionSchema = new mongoose.Schema({
         type:String,
         enum : ["present","absent","half-day"],
         required : true
+    },
+    requestStatus : {
+        type : String ,
+        enum : ["Approved","Rejected","Hold"]
     }
 })
 

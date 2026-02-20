@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { checkInController } from "./checkInCheckOut/checkIn.controller.js"
-import { attendenceCorrectionController } from "./attendenceCorrection.controller.js"
+import { attendenceCorrectionReqController } from "./attendenceCorrection/attendenceCorrectionReq.controller.js"
 import { Request,Response } from "express"
 import { checkOutController } from "./checkInCheckOut/checkOut.controller.js"
 
@@ -13,6 +13,6 @@ attendenceRouter.get("/", async (req:Request, res:Response) => {
 
 attendenceRouter.post("/checkIn",checkInController)
 attendenceRouter.post("/checkOut",checkOutController)
-attendenceRouter.post("/attendenceCorrection",attendenceCorrectionController)
+attendenceRouter.post("/attendenceCorrection",attendenceCorrectionReqController)
 
 export default attendenceRouter

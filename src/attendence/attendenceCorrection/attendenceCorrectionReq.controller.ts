@@ -1,11 +1,11 @@
 
-import { User } from "../database/user.model.js";
-import { AttendenceCorrection } from "../database/attendenceCorrectrion.model.js";
+import { User } from "../../database/user.model.js";
+import { AttendenceCorrection } from "../../database/attendenceCorrectrion.model.js";
 
 import { Request,Response } from "express";
 
 
-export const attendenceCorrectionController = async(req:Request,res:Response)=>{
+export const attendenceCorrectionReqController = async(req:Request,res:Response)=>{
      const currentDate = new Date
     currentDate.setHours(0,0,0,0)
 
@@ -18,7 +18,7 @@ export const attendenceCorrectionController = async(req:Request,res:Response)=>{
 
     if (isNaN(finalDate.getTime())){
         return res.status(400).json({
-            message:"Ivalid date , you need to add a valid date ",success:false
+            message:"Invalid date , you need to add a valid date ",success:false
         })
     }
 
@@ -33,19 +33,17 @@ export const attendenceCorrectionController = async(req:Request,res:Response)=>{
     }
 
 
-    const newRecord = new AttendenceCorrection({
+    const newRequest = new AttendenceCorrection({
         requestedBy : existUser._id,
         reason : reason,
-        dateOfCorrection:finalDate,
+        dateForCorrection:finalDate,
         demandsToBe:demandsToBe
     })
     try{
-        await newRecord.save()
-        return res.status(202).json({message:"your correction request has been saved",success:true})
+        await newRequest.save()
+        return res.status(202).json({message:"your correction request has been submitted ",success:true})
     }catch(error){
         console.log(error);
         
     }
-
 }
-
