@@ -1,8 +1,14 @@
 import mongoose from "mongoose";
 
+
 const attendenceSchema = new mongoose.Schema ({
     user :{
         type : mongoose.Schema.Types.ObjectId ,
+        ref:"User",
+        required : true 
+    },
+    inTime :{
+        type : Date , 
         required : true 
     },
     outTime : {
