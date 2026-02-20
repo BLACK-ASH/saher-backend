@@ -10,8 +10,8 @@ import { User } from "../../database/user.model.js"
 export const checkInController = async(req:Request,res:Response)=>{
 
     //Step 1 - Ask for some data from the user through which you can validate 
-    const { email } = req.body
-    const user= await User.findOne({ email })
+   
+    const user= await User.findById(req.user.id)
     
     
     //Step 2 - check if the user exists 

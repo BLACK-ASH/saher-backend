@@ -35,7 +35,7 @@ app.use("/", express.static(path.join(process.cwd(), "docs")));
 
 
 //Mark attendence
-app.use("/attendence",attendenceRouter)
+app.use("/attendence",protectedRoute,attendenceRouter)
 
 
 app.get("/", (req, res) => {
