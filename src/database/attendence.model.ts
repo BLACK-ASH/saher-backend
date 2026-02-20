@@ -7,6 +7,10 @@ const attendenceSchema = new mongoose.Schema ({
         ref:"User",
         required : true 
     },
+    inTime :{
+        type : Date , 
+        required : true 
+    },
     outTime : {
         type : Date  
     },

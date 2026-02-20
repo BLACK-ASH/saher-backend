@@ -1,21 +1,21 @@
 import { Request,Response } from "express"
-import { Router } from "express"
-import { Attendence } from "../database/attendence.model.js"
-import { User } from "../database/user.model.js"
-import { success } from "zod"
+
+import { Attendence } from "../../database/attendence.model.js"
+import { User } from "../../database/user.model.js"
 
 
 
 
-export const markAttendenceController = async(req:Request,res:Response)=>{
+
+export const checkInController = async(req:Request,res:Response)=>{
 
     //Step 1 - Ask for some data from the user through which you can validate 
-    const { email } = req.body || "test@email.com"
-    const userID = await User.findOne({ email })
+    const { email } = req.body
+    const user= await User.findOne({ email })
     
     
     //Step 2 - check if the user exists 
-    if (!userID) {
+    if (!user) {
         return res.status(404).json({ message: "User not found", success: false })
     }
 
@@ -24,7 +24,7 @@ export const markAttendenceController = async(req:Request,res:Response)=>{
 
     //Step 3 - Check karo ki user ne pehle se aaj ki attendence toh nahi mark kari hai 
     const existingRecord = await Attendence.findOne({
-        user : userID._id,
+        user : user._id,
         createdAt : {$gte : today}
     })
 
@@ -54,11 +54,11 @@ export const markAttendenceController = async(req:Request,res:Response)=>{
         }
         console.log(status);
         
-        console.log(userID?._id);
+        console.log(user?._id);
 
         const newRecord = await Attendence.create({
-            user: userID._id,
-            outTime: new Date(),
+            user: user._id,
+            inTime : currentTime ,
             status: status,
             isLate : currentTime > expectedTime
         })

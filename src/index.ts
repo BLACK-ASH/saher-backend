@@ -6,7 +6,7 @@ import path from "node:path";
 import connectDb from "./database/connection.js";
 import authRouter from "./auth/auth.routes.js";
 import attendenceRouter from "./attendence/attendence.route.js"
-
+// import {verifyToken} from "./attendence/attendence.middleware.js"
 
 
 // Env Config
