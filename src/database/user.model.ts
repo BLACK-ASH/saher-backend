@@ -27,7 +27,8 @@ const userSchema = new mongoose.Schema({
     default: "user"
   },
   image: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"Media",
     require: true
   },
   isActive: {

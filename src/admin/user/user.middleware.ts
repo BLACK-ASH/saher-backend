@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import { userSchema } from "../account/account.middleware.js"
 import z from "zod"
-import { hashPassword } from "../../libs/password-hash.js"
+import { hashPassword } from "../../libs/utils/password-hash.js"
 
 
 const userUpdateSchema = userSchema.partial()

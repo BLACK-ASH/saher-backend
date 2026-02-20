@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import z from "zod";
-import { hashPassword } from "../../libs/password-hash.js";
+import { hashPassword } from "../../libs/utils/password-hash.js";
 
 export const userSchema = z.object({
   name: z.string().trim().min(2),
