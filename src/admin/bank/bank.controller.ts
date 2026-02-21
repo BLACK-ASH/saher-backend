@@ -25,7 +25,7 @@ export const getBankDetailController = async (req: Request, res: Response) => {
     const details = await BankDetail.findById(id)
 
     if (!details) {
-      return res.status(200).json({ success: false, message: "Bank Details Not Exist", data: null })
+      return res.status(404).json({ success: false, message: "Bank Details Not Exist", data: null })
     }
 
     return res.status(200).json({ success: true, message: "Bank Details Retrive Succesfully", data: details })
@@ -46,7 +46,7 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
     const updated = await BankDetail.findByIdAndUpdate(id, data)
 
     if (!updated) {
-      return res.status(200).json({ success: false, message: "Bank Details Not Exist", data: null })
+      return res.status(404).json({ success: false, message: "Bank Details Not Exist", data: null })
     }
 
     return res.status(200).json({ success: true, message: "Bank Details Updated Successffully", data: updated })
@@ -66,7 +66,7 @@ export const deleteBankDetailController = async (req: Request, res: Response) =>
     const deleted = await BankDetail.findByIdAndDelete(id)
 
     if (!deleted) {
-      return res.status(200).json({ success: false, message: "Bank Details Not Exist", data: null })
+      return res.status(404).json({ success: false, message: "Bank Details Not Exist", data: null })
     }
 
     return res.status(200).json({ success: true, message: "Bank Details Deleted Succesfully", data: deleted })
