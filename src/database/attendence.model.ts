@@ -21,7 +21,7 @@ const attendenceSchema = new mongoose.Schema ({
     },
     isLate : {
         type : Boolean ,
-        default : true 
+        default : true
     }
 },{timestamps : true})
 

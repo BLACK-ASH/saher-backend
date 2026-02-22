@@ -11,6 +11,14 @@ const attendeceCorrectionSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    inTime :{
+        type:Date ,
+        required : true 
+    },
+    outTime : {
+        type:Date ,
+        required : true
+    },
     dateForCorrection:{
         type:Date,
         required:true

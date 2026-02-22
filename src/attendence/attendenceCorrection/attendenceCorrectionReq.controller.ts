@@ -9,8 +9,12 @@ export const attendenceCorrectionReqController = async(req:Request,res:Response)
      const currentDate = new Date
     currentDate.setHours(0,0,0,0)
 
+    const user = await User.findById(req.user?.id)
+    if(!user){
+        return res.status(400).json({message:"User not found"})
+    }
     //destrucctring
-    const {email,reason,date,demandsToBe} = req.body
+    const {reason,date,demandsToBe , inTime , outTime} = req.body
 
     //date normalization
     const finalDate = new Date(date)
@@ -22,20 +26,21 @@ export const attendenceCorrectionReqController = async(req:Request,res:Response)
         })
     }
 
-    const existUser = await User.findOne({email})
-
-    if(!existUser){
-        return res.status(404).json({message:"User not found",success:false})
-    }
 
     if(finalDate>currentDate){
         return res.status(406).json({message:"The date of future is not acceptable"})
     }
 
+    const existingRequest = await AttendenceCorrection.findOne({requestedBy:user._id , dateForCorrection:finalDate})
+    if(existingRequest){
+        return res.status(400).json({message:"you have already submitted a request for this date"})
+    }
 
     const newRequest = new AttendenceCorrection({
-        requestedBy : existUser._id,
+        requestedBy : user._id,
         reason : reason,
+        inTime : inTime,
+        outTime: outTime,
         dateForCorrection:finalDate,
         demandsToBe:demandsToBe
     })
