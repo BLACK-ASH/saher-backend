@@ -26,7 +26,7 @@ export const checkInController = async(req:Request,res:Response)=>{
 
     //Step 4 - Agr haa toh oosko dubara attendence mark karne mat do 
     if (existingRecord){
-        return res.status(400).json({message : "You have already marked you attendence"})
+        return res.status(400).json({message : "You have already marked your attendence"})
     }
 
 
@@ -58,11 +58,11 @@ export const checkInController = async(req:Request,res:Response)=>{
             status: status,
             isLate : currentTime > expectedTime
         })
-        return res.status(201).json({ message: "You have been marked present", success: true })
+        return res.status(200).json({ message: "You have been marked present", success: true })
 
     } catch (error) {
         console.log(error);
-        return res.status(404).json({ message: "There was some error", success: false })
+        return res.status(500).json({ message: "Internal server error", success: false })
 
     }
 }

@@ -34,8 +34,8 @@ attendenceRouter.get("/", async (req:Request, res:Response) => {
 
 })
 
-attendenceRouter.post("/checkIn",checkInController)
-attendenceRouter.post("/checkOut",checkOutController)
+attendenceRouter.post("/check-in",checkInController)
+attendenceRouter.post("/check-out",checkOutController)
 attendenceRouter.post("/attendenceCorrection",attendenceCorrectionReqController)
 
 export default attendenceRouter

@@ -14,7 +14,7 @@ export const attendenceCorrectionReqController = async(req:Request,res:Response)
         return res.status(400).json({message:"User not found"})
     }
     //destrucctring
-    const {reason,date,demandsToBe , inTime , outTime} = req.body
+    const {reason,date,demandsToBe,inTime,outTime} = req.body
 
     //date normalization
     const finalDate = new Date(date)
