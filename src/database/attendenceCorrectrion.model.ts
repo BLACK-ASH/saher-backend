@@ -28,6 +28,10 @@ const attendeceCorrectionSchema = new mongoose.Schema({
         enum : ["present","absent","half-day"],
         required : true
     },
+    isLate:{
+        type:Boolean,
+        default:true
+    },
     requestStatus : {
         type : String ,
         enum : ["Approved","Rejected","Hold"]

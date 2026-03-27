@@ -6,15 +6,15 @@ import { Request,Response } from "express";
 
 
 export const attendenceCorrectionReqController = async(req:Request,res:Response)=>{
-     const currentDate = new Date
+    const currentDate = new Date
     currentDate.setHours(0,0,0,0)
 
-    const user = await User.findById(req.user?.id)
+    const user = await req.user
     if(!user){
         return res.status(400).json({message:"User not found"})
     }
     //destrucctring
-    const {reason,date,demandsToBe,inTime,outTime} = req.body
+    const {reason,date,demandsToBe,inTime,outTime,isLate} = req.body
 
     //date normalization
     const finalDate = new Date(date)
@@ -31,17 +31,18 @@ export const attendenceCorrectionReqController = async(req:Request,res:Response)
         return res.status(406).json({message:"The date of future is not acceptable"})
     }
 
-    const existingRequest = await AttendenceCorrection.findOne({requestedBy:user._id , dateForCorrection:finalDate})
+    const existingRequest = await AttendenceCorrection.findOne({requestedBy:user.id , dateForCorrection:finalDate})
     if(existingRequest){
         return res.status(400).json({message:"you have already submitted a request for this date"})
     }
 
     const newRequest = new AttendenceCorrection({
-        requestedBy : user._id,
+        requestedBy : user.id,
         reason : reason,
         inTime : inTime,
         outTime: outTime,
         dateForCorrection:finalDate,
+        isLate:isLate,
         demandsToBe:demandsToBe
     })
     try{

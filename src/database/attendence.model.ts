@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 
 const attendenceSchema = new mongoose.Schema ({
-    user :{
+    userID :{
         type : mongoose.Schema.Types.ObjectId ,
         ref:"User",
         required : true 
@@ -13,6 +13,9 @@ const attendenceSchema = new mongoose.Schema ({
     },
     outTime : {
         type : Date  
+    },
+    Date: {
+        type: Date
     },
     status :{
         type : String ,

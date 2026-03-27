@@ -4,7 +4,7 @@ import { Attendence } from "../../database/attendence.model.js"
 
 export const checkOutController = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.user?.id)
+    const user = await req.user
 
     if (!user) {
       return res.status(404).json({
@@ -20,7 +20,7 @@ export const checkOutController = async (req: Request, res: Response) => {
     const currentTime = new Date()
 
     const userAttendence = await Attendence.findOne({
-      user: user._id,
+      userID: user.id,
       inTime: { $gte: today }
     })
 
@@ -38,7 +38,7 @@ export const checkOutController = async (req: Request, res: Response) => {
       })
     }
 
-    // ✔ set checkout time
+    //  set checkout time
     userAttendence.outTime = currentTime
     await userAttendence.save()
 

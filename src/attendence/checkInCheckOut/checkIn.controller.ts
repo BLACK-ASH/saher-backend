@@ -5,12 +5,10 @@ import { User } from "../../database/user.model.js"
 
 export const checkInController = async(req:Request,res:Response)=>{
 
-    //Step 1 - Ask for some data from the user through which you can validate 
+    //Step 1 - Check if the user has token or not   
    
-    const user= await User.findById(req.user?.id)
+    const user= await req.user
     
-    
-    //Step 2 - check if the user exists 
     if (!user) {
         return res.status(404).json({ message: "User not found", success: false })
     }
@@ -18,13 +16,13 @@ export const checkInController = async(req:Request,res:Response)=>{
     const today = new Date()
     today.setHours(0,0,0,0)
 
-    //Step 3 - Check karo ki user ne pehle se aaj ki attendence toh nahi mark kari hai 
+    //Step 2 - Check karo ki user ne pehle se aaj ki attendence toh nahi mark kari hai 
     const existingRecord = await Attendence.findOne({
-        user : user._id,
+        userID : user?.id,
         createdAt : {$gte : today}
     })
 
-    //Step 4 - Agr haa toh oosko dubara attendence mark karne mat do 
+    //Step 3 - Agr haa toh oosko dubara attendence mark karne mat do 
     if (existingRecord){
         return res.status(400).json({message : "You have already marked your attendence"})
     }
@@ -50,12 +48,13 @@ export const checkInController = async(req:Request,res:Response)=>{
         }
         console.log(status);
         
-        console.log(user?._id);
+        console.log(user?.id);
 
         const newRecord = await Attendence.create({
-            user: user._id,
+            userID: user.id,
             inTime : currentTime ,
             status: status,
+            Date : today,
             isLate : currentTime > expectedTime
         })
         return res.status(200).json({ message: "You have been marked present", success: true })
