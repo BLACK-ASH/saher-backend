@@ -1,7 +1,7 @@
 import { Request,Response } from "express"
 
 import { Attendence } from "../../database/attendence.model.js"
-import { User } from "../../database/user.model.js"
+
 
 export const checkInController = async(req:Request,res:Response)=>{
 
