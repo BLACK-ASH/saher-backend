@@ -26,8 +26,8 @@ attendenceRouter.get("/", async (req:Request, res:Response) => {
     const today = new Date
     today.setHours(0,0,0,0)
 
-    const hasCheckedIn = await Attendence.findOne({user:user._id , inTime:{$gte:today}})
-    const hasCheckedOut = await Attendence.findOne({user:user._id , outTime:{$gte:today}})
+    const hasCheckedIn = await Attendence.findOne({user:user.id , inTime:{$gte:today}})
+    const hasCheckedOut = await Attendence.findOne({user:user.id , outTime:{$gte:today}})
 
     if(hasCheckedOut && hasCheckedIn){
         return res.status(200).json({message:"the User has checked-in and has checked-out as well"})
