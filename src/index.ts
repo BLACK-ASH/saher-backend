@@ -28,6 +28,9 @@ app.use(
     credentials: true,
   })
 );
+
+// Image Upload Routes
+app.use("/api/upload", uploadRouter)
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.static(path.join(process.cwd(), "public")))
@@ -36,8 +39,7 @@ app.use(express.static(path.join(process.cwd(), "public")))
 await connectDb()
 
 // Routes
-app.use("/api/upload", uploadRouter)
-app.use("/api/admin",protectedRoute, adminRouter)
+app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/auth", authRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));
 

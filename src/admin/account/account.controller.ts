@@ -9,11 +9,20 @@ export const accountRegisterController = async (req: Request, res: Response) => 
   const session = await mongoose.startSession();
 
   try {
-    const existingUser = await User.findOne({ email: registerInput.user.email });
-    if (existingUser) {
+    const existingEmail = await User.findOne({ email: registerInput.user.email });
+    if (existingEmail) {
       return res.status(409).json({
         success: false,
         message: "User with email already exists.",
+        data: null
+      });
+    }
+
+    const existingEmpId = await Account.findOne({ employeeId: registerInput.account.employeeId });
+    if (existingEmpId) {
+      return res.status(409).json({
+        success: false,
+        message: "User with Employee ID already exists.",
         data: null
       });
     }
@@ -39,6 +48,7 @@ export const accountRegisterController = async (req: Request, res: Response) => 
     return res.status(201).json({
       success: true,
       message: "Employee registered successfully.",
+    //@ts-expect-error
       data: createdUser?._id
     });
 
