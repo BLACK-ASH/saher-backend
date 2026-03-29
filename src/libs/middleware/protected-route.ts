@@ -54,6 +54,8 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
   } catch (error) {
     console.error(error);
+    res.clearCookie("saher_access_token")
+    res.clearCookie("saher_refresh_token")
     return res.status(401).json({ success: false, message: "Invalid Token.", data: error })
   }
 }

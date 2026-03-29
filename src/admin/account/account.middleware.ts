@@ -34,8 +34,8 @@ const accountRegisterSchema = z.object({
   account: accountSchema
 })
   .transform(async (data) => {
-    data.user.displayName = data.user.displayName ?? data.user.name
-    const password = data.user.name.slice(0, 4) ?? data.account.dateOfBirth.getFullYear()
+    data.user.displayName = data.user.displayName || data.user.name
+    const password = data.user.name.slice(0, 4).toUpperCase() + new Date(data.account.dateOfBirth).getFullYear()
     data.user.password = await hashPassword(password)
     data.account.secondaryPhoneNumber = data.account.secondaryPhoneNumber ?? data.account.secondaryPhoneNumber
 
@@ -51,18 +51,18 @@ export const validateAccountRegister = async (req: Request, res: Response, next:
   const parsedRegisterInput = await accountRegisterSchema.safeParseAsync(req.body)
 
   if (!parsedRegisterInput.success) {
-    return res.status(400).json({ success: false, message: "Invalid Input", data: parsedRegisterInput.error.issues[0] })
+    return res.status(400).json({ success: false, message: "Invalid Input - " + parsedRegisterInput.error.issues[0].message, data: parsedRegisterInput.error.issues[0] })
   }
 
   req.body = parsedRegisterInput.data
   next()
 }
 
-export const validateAccountUpdate =async (req: Request, res: Response, next: NextFunction) => {
-  const parsedUpdateInput =await accountUpdateSchema.safeParseAsync(req.body)
+export const validateAccountUpdate = async (req: Request, res: Response, next: NextFunction) => {
+  const parsedUpdateInput = await accountUpdateSchema.safeParseAsync(req.body)
 
   if (!parsedUpdateInput.success) {
-    return res.status(400).json({ success: false, message: "Invalid Input", data: parsedUpdateInput.error.issues[0] })
+    return res.status(400).json({ success: false, message: "Invalid Input" + parsedUpdateInput.error.issues[0].message, data: parsedUpdateInput.error.issues[0] })
   }
 
   req.body = parsedUpdateInput.data
