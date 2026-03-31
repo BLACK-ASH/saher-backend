@@ -1,20 +1,20 @@
-import express from "express"
-import dotenv from "dotenv"
-import cookieParser from "cookie-parser"
-import uploadRouter from "./upload/upload.routes.js";
-import path from "path";
-import connectDb from "./database/connection.js";
-import authRouter from "./auth/auth.routes.js";
-import adminRouter from "./admin/admin.routes.js";
-import { protectedRoute } from "./libs/middleware/protected-route.js";
-import cors from "cors"
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 import mongoose from "mongoose";
+import path from "path";
+import adminRouter from "./admin/admin.routes.js";
+import authRouter from "./auth/auth.routes.js";
+import connectDb from "./database/connection.js";
+import { protectedRoute } from "./libs/middleware/protected-route.js";
+import uploadRouter from "./upload/upload.routes.js";
 
 // Env Config
 dotenv.config()
 
 const app = express();
-const port = process.env.PORT || 4000;
+const PORT = Number(process.env.PORT) || 4000;
 
 // Route Login 
 app.use((req, res, next) => {
@@ -46,7 +46,7 @@ app.use("/", express.static(path.join(process.cwd(), "docs")));
 
 // To Check Services Is Healthy
 app.get("/health", async (req, res) => {
-  const dbStatus = await mongoose.connection.readyState;
+  const dbStatus = mongoose.connection.readyState;
 
   if (dbStatus !== 1) {
     return res.status(500).json({ status: "db not connected" });
@@ -55,6 +55,6 @@ app.get("/health", async (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.listen(port, () => {
-  console.log("Server Started", port)
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Server Started", PORT)
 })
