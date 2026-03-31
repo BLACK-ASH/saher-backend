@@ -8,6 +8,8 @@ import adminRouter from "./admin/admin.routes.js";
 import authRouter from "./auth/auth.routes.js";
 import connectDb from "./database/connection.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
+import attendenceRouter from "./attendence/attendence.route.js"
+
 import uploadRouter from "./upload/upload.routes.js";
 
 // Env Config
@@ -41,9 +43,26 @@ await connectDb()
 
 // Routes
 app.use("/api/admin", protectedRoute, adminRouter)
+app.use("/api/upload", uploadRouter)
+
+app.use("/api/admin",protectedRoute, adminRouter)
 app.use("/api/auth", authRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));
 
+
+
+//Mark attendence
+app.use("/attendence",protectedRoute,attendenceRouter)
+
+
+app.get("/", (req, res) => {
+  res.status(200).json("This Is Saher Internal Home Page")
+})
+
+
+
+app.listen(PORT, () => {
+  console.log("Server Started", PORT)
 // To Check Services Is Healthy
 app.get("/health", async (req, res) => {
   const dbStatus = mongoose.connection.readyState;
@@ -53,8 +72,5 @@ app.get("/health", async (req, res) => {
   }
 
   res.status(200).json({ status: "ok" });
-});
+})});
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Server Started", PORT)
-})

@@ -32,6 +32,9 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.0.2
+      pnpm:
+        specifier: ^10.29.2
+        version: 10.30.0
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -2913,6 +2916,8 @@ snapshots:
       minipass: 7.1.2
 
   path-to-regexp@8.3.0: {}
+
+  pnpm@10.30.0: {}
 
   perfect-scrollbar@1.5.6: {}
 
