@@ -10,7 +10,7 @@ const baseUrl = process.env.BASE_URL ?? "http://localhost:4000"
 export const processAndSaveImage = async (file: Express.Multer.File) => {
   const fileName = `${crypto.randomUUID()}.webp`
   const filePath = path.join(uploadPath, fileName)
-  const imageUrl = `${baseUrl}/uploads/images/${fileName}`
+  const imageUrl = `/uploads/images/${fileName}`
 
   try {
     // Ensure Directory Exists

@@ -8,6 +8,7 @@ import authRouter from "./auth/auth.routes.js";
 import adminRouter from "./admin/admin.routes.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
 import cors from "cors"
+import mongoose from "mongoose";
 
 // Env Config
 dotenv.config()
@@ -42,6 +43,17 @@ await connectDb()
 app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/auth", authRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));
+
+// To Check Services Is Healthy
+app.get("/health", async (req, res) => {
+  const dbStatus = await mongoose.connection.readyState;
+
+  if (dbStatus !== 1) {
+    return res.status(500).json({ status: "db not connected" });
+  }
+
+  res.status(200).json({ status: "ok" });
+});
 
 app.listen(port, () => {
   console.log("Server Started", port)
