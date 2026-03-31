@@ -9,7 +9,6 @@ import authRouter from "./auth/auth.routes.js";
 import connectDb from "./database/connection.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
 import attendenceRouter from "./attendence/attendence.route.js"
-// import {verifyToken} from "./attendence/attendence.middleware.js"
 
 import uploadRouter from "./upload/upload.routes.js";
 

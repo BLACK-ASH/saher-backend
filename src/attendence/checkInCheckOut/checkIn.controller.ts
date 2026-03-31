@@ -18,7 +18,7 @@ export const checkInController = async(req:Request,res:Response)=>{
 
     //Step 2 - Check karo ki user ne pehle se aaj ki attendence toh nahi mark kari hai 
     const existingRecord = await Attendence.findOne({
-        userID : user?.id,
+        user : user?.id,
         createdAt : {$gte : today}
     })
 
@@ -51,7 +51,7 @@ export const checkInController = async(req:Request,res:Response)=>{
         console.log(user?.id);
 
         const newRecord = await Attendence.create({
-            userID: user.id,
+            user: user.id,
             inTime : currentTime ,
             status: status,
             Date : today,

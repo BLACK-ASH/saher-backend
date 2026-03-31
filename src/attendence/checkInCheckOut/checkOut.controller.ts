@@ -20,7 +20,7 @@ export const checkOutController = async (req: Request, res: Response) => {
     const currentTime = new Date()
 
     const userAttendence = await Attendence.findOne({
-      userID: user.id,
+      user: user.id,
       inTime: { $gte: today }
     })
 
