@@ -5,6 +5,7 @@ import { validateAccountRegister, validateAccountUpdate } from "./account/accoun
 import { accountGetController, accountRegisterController, accountUpdateController } from "./account/account.controller.js";
 import { userDeleteController, userGetController, userUpdateController } from "./user/user.controller.js";
 import { validateUserUpdate } from "./user/user.middleware.js";
+import { authorize } from "../permission/authorize.js";
 
 const adminRouter = Router()
 
@@ -13,19 +14,19 @@ adminRouter.get("/", (req: Request, res: Response) => {
 })
 
 // Bank Routes
-adminRouter.post("/bank/register", validateBankRegisterSchema, createBankDetailController)
+adminRouter.post("/bank/register", authorize("write", "bank"), validateBankRegisterSchema, createBankDetailController)
   .get("/bank/get/:id", getBankDetailController)
-  .put("/bank/update/:id", validateBankUpdateSchema, updateBankDetailController)
-  .delete("/bank/delete/:id", deleteBankDetailController)
+  .put("/bank/update/:id", authorize("update", "bank"), validateBankUpdateSchema, updateBankDetailController)
+  .delete("/bank/delete/:id", authorize("delete", "bank"), deleteBankDetailController)
 
 // Account Routes
-adminRouter.post("/account/register", validateAccountRegister, accountRegisterController)
-  .put("/account/update/:id", validateAccountUpdate, accountUpdateController)
+adminRouter.post("/account/register", authorize("write", "account"), validateAccountRegister, accountRegisterController)
+  .put("/account/update/:id", authorize("update", "account"), validateAccountUpdate, accountUpdateController)
   .get("/account/get/:id", accountGetController)
 
 // User Routes
 adminRouter.get("/user/get/:id", userGetController)
-  .put("/user/update/:id", validateUserUpdate, userUpdateController)
-  .delete("/user/delete/:id", userDeleteController)
+  .put("/user/update/:id", authorize("update", "user"), validateUserUpdate, userUpdateController)
+  .delete("/user/delete/:id", authorize("delete", "user"), userDeleteController)
 
 export default adminRouter
