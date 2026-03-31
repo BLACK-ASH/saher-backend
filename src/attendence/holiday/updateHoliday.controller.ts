@@ -9,6 +9,10 @@ export const updateHolidayController = async(req:Request, res:Response)=>{
     if(!user){
         return res.status(400).json({message:"User not Found", success: false})
     }
+    const role = req.user?.role 
+    if(role?.toLowerCase()!=="admin"){
+        return res.status(400).json({message:"You are not the admin", success:false})
+    }
     try{
         const record = await Holiday.findOne({id : ID }) 
 

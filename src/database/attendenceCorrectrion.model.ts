@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { date } from "zod";
 
-const attendeceCorrectionSchema = new mongoose.Schema({
+const attendenceCorrectionSchema = new mongoose.Schema({
     requestedBy:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
@@ -38,4 +38,4 @@ const attendeceCorrectionSchema = new mongoose.Schema({
     }
 })
 
-export const AttendenceCorrection = mongoose.model("AttendenceCorrection",attendeceCorrectionSchema)
+export const AttendenceCorrection = mongoose.model("AttendenceCorrection",attendenceCorrectionSchema)

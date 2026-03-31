@@ -14,6 +14,7 @@ import { updateHolidayController } from "./holiday/updateHoliday.controller.js"
 import { getAllHolidayController } from "./holiday/getAllHoliday.controller.js"
 import { getHolidayController } from "./holiday/getHoliday.controller.js"
 import { deleteHolidayController } from "./holiday/deleteHoliday.controller.js"
+import { validateAttendenceCorrection } from "./attendenceCorrection/attendenceCorrection.middleware.js"
 
 
 const attendenceRouter = Router()
@@ -47,7 +48,7 @@ attendenceRouter.get("/", async (req:Request, res:Response) => {
 
 attendenceRouter.post("/check-in",checkInController)
 attendenceRouter.post("/check-out",checkOutController)
-attendenceRouter.post("/attendenceCorrectionReq",attendenceCorrectionReqController)
+attendenceRouter.post("/attendenceCorrectionReq",validateAttendenceCorrection,attendenceCorrectionReqController)
 attendenceRouter.post("/attendenceCorrectionRes" , attendenceCorrectionResController) 
 attendenceRouter.get("/attendceCorrectionReq",showRequestedCorrection)
 attendenceRouter.post("/holiday/create",addholidayController)
