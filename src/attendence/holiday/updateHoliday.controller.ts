@@ -6,9 +6,7 @@ export const updateHolidayController = async(req:Request, res:Response)=>{
     const ID = req.params 
 
     const user = req.user 
-    if(!user){
-        return res.status(400).json({message:"User not Found", success: false})
-    }
+  
     const role = req.user?.role 
     if(role?.toLowerCase()!=="admin"){
         return res.status(400).json({message:"You are not the admin", success:false})

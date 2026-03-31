@@ -6,12 +6,7 @@ export const checkOutController = async (req: Request, res: Response) => {
   try {
     const user = await req.user
 
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false
-      })
-    }
+    
 
 
     const today = new Date()
@@ -20,7 +15,7 @@ export const checkOutController = async (req: Request, res: Response) => {
     const currentTime = new Date()
 
     const userAttendence = await Attendence.findOne({
-      user: user.id,
+      user: user?.id,
       inTime: { $gte: today }
     })
 

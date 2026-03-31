@@ -9,10 +9,7 @@ export const checkInController = async(req:Request,res:Response)=>{
    
     const user= await req.user
     
-    if (!user) {
-        return res.status(404).json({ message: "User not found", success: false })
-    }
-
+    
     const today = new Date()
     today.setHours(0,0,0,0)
 
@@ -51,7 +48,7 @@ export const checkInController = async(req:Request,res:Response)=>{
         console.log(user?.id);
 
         const newRecord = await Attendence.create({
-            user: user.id,
+            user: user?.id,
             inTime : currentTime ,
             status: status,
             Date : today,

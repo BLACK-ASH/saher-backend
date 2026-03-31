@@ -24,15 +24,13 @@ attendenceRouter.get("/", async (req:Request, res:Response) => {
 
     const user = req.user
 
-    if(!user){
-        return res.status(400).json({message:"User not found"})
-    }
+    
 
     const today = new Date
     today.setHours(0,0,0,0)
 
-    const hasCheckedIn = await Attendence.findOne({user:user.id , inTime:{$gte:today}})
-    const hasCheckedOut = await Attendence.findOne({user:user.id , outTime:{$gte:today}})
+    const hasCheckedIn = await Attendence.findOne({user:user?.id , inTime:{$gte:today}})
+    const hasCheckedOut = await Attendence.findOne({user:user?.id , outTime:{$gte:today}})
 
     if(hasCheckedOut && hasCheckedIn){
         return res.status(200).json({message:"the User has checked-in and has checked-out as well"})
