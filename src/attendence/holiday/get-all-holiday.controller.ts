@@ -5,9 +5,7 @@ export const getAllHolidayController = async(req:Request , res:Response)=>{
 
     const user = req.user 
 
-    if(!user){
-        return res.status(400).json({message:"The user is not found " , success : true })
-    }
+    
 
     try {
         const allHoliday = await Holiday.find()
