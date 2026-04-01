@@ -3,9 +3,7 @@ import { Holiday } from "../../database/holiday.model.js";
 
 export const getHolidayController = async(req:Request , res:Response)=>{
     const user = req.user 
-    if(!user){
-        return res.status(400).json({message:"User not found" , success:true})
-    }
+   
     const ID = req.params
 
     try {
