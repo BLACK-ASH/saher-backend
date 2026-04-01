@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Attendence } from "../../database/attendence.model.js"
+import { Attendance } from "../../database/attendance.model.js"
 import { ApiError } from "../../libs/class/api-error.js"
 
 export const checkInController = async (req: Request, res: Response) => {
@@ -8,7 +8,7 @@ export const checkInController = async (req: Request, res: Response) => {
   const now = new Date()
 
   //Step 2 - Check karo ki user ne pehle se aaj ki attendence toh nahi mark kari hai 
-  const existingRecord = await Attendence.findOne({
+  const existingRecord = await Attendance.findOne({
     user: user?.id,
     date: now.toLocaleDateString()
   })
@@ -25,7 +25,7 @@ export const checkInController = async (req: Request, res: Response) => {
   const halfDaytiming = new Date()
   halfDaytiming.setHours(11, 0, 0, 0)
 
-  const newRecord = await Attendence.create({
+  const newRecord = await Attendance.create({
     user: user?.id,
     inTime: now,
     status: now > halfDaytiming ? "half-day" : "present",

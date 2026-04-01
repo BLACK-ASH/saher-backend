@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-
-const attendenceSchema = new mongoose.Schema({
+const attendanceSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -30,5 +29,5 @@ const attendenceSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-export type AttendenceType = mongoose.InferSchemaType<typeof attendenceSchema>
-export const Attendence = mongoose.model("Attendence", attendenceSchema)
+export type AttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>
+export const Attendance = mongoose.model("Attendence", attendanceSchema)

@@ -1,6 +1,4 @@
-
-import { User } from "../../database/user.model.js";
-import { AttendenceCorrection } from "../../database/attendenceCorrectrion.model.js";
+import { AttendanceCorrection } from "../../database/attendance-correction.model.js";
 
 import { Request,Response } from "express";
 
@@ -31,12 +29,12 @@ export const attendenceCorrectionReqController = async(req:Request,res:Response)
         return res.status(406).json({message:"The date of future is not acceptable"})
     }
 
-    const existingRequest = await AttendenceCorrection.findOne({requestedBy:user.id , dateForCorrection:finalDate})
+    const existingRequest = await AttendanceCorrection.findOne({requestedBy:user.id , dateForCorrection:finalDate})
     if(existingRequest){
         return res.status(400).json({message:"you have already submitted a request for this date"})
     }
 
-    const newRequest = new AttendenceCorrection({
+    const newRequest = new AttendanceCorrection({
         requestedBy : user.id,
         reason : reason,
         inTime : inTime,
