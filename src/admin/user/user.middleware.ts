@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { userSchema } from "../account/account.middleware.js"
 import z from "zod"
 import { hashPassword } from "../../libs/utils/password-hash.js"
+import { ApiError } from "../../libs/class/api-error.js"
 
 
 const userUpdateSchema = userSchema.partial()
@@ -13,9 +14,8 @@ export const validateUserUpdate = async (req: Request, res: Response, next: Next
   }
   const parsedUpdateInput = await userUpdateSchema.safeParseAsync(req.body)
 
-  if (!parsedUpdateInput.success) {
-    return res.status(400).json({ success: false, message: "Invalid Input", data: parsedUpdateInput.error.issues[0] })
-  }
+  const message = "Invalid Input - " + parsedUpdateInput.error?.issues[0].message
+  if (!parsedUpdateInput.success) throw new ApiError(400, message, parsedUpdateInput.error?.issues[0].message)
 
   req.body = parsedUpdateInput.data
   next()

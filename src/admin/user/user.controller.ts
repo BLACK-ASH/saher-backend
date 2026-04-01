@@ -1,96 +1,47 @@
 import { Request, Response } from "express";
 import { User } from "../../database/user.model.js";
+import { ApiError } from "../../libs/class/api-error.js";
 
 export const userGetController = async (req: Request, res: Response) => {
   const id = req.params.id
 
-  try {
-    const user = await User.findById(id)
+  const user = await User.findById(id)
+  if (!user) throw new ApiError(404, "User Not Found.")
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-        data: null
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "User get successfully.",
-      data: user
-    });
-  }
-  catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: "Get failed.",
-      data: error
-    });
-  }
+  return res.status(200).json({
+    success: true,
+    message: "User get successfully.",
+    data: user
+  });
 }
 
 export const userUpdateController = async (req: Request, res: Response) => {
   const id = req.params.id
   const updateInput = req.body
 
-  try {
-    const update = await User.findByIdAndUpdate(id,updateInput)
+  const update = await User.findByIdAndUpdate(id, updateInput)
+  if (!update) throw new ApiError(404, "User Not Found.")
 
-    if (!update) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-        data: null
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "User update successfully.",
-      data: null
-    });
-  }
-  catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: "Update failed.",
-      data: error
-    });
-  }
+  return res.status(200).json({
+    success: true,
+    message: "User Update Successfully.",
+    data: null
+  });
 }
+
 export const userDeleteController = async (req: Request, res: Response) => {
   const id = req.params.id
   const deleteData = {
-    isActive:false,
-    deletedAt : new Date()
+    isActive: false,
+    deletedAt: new Date()
   }
 
-  try {
-    const deleted = await User.findByIdAndUpdate(id,deleteData)
+  const deleted = await User.findByIdAndUpdate(id, deleteData)
+  if (!deleted) throw new ApiError(404, "User Not Found.")
 
-    if (!deleted) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-        data: null
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "User deleted successfully.",
-      data: null
-    });
-  }
-  catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: "delete failed.",
-      data: error
-    });
-  }
+  return res.status(200).json({
+    success: true,
+    message: "User Deleted Successfully.",
+    data: null
+  });
 }

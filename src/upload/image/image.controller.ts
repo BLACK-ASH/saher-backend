@@ -1,54 +1,34 @@
 import { Request, Response } from "express";
 import { processAndSaveImage } from "./image.service.js";
 import { Media } from "../../database/media.upload.js";
+import { ApiError } from "../../libs/class/api-error.js";
 
 export const uploadImageController = async (req: Request, res: Response) => {
   const file = req.file
   const name = req.body?.name
 
-  if (req.fileValidationError) {
-    return res.status(400).json({success:false,message:"File Validation Failed.",data: req.fileValidationError })
-  }
+  if (req.fileValidationError) throw new ApiError(400, "File Validation Failed.", req.fileValidationError)
+  if (!file) throw new ApiError(400, "No File Provided.")
+  if (!name) throw new ApiError(400, "No Alt Name Provided.")
 
-  if (!file) {
-    return res.status(400).json({ success:false,message: "No File Is Provided.",data:"" })
-  }
+  const image = await processAndSaveImage(file)
 
-  if (!name) {
-    return res.status(400).json({ success:false,message: "No Name Is Provided." ,data:""})
-  }
+  const dbImage = await Media.create({ src: image?.imageUrl, alt: name })
+  if (!dbImage) throw new ApiError(400, "Image Not Saved.")
 
-  try {
-    const image = await processAndSaveImage(file)
-
-    const dbImage = await Media.create({ src: image?.imageUrl, alt: name })
-
-    if (!dbImage) {
-      return res.status(400).json({ success:false,message: "Image Not Saved.",data:"" })
+  const response = {
+    success: true,
+    message: "Image Upload Successfully",
+    file: {
+      id: dbImage._id,
+      fileName: image.fileName,
+      url: image.imageUrl,
+      size: image.size,
+      width: image.width,
+      height: image.height,
+      mimetype: image.mimetype,
     }
-
-    const response = {
-      success:true,
-      message: "Image Upload Successfully",
-      file: {
-        id: dbImage._id,
-        fileName: image.fileName,
-        url: image.imageUrl,
-        size: image.size,
-        width: image.width,
-        height: image.height,
-        mimetype: image.mimetype,
-      }
-    }
-
-    return res.status(201).json(response)
   }
-  catch (error: unknown) {
-    if (error instanceof Error) {
-      return res.status(400).json({ success:false,message: "Image Upload Failed",data: error.message })
-    }
-    console.error("Image Upload Failed", error)
-    return res.status(400).json({ success:false,message: "Image Upload Failed",data:error })
 
-  }
+  return res.status(201).json(response)
 }
