@@ -1,5 +1,6 @@
 import { Response, Request, NextFunction } from "express"
 import z from "zod"
+import { ApiError } from "../../libs/class/api-error.js"
 
 // Schemas
 // Register Schema
@@ -12,13 +13,7 @@ const bankRegisterSchema = z.object({
 })
 
 // Update Schema
-const bankUpdateSchema = z.object({
-  accountHolderName: z.string().optional(),
-  bankName: z.string().optional(),
-  ifcs: z.string().optional(),
-  branch: z.string().optional(),
-  mobileNumber: z.string().optional(),
-})
+const bankUpdateSchema = bankRegisterSchema.partial()
 
 // Types
 export type bankRegisterType = z.infer<typeof bankRegisterSchema>
@@ -28,9 +23,8 @@ export type bankUpdateType = z.infer<typeof bankUpdateSchema>
 export const validateBankRegisterSchema = async (req: Request, res: Response, next: NextFunction) => {
   const parsedBankRegisterInput = bankRegisterSchema.safeParse(req.body)
 
-  if (!parsedBankRegisterInput.success) {
-    return res.status(400).json({ success: false, message: parsedBankRegisterInput.error.issues[0] })
-  }
+  const message = "Invalid Input - " + parsedBankRegisterInput.error?.issues[0].message
+  if (!parsedBankRegisterInput.success) throw new ApiError(400, message, parsedBankRegisterInput.error?.issues[0].message)
 
   req.body = parsedBankRegisterInput.data
   next()
@@ -40,9 +34,8 @@ export const validateBankRegisterSchema = async (req: Request, res: Response, ne
 export const validateBankUpdateSchema = async (req: Request, res: Response, next: NextFunction) => {
   const parsedBankUpdateInput = bankUpdateSchema.safeParse(req.body)
 
-  if (!parsedBankUpdateInput.success) {
-    return res.status(400).json({ success: false, message: parsedBankUpdateInput.error.issues[0] })
-  }
+  const message = "Invalid Input - " + parsedBankUpdateInput.error?.issues[0].message
+  if (!parsedBankUpdateInput.success) throw new ApiError(400, message, parsedBankUpdateInput.error?.issues[0].message)
 
   req.body = parsedBankUpdateInput.data
   next()
