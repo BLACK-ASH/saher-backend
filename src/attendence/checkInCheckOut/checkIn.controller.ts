@@ -9,7 +9,6 @@ export const checkInController = async(req:Request,res:Response)=>{
    
     const user= await req.user
     
-    
     const today = new Date()
     today.setHours(0,0,0,0)
 

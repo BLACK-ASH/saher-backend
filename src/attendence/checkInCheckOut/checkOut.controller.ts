@@ -6,9 +6,6 @@ export const checkOutController = async (req: Request, res: Response) => {
   try {
     const user = await req.user
 
-    
-
-
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
