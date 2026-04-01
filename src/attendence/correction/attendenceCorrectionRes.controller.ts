@@ -1,22 +1,20 @@
 import { Request, Response } from "express"
-import { AttendenceCorrection } from "../../database/attendenceCorrectrion.model.js"
-import { Attendence } from "../../database/attendence.model.js"
-import { success } from "zod"
-import { log } from "node:console"
+import { AttendanceCorrection } from "../../database/attendance-correction.model.js"
+import { Attendance } from "../../database/attendance.model.js"
 
 
 export const attendenceCorrectionResController = async (req: Request, res: Response) => {
     const { userID, status , dateForCorrection} = req.body
 
     const finalStatus = status.toLowerCase()
-    const record = await AttendenceCorrection.findOne({ requestedBy: userID , dateForCorrection : dateForCorrection})
+    const record = await AttendanceCorrection.findOne({ requestedBy: userID , dateForCorrection : dateForCorrection})
 
     if (!record) {
         return res.status(400).json({ message: "Record not found " })
     }
 
     if(finalStatus === "approved"){
-        const recordToEdit = await Attendence.findOne({ userID : userID , Date : record.dateForCorrection  })
+        const recordToEdit = await Attendance.findOne({ userID : userID , Date : record.dateForCorrection  })
 
         if(!recordToEdit){
             return res.status(404).json({message:"The record is not present in the attendence database" , success : false})
@@ -24,7 +22,7 @@ export const attendenceCorrectionResController = async (req: Request, res: Respo
         try {
             recordToEdit.inTime = record.inTime 
             recordToEdit.outTime = record.outTime
-            recordToEdit.Date = record.dateForCorrection
+            recordToEdit.date = record.dateForCorrection.toLocaleDateString()
             recordToEdit.status = record.demandsToBe
             recordToEdit.isLate = record.isLate
             await recordToEdit.save()

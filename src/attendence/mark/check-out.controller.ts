@@ -1,12 +1,12 @@
 import { Request, Response } from "express"
-import { Attendence } from "../../database/attendence.model.js"
+import { Attendance } from "../../database/attendance.model.js"
 import { ApiError } from "../../libs/class/api-error.js";
 
 export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user
   const now = new Date()
 
-  const attendence = await Attendence.findOne({
+  const attendence = await Attendance.findOne({
     user: user?.id,
     date: now.toLocaleDateString()
   })

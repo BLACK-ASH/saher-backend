@@ -1,5 +1,4 @@
-import { AttendenceCorrection } from "../../database/attendenceCorrectrion.model.js"
-import { User } from "../../database/user.model.js"
+import { AttendanceCorrection } from "../../database/attendance-correction.model.js"
 import { Request , Response} from "express"
 
 
@@ -10,7 +9,7 @@ export const showRequestedCorrection = async(req:Request , res:Response)=>{
         return res.status(400).json({message:"User not found"})
     }
 
-    const submittedRequest = AttendenceCorrection.find({
+    const submittedRequest = AttendanceCorrection.find({
         userID : user.id
     })
 
