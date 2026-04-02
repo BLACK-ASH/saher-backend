@@ -8,11 +8,11 @@ const attendanceSchema = new mongoose.Schema({
   },
   inTime: {
     type: Date,
-    required: true
+    default: null
   },
   outTime: {
     type: Date,
-    default:null
+    default: null
   },
   date: {
     type: Date,
@@ -29,5 +29,5 @@ const attendanceSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-export type AttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>
-export const Attendance = mongoose.model("Attendence", attendanceSchema)
+type AttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>
+export const Attendance = mongoose.model<AttendanceType>("Attendence", attendanceSchema)

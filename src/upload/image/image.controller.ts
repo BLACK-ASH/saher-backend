@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { processAndSaveImage } from "./image.service.js";
-import { Media } from "../../database/media.upload.js";
+import { Media } from "../../database/media-upload.model.js";
 import { ApiError } from "../../libs/class/api-error.js";
 
 export const uploadImageController = async (req: Request, res: Response) => {
