@@ -34,7 +34,7 @@ export const checkInController = async (req: Request, res: Response) => {
     user: user?.id,
     inTime: now,
     status: now > halfDaytiming ? "half-day" : "present",
-    date: dateOnly,
+    date: dateOnly.toLocaleDateString(),
     isLate: now > expectedTime
   })
   return res.status(200).json({ message: "You have been marked present", success: true, data: newRecord })

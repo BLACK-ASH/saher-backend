@@ -53,6 +53,10 @@ export const retrieveAttendanceController  =  async(req:Request , res:Response)=
     
         startDate.setHours(0,0,0,0)
         endDate.setHours(23,59,59,999)
+
+        const startDateString = startDate.toLocaleDateString()
+        const endDateString = endDate.toLocaleDateString()
+         
     
         let finalID 
         if(req.user?.role === "admin"){
@@ -69,8 +73,8 @@ export const retrieveAttendanceController  =  async(req:Request , res:Response)=
         const record = await Attendance.find({
             user : finalID ,
             date : {
-                $gte : startDate ,
-                $lte : endDate
+                $gte : startDateString ,
+                $lte : endDateString 
             }
     
         }).sort({date:-1})

@@ -18,5 +18,5 @@ const holidaySchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-export type HolidayType = mongoose.InferSchemaType<typeof holidaySchema>
-export const Holiday = mongoose.model("Holiday",holidaySchema)
+type HolidayType = mongoose.InferSchemaType<typeof holidaySchema>
+export const Holiday = mongoose.model<HolidayType>("Holiday", holidaySchema)

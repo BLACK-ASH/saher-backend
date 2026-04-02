@@ -23,6 +23,5 @@ const bankDetailSchema = new mongoose.Schema({
   },
 }, { timestamps: true })
 
-export type BankDetailType = mongoose.InferSchemaType<typeof bankDetailSchema>
-
-export const BankDetail = mongoose.model("BankDetail", bankDetailSchema) 
+type BankDetailType = mongoose.InferSchemaType<typeof bankDetailSchema>
+export const BankDetail = mongoose.model<BankDetailType>("BankDetail", bankDetailSchema) 
