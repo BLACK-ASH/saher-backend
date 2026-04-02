@@ -5,12 +5,12 @@ import { Attendance } from "../../database/attendance.model.js";
 
 export const retrieveAttendanceController  =  async(req:Request , res:Response)=>{
 
-    try {
+    
         // Get the user body 
         const user = req.user
         
         // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate 
-        let startDate , endDate 
+        let startDate : Date  , endDate : Date  
     
         //Agar user ko ek custom range chahiyetoh oos case mein user ko startDate and endDate dono hii banatani padegi
         if(req.query.startDate && req.query.endDate){
@@ -57,14 +57,13 @@ export const retrieveAttendanceController  =  async(req:Request , res:Response)=
         let finalID 
         if(req.user?.role === "admin"){
     
-            if(req.body.userID){
-                finalID = req.query.userID
-            }
-            else{
-                finalID = req.user?.id
-            }
-    
+            finalID = req.query.userID || req.user.id
         }
+        else{
+            finalID = req.user?.id
+        }
+    
+        
     
         //DB Functions 
         const record = await Attendance.find({
@@ -76,11 +75,8 @@ export const retrieveAttendanceController  =  async(req:Request , res:Response)=
     
         }).sort({date:-1})
     
-    
         return res.status(200).json({message : "The record you asked for " , data : record , count : record.length })
-        
-    } catch (error) {
-        throw new ApiError(500 , "Internal server error")
-    }
+       
+    
 
 }
