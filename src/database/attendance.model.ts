@@ -14,7 +14,7 @@ const attendanceSchema = new mongoose.Schema({
     type: Date,
     default:null
   },
-  Date: {
+  date: {
     type: Date,
     required: true
   },
