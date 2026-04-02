@@ -4,13 +4,11 @@ import { attendenceCorrectionReqController } from "./correction/attendenceCorrec
 import { checkOutController } from "./mark/check-out.controller.js"
 import { attendenceCorrectionResController } from "./correction/attendenceCorrectionRes.controller.js"
 import { showRequestedCorrection } from "./correction/attendenceShowReq.controller.js"
-import { addholidayController } from "./holiday/add-holiday.controller.js"
-import { updateHolidayController } from "./holiday/update-holiday.controller.js"
-import { getAllHolidayController } from "./holiday/get-all-holiday.controller.js"
-import { getHolidayController } from "./holiday/get-holiday.controller.js"
-import { deleteHolidayController } from "./holiday/delete-holiday.controller.js"
 import { validateAttendenceCorrection } from "./correction/attendenceCorrection.middleware.js"
 import { todayController } from "./mark/today.controller.js"
+import { updateHolidayController, getAllHolidayController, getHolidayController, deleteHolidayController, addHolidayController } from "./holiday/holiday.controller.js"
+import { authorize } from "../permission/authorize.js"
+import { validateHolidayCreate, validateHolidayUpdate } from "./holiday/holiday.middleware.js"
 
 
 const attendenceRouter = Router()
@@ -23,10 +21,10 @@ attendenceRouter.post("/attendenceCorrectionReq", validateAttendenceCorrection, 
 attendenceRouter.post("/attendenceCorrectionRes", attendenceCorrectionResController)
 attendenceRouter.get("/attendceCorrectionReq", showRequestedCorrection)
 
-attendenceRouter.post("/holiday/create", addholidayController)
-attendenceRouter.put("/holiday/update/:id", updateHolidayController)
+attendenceRouter.post("/holiday/create", authorize("write", "holiday"), validateHolidayCreate, addHolidayController)
+attendenceRouter.put("/holiday/update/:id", authorize("update", "holiday"), validateHolidayUpdate, updateHolidayController)
 attendenceRouter.get("/holiday/get-all", getAllHolidayController)
 attendenceRouter.get("/holiday/get/:id", getHolidayController)
-attendenceRouter.delete("/holiday/delete/:id", deleteHolidayController)
+attendenceRouter.delete("/holiday/delete/:id", authorize("delete", "holiday"), deleteHolidayController)
 
 export default attendenceRouter
