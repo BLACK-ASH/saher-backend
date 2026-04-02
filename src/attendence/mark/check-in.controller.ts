@@ -25,11 +25,16 @@ export const checkInController = async (req: Request, res: Response) => {
   const halfDaytiming = new Date()
   halfDaytiming.setHours(11, 0, 0, 0)
 
+  const dateOnly = new Date(now);
+  dateOnly.setHours(0, 0, 0, 0);
+
+
+
   const newRecord = await Attendance.create({
     user: user?.id,
     inTime: now,
     status: now > halfDaytiming ? "half-day" : "present",
-    date: now.toLocaleDateString(),
+    date: dateOnly,
     isLate: now > expectedTime
   })
   return res.status(200).json({ message: "You have been marked present", success: true, data: newRecord })
