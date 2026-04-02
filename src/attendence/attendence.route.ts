@@ -9,6 +9,8 @@ import { todayController } from "./mark/today.controller.js"
 import { updateHolidayController, getAllHolidayController, getHolidayController, deleteHolidayController, addHolidayController } from "./holiday/holiday.controller.js"
 import { authorize } from "../permission/authorize.js"
 import { validateHolidayCreate, validateHolidayUpdate } from "./holiday/holiday.middleware.js"
+import { Attendance } from "../database/attendance.model.js"
+import { retrieveAttendanceController } from "./retrieve/retrieveAttendance.controller.js"
 
 
 const attendenceRouter = Router()
@@ -26,5 +28,7 @@ attendenceRouter.put("/holiday/update/:id", authorize("update", "holiday"), vali
 attendenceRouter.get("/holiday/get-all", getAllHolidayController)
 attendenceRouter.get("/holiday/get/:id", getHolidayController)
 attendenceRouter.delete("/holiday/delete/:id", authorize("delete", "holiday"), deleteHolidayController)
+
+attendenceRouter.get("/retrive",retrieveAttendanceController)
 
 export default attendenceRouter
