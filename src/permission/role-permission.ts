@@ -3,7 +3,7 @@ import { createPermission } from "./permission.js";
 
 export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
   admin: new Set([
-    // full access except read (implicitly allowed)
+    // Full access except read (implicitly allowed)
     // Account
     createPermission("write", "account"),
     createPermission("update", "account"),
@@ -27,6 +27,10 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     // Attendance 
     createPermission("write", "attendance"),
     createPermission("update", "attendance"),
+
+    // Attendance Correction
+    createPermission("write", "attendance-correction"),
+    createPermission("update", "attendance-correction"),
   ]),
 
   manager: new Set([
@@ -50,11 +54,18 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     // Attendance 
     createPermission("write", "attendance"),
     createPermission("update", "attendance"),
+
+    // Attendance Correction
+    createPermission("write", "attendance-correction"),
+    createPermission("update", "attendance-correction"),
   ]),
 
   user: new Set([
     // Attendance 
     createPermission("write", "attendance"),
+
+    // Attendance Correction
+    createPermission("write", "attendance-correction"),
     createPermission("update","attendance")
   ]),
 };

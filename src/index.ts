@@ -8,8 +8,7 @@ import adminRouter from "./admin/admin.routes.js";
 import authRouter from "./auth/auth.routes.js";
 import connectDb from "./database/connection.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
-import attendanceRouter from "./attendence/attendance.route.js"
-
+import attendanceRouter from "./attendance/attendance.route.js"
 import uploadRouter from "./upload/upload.routes.js";
 import errorHandler from "./libs/middleware/error-handler.js";
 
