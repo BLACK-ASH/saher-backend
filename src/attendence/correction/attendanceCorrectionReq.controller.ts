@@ -3,7 +3,7 @@ import { AttendanceCorrection } from "../../database/attendance-correction.model
 import { Request,Response } from "express";
 
 
-export const attendenceCorrectionReqController = async(req:Request,res:Response)=>{
+export const attendanceCorrectionReqController = async(req:Request,res:Response)=>{
     const currentDate = new Date
     currentDate.setHours(0,0,0,0)
 

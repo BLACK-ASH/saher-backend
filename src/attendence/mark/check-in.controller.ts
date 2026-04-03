@@ -28,8 +28,6 @@ export const checkInController = async (req: Request, res: Response) => {
   const dateOnly = new Date(now);
   dateOnly.setHours(0, 0, 0, 0);
 
-
-
   const newRecord = await Attendance.create({
     user: user?.id,
     inTime: now,

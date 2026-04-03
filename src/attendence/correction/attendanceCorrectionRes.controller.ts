@@ -3,7 +3,7 @@ import { AttendanceCorrection } from "../../database/attendance-correction.model
 import { Attendance } from "../../database/attendance.model.js"
 
 
-export const attendenceCorrectionResController = async (req: Request, res: Response) => {
+export const attendanceCorrectionResController = async (req: Request, res: Response) => {
     const { userID, status , dateForCorrection} = req.body
 
     const finalStatus = status.toLowerCase()
