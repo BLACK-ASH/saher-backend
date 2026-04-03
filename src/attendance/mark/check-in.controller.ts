@@ -19,22 +19,16 @@ export const checkInController = async (req: Request, res: Response) => {
 
   //Step 5 - if User exist and have not submitted today's attendence start making new entry 
   //Step6 - Note the current time so that late hai ki nahi ka pata chal sake 
+  // Change Bad Mai Karna Hai
   const expectedTime = new Date()
   //Abhi ke liye aise hii hardcore data liya hai 
   expectedTime.setHours(9, 0, 0, 0)
-  const halfDaytiming = new Date()
-  halfDaytiming.setHours(11, 0, 0, 0)
-
-  const dateOnly = new Date(now);
-  dateOnly.setHours(0, 0, 0, 0);
-
-
 
   const newRecord = await Attendance.create({
     user: user?.id,
     inTime: now,
-    status: now > halfDaytiming ? "half-day" : "present",
-    date: dateOnly,
+    status: "present",
+    date: now.toLocaleDateString(),
     isLate: now > expectedTime
   })
   return res.status(200).json({ message: "You have been marked present", success: true, data: newRecord })

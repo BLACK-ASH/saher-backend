@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+export const attendanceStatus = ["present", "absent", "half-day"]
+
 const attendanceSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -14,14 +16,18 @@ const attendanceSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  workHours: {
+    type: Number,
+    default: 0
+  },
   date: {
     type: Date,
     required: true
   },
   status: {
     type: String,
-    enum: ["present", "absent", "half-day"],
-    default: "present"
+    enum: attendanceStatus,
+    default: "absent"
   },
   isLate: {
     type: Boolean,
@@ -30,4 +36,4 @@ const attendanceSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 type AttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>
-export const Attendance = mongoose.model<AttendanceType>("Attendence", attendanceSchema)
+export const Attendance = mongoose.model<AttendanceType>("Attendance", attendanceSchema)

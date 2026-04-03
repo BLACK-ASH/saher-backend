@@ -1,40 +1,59 @@
 import mongoose from "mongoose";
 
-const attendanceCorrectionSchema = new mongoose.Schema({
-    requestedBy:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:true
-    },
-    reason:{
-        type:String,
-        required:true
-    },
-    inTime :{
-        type:Date ,
-        required : true 
-    },
-    outTime : {
-        type:Date ,
-        required : true
-    },
-    dateForCorrection:{
-        type:Date,
-        required:true
-    },
-    demandsToBe:{
-        type:String,
-        enum : ["present","absent","half-day"],
-        required : true
-    },
-    isLate:{
-        type:Boolean,
-        default:true
-    },
-    requestStatus : {
-        type : String ,
-        enum : ["Approved","Rejected","Hold"]
-    }
+const attendanceRecord = new mongoose.Schema({
+  inTime: {
+    type: Date,
+  },
+  outTime: {
+    type: Date,
+  },
+  status: {
+    type: String,
+    enum: ["present", "absent", "half-day"],
+  },
+  isLate: {
+    type: Boolean,
+  }
 })
 
-export const AttendanceCorrection = mongoose.model("AttendenceCorrection",attendanceCorrectionSchema)
+export const attendanceRequestStatus = ["pending", "approve", "reject"]
+
+const attendanceCorrectionSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  manager: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  attendance: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Attendance",
+  },
+  previous: attendanceRecord,
+  changes: attendanceRecord,
+  status: {
+    type: String,
+    enum: attendanceRequestStatus,
+    default: "pending"
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  // By Manager Of Status
+  reason: {
+    type: String,
+    default: "Request Is Under Processing"
+  },
+  proof: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Media",
+  },
+}, { timestamps: true })
+
+type AttendanceCorrectionType = mongoose.InferSchemaType<typeof attendanceCorrectionSchema>
+export const AttendanceCorrection = mongoose.model<AttendanceCorrectionType>("AttendenceCorrection", attendanceCorrectionSchema)
+
