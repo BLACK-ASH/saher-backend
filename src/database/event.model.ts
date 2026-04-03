@@ -2,11 +2,6 @@ import mongoose from "mongoose";
 import { required } from "zod/mini";
 
 const eventSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   
   title: {
     type: String,
