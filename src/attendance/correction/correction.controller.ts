@@ -36,11 +36,11 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
 
   // attendanceRecordSchema will convert the full object into require object and remove unnecessary field
   const previous = attendanceRecordSchema.safeParse(attendance)
-  if (!previous.success) throw new ApiError(400, previous.error.message)
+  if (!previous.success) throw new ApiError(400, previous.error?.message)
 
   // Parsing Input Into Safe Object If Error Happen Reject It
   const changes = attendanceRecordSchema.safeParse(input)
-  if (!changes.success) throw new ApiError(400, changes.error.message)
+  if (!changes.success) throw new ApiError(400, changes.error?.message)
 
   // Creating The Correction Request
   const request = await AttendanceCorrection.create({
@@ -72,8 +72,11 @@ export const updateAttendanceCorrectionController = async (req: Request, res: Re
   if (!workHours) throw new ApiError(400, "Work Hours Is Not Valid.")
   const status = workHours === 0 ? "absent" : workHours > 5 ? "present" : "half-day"
 
+  const newRecord = { ...changes, status, workHours }
+  console.log(newRecord)
+
   await request.updateOne({ manager: user?.id, changes, status: input["request-status"], reason: input.reason })
-  await attendance.updateOne({ inTime: changes?.inTime, outTime: changes?.outTime, isLate: changes?.isLate, status, workHours })
+  await attendance.updateOne(newRecord)
 
   return res.status(200).json({ success: true, message: "Attendance Correction Updated Successful.", data: request })
 }

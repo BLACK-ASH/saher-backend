@@ -8,6 +8,7 @@ import { validateAttendanceCorrectionCreate, validateAttendanceCorrectionUpdate 
 import { createAttendanceCorrectionController, getAllAttendanceCorrectionController, getAttendanceCorrectionController, updateAttendanceCorrectionController } from "./correction/correction.controller.js"
 import { todayAttendanceController } from "./retrieve/today.controller.js"
 import { meAttendanceController } from "./retrieve/me.controller.js"
+import { retrieveAttendanceController } from "./retrieve/retrieve-attendance.controller.js"
 
 const attendanceRouter = Router()
 
@@ -15,6 +16,7 @@ attendanceRouter.get("/me", meAttendanceController)
 attendanceRouter.get("/today", todayAttendanceController)
 attendanceRouter.post("/check-in", checkInController)
 attendanceRouter.post("/check-out", checkOutController)
+attendanceRouter.get("/retrive",retrieveAttendanceController)
 
 attendanceRouter.get("/attendance-correction", getAttendanceCorrectionController)
 attendanceRouter.get("/attendance-correction/all", getAllAttendanceCorrectionController)
@@ -26,5 +28,6 @@ attendanceRouter.put("/holiday/update/:id", authorize("update", "holiday"), vali
 attendanceRouter.get("/holiday/get-all", getAllHolidayController)
 attendanceRouter.get("/holiday/get/:id", getHolidayController)
 attendanceRouter.delete("/holiday/delete/:id", authorize("delete", "holiday"), deleteHolidayController)
+
 
 export default attendanceRouter

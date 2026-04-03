@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { ApiError } from "../../libs/class/api-error.js";
-import { id } from "zod/locales";
 import { Attendance } from "../../database/attendance.model.js";
 
 export const retrieveAttendanceController = async (req: Request, res: Response) => {
@@ -70,8 +69,8 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     const record = await Attendance.find({
       user: finalID,
       date: {
-        $gte: startDate,
-        $lte: endDate
+        $gte: startDate.toLocaleDateString(),
+        $lte: endDate.toLocaleDateString()
       }
 
     }).sort({ date: -1 })

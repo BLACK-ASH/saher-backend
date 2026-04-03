@@ -28,8 +28,9 @@ export type AttendanceCorrectionUpdateInputType = z.infer<typeof attendanceCorre
 export const validateAttendanceCorrectionCreate = (req: Request, res: Response, next: NextFunction) => {
   const parsedAttendanceCorrectionInput = attendanceCorrectionSchema.safeParse(req.body)
 
-  const message = "Invalid Input - " + parsedAttendanceCorrectionInput.error?.message
-  if (!parsedAttendanceCorrectionInput.success) throw new ApiError(400, message, parsedAttendanceCorrectionInput.error?.issues[0].message)
+  const message = "Invalid Input - " + parsedAttendanceCorrectionInput.error?.flatten()
+  if (!parsedAttendanceCorrectionInput.success) console.log(message);
+  if (!parsedAttendanceCorrectionInput.success) throw new ApiError(400, message)
 
   req.body = parsedAttendanceCorrectionInput.data
   next()
@@ -39,8 +40,8 @@ export const validateAttendanceCorrectionUpdate = (req: Request, res: Response, 
   const parsedAttendanceCorrectionInput = attendanceCorrectionUpdateSchema.safeParse(req.body)
 
   const message = "Invalid Input - " + parsedAttendanceCorrectionInput.error?.issues[0].message
-  console.error(parsedAttendanceCorrectionInput.error)
-  if (!parsedAttendanceCorrectionInput.success) throw new ApiError(400, message, parsedAttendanceCorrectionInput.error?.issues[0].message)
+  if (!parsedAttendanceCorrectionInput.success) throw new ApiError(400, message)
+  if (!parsedAttendanceCorrectionInput.success) console.log(message);
 
   req.body = parsedAttendanceCorrectionInput.data
   next()
