@@ -25,14 +25,10 @@ export const getPresentUserController = async(req:Request , res:Response)=>{
 
     const record = await Attendance.find({
         date : finalDate.toLocaleDateString(),
-        status :"half-day"
+        status :"present"
     })
 
     return res.status(200).json({message:"The users that were present on the given date are " , date: record , count:record.length})
-
-
-
-
 
 
 }
