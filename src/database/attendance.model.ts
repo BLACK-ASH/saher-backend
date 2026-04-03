@@ -32,8 +32,13 @@ const attendanceSchema = new mongoose.Schema({
   isLate: {
     type: Boolean,
     default: true
+  },
+  autoCheckout: {
+    type: Boolean
   }
 }, { timestamps: true })
 
+// Adding Index For Fast Lookup
+attendanceSchema.index({ user: 1, date: 1 }, { unique: true });
 type AttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>
 export const Attendance = mongoose.model<AttendanceType>("Attendance", attendanceSchema)
