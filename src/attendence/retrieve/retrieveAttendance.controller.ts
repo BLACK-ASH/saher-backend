@@ -3,7 +3,7 @@ import { ApiError } from "../../libs/class/api-error.js";
 import { id } from "zod/locales";
 import { Attendance } from "../../database/attendance.model.js";
 
-export const retrieveAttendanceController  =  async(req:Request , res:Response)=>{
+export const individualRetrieveAttendanceController  =  async(req:Request , res:Response)=>{
 
     
         // Get the user body 
@@ -78,6 +78,8 @@ export const retrieveAttendanceController  =  async(req:Request , res:Response)=
             }
     
         }).sort({date:-1})
+
+        
     
         return res.status(200).json({message : "The record you asked for " , data : record , count : record.length })
        

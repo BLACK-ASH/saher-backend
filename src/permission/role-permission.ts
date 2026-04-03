@@ -55,5 +55,6 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
   user: new Set([
     // Attendance 
     createPermission("write", "attendance"),
+    createPermission("update","attendance")
   ]),
 };

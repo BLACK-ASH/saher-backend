@@ -17,7 +17,8 @@ export const checkOutController = async (req: Request, res: Response) => {
   if (attendence?.outTime) throw new ApiError(400, "You Have Already Checked Out Today")
 
   //  set checkout time
-  attendence.outTime = now
+  const finalTime = now
+  attendence.outTime = finalTime
   await attendence.save()
 
   return res.status(200).json({

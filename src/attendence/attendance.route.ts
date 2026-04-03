@@ -10,14 +10,15 @@ import { updateHolidayController, getAllHolidayController, getHolidayController,
 import { authorize } from "../permission/authorize.js"
 import { validateHolidayCreate, validateHolidayUpdate } from "./holiday/holiday.middleware.js"
 import { Attendance } from "../database/attendance.model.js"
-import { retrieveAttendanceController } from "./retrieve/retrieveAttendance.controller.js"
+import { getPresentUserController } from "./retrieve/getPresentUser.controller.js"
+import { individualRetrieveAttendanceController } from "./retrieve/retrieveAttendance.controller.js"
 
 
 const attendanceRouter = Router()
 
 attendanceRouter.get("/today", todayController)
-attendanceRouter.post("/check-in", checkInController)
-attendanceRouter.post("/check-out", checkOutController)
+attendanceRouter.post("/check-in",authorize("write","attendance"), checkInController)
+attendanceRouter.post("/check-out",authorize("update","attendance"),checkOutController)
 
 attendanceRouter.post("/attendenceCorrectionReq", validateAttendanceCorrection, attendanceCorrectionReqController)
 attendanceRouter.post("/attendenceCorrectionRes", attendanceCorrectionResController)
@@ -29,6 +30,11 @@ attendanceRouter.get("/holiday/get-all", getAllHolidayController)
 attendanceRouter.get("/holiday/get/:id", getHolidayController)
 attendanceRouter.delete("/holiday/delete/:id", authorize("delete", "holiday"), deleteHolidayController)
 
-attendanceRouter.get("/retrive",retrieveAttendanceController)
+//For getting Attendance Record according to the userID return the record of one user 
+attendanceRouter.get("/retrieve/individual",individualRetrieveAttendanceController)
+
+//For getting Attendance Record according to the date return the users which were present on that day 
+attendanceRouter.get("/retrieve/allPresentUser" , getPresentUserController)
+
 
 export default attendanceRouter
