@@ -66,6 +66,5 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     // Attendance Correction
     createPermission("write", "attendance-correction"),
-    createPermission("update","attendance")
   ]),
 };
