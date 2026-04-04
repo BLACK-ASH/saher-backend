@@ -1,28 +1,30 @@
 import mongoose from "mongoose";
 import { required } from "zod/mini";
 
-const eventSchema = new mongoose.Schema({
-  
-  title: {
-    type: String,
-    required: true,
-  },
+const eventSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
 
-  description: {
-    type: String,
-    required: true,
-  },
+    description: {
+      type: String,
+      required: true,
+    },
 
-  date: {
-    type: Date,
-    required: true,
-  },
+    date: {
+      type: Date,
+      required: true,
+    },
 
-  manager: {
-    type: String,
-    required: true,
+    manager: {
+      type: String,
+      required: true,
+    },
   },
-});
+  { timestamps: true },
+);
 
 export type eventType = mongoose.InferSchemaType<typeof eventSchema>;
 export const Event = mongoose.model("Event", eventSchema);
