@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const meadiaSchema = new mongoose.Schema({
   src: {
     type: String,
@@ -15,9 +14,7 @@ const meadiaSchema = new mongoose.Schema({
   timestamps: true
 })
 
-export type MediaType = mongoose.InferSchemaType<typeof meadiaSchema>
-
-
-export const Media = mongoose.model("Media", meadiaSchema)
+type MediaType = mongoose.InferSchemaType<typeof meadiaSchema>
+export const Media = mongoose.model<MediaType>("Media", meadiaSchema)
 
 

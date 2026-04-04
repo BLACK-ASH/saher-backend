@@ -72,9 +72,8 @@ const accountSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Media"
   },
-})
+}, { timestamps: true })
 
-export type AccountType = mongoose.InferSchemaType<typeof accountSchema>
-
-export const Account = mongoose.model("Account", accountSchema)
+type AccountType = mongoose.InferSchemaType<typeof accountSchema>
+export const Account = mongoose.model<AccountType>("Account", accountSchema)
 
