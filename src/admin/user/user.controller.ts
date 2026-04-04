@@ -5,7 +5,7 @@ import { ApiError } from "../../libs/class/api-error.js";
 export const userGetController = async (req: Request, res: Response) => {
   const id = req.params.id
 
-  const user = await User.findById(id)
+  const user = await User.findById(id).populate("image")
   if (!user) throw new ApiError(404, "User Not Found.")
 
   return res.status(200).json({
@@ -13,6 +13,18 @@ export const userGetController = async (req: Request, res: Response) => {
     message: "User get successfully.",
     data: user
   });
+}
+
+export const getAllUser = async (req: Request, res: Response) => {
+  const fields = req.query.fields as string
+  let defaultFields = "name displayName email image role"
+  if (fields) {
+    defaultFields += fields.split(",").join(" ")
+  }
+
+  const users = await User.find().populate("image", "src alt").select(defaultFields).lean()
+
+  return res.status(200).json({ success: true, message: "All User Retrieve Successful.", data: users })
 }
 
 export const userUpdateController = async (req: Request, res: Response) => {
