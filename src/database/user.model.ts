@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   },
   image: {
     type: mongoose.Schema.Types.ObjectId,
-    ref:"Media",
+    ref: "Media",
     require: true
   },
   isActive: {
@@ -48,7 +48,6 @@ const userSchema = new mongoose.Schema({
   },
 }, { timestamps: true })
 
-export type UserType = mongoose.InferSchemaType<typeof userSchema>
-
-export const User = mongoose.model("User", userSchema)
+type UserType = mongoose.InferSchemaType<typeof userSchema>
+export const User = mongoose.model<UserType>("User", userSchema)
 

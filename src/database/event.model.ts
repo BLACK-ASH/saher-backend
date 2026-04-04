@@ -26,5 +26,5 @@ const eventSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export type eventType = mongoose.InferSchemaType<typeof eventSchema>;
-export const Event = mongoose.model("Event", eventSchema);
+export type EventType = mongoose.InferSchemaType<typeof eventSchema>;
+export const Event = mongoose.model<EventType>("Event", eventSchema);

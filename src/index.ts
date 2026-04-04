@@ -8,10 +8,10 @@ import adminRouter from "./admin/admin.routes.js";
 import authRouter from "./auth/auth.routes.js";
 import connectDb from "./database/connection.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
-import attendenceRouter from "./attendence/attendence.route.js"
 import eventRoutes from "./events/events.routes.js";
 import uploadRouter from "./upload/upload.routes.js";
 import errorHandler from "./libs/middleware/error-handler.js";
+import attendanceRouter from "./attendance/attendance.route.js";
 
 // Env Config
 dotenv.config()
@@ -45,8 +45,8 @@ await connectDb()
 // Routes
 app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/upload", uploadRouter)
-app.use("/events", eventRoutes);
-app.use("/api/attendence",protectedRoute,attendenceRouter)
+app.use("/api/events", eventRoutes);
+app.use("/api/attendance",protectedRoute,attendanceRouter)
 app.use("/api/admin",protectedRoute, adminRouter)
 app.use("/api/auth", authRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));

@@ -3,7 +3,7 @@ import { createBankDetailController, deleteBankDetailController, getBankDetailCo
 import { validateBankRegisterSchema, validateBankUpdateSchema } from "./bank/bank.middleware.js";
 import { validateAccountRegister, validateAccountUpdate } from "./account/account.middleware.js";
 import { accountGetController, accountRegisterController, accountUpdateController } from "./account/account.controller.js";
-import { userDeleteController, userGetController, userUpdateController } from "./user/user.controller.js";
+import { getAllUser, userDeleteController, userGetController, userUpdateController } from "./user/user.controller.js";
 import { validateUserUpdate } from "./user/user.middleware.js";
 import { authorize } from "../permission/authorize.js";
 
@@ -26,6 +26,7 @@ adminRouter.post("/account/register", authorize("write", "account"), validateAcc
 
 // User Routes
 adminRouter.get("/user/get/:id", userGetController)
+  .get("/user/get", getAllUser)
   .put("/user/update/:id", authorize("update", "user"), validateUserUpdate, userUpdateController)
   .delete("/user/delete/:id", authorize("delete", "user"), userDeleteController)
 
