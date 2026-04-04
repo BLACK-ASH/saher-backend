@@ -12,7 +12,7 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
   }
 
   // 📅 Today (same format you are using)
-  const today = new Date().toLocaleDateString();
+  const today = new Date().toLocaleDateString("en-IN");
 
   // 🕕 Default checkout time (6 PM IST)
   const defaultOutTime = new Date();

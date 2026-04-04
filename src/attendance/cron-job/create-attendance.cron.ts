@@ -12,7 +12,7 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
   }
 
   // 📅 Today (your existing format)
-  const today = new Date().toLocaleDateString();
+  const today = new Date().toLocaleDateString("en-IN");
 
   // 👥 Get all user IDs
   const users = (await User.find().select("_id").lean()).map((u) =>

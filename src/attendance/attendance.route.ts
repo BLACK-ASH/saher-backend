@@ -8,7 +8,7 @@ import { validateAttendanceCorrectionCreate, validateAttendanceCorrectionUpdate 
 import { createAttendanceCorrectionController, getAllAttendanceCorrectionController, getAttendanceCorrectionController, updateAttendanceCorrectionController } from "./correction/correction.controller.js"
 import { todayAttendanceController } from "./retrieve/today.controller.js"
 import { meAttendanceController } from "./retrieve/me.controller.js"
-import { getAllPresentUserController} from "./retrieve/get-present-user.controller.js"
+import { getAllUserController} from "./retrieve/get-present-user.controller.js"
 import {  retrieveAttendanceController } from "./retrieve/retrieve-attendance.controller.js"
 import { createAttendanceCron } from "./cron-job/create-attendance.cron.js"
 import { autoCheckoutCron } from "./cron-job/auto-checkout-attendance.cron.js"
@@ -21,7 +21,7 @@ attendanceRouter.get("/today", todayAttendanceController)
 attendanceRouter.post("/check-in", checkInController)
 attendanceRouter.post("/check-out", checkOutController)
 attendanceRouter.get("/retrive",retrieveAttendanceController)
-attendanceRouter.get("/retrieve/all-present-user" , getAllPresentUserController)
+attendanceRouter.get("/retrieve/all-present-user" , getAllUserController)
 
 // Attendance Correction Route
 attendanceRouter.get("/attendance-correction", getAttendanceCorrectionController)
