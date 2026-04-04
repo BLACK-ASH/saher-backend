@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+export type UserRole = "user" | "manager" | "admin"
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,

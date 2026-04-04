@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+export type EmployeeType = "part-time" | "full-time" | "volunteer"
+
 const accountSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -74,6 +76,6 @@ const accountSchema = new mongoose.Schema({
   },
 }, { timestamps: true })
 
-type AccountType = mongoose.InferSchemaType<typeof accountSchema>
+export type AccountType = mongoose.InferSchemaType<typeof accountSchema>
 export const Account = mongoose.model<AccountType>("Account", accountSchema)
 
