@@ -9,7 +9,8 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   const attendance = await Attendance.findOne({
     user: user?.id,
-    date: now.toLocaleDateString()
+    date: now.toLocaleDateString(),
+    inTime: { $ne: null }
   })
 
   // If User Is Not Check In
@@ -22,8 +23,12 @@ export const checkOutController = async (req: Request, res: Response) => {
   if (!workHours) throw new ApiError(400, "Work Hours Is Not Valid.")
   const status = workHours === 0 ? "absent" : workHours > 5 ? "present" : "half-day"
 
-  await attendance.updateOne({ outTime: now, status, workHours })
+  attendance.outTime = now
+  attendance.status = status
+  attendance.workHours = workHours
 
+  await attendance.save()
+  
   return res.status(200).json({
     message: "Checked out successfully",
     success: true,

@@ -4,6 +4,9 @@ import { ApiError } from "../../libs/class/api-error.js"
 import { Attendance } from "../../database/attendance.model.js"
 import { AttendanceCorrectionInputType, AttendanceCorrectionUpdateInputType, attendanceRecordSchema } from "./correction.middleware.js"
 import { timeDifference } from "../../libs/utils/time-difference.js"
+import { convertToObjectId } from "../../libs/utils/convert-objectId.js"
+import mongoose from "mongoose"
+import { removeUndefined } from "../../libs/utils/remove-undefined-value.js"
 
 
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
@@ -23,60 +26,136 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
 }
 
 export const createAttendanceCorrectionController = async (req: Request, res: Response) => {
-  const user = req.user
-  const input: AttendanceCorrectionInputType = req.body
+  const user = req.user;
+  const input: AttendanceCorrectionInputType = req.body;
 
-  // Check If The Attendance Exist If Not Reject It
-  const attendance = await Attendance.findById((input.attendanceId)).lean()
-  if (!attendance) throw new ApiError(404, "User Attendance Not Found.")
+  if (!user?.id) {
+    throw new ApiError(401, "User not authenticated.");
+  }
 
-  // If Already A Pending Request Of That Day
-  const exist = await AttendanceCorrection.findOne({ attendance: input.attendanceId })
-  if (exist && exist.status === "pending") throw new ApiError(400, "A Request Already Exist Of This Date.")
+  // Check attendance exists
+  const attendance = await Attendance.findById(input.attendanceId).lean();
+  if (!attendance) {
+    throw new ApiError(404, "User Attendance Not Found.");
+  }
 
-  // attendanceRecordSchema will convert the full object into require object and remove unnecessary field
-  const previous = attendanceRecordSchema.safeParse(attendance)
-  if (!previous.success) throw new ApiError(400, previous.error?.message)
+  // Check existing pending request
+  const exist = await AttendanceCorrection.findOne({
+    attendance: input.attendanceId,
+    status: "pending",
+  });
 
-  // Parsing Input Into Safe Object If Error Happen Reject It
-  const changes = attendanceRecordSchema.safeParse(input)
-  if (!changes.success) throw new ApiError(400, changes.error?.message)
+  if (exist) {
+    throw new ApiError(400, "A Request Already Exists Of This Date.");
+  }
 
-  // Creating The Correction Request
+  // Parse previous (DB data)
+  const previous = attendanceRecordSchema.parse(attendance);
+
+  // Parse changes (input)
+  const changesParsed = attendanceRecordSchema.safeParse({
+    inTime: input.inTime,
+    outTime: input.outTime,
+    status: input.status,
+    isLate: input.isLate,
+  });
+
+  if (!changesParsed.success) {
+    throw new ApiError(400, changesParsed.error.message);
+  }
+
+  // Create request
   const request = await AttendanceCorrection.create({
     attendance: input.attendanceId,
-    user: user?.id,
-    previous: previous.data,
-    changes: changes.data,
+    user: convertToObjectId(user.id),
+    previous,
+    changes: changesParsed.data,
     message: input.message,
-    proof: input?.proof
-  })
-  // If Record Creation Failed
-  if (!request) throw new ApiError(400, "Attendance Correction Request Failed.")
+    proof: input?.proof,
+  });
 
-  return res.status(200).json({ success: true, message: "Attendance Correction Request Successful.", data: request })
-}
+  return res.status(201).json({
+    success: true,
+    message: "Attendance Correction Request Successful.",
+    data: request,
+  });
+};
 
 export const updateAttendanceCorrectionController = async (req: Request, res: Response) => {
-  const input: AttendanceCorrectionUpdateInputType = req.body
-  const user = req.user
-  const changes = attendanceRecordSchema.safeParse(req.body).data
+  const input: AttendanceCorrectionUpdateInputType = req.body;
+  const user = req.user;
 
-  const request = await AttendanceCorrection.findById(input.id)
-  if (!request) throw new ApiError(404, "Attendance Correction Request Not Found.")
+  if (!user?.id) {
+    throw new ApiError(401, "User not authenticated.");
+  }
 
-  const attendance = await Attendance.findById(request.attendance)
-  if (!attendance) throw new ApiError(404, "Attendace Record Not Found.")
+  const parsed = attendanceRecordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw new ApiError(400, "Invalid input data.");
+  }
 
-  const workHours = timeDifference(attendance.inTime as Date, attendance.outTime as Date).hours
-  if (!workHours) throw new ApiError(400, "Work Hours Is Not Valid.")
-  const status = workHours === 0 ? "absent" : workHours > 5 ? "present" : "half-day"
+  const session = await mongoose.startSession();
 
-  const newRecord = { ...changes, status, workHours }
-  console.log(newRecord)
+  try {
+    let updatedRequest;
 
-  await request.updateOne({ manager: user?.id, changes, status: input["request-status"], reason: input.reason })
-  await attendance.updateOne(newRecord)
+    await session.withTransaction(async () => {
+      const request = await AttendanceCorrection.findById(input.id).session(session);
+      if (!request) {
+        throw new ApiError(404, "Attendance Correction Request Not Found.");
+      }
 
-  return res.status(200).json({ success: true, message: "Attendance Correction Updated Successful.", data: request })
-}
+      const attendance = await Attendance.findById(request.attendance).session(session);
+      if (!attendance) {
+        throw new ApiError(404, "Attendance Record Not Found.");
+      }
+
+      // ✅ calculate work hours safely
+      const workHours =
+        attendance.inTime && attendance.outTime
+          ? timeDifference(attendance.inTime, attendance.outTime).hours
+          : null;
+
+      if (workHours === null) {
+        throw new ApiError(400, "Work Hours Is Not Valid.");
+      }
+
+      const status =
+        workHours === 0 ? "absent" : workHours > 5 ? "present" : "half-day";
+
+      // ✅ remove undefined fields
+      const filteredChanges = removeUndefined(parsed.data)
+
+      const newRecord = {
+        ...filteredChanges,
+        status,
+        workHours,
+      };
+
+      // ✅ update request
+      request.manager = convertToObjectId(user.id);
+      request.status = input["request-status"];
+      request.reason = input.reason;
+
+      await request.save({ session });
+
+      // ✅ update attendance
+      await Attendance.findByIdAndUpdate(
+        request.attendance,
+        { $set: newRecord },
+        { session }
+      );
+
+      updatedRequest = request;
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Attendance Correction Updated Successfully.",
+      data: updatedRequest,
+    });
+
+  } finally {
+    await session.endSession(); // ✅ always cleanup
+  }
+};
