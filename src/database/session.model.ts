@@ -1,11 +1,12 @@
-import mongoose from "mongoose";
+import {mongoose, Schema}from "mongoose";
 import { time } from "node:console";
 import { required } from "zod/mini";
 
 const sessionSchema = new mongoose.Schema(
   {
     workshopID: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Workshop",
       required:true,
     },
 
