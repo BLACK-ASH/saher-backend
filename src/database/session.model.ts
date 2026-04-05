@@ -1,4 +1,4 @@
-import {mongoose, Schema}from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { time } from "node:console";
 import { required } from "zod/mini";
 
@@ -7,7 +7,7 @@ const sessionSchema = new mongoose.Schema(
     workshopID: {
       type: Schema.Types.ObjectId,
       ref: "Workshop",
-      required:true,
+      required: true,
     },
 
     title: {
@@ -24,10 +24,10 @@ const sessionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    
+
     endTime: {
       type: String,
-      required:true,
+      required: true,
     },
 
     speaker: {
