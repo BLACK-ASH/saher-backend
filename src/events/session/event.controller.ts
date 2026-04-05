@@ -41,7 +41,7 @@ export const editSession = async (req: Request, res: Response) => {
   }
   return res.status(500).json({
     success: true,
-    message: "Session Updated successfully",
+    message: "Session has been Updated successfully",
     data: updatedSession,
   });
   // res.status(500).json({ error: "Failed to update session" });

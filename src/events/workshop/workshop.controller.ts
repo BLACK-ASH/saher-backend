@@ -9,7 +9,7 @@ export const addWorkshop = async (req: Request, res: Response) => {
   if (!newWorkshop) throw new ApiError(500, "Failed to add a Workshop");
   return res.status(200).json({
     success: true,
-    message: "workshop is added successfully.",
+    message: "Workshop is added successfully.",
     data: newWorkshop
   });
 };
@@ -18,10 +18,10 @@ export const addWorkshop = async (req: Request, res: Response) => {
 export const deleteWorkshop = async (req: Request, res: Response) => {
   const id = req.params.id;
   const deleted = await Workshop.findByIdAndDelete(id);
-  if (!deleted) throw new ApiError(500, "Failed to delete a workshop")
+  if (!deleted) throw new ApiError(500, "Failed to delete workshop")
   return res.status(200).json({
     success: true,
-    message: "workshop has been deleted successfully",
+    message: "Workshop has been deleted successfully",
     data: null
   });
 };
@@ -38,11 +38,11 @@ export const editWorkshop = async (req: Request, res: Response) => {
       },
     );
     if (!updatedWorkshop) {
-      return res.status(404).json({ error: "workshop not found" });
+      return res.status(404).json({ error: "Workshop not found" });
     }
     return res.status(500).json({
       success: true,
-      message: "workshop Updated successfully",
+      message: "Workshop has been Updated successfully",
       data: updatedWorkshop
     });
     // res.status(500).json({ error: "Failed to update workshop" });
