@@ -2,7 +2,6 @@ import { Router, Request, Response } from "express";
 import { addSession, deleteSession, editSession } from "./session/event.controller.js";
 import { addWorkshop, deleteWorkshop, editWorkshop } from "./workshop/workshop.controller.js";
 
-
 const eventRouter = Router();
 
 // Session route
@@ -21,3 +20,4 @@ eventRouter.get("/", (req: Request, res: Response) => {
 eventRouter.delete("/:id", deleteWorkshop)
 eventRouter.patch("/:id", editWorkshop)
 export default eventRouter;
+
