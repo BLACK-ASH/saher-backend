@@ -1,8 +1,14 @@
 import mongoose from "mongoose";
+import { time } from "node:console";
 import { required } from "zod/mini";
 
 const sessionSchema = new mongoose.Schema(
   {
+    workshopID: {
+      type: String,
+      required:true,
+    },
+
     title: {
       type: String,
       required: true,
@@ -13,12 +19,17 @@ const sessionSchema = new mongoose.Schema(
       required: true,
     },
 
-    date: {
-      type: Date,
+    startTime: {
+      type: String,
       required: true,
     },
+    
+    endTime: {
+      type: String,
+      required:true,
+    },
 
-    manager: {
+    speaker: {
       type: String,
       required: true,
     },
