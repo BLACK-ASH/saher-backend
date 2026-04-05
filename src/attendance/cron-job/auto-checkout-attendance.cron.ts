@@ -12,7 +12,7 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
   }
 
   // 📅 Today (same format you are using)
-  const today = new Date().toLocaleDateString("en-IN");
+  const today = new Date().toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"});
 
   // 🕕 Default checkout time (6 PM IST)
   const defaultOutTime = new Date();

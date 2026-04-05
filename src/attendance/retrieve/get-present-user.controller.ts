@@ -59,8 +59,8 @@ export const getAllUserController = async (req: Request, res: Response) => {
     //DB Functions 
     const record = await Attendance.find({
       date: {
-        $gte: startDate.toLocaleDateString("en-CA"),
-        $lte: endDate.toLocaleDateString("en-CA")
+        $gte: startDate.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}),
+        $lte: endDate.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"})
       }
 
     }).sort({ date: -1 })

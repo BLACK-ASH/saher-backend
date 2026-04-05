@@ -4,7 +4,7 @@ import { ApiError } from "../../libs/class/api-error.js";
 
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user
-  const today = await Attendance.findOne({ user: user?.id, date: new Date().toLocaleDateString() }).lean()
+  const today = await Attendance.findOne({ user: user?.id, date: new Date().toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}) }).lean()
 
   if (!today) throw new ApiError(404, "Today Attendance Not Found.")
 

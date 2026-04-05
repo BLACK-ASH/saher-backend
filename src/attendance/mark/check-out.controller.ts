@@ -10,7 +10,7 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   const attendance = await Attendance.findOne({
     user: user?.id,
-    date: now.toLocaleDateString("en-CA"),
+    date: now.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}),
     inTime: { $ne: null }
   })
 
@@ -20,16 +20,13 @@ export const checkOutController = async (req: Request, res: Response) => {
   if (attendance?.outTime) throw new ApiError(400, "You Have Already Checked Out Today")
 
   // Calculate The Work Hour And Status
-  let expectedWorkHours 
-  if(req.user?.employeeType === "full-time"){
-    expectedWorkHours = 8 
-  }
-  else{
-     expectedWorkHours = 4 ;
-  }
+  const employeeDetails = { fullTime :{fullWorkHours:9 , halfWorkHours : 4.5 , graceHours : 1   } , partTime : {fullWorkHours:4 , halfWorkHours : 2 , graceHours : 0.5   }}
+ 
+  const  final =  req.user?.employeeType === "full-time" ? employeeDetails.fullTime : employeeDetails.partTime
+
   const workHours = timeDifference(attendance.inTime as Date, now).hours
   if (!workHours) throw new ApiError(400, "Work Hours Is Not Valid.")
-  const status = workHours === 0 ? "absent" : workHours > expectedWorkHours ? "present" : "half-day"
+  const status = workHours === 0 ? "absent" : workHours > (final.fullWorkHours- final.graceHours) ? "present" : "half-day"
 
   attendance.outTime = now
   attendance.status = status
