@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Session } from "../../database/event.model.js";
+import { Session } from "../../database/session.model.js";
 import { ApiError } from "../../libs/class/api-error.js";
 import { success } from "zod";
 
