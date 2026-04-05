@@ -1,11 +1,11 @@
 import {Router , Request, Response} from "express";
-import { addEvent, deleteEvent, editEvent } from "./event/event.controller.js";
+import { addSession, deleteSession, editSession } from "./session/event.controller.js";
 
-const eventRouter = Router();
-eventRouter.post("/", addEvent);
-eventRouter.get("/", (req: Request, res:Response) => {
-  return res.status(200).json({ message: "This Is a Event Router Page" })
+const sessionRouter = Router();
+sessionRouter.post("/", addSession);
+sessionRouter.get("/", (req: Request, res:Response) => {
+  return res.status(200).json({ message: "This Is a Session Router Page" })
 });
-eventRouter.delete("/:id",deleteEvent)
-eventRouter.patch("/:id", editEvent)
-export default eventRouter;
+sessionRouter.delete("/:id",deleteSession)
+sessionRouter.patch("/:id", editSession)
+export default sessionRouter;

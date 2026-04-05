@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { required } from "zod/mini";
 
-const eventSchema = new mongoose.Schema(
+const sessionSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -26,5 +26,5 @@ const eventSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export type EventType = mongoose.InferSchemaType<typeof eventSchema>;
-export const Event = mongoose.model<EventType>("Event", eventSchema);
+export type sessionType = mongoose.InferSchemaType<typeof sessionSchema>;
+export const Session = mongoose.model<sessionType>("Session", sessionSchema);
