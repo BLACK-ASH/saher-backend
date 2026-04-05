@@ -5,19 +5,19 @@ import { addWorkshop, deleteWorkshop, editWorkshop } from "./workshop/workshop.c
 const eventRouter = Router();
 
 // Session route
-eventRouter.post("/", addSession);
-eventRouter.get("/", (req: Request, res: Response) => {
+eventRouter.post("/session", addSession);
+eventRouter.get("/session", (req: Request, res: Response) => {
   return res.status(200).json({ message: "This Is a Session Router Page" })
 });
-eventRouter.delete("/:id", deleteSession)
-eventRouter.patch("/:id", editSession)
+eventRouter.delete("/session/:id", deleteSession)
+eventRouter.patch("/session/:id", editSession)
 
 // Workshop route
-eventRouter.post("/", addWorkshop);
-eventRouter.get("/", (req: Request, res: Response) => {
+eventRouter.post("/workshop", addWorkshop);
+eventRouter.get("/workshop", (req: Request, res: Response) => {
   return res.status(200).json({ message: "This Is a Session Router Page" })
 });
-eventRouter.delete("/:id", deleteWorkshop)
-eventRouter.patch("/:id", editWorkshop)
+eventRouter.delete("/workshop/:id", deleteWorkshop)
+eventRouter.patch("/workshop/:id", editWorkshop)
 export default eventRouter;
 
