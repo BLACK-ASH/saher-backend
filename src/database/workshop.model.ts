@@ -19,8 +19,8 @@ const workshopSchema = new mongoose.Schema(
     },
 
     endDate: {
-        type: Date,
-        required:true,
+      type: Date,
+      required: true,
     },
 
     createdBy: {
@@ -32,4 +32,7 @@ const workshopSchema = new mongoose.Schema(
 );
 
 export type workshopType = mongoose.InferSchemaType<typeof workshopSchema>;
-export const Workshop = mongoose.model<workshopType>("Workshop", workshopSchema);
+export const Workshop = mongoose.model<workshopType>(
+  "Workshop",
+  workshopSchema,
+);
