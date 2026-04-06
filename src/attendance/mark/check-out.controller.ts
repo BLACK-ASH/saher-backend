@@ -14,7 +14,7 @@ export const checkOutController = async (req: Request, res: Response) => {
     inTime: { $ne: null }
   })
 
-  // If User Is Not Check In
+  //  If User Is Not Check In
   if (!attendance) throw new ApiError(400, "You Have Not Checked Out Today.")
   // If User Is Already Check Out
   if (attendance?.outTime) throw new ApiError(400, "You Have Already Checked Out Today")
