@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import z from "zod";
 import { hashPassword } from "../../libs/utils/password-hash.js";
+import { ApiError } from "../../libs/class/api-error.js";
 
 export const userSchema = z.object({
   name: z.string().trim().min(2),
@@ -50,9 +51,8 @@ export type AccountUpdate = z.infer<typeof accountUpdateSchema>
 export const validateAccountRegister = async (req: Request, res: Response, next: NextFunction) => {
   const parsedRegisterInput = await accountRegisterSchema.safeParseAsync(req.body)
 
-  if (!parsedRegisterInput.success) {
-    return res.status(400).json({ success: false, message: "Invalid Input - " + parsedRegisterInput.error.issues[0].message, data: parsedRegisterInput.error.issues[0] })
-  }
+  const message = "Invalid Input - " + parsedRegisterInput.error?.issues[0].message
+  if (!parsedRegisterInput.success) throw new ApiError(400, message, parsedRegisterInput.error?.issues[0].message)
 
   req.body = parsedRegisterInput.data
   next()
@@ -61,9 +61,8 @@ export const validateAccountRegister = async (req: Request, res: Response, next:
 export const validateAccountUpdate = async (req: Request, res: Response, next: NextFunction) => {
   const parsedUpdateInput = await accountUpdateSchema.safeParseAsync(req.body)
 
-  if (!parsedUpdateInput.success) {
-    return res.status(400).json({ success: false, message: "Invalid Input" + parsedUpdateInput.error.issues[0].message, data: parsedUpdateInput.error.issues[0] })
-  }
+  const message = "Invalid Input - " + parsedUpdateInput.error?.issues[0].message
+  if (!parsedUpdateInput.success) throw new ApiError(400, message, parsedUpdateInput.error?.issues[0].message)
 
   req.body = parsedUpdateInput.data
   next()

@@ -1,60 +1,35 @@
 import { Request, Response } from "express";
-import { BankDetail } from "../../database/bankDetail.model.js";
+import { BankDetail } from "../../database/bank-detail.model.js";
+import { ApiError } from "../../libs/class/api-error.js";
 
 // Create Bank Controller
 export const createBankDetailController = async (req: Request, res: Response) => {
-
   const { accountHolderName, bankName, ifcs, branch, mobileNumber } = req.body
 
-  try {
-    const details = await BankDetail.create({ accountHolderName, bankName, ifcs, branch, mobileNumber })
-    return res.status(201).json({ success: true, message: "Bank Details Added Succesfull", data: details })
-  }
-  catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Registration failed", data: error });
-  }
+  const details = await BankDetail.create({ accountHolderName, bankName, ifcs, branch, mobileNumber })
+
+  return res.status(201).json({ success: true, message: "Bank Details Added Successfull.", data: details })
 }
 
 // Get Bank Controller
 export const getBankDetailController = async (req: Request, res: Response) => {
-
   const id = req.params.id
 
-  try {
-    const details = await BankDetail.findById(id)
+  const details = await BankDetail.findById(id)
+  if (!details) throw new ApiError(400, "Bank Details Not Exist.")
 
-    if (!details) {
-      return res.status(404).json({ success: false, message: "Bank Details Not Exist", data: null })
-    }
-
-    return res.status(200).json({ success: true, message: "Bank Details Retrive Succesfully", data: details })
-  }
-  catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Getting Data failed", data: error });
-  }
+  return res.status(200).json({ success: true, message: "Bank Details Retrive Successfull.", data: details })
 }
 
 // Update Bank Controller
 export const updateBankDetailController = async (req: Request, res: Response) => {
-
   const id = req.params.id
   const data = req.body
 
-  try {
-    const updated = await BankDetail.findByIdAndUpdate(id, data)
+  const updated = await BankDetail.findByIdAndUpdate(id, data)
+  if (!updated) throw new ApiError(404, "Bank Details Nott Exist.")
 
-    if (!updated) {
-      return res.status(404).json({ success: false, message: "Bank Details Not Exist", data: null })
-    }
-
-    return res.status(200).json({ success: true, message: "Bank Details Updated Successffully", data: updated })
-  }
-  catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Update failed", data: error });
-  }
+  return res.status(200).json({ success: true, message: "Bank Details Updated Successfull.", data: updated })
 }
 
 // Delete Bank Controller
@@ -62,17 +37,8 @@ export const deleteBankDetailController = async (req: Request, res: Response) =>
 
   const id = req.params.id
 
-  try {
-    const deleted = await BankDetail.findByIdAndDelete(id)
+  const deleted = await BankDetail.findByIdAndDelete(id)
+  if (!deleted) throw new ApiError(404, "Bank Details Not Exist.")
 
-    if (!deleted) {
-      return res.status(404).json({ success: false, message: "Bank Details Not Exist", data: null })
-    }
-
-    return res.status(200).json({ success: true, message: "Bank Details Deleted Succesfully", data: deleted })
-  }
-  catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Deletion  failed", data: error });
-  }
-}
+  return res.status(200).json({ success: true, message: "Bank Details Deleted Succesfully", data: deleted })
+}  
