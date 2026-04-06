@@ -7,7 +7,7 @@ export const createNotificationController = async ( req:Request , res:Response)=
     const user = req.user 
 
     //Checking if the user is Admin 
-    if(user?.role !== "admin" && "manager"){
+    if(user?.role !== "admin" && user?.role !=="manager"){
         throw new ApiError(400,"Only Admins and managers are allowed to create a notification")
     }
 
