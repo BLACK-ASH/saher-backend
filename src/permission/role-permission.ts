@@ -14,7 +14,7 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("update", "user"),
     createPermission("delete", "user"),
 
-    // Events
+    // Holiday
     createPermission("write", "holiday"),
     createPermission("update", "holiday"),
     createPermission("delete", "holiday"),
@@ -31,33 +31,39 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     // Attendance Correction
     createPermission("write", "attendance-correction"),
     createPermission("update", "attendance-correction"),
-  ]),
 
+    //Notification 
+    createPermission("write","notification")
+  ]),
+  
   manager: new Set([
     // Account 
     createPermission("write", "account"),
     createPermission("update", "account"),
-
+    
     // User 
     createPermission("write", "user"),
     createPermission("update", "user"),
-
+    
     // holiday 
     createPermission("write", "holiday"),
     createPermission("update", "holiday"),
     createPermission("delete", "holiday"),
-
+    
     // Bank 
     createPermission("write", "bank"),
     createPermission("update", "bank"),
-
+    
     // Attendance 
     createPermission("write", "attendance"),
     createPermission("update", "attendance"),
-
+    
     // Attendance Correction
     createPermission("write", "attendance-correction"),
     createPermission("update", "attendance-correction"),
+    
+    //Notification 
+    createPermission("write","notification")
   ]),
 
   user: new Set([

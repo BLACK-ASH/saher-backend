@@ -4,8 +4,10 @@ import { authorize } from "../permission/authorize.js";
 import { validate } from "../libs/middleware/validate-zod-schema.js";
 import { createNotificationSchema } from "./notification.schema.js";
 
-export const notificationRouter = Router() 
+const notificationRouter = Router() 
 
 notificationRouter.get("/" , getLatestNotificationController)
 notificationRouter.get("/all" , getAlltNotificationController)
 notificationRouter.post("/create" , authorize("write" , "notification") , validate(createNotificationSchema),  createNotificationController)
+
+export default notificationRouter 
