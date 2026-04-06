@@ -27,7 +27,7 @@ export const getLatestNotificationController = async(req:Request , res:Response)
     
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
-        return res.status(400).json({message:"You have no notifications yet " , success : false })
+        throw new ApiError(400 , "You have no notifications ")
     }
 
     const latestNotification = await Notification.findOne().sort({createdAt : -1})
@@ -40,7 +40,7 @@ export const getAlltNotificationController = async(req:Request , res:Response)=>
     
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
-        return res.status(400).json({message:"You have no notifications yet " , success : false })
+        throw new ApiError(400 , "You have no notifications ")
     }
 
     const allNotification = await Notification.find()
