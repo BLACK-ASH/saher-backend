@@ -8,19 +8,17 @@ import adminRouter from "./admin/admin.routes.js";
 import authRouter from "./auth/auth.routes.js";
 import connectDb from "./database/connection.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
+import attendanceRouter from "./attendance/attendance.route.js"
 import uploadRouter from "./upload/upload.routes.js";
 import errorHandler from "./libs/middleware/error-handler.js";
-import attendanceRouter from "./attendance/attendance.route.js";
-import sessionRouter from "./events/events.routes.js";
-import eventRouter from "./events/events.routes.js";
 
 // Env Config
-dotenv.config();
+dotenv.config()
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
-// Route Login
+// Route Login 
 app.use((req, res, next) => {
   console.log(req.method, req.url);
   next();
@@ -31,49 +29,21 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
-  }),
+  })
 );
 
 // Image Upload Routes
-<<<<<<< HEAD
-<<<<<<< HEAD
-app.use("/api/upload", uploadRouter);
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.static(path.join(process.cwd(), "public")));
-=======
 app.use("/api/upload", uploadRouter)
 app.use(express.json())
 app.use(cookieParser())
->>>>>>> 1a57e931e5371deeb665cd32d657b9f1540b5ff9
-=======
-app.use("/api/upload", uploadRouter)
-app.use(express.json())
-app.use(cookieParser())
->>>>>>> 3321fc9e6b9630ed508f5b215fb67e9c73d780cf
 
 // Databse Connection
-await connectDb();
+await connectDb()
 
 // Routes
-<<<<<<< HEAD
-<<<<<<< HEAD
-app.use("/api/admin", protectedRoute, adminRouter);
-app.use("/api/upload", uploadRouter);
-app.use("/api/events", eventRouter);
-app.use("/api/attendance", protectedRoute, attendanceRouter);
-app.use("/api/admin", protectedRoute, adminRouter);
-app.use("/api/auth", authRouter);
-=======
 app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/attendance", protectedRoute, attendanceRouter)
 app.use("/api/auth", authRouter)
->>>>>>> 1a57e931e5371deeb665cd32d657b9f1540b5ff9
-=======
-app.use("/api/admin", protectedRoute, adminRouter)
-app.use("/api/attendance", protectedRoute, attendanceRouter)
-app.use("/api/auth", authRouter)  
->>>>>>> 3321fc9e6b9630ed508f5b215fb67e9c73d780cf
 app.use("/", express.static(path.join(process.cwd(), "docs")));
 app.use(express.static(path.join(process.cwd(), "public")))
 
@@ -84,11 +54,11 @@ app.get("/health", async (req, res) => {
     return res.status(500).json({ status: "db not connected" });
   }
   res.status(200).json({ status: "ok" });
-});
+})
 
 // Global Error Handling
-app.use(errorHandler);
+app.use(errorHandler)
 
 app.listen(PORT, () => {
-  console.log("Server Started", PORT);
+  console.log("Server Started", PORT)
 });
