@@ -3,6 +3,7 @@ import { User } from "../../database/user.model.js"
 import { comparePassword } from "../../libs/utils/password-hash.js"
 import { generateToken } from "../../libs/utils/jwt-token.js"
 import { ApiError } from "../../libs/class/api-error.js"
+import { Account } from "../../database/account.model.js"
 
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body
@@ -16,13 +17,21 @@ export const loginController = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, message: "Already Login.", data: token })
   }
 
-  const user = await User.findOne({ email })
+  const user = await User.findOne({ email }).lean()
   if (!user) throw new ApiError(404, "User Not Found.")
 
   const matchPassword = await comparePassword(password, user.password!)
   if (!matchPassword) throw new ApiError(403, "Invalid Credentials.")
 
-  const { accessToken, refreshToken } = generateToken({ id: user._id.toString(), name: user.name!, role: user.role })
+  const account = await Account.findOne({ user: user._id }).lean()
+  if (!account) throw new ApiError(404, "Account Not Found.")
+
+  const role = user.role
+  const employeeType = account.employeeType
+
+  const payload = { id: user._id.toString(), name: user.name!, role, employeeType }
+
+  const { accessToken, refreshToken } = generateToken(payload)
 
   res.cookie("saher_access_token", accessToken, { maxAge: 604800000, httpOnly: true, secure: true, sameSite: "none" })
   res.cookie("saher_refresh_token", refreshToken, { maxAge: 7776000000, httpOnly: true, secure: true, sameSite: "none" })

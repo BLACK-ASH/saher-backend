@@ -13,7 +13,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
     }
 
     if (!access && refresh) {
-      const verifyToken = await verifyRefreshToken(refresh)
+      const verifyToken = verifyRefreshToken(refresh)
 
       if (!verifyToken) {
         return res.status(401).json({ success: false, message: "Login Required." })
@@ -22,7 +22,8 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
       const user: ReqUser = {
         id: verifyToken.id,
         name: verifyToken.name,
-        role: verifyToken.role
+        role: verifyToken.role,
+        employeeType: verifyToken.employeeType
       }
 
       const { accessToken, refreshToken } = generateToken(user)
@@ -33,7 +34,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
       return next()
     }
 
-    const verifyToken = await verifyAccessToken(access)
+    const verifyToken = verifyAccessToken(access)
 
     if (!verifyToken) {
       return res.status(401).json({ success: false, message: "Login Required." })
@@ -42,7 +43,8 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
     const user: ReqUser = {
       id: verifyToken.id,
       name: verifyToken.name,
-      role: verifyToken.role
+      role: verifyToken.role,
+      employeeType: verifyToken.employeeType
     }
 
     if (!verifyToken) {

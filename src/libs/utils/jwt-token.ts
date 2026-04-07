@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken"
 export type ReqUser = {
   id: string,
   name: string,
-  role: string
+  role: "user" | "manager" | "admin",
+  employeeType: "part-time" | "full-time" | "volunteer"
 }
 
 export const generateToken = (data: ReqUser) => {
@@ -12,12 +13,12 @@ export const generateToken = (data: ReqUser) => {
   return { accessToken, refreshToken }
 }
 
-export const verifyAccessToken = async (accessToken: string) => {
+export const verifyAccessToken = (accessToken: string) => {
   const data = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!, { algorithms: ["HS384"] })
   return data as ReqUser
 }
 
-export const verifyRefreshToken = async (refreshToken: string) => {
+export const verifyRefreshToken = (refreshToken: string) => {
   const data = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!, { algorithms: ["HS512"] })
   return data as ReqUser
 }

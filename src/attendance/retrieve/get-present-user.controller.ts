@@ -3,9 +3,9 @@ import { ApiError } from "../../libs/class/api-error.js";
 import { Attendance } from "../../database/attendance.model.js";
 
 
-export const getAllPresentUserController = async (req: Request, res: Response) => {
+export const getAllUserController = async (req: Request, res: Response) => {
 
-  try {
+
     // Get the user body 
     const user = req.user
 
@@ -59,8 +59,8 @@ export const getAllPresentUserController = async (req: Request, res: Response) =
     //DB Functions 
     const record = await Attendance.find({
       date: {
-        $gte: startDate.toLocaleDateString(),
-        $lte: endDate.toLocaleDateString()
+        $gte: startDate.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}),
+        $lte: endDate.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"})
       }
 
     }).sort({ date: -1 })
@@ -68,8 +68,5 @@ export const getAllPresentUserController = async (req: Request, res: Response) =
 
     return res.status(200).json({ message: "The record you asked for ", data: record, count: record.length })
 
-  } catch (error) {
-    throw new ApiError(500, "Internal server error")
-  }
-
+  
 }
