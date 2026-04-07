@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { Workshop } from "../../database/workshop.model.js";
 import { ApiError } from "../../libs/class/api-error.js";
-import { success } from "zod";
+import {
+  createWorkshopSchema,
+  updatedWorkshopSchema,
+} from "./workshop.schema.js";
 
 //Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
@@ -10,7 +13,7 @@ export const addWorkshop = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     message: "Workshop is added successfully.",
-    data: newWorkshop
+    data: newWorkshop,
   });
 };
 
@@ -18,32 +21,31 @@ export const addWorkshop = async (req: Request, res: Response) => {
 export const deleteWorkshop = async (req: Request, res: Response) => {
   const id = req.params.id;
   const deleted = await Workshop.findByIdAndDelete(id);
-  if (!deleted) throw new ApiError(500, "Failed to delete workshop")
+  if (!deleted) throw new ApiError(404, "Workshop not found");
   return res.status(200).json({
     success: true,
     message: "Workshop has been deleted successfully",
-    data: null
+    data: null,
   });
 };
 
 //Edit a workshop
 export const editWorkshop = async (req: Request, res: Response) => {
-  
-    const updatedWorkshop = await Workshop.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
-    if (!updatedWorkshop) {
-      return res.status(404).json({ error: "Workshop not found" });
-    }
-    return res.status(500).json({
-      success: true,
-      message: "Workshop has been Updated successfully",
-      data: updatedWorkshop
-    });
-    // res.status(500).json({ error: "Failed to update workshop" });
+  const updatedWorkshop = await Workshop.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+  if (!updatedWorkshop) {
+    return res.status(404).json({ error: "Workshop not found" });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Workshop has been Updated successfully",
+    data: updatedWorkshop,
+  });
+  // res.status(500).json({ error: "Failed to update workshop" });
 };
