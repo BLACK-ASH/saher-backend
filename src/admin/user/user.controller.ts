@@ -17,7 +17,7 @@ export const userGetController = async (req: Request, res: Response) => {
 
 export const getAllUser = async (req: Request, res: Response) => {
   const fields = req.query.fields as string
-  let defaultFields = "name displayName email image role"
+  let defaultFields = "name displayName email image role "
   if (fields) {
     defaultFields += fields.split(",").join(" ")
   }
