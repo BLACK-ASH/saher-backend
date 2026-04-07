@@ -26,7 +26,7 @@ adminRouter.post("/account/register", authorize("write", "account"), validateAcc
 
 // User Routes
 adminRouter.get("/user/get/:id", userGetController)
-  .get("/user/get", getAllUser)
+  .get("/user/get-all",getAllUser)
   .put("/user/update/:id", authorize("update", "user"), validateUserUpdate, userUpdateController)
   .delete("/user/delete/:id", authorize("delete", "user"), userDeleteController)
 

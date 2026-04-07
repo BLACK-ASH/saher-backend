@@ -35,22 +35,19 @@ app.use(
 );
 
 // Image Upload Routes
-app.use("/api/upload", uploadRouter);
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.static(path.join(process.cwd(), "public")));
+app.use("/api/upload", uploadRouter)
+app.use(express.json())
+app.use(cookieParser())
 
 // Databse Connection
 await connectDb();
 
 // Routes
-app.use("/api/admin", protectedRoute, adminRouter);
-app.use("/api/upload", uploadRouter);
-app.use("/api/events", eventRouter);
-app.use("/api/attendance", protectedRoute, attendanceRouter);
-app.use("/api/admin", protectedRoute, adminRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/admin", protectedRoute, adminRouter)
+app.use("/api/attendance", protectedRoute, attendanceRouter)
+app.use("/api/auth", authRouter)  
 app.use("/", express.static(path.join(process.cwd(), "docs")));
+app.use(express.static(path.join(process.cwd(), "public")))
 
 // To Check Services Is Healthy
 app.get("/health", async (req, res) => {
