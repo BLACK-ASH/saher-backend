@@ -14,16 +14,17 @@ import {
   createWorkshopSchema,
   updatedWorkshopSchema,
 } from "./workshop/workshop.schema.js";
+import { createSessionSchema, updatedSessionSchema } from "./session/session.schema.js";
 
 const eventRouter = Router();
 
 // Session route
-eventRouter.post("/session", addSession);
+eventRouter.post("/session", validate(createSessionSchema), addSession);
 eventRouter.get("/session", (req: Request, res: Response) => {
   return res.status(200).json({ message: "This is a Session Router Page" });
 });
 eventRouter.delete("/session/:id", deleteSession);
-eventRouter.patch("/session/:id", editSession);
+eventRouter.patch("/session/:id", validate(updatedSessionSchema), editSession);
 
 // Workshop route
 eventRouter.post("/workshop", validate(createWorkshopSchema), addWorkshop);
