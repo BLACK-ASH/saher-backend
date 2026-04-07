@@ -31,40 +31,51 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     // Attendance Correction
     createPermission("write", "attendance-correction"),
     createPermission("update", "attendance-correction"),
-  ]),
 
+    //Mail 
+    createPermission("write","mail"),
+    createPermission("write" , "mail-all")
+  ]),
+  
   manager: new Set([
     // Account 
     createPermission("write", "account"),
     createPermission("update", "account"),
-
+    
     // User 
     createPermission("write", "user"),
     createPermission("update", "user"),
-
+    
     // holiday 
     createPermission("write", "holiday"),
     createPermission("update", "holiday"),
     createPermission("delete", "holiday"),
-
+    
     // Bank 
     createPermission("write", "bank"),
     createPermission("update", "bank"),
-
+    
     // Attendance 
     createPermission("write", "attendance"),
     createPermission("update", "attendance"),
-
+    
     // Attendance Correction
     createPermission("write", "attendance-correction"),
     createPermission("update", "attendance-correction"),
+    
+    //Mail 
+    createPermission("write","mail"),
+    createPermission("write" , "mail-all")
   ]),
-
+  
   user: new Set([
     // Attendance 
     createPermission("write", "attendance"),
-
+    
     // Attendance Correction
     createPermission("write", "attendance-correction"),
+    
+    //Mail 
+    createPermission("write","mail")
   ]),
 };
