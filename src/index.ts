@@ -36,6 +36,7 @@ app.use(
 
 // Image Upload Routes
 <<<<<<< HEAD
+<<<<<<< HEAD
 app.use("/api/upload", uploadRouter);
 app.use(express.json());
 app.use(cookieParser());
@@ -45,11 +46,17 @@ app.use("/api/upload", uploadRouter)
 app.use(express.json())
 app.use(cookieParser())
 >>>>>>> 1a57e931e5371deeb665cd32d657b9f1540b5ff9
+=======
+app.use("/api/upload", uploadRouter)
+app.use(express.json())
+app.use(cookieParser())
+>>>>>>> 3321fc9e6b9630ed508f5b215fb67e9c73d780cf
 
 // Databse Connection
 await connectDb();
 
 // Routes
+<<<<<<< HEAD
 <<<<<<< HEAD
 app.use("/api/admin", protectedRoute, adminRouter);
 app.use("/api/upload", uploadRouter);
@@ -62,6 +69,11 @@ app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/attendance", protectedRoute, attendanceRouter)
 app.use("/api/auth", authRouter)
 >>>>>>> 1a57e931e5371deeb665cd32d657b9f1540b5ff9
+=======
+app.use("/api/admin", protectedRoute, adminRouter)
+app.use("/api/attendance", protectedRoute, attendanceRouter)
+app.use("/api/auth", authRouter)  
+>>>>>>> 3321fc9e6b9630ed508f5b215fb67e9c73d780cf
 app.use("/", express.static(path.join(process.cwd(), "docs")));
 app.use(express.static(path.join(process.cwd(), "public")))
 
