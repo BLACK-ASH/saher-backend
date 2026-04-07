@@ -11,6 +11,7 @@ import { protectedRoute } from "./libs/middleware/protected-route.js";
 import attendanceRouter from "./attendance/attendance.route.js"
 import uploadRouter from "./upload/upload.routes.js";
 import errorHandler from "./libs/middleware/error-handler.js";
+import eventRouter from "./events/events.routes.js";
 
 // Env Config
 dotenv.config()
@@ -43,6 +44,7 @@ await connectDb()
 // Routes
 app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/attendance", protectedRoute, attendanceRouter)
+app.use("/api/events", eventRouter)
 app.use("/api/auth", authRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));
 app.use(express.static(path.join(process.cwd(), "public")))
