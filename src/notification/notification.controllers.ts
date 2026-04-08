@@ -6,11 +6,6 @@ import { Notification } from "../database/notification.model.js";
 export const createNotificationController = async ( req:Request , res:Response)=>{
     const user = req.user 
 
-    //Checking if the user is Admin 
-    if(user?.role !== "admin" && user?.role !=="manager"){
-        throw new ApiError(400,"Only Admins and managers are allowed to create a notification")
-    }
-
     const { type , title , description } = req.body 
 
     const newNotification = await Notification.create({
@@ -19,7 +14,7 @@ export const createNotificationController = async ( req:Request , res:Response)=
         description : description 
     })
 
-    return res.status(200).json({message:`The notification with the title ${title} has been successfully created` , success : true })
+    return res.status(200).json({message:"The notification successfully created" , success : true })
 } 
 
 //Get the most recent Notification 
@@ -27,7 +22,7 @@ export const getLatestNotificationController = async(req:Request , res:Response)
     
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
-        throw new ApiError(400 , "You have no notifications ")
+        return res.status(200).json({message:"There are no notification" , count : 0})
     }
 
     const latestNotification = await Notification.findOne().sort({createdAt : -1})
@@ -40,7 +35,7 @@ export const getAlltNotificationController = async(req:Request , res:Response)=>
     
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
-        throw new ApiError(400 , "You have no notifications ")
+        return res.status(200).json({message:"There are no notification" , count : 0})
     }
 
     const allNotification = await Notification.find()
