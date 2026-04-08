@@ -1,5 +1,5 @@
 import { Types } from "mongoose"
-import z from "zod"
+import z, { date } from "zod"
 
 
 export const objectId = z.string().refine(val =>
@@ -8,10 +8,9 @@ export const objectId = z.string().refine(val =>
 })
 
 const dateField = z.union([z.string().datetime(), z.date()])
-    .transform((val) => {
-        const date = new Date(val)
-        if (isNaN(date.getTime())) throw new Error("Invalid date");
-        return date;
+    .transform((val) => new Date(val))
+    .refine((date) => !isNaN(date.getTime()), {
+        message: "Invalid date",
     });
 
 export const baseSchema = z.object({
@@ -20,7 +19,7 @@ export const baseSchema = z.object({
     description: z.string().min(5).max(500),
     startTime: dateField,
     endTime: dateField,
-    speaker: z.string()
+    speaker: z.string().min(3)
 })
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {
@@ -29,17 +28,15 @@ export const createSessionSchema = baseSchema.refine((data) => data.endTime > da
 })
 
 export const updatedSessionSchema =
-    baseSchema
-        .partial()
-        .refine((data) => {
-            if (data.startTime && data.endTime) {
-                return data.endTime > data.startTime;
-            }
-            return true;
-        }, {
-            message: "endTime must be after startTime",
-            path: ["endTime"]
-        })
+    baseSchema.partial().refine((data) => {
+        if (data.startTime && data.endTime) {
+            return data.endTime > data.startTime;
+        }
+        return true;
+    }, {
+        message: "endTime must be after startTime",
+        path: ["endTime"]
+    })
         .strict();
 
 export type CreateSessionInputType = z.infer<typeof createSessionSchema>;
