@@ -33,8 +33,7 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("update", "attendance-correction"),
 
     //Mail 
-    createPermission("write","mail"),
-    createPermission("write" , "mail-all")
+    createPermission("write","mail")
   ]),
   
   manager: new Set([
@@ -64,8 +63,7 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("update", "attendance-correction"),
     
     //Mail 
-    createPermission("write","mail"),
-    createPermission("write" , "mail-all")
+    createPermission("write","mail")
   ]),
   
   user: new Set([

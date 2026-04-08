@@ -20,7 +20,8 @@ const mailSchema = new mongoose.Schema({
         type : String ,
         required : true 
     }
-})
+},{timestamps : true })
 
+type Mailtype = mongoose.InferSchemaType<typeof mailSchema> 
+export const Mail = mongoose.model<Mailtype>("Mail" , mailSchema)
 
-export const Mail = mongoose.model("Mail" , mailSchema)
