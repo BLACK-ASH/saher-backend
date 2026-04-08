@@ -37,20 +37,18 @@ app.use(
 app.use("/api/upload", uploadRouter)
 app.use(express.json())
 app.use(cookieParser())
-app.use(express.static(path.join(process.cwd(), "public")))
 
 // Databse Connection
 await connectDb()
 
 // Routes
 app.use("/api/admin", protectedRoute, adminRouter)
-app.use("/api/upload", uploadRouter)
-app.use("/api/attendance",protectedRoute,attendanceRouter)
-app.use("/api/admin",protectedRoute, adminRouter)
+app.use("/api/attendance", protectedRoute, attendanceRouter)
 app.use("/api/auth", authRouter)
 
 app.use("/api/mail",protectedRoute , mailRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));
+app.use(express.static(path.join(process.cwd(), "public")))
 
 // To Check Services Is Healthy
 app.get("/health", async (req, res) => {

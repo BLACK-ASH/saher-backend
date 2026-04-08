@@ -7,7 +7,7 @@ import { User } from "../database/user.model.js";
 export const inboxController = async(req:Request , res:Response)=>{
     const user = req.user 
 
-    const record = await Mail.find({to:user?.id})
+    const record = await Mail.find({to:user?.id}).lean().sort({createdAt:-1})
     const length = record.length
     if(length === 0 ){
         throw new ApiError(400,"There are no mails for you")
@@ -21,6 +21,10 @@ export const sendMailController = async(req : Request , res:Response)=>{
 
     const { receiverID , subject , body } = req.body 
 
+    const receiver = await User.findById(receiverID) 
+    if(!receiver){
+        throw new ApiError(404,"Please check the receiver email ID")
+    }
     const newMail = await Mail.create({
         from : user?.id ,
         to : receiverID ,
@@ -49,7 +53,7 @@ export const sendMailToAllController = async(req:Request , res:Response)=>{
     }
 
     const mails = users.map( oneUser =>({
-        from : user.id,
+        from : user?.id,
         to : oneUser._id ,
         subject : subject , 
         body : body
