@@ -18,7 +18,7 @@ export const addParticipant = async (req: Request, res: Response) => {
 //Read participant
 export const readAllParticipant = async (req: Request, res: Response) => {
     const allParticipant = await Participant.find();
-    if(!allParticipant) throw new ApiError(404,"No participant to show")
+    if (!allParticipant) throw new ApiError(404, "No participant to show")
     return res.status(201).json({
         success: true,
         message: "All participant list",
