@@ -14,18 +14,6 @@ export const addSession = async (req: Request, res: Response) => {
   });
 };
 
-//Delete a session
-export const deleteSession = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const deleted = await Session.findByIdAndDelete(id);
-  if (!deleted) throw new ApiError(404, "Session not found");
-  return res.status(200).json({
-    success: true,
-    message: "Session has been deleted successfully",
-    data: null,
-  });
-};
-
 //Edit a session
 export const editSession = async (req: Request, res: Response) => {
   const updatedSession = await Session.findByIdAndUpdate(
@@ -45,3 +33,17 @@ export const editSession = async (req: Request, res: Response) => {
     data: updatedSession,
   });
 };
+
+
+//Delete a session
+export const deleteSession = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const deleted = await Session.findByIdAndDelete(id);
+  if (!deleted) throw new ApiError(404, "Session not found");
+  return res.status(200).json({
+    success: true,
+    message: "Session has been deleted successfully",
+    data: null,
+  });
+};
+

@@ -14,18 +14,6 @@ export const addWorkshop = async (req: Request, res: Response) => {
   });
 };
 
-//Delete a workshop
-export const deleteWorkshop = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const deleted = await Workshop.findByIdAndDelete(id);
-  if (!deleted) throw new ApiError(404, "Workshop not found");
-  return res.status(200).json({
-    success: true,
-    message: "Workshop has been deleted successfully",
-    data: null,
-  });
-};
-
 //Edit a workshop
 export const editWorkshop = async (req: Request, res: Response) => {
   const updatedWorkshop = await Workshop.findByIdAndUpdate(
@@ -44,5 +32,18 @@ export const editWorkshop = async (req: Request, res: Response) => {
     message: "Workshop has been Updated successfully",
     data: updatedWorkshop,
   });
-  // res.status(500).json({ error: "Failed to update workshop" });
 };
+
+//Delete a workshop
+export const deleteWorkshop = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const deleted = await Workshop.findByIdAndDelete(id);
+  if (!deleted) throw new ApiError(404, "Workshop not found");
+  return res.status(200).json({
+    success: true,
+    message: "Workshop has been deleted successfully",
+    data: null,
+  });
+};
+
+
