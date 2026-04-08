@@ -1,43 +1,23 @@
-import { NextFunction, Request, Response } from "express";
-import z from "zod";
+import { Request, Response } from "express";
+import { LeaveSchemaType } from "./leave.schema.js";
 import { Leave } from "../database/leave.model.js";
+import { ApiError } from "../libs/class/api-error.js";
 
-export const applyLeave = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+export const applyLeaveController = async (
+  req: Request,
+  res: Response,
 ) => {
-    try {
-        const parsedData = Leave.parse(req.body);
+  const parsedInput = req.body as LeaveSchemaType
 
-        const { user, date, leaveType, reason } = parsedData;
+  const user = req.user
 
-        console.log("Leave Request:");
-        console.log("User:", user);
-        console.log("Date:", date);
-        console.log("Type:", leaveType);
-        console.log("Reason:", reason);
+  if (new Date(parsedInput.date) < new Date()) throw new ApiError(400,"Cannot Appy For Past Date.")
 
-        if (new Date(date) < new Date()) {
-            return res.status(400).json({
-                success: false,
-                message: "Cannot apply leave for past dates",
-            });
-        }
+  const leave = await Leave.create({ user: user?.id, ...parsedInput })
 
-        return res.status(200).json({
-            success: true,
-            message: "Leave applied successfully",
-            data: {
-                user,
-                date,
-                leaveType,
-                reason,
-            },
-        });
-    } catch (error: any) {
-        const customError = new Error(error.message || "Something went wrong");
-        (customError as any).statusCode = 400;
-        next(customError);
-    }
+  return res.status(200).json({
+    success: true,
+    message: "Leave applied successfully",
+    data: leave,
+  });
 };
