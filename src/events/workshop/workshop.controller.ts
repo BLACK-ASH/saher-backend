@@ -1,10 +1,7 @@
 import { Request, Response } from "express";
 import { Workshop } from "../../database/workshop.model.js";
 import { ApiError } from "../../libs/class/api-error.js";
-import {
-  createWorkshopSchema,
-  updatedWorkshopSchema,
-} from "./workshop.schema.js";
+
 
 //Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
