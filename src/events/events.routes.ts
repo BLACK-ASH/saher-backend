@@ -18,7 +18,7 @@ import {
   createSessionSchema,
   updatedSessionSchema,
 } from "./session/session.schema.js";
-import { addParticipant, deleteParticipant, editParticipant } from "./participant/participant.controller.js";
+import { addParticipant, deleteParticipant, editParticipant, readAllParticipant } from "./participant/participant.controller.js";
 
 const eventRouter = Router();
 
@@ -43,10 +43,8 @@ eventRouter.patch(
 );
 
 // Particiapnt route
-eventRouter.post("/participant", addParticipant)
-eventRouter.get("/participant", (req: Request, res: Response) => {
-  return res.status(200).json({ message: "This is a Participant Router Page" });
-});
+eventRouter.post("/participant", addParticipant);
+eventRouter.get("/participant", readAllParticipant);
 eventRouter.delete("/participant/:id", deleteParticipant);
 eventRouter.patch("/participant/:id",editParticipant,);
 

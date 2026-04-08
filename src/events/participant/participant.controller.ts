@@ -3,6 +3,7 @@ import { Participant } from "../../database/participant.model.js";
 import { Session } from "../../database/session.model.js";
 import { ApiError } from "../../libs/class/api-error.js";
 import { success } from "zod";
+import { Error } from "mongoose";
 
 //Add participant
 export const addParticipant = async (req: Request, res: Response) => {
@@ -13,6 +14,17 @@ export const addParticipant = async (req: Request, res: Response) => {
         data: newParticipant,
     });
 };
+
+//Read participant
+export const readAllParticipant = async (req: Request, res: Response) => {
+    const allParticipant = await Participant.find();
+    if(!allParticipant) throw new Error("No participant to show")
+    return res.status(201).json({
+        success: true,
+        message: "All participant list",
+        data: allParticipant
+    });
+}
 
 //Edit Participant
 export const editParticipant = async (req: Request, res: Response) => {
