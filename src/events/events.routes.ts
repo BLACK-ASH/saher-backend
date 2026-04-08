@@ -14,7 +14,10 @@ import {
   createWorkshopSchema,
   updatedWorkshopSchema,
 } from "./workshop/workshop.schema.js";
-import { createSessionSchema, updatedSessionSchema } from "./session/session.schema.js";
+import {
+  createSessionSchema,
+  updatedSessionSchema,
+} from "./session/session.schema.js";
 
 const eventRouter = Router();
 
