@@ -17,7 +17,5 @@ export const updatedParticipantSchema = z
   })
   .strict();
 
-export type CreateParticipantInputType = z.infer<
-  typeof createParticipantSchema
->;
-export type UpdateWorkshopInputType = z.infer<typeof updatedParticipantSchema>;
+export type CreateParticipantInputType = z.infer<typeof createParticipantSchema>;
+export type UpdateParticipantInputType = z.infer<typeof updatedParticipantSchema>;

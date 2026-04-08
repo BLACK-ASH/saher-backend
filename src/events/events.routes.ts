@@ -19,6 +19,7 @@ import {
   updatedSessionSchema,
 } from "./session/session.schema.js";
 import { addParticipant, deleteParticipant, editParticipant, readAllParticipant } from "./participant/participant.controller.js";
+import { updatedParticipantSchema } from "./participant/participant.schema.js";
 
 const eventRouter = Router();
 
@@ -43,9 +44,9 @@ eventRouter.patch(
 );
 
 // Particiapnt route
-eventRouter.post("/participant", addParticipant);
+eventRouter.post("/participant", validate(createWorkshopSchema), addParticipant);
 eventRouter.get("/participant", readAllParticipant);
 eventRouter.delete("/participant/:id", deleteParticipant);
-eventRouter.patch("/participant/:id",editParticipant,);
+eventRouter.patch("/participant/:id",validate(updatedParticipantSchema),editParticipant,);
 
 export default eventRouter;
