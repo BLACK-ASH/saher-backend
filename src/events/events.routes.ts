@@ -3,7 +3,7 @@ import {
   addSession,
   deleteSession,
   editSession,
-} from "./session/event.controller.js";
+} from "./session/session.controller.js";
 import {
   addWorkshop,
   deleteWorkshop,
