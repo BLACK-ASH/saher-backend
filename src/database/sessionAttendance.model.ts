@@ -12,7 +12,7 @@ const sessionAttendanceSchema = new mongoose.Schema(
             ref: "Participant",
             required: true,
         }
-    }
+    }   
 )
 
 sessionAttendanceSchema.index({ sessionId: 1, participantId: 1 }, { unique: true });
