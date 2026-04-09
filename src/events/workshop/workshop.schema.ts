@@ -5,7 +5,7 @@ const dateField = z
   .union([z.string().datetime(), z.date()])
   .transform((val) => new Date(val));
 
-export const createWorkshopSchema = z.object({
+  export const baseWorkshopSchema = z.object({
     title: z.string().min(5).max(50),
     description: z.string().min(10).max(500),
     startDate: dateField,
@@ -14,14 +14,23 @@ export const createWorkshopSchema = z.object({
   })
   .strict();
 
-export const updatedWorkshopSchema = z.object({
-    title: z.string().min(5).max(50).optional(),
-    description: z.string().min(10).max(500).optional(),
-    startDate: dateField.optional(),
-    endDate: dateField.optional(),
-    createdBy: z.string().min(5).max(50).optional(),
+
+  export const createWorkshopSchema = baseWorkshopSchema.refine((data) => data.endDate > data.startDate, {
+      message: "end date must be after start date",
+      path: ["endDate"],
   })
-  .strict();
+
+export const updatedWorkshopSchema =
+    baseWorkshopSchema.partial().refine((data) => {
+        if (data.startDate && data.endDate) {
+            return data.endDate > data.startDate;
+        }
+        return true;
+    }, {
+        message: "end date must be after start date",
+        path: ["endDate"]
+    })
+        .strict();
 
 export type CreateWorkshopInputType = z.infer<typeof createWorkshopSchema>;
 export type UpdateWorkshopInputType = z.infer<typeof updatedWorkshopSchema>;
