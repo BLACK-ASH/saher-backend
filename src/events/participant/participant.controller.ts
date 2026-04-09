@@ -17,14 +17,19 @@ export const addParticipant = async (req: Request, res: Response) => {
 
 //Read participant
 export const readAllParticipant = async (req: Request, res: Response) => {
-    const allParticipant = await Participant.find();
-    if (allParticipant.length === 0) throw new ApiError(404, "No participant to show")
-    return res.status(201).json({
+    const workshopId = req.params.workshopId;
+
+    if (!workshopId) {
+        throw new ApiError(400, "workshopId is required");
+    }
+
+    const participants = await Participant.find({ workshopId });
+
+    return res.status(200).json({
         success: true,
-        message: "All participant list",
-        data: allParticipant
+        data: participants
     });
-}
+};
 
 //Edit Participant
 export const editParticipant = async (req: Request, res: Response) => {

@@ -29,7 +29,7 @@ eventRouter.patch("/sessions/:id", validate(updatedSessionSchema), editSession);
 
 // Particiapnt route ------------------------------------------------------------------------
 eventRouter.post("/participants", validate(createParticipantSchema), addParticipant);
-eventRouter.get("/participants", readAllParticipant);
+eventRouter.get("/workshops/:workshopId/participants", readAllParticipant);
 eventRouter.delete("/participants/:id", deleteParticipant);
 eventRouter.patch("/participants/:id", validate(updatedParticipantSchema), editParticipant,);
 
