@@ -1,8 +1,14 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { required } from "zod/mini";
 
 const participantSchema = new mongoose.Schema(
   {
+    workshopId: {
+      type: Schema.Types.ObjectId,
+      ref: "Workshop",
+      required: true,
+    },
+
     name: {
       type: String,
       required: true,
@@ -21,10 +27,5 @@ const participantSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export type participantType = mongoose.InferSchemaType<
-  typeof participantSchema
->;
-export const Participant = mongoose.model<participantType>(
-  "Participant",
-  participantSchema,
-);
+export type participantType = mongoose.InferSchemaType<typeof participantSchema>;
+export const Participant = mongoose.model<participantType>("Participant", participantSchema,);
