@@ -1,28 +1,18 @@
-import { Notification} from "../../database/notification.model.js"
+import { Notification, notificationTypes} from "../../database/notification.model.js"
 import { ApiError } from "../class/api-error.js";
+import { z } from "zod";
 
-type SendNotificationTypes = {
-  userID: string;
-  title: string;
-  description: string;
-  type: "Announcement" | "Urgent" |"Reminder" |"Request"| "Task";
-};
+export const sendNotificationSchema = z.object({
+  userID: z.string(),
+  type: z.enum(notificationTypes),
+  title: z.string().min(1, "Title is required").max(100, "Title too long"),
+  description: z.string().min(1, "Description is required").max(1000, "Description too long"),
+});
 
-export const sendSystemNotification = async({userID  , type , title , description }:SendNotificationTypes)=>{
 
-    if(!userID){
-        throw new ApiError(400,"User ID is required ")
-    }
+export const sendSystemNotification = async(functionParameter : unknown)=>{
 
-    if(!type){
-        throw new ApiError(400,"type is required ")
-    }
-    if(!title.trim()){
-        throw new ApiError(400,"title is required ")
-    }
-    if(!description.trim()){
-        throw new ApiError(400,"description is required ")
-    }
+    const { userID , type , title , description } = sendNotificationSchema.parse(functionParameter)
 
     const notification = await Notification.create({
         user : userID ,

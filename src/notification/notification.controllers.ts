@@ -1,24 +1,44 @@
 import { Request , response, Response } from "express";
 import { ApiError } from "../libs/class/api-error.js";
 import { Notification } from "../database/notification.model.js";
-import { convertToObjectId } from "../libs/utils/convert-objectId.js";
 import { sendSystemNotification } from "../libs/utils/system-notification.js";
-import { User } from "../database/user.model.js";
 
 //Create a new Notification
-export const createGlobalNotificationController = async ( req:Request , res:Response)=>{
-    const user = req.user 
+export const createNotificationController = async (req: Request, res: Response) => {
 
-    const { type , title , description } = req.body 
+  const { userID, type, title, description } = req.body;
 
-    const newNotification = await Notification.create({
+  let notification;
+
+  // Individual Notification
+  if (userID) {
+    notification = await sendSystemNotification({
         type : type ,
         title : title ,
-        description : description 
-    })
+        description : description ,
+        userID:userID , 
+    });
 
-    return res.status(201).json({message:"The notification successfully created" , success : true , data : newNotification , count : 1 })
-} 
+    return res.status(201).json({success: true,message: "Notification sent to user successfully",data: notification,count :1 });
+  }
+
+  //  Global Notification
+  else {
+    notification = await Notification.create({
+        type : type ,
+        title : title ,
+        description : description ,
+        user: null, 
+    });
+
+    return res.status(201).json({success: true,message:"Global notification created successfully",data: notification, count : 1 });
+  }
+
+};
+
+
+
+
 
 //Get the most recent Notification 
 export const getLatestNotificationController = async(req:Request , res:Response)=>{
@@ -66,21 +86,18 @@ export const updateNotificationController = async(req:Request , res:Response )=>
     return res.status(200).json({message:"The notification has been updated successfully " , data : updatedNotification , success : true })
 }
 
+//Delete One Notification 
+export const deleteNotificationController = async(req:Request , res:Response)=>{
+    
+    const ID = req.params.id 
 
-//Delete All Notification 
-export const deleteAllNotificationController = async(req:Request , res:Response)=>{
+    const notification = await Notification.findByIdAndDelete(ID)
 
-    const notification = await Notification.deleteMany()
+    if(!notification){
+        throw new ApiError(404, "The notification was not found")
+    }
 
-    return res.status(200).json({message:"All notifications has been deleted successfully" , success : true , data : null , count : notification.deletedCount })
+    return res.status(200).json({message:"The notification has been deleted successfully" , success : true , data : null  })
 }
 
 
-// Notification to Single individual  
-export const createIndividualNotificationController = async(req:Request,res:Response)=>{
-    const {userID , type , title , description} = req.body 
-
-    const notification = await sendSystemNotification({userID , type , title , description})
-
-    return res.status(201).json({message:"Notification sent successfully" , data : notification , success : true })
-}
