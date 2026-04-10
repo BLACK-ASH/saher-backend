@@ -23,7 +23,7 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
-    participantIds:{
+    participantIds: {
       type: Schema.Types.ObjectId,
       ref: "Participant",
     },

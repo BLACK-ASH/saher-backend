@@ -4,6 +4,7 @@ import { string, success } from "zod";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Session } from "../../database/session.model.js";
 import { Participant } from "../../database/participant.model.js";
+import { Workshop } from "../../database/workshop.model.js";
 
 export const markAttendance = async (req: Request, res: Response) => {
 
@@ -18,31 +19,23 @@ export const markAttendance = async (req: Request, res: Response) => {
     const sessionExist = await Session.findById(sessionId);
     if (!sessionExist) throw new ApiError(400, "Session not found");
 
-    // after finding the seesion get valid participants of the same workshop
+    // after finding the session get valid participants of the same workshop
     const validParticipants = await Participant.find({
         _id: { $in: participantIds },
         workshopId: sessionExist.workshopID,
     }).select("_id");
-    if (validParticipants.length === 0) {
-        throw new ApiError(400, "No participants found for this workshop");
-    }
 
     // converting object into string
     const validIds = validParticipants.map(p => p._id.toString());
 
-    const inValidIds = participantIds.filter(inId => !validIds.includes(inId))
+    const inValidIds = participantIds.filter(inId => !validIds.includes(inId));
     if (inValidIds.length > 0) {
-        throw new ApiError(
-            400,
-            `These participants are not part of this workshop: ${inValidIds.join(", ")}`
-        );
+        await Participant.updateMany({ _id: { $in: inValidIds } },
+            { $set: { workshopId: sessionExist.workshopID } })
     }
 
-    // only present participants will be shown
-    const filteredIds = participantIds.filter(id => validIds.includes(id));
-
     // Convert array of IDs → array of database records
-    const records = filteredIds.map(participantId => ({ sessionId, participantId }))
+    const records = participantIds.map(participantId => ({ sessionId, participantId }))
 
     // Inserting the data and preventing duplicate data
     await SessionAttendance.insertMany(records, {
@@ -54,6 +47,8 @@ export const markAttendance = async (req: Request, res: Response) => {
     return res.status(200).json({
         success: true,
         message: "Attendance is marked",
-        data: present
+        data: {
+            total: present.length,
+        }
     })
 }
