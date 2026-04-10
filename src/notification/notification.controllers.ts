@@ -27,11 +27,11 @@ export const getLatestNotificationController = async(req:Request , res:Response)
 
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
-        return res.status(200).json({message:"There are no notification" , count : 0})
+        return res.status(200).json({message:"There are no notification" , count : 0 , data : null , success : true })
     }
 
     const latestNotification = await Notification.findOne({ $or : [{user : user?.id} ,{user : null}]}).sort({createdAt : -1})
-    return res.status(200).json({message:"The most recent notification is " , data : latestNotification  , success : true  })
+    return res.status(200).json({message:"The most recent notification is " , data : latestNotification  , success : true , count : 1   })
 
 }
 
@@ -42,7 +42,7 @@ export const getAlltNotificationController = async(req:Request , res:Response)=>
 
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
-        return res.status(200).json({message:"There are no notification" , count : 0})
+        return res.status(200).json({message:"There are no notification" , count : 0 , data : null , success : true })
     }
 
     const allNotification = await Notification.find({$or:[{user:user?.id} , { user : null}]}).sort({createdAt : -1}).lean()
@@ -67,28 +67,12 @@ export const updateNotificationController = async(req:Request , res:Response )=>
 }
 
 
-//Delete One Notification 
-export const deleteNotificationController = async(req:Request , res:Response)=>{
-    
-    const ID = req.params.id 
-
-    const notification = await Notification.findByIdAndDelete(ID)
-
-    if(!notification){
-        throw new ApiError(404, "The notification was not found")
-    }
-
-    return res.status(200).json({message:"The notification has been deleted successfully" , success : true })
-}
-
-
-
-//Delete One Notification 
+//Delete All Notification 
 export const deleteAllNotificationController = async(req:Request , res:Response)=>{
 
     const notification = await Notification.deleteMany()
 
-    return res.status(200).json({message:"All notifications has been deleted successfully" , success : true })
+    return res.status(200).json({message:"All notifications has been deleted successfully" , success : true , data : null , count : notification.deletedCount })
 }
 
 
@@ -98,5 +82,5 @@ export const createIndividualNotificationController = async(req:Request,res:Resp
 
     const notification = await sendSystemNotification({userID , type , title , description})
 
-    return res.status(201).json({message:"Notification sent successfully" , data : notification})
+    return res.status(201).json({message:"Notification sent successfully" , data : notification , success : true })
 }
