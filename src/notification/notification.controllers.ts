@@ -2,6 +2,7 @@ import { Request , response, Response } from "express";
 import { ApiError } from "../libs/class/api-error.js";
 import { Notification } from "../database/notification.model.js";
 import { convertToObjectId } from "../libs/utils/convert-objectId.js";
+import { sendSystemNotification } from "../libs/utils/system-notification.js";
 
 //Create a new Notification
 export const createNotificationController = async ( req:Request , res:Response)=>{
@@ -83,4 +84,14 @@ export const deleteAllNotificationController = async(req:Request , res:Response)
     const notification = await Notification.deleteMany()
 
     return res.status(200).json({message:"All notifications has been deleted successfully" , success : true })
+}
+
+
+// Notification to Single individual  
+export const systemNotification = async(req:Request,res:Response)=>{
+    const {userID , type , title , description} = req.body 
+
+    const notification = await sendSystemNotification({userID , type , title , description})
+
+    return res.status(201).json({message:"Notification sent successfully" , data : notification})
 }

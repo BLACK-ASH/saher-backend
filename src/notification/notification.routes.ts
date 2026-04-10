@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createNotificationController, deleteAllNotificationController, deleteNotificationController, getAlltNotificationController, getLatestNotificationController, updateNotificationController } from "./notification.controllers.js";
+import { createNotificationController, deleteAllNotificationController, deleteNotificationController, getAlltNotificationController, getLatestNotificationController, systemNotification, updateNotificationController } from "./notification.controllers.js";
 import { authorize } from "../permission/authorize.js";
 import { validate } from "../libs/middleware/validate-zod-schema.js";
 import { createNotificationSchema, updateNotificationSchema } from "./notification.schema.js";
@@ -12,5 +12,7 @@ notificationRouter.post("/create" , authorize("write" , "notification") , valida
 notificationRouter.put("/update/:id" , authorize("update" ,"notification") , validate(updateNotificationSchema) , updateNotificationController)
 notificationRouter.delete("/delete/:id" , authorize("delete","notification"),deleteNotificationController)
 notificationRouter.delete("/delete/All" , authorize("delete","notification"),deleteAllNotificationController)
+
+notificationRouter.post("/systemNotification" , authorize("write","notification") , systemNotification)
 
 export default notificationRouter 

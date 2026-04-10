@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 export const notificationTypes = ["Announcement" , "Urgent" , "Reminder" , "Request" , "Task"]
 
 const notificationSchema = new mongoose.Schema({
+    user : {
+        type : mongoose.Schema.Types.ObjectId ,
+        ref : "User"
+    },
     type :{
         type:String,
         enum : notificationTypes ,
