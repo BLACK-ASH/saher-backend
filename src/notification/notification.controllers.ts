@@ -3,9 +3,10 @@ import { ApiError } from "../libs/class/api-error.js";
 import { Notification } from "../database/notification.model.js";
 import { convertToObjectId } from "../libs/utils/convert-objectId.js";
 import { sendSystemNotification } from "../libs/utils/system-notification.js";
+import { User } from "../database/user.model.js";
 
 //Create a new Notification
-export const createNotificationController = async ( req:Request , res:Response)=>{
+export const createGlobalNotificationController = async ( req:Request , res:Response)=>{
     const user = req.user 
 
     const { type , title , description } = req.body 
@@ -16,18 +17,20 @@ export const createNotificationController = async ( req:Request , res:Response)=
         description : description 
     })
 
-    return res.status(201).json({message:"The notification successfully created" , success : true })
+    return res.status(201).json({message:"The notification successfully created" , success : true , data : newNotification , count : 1 })
 } 
 
 //Get the most recent Notification 
 export const getLatestNotificationController = async(req:Request , res:Response)=>{
     
+    const user = req.user
+
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
         return res.status(200).json({message:"There are no notification" , count : 0})
     }
 
-    const latestNotification = await Notification.findOne().sort({createdAt : -1})
+    const latestNotification = await Notification.findOne({ $or : [{user : user?.id} ,{user : null}]}).sort({createdAt : -1})
     return res.status(200).json({message:"The most recent notification is " , data : latestNotification  , success : true  })
 
 }
@@ -35,13 +38,15 @@ export const getLatestNotificationController = async(req:Request , res:Response)
 //Get all the Notification 
 export const getAlltNotificationController = async(req:Request , res:Response)=>{
     
+    const user = req.user 
+
     const countNotification = await Notification.countDocuments()
     if(countNotification === 0){
         return res.status(200).json({message:"There are no notification" , count : 0})
     }
 
-    const allNotification = await Notification.find().sort({createdAt : -1}).lean()
-    return res.status(200).json({message:"The most recent notification is " , data : allNotification , count : allNotification.length  , success : true  })
+    const allNotification = await Notification.find({$or:[{user:user?.id} , { user : null}]}).sort({createdAt : -1}).lean()
+    return res.status(200).json({message:"The notifications are  " , data : allNotification , count : allNotification.length  , success : true  })
 
 }
 
@@ -58,7 +63,7 @@ export const updateNotificationController = async(req:Request , res:Response )=>
         throw new ApiError(404 , "Notification not found")
     }
 
-    return res.status(200).json({message:"The notification has been updated successfully " , data : updatedNotification })
+    return res.status(200).json({message:"The notification has been updated successfully " , data : updatedNotification , success : true })
 }
 
 
@@ -88,7 +93,7 @@ export const deleteAllNotificationController = async(req:Request , res:Response)
 
 
 // Notification to Single individual  
-export const systemNotification = async(req:Request,res:Response)=>{
+export const createIndividualNotificationController = async(req:Request,res:Response)=>{
     const {userID , type , title , description} = req.body 
 
     const notification = await sendSystemNotification({userID , type , title , description})
