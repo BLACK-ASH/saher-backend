@@ -9,10 +9,7 @@ export const createNotificationSchema = z.object({
 })
 
 
-export const updateNotificationSchema = z.object({
-    type : z.enum(notificationTypes).optional() ,
-    title : z.string().min(1,"Title can not be empty").max(30 , "Title is too long").optional() , 
-    description : z.string().min(1,"Description can not be empty").max(1000 , "The description is too long").optional()
-})
+export const updateNotificationSchema = createNotificationSchema.omit({userID:true}).partial();
+
 
 
