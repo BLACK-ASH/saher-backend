@@ -8,10 +8,10 @@ const notificationRouter = Router()
 
 notificationRouter.get("/" , getLatestNotificationController)
 notificationRouter.get("/all" , getAlltNotificationController)
-notificationRouter.post("/create" , authorize("write" , "notification") , validate(createNotificationSchema),  createGlobalNotificationController)
+notificationRouter.post("/create/global" , authorize("write" , "notification") , validate(createNotificationSchema),  createGlobalNotificationController)
+notificationRouter.post("/create/systemNotification" , authorize("write","notification") , validate(createIndividualNotificationSchema) ,createIndividualNotificationController)
 notificationRouter.put("/update/:id" , authorize("update" ,"notification") , validate(updateNotificationSchema) , updateNotificationController)
 notificationRouter.delete("/delete/All" , authorize("delete","notification"),deleteAllNotificationController)
 
-notificationRouter.post("/systemNotification" , authorize("write","notification") , validate(createIndividualNotificationSchema) ,createIndividualNotificationController)
 
 export default notificationRouter 
