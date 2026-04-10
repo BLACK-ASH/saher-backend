@@ -1,32 +1,38 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-export const reimbursementStatus = ["ON-HOLD","REJECTED","ACCEPTED","PAID"]
+export const reimbursementStatus = ["ON-HOLD", "REJECTED", "ACCEPTED", "PAID"]
 
 const reimbursementSchema = new mongoose.Schema({
-    user :{
-        type : mongoose.Schema.Types.ObjectId ,
-        ref : "User" ,
-        required : true 
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
-    billImg :{
-        type : mongoose.Schema.Types.ObjectId ,
+    billImg: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Media",
-        required : true 
+        required: true
     },
-    billAmount :{
-        type :Number,
-        required : true 
+    billAmount: {
+        type: Number,
+        required: true
     },
-    dateOfPayment : {
-        type : Date,
-        required : true 
-    }, 
-    description : {
-        type:String
+    dateOfPayment: {
+        type: Date,
+        required: true
     },
-    status : {
-        type : String ,
-        enum : reimbursementStatus,
-        default : "ON-HOLD"
-    }
-})
+    description: {
+        type: String
+    },
+    status: {
+        type: String,
+        enum: reimbursementStatus,
+        default: "ON-HOLD"
+    },
+},
+    { timestamps: true },
+)
+
+
+type ReimbursementType = mongoose.InferSchemaType<typeof reimbursementSchema>
+export const Reimbursement = mongoose.model<ReimbursementType>("Media", reimbursementSchema)
