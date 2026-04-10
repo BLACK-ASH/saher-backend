@@ -32,33 +32,41 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("write", "attendance-correction"),
     createPermission("update", "attendance-correction"),
 
+    // Reimbursement 
+    createPermission("write","reimbursement"),
+    createPermission("update","reimbursement")
+    
   ]),
-
+  
   manager: new Set([
     // Account 
     createPermission("write", "account"),
     createPermission("update", "account"),
-
+    
     // User 
     createPermission("write", "user"),
     createPermission("update", "user"),
-
+    
     // holiday 
     createPermission("write", "holiday"),
     createPermission("update", "holiday"),
     createPermission("delete", "holiday"),
-
+    
     // Bank 
     createPermission("write", "bank"),
     createPermission("update", "bank"),
-
+    
     // Attendance 
     createPermission("write", "attendance"),
     createPermission("update", "attendance"),
-
+    
     // Attendance Correction
     createPermission("write", "attendance-correction"),
     createPermission("update", "attendance-correction"),
+    
+    // Reimbursement 
+    createPermission("write","reimbursement"),
+    createPermission("update","reimbursement")
   ]),
 
   user: new Set([
@@ -67,5 +75,8 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     // Attendance Correction
     createPermission("write", "attendance-correction"),
+
+    //Reimbursement 
+    createPermission("write","reimbursement")
   ]),
 };
