@@ -3,11 +3,6 @@ import { required } from "zod/mini";
 
 const participantSchema = new mongoose.Schema(
   {
-    workshopId: {
-      type: Schema.Types.ObjectId,
-      ref: "Workshop",
-      required: true,
-    },
 
     name: {
       type: String,

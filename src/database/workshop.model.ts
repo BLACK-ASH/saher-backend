@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { required } from "zod/mini";
 
 const workshopSchema = new mongoose.Schema(
@@ -21,6 +21,11 @@ const workshopSchema = new mongoose.Schema(
     endDate: {
       type: Date,
       required: true,
+    },
+
+    participantIds:{
+      type: Schema.Types.ObjectId,
+      ref: "Participant",
     },
 
     createdBy: {

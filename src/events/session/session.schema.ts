@@ -11,7 +11,7 @@ const dateField = z.union([z.string().datetime(), z.date()])
     .transform((val) => new Date(val))
     .refine((date) => !isNaN(date.getTime()), {
         message: "Invalid date",
-    });
+    })
 
 export const baseSchema = z.object({
     workshopID: objectId,

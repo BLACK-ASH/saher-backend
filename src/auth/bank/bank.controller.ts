@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { BankDetail } from "../../database/bankDetail.model.js";
+import { BankDetail } from "../../database/bank-detail.model.js";
 
 // Create Bank Controller
 export const createBankDetailController = async (req: Request, res: Response) => {
