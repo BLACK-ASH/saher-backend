@@ -16,7 +16,7 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     endDate = new Date(req.query.endDate as string)
     endDate.setHours(23, 59, 59, 999)
 
-    if (startDate > endDate) throw new ApiError(400, "The Datess that you have entered are invalid please check")
+    if (startDate > endDate) throw new ApiError(400, "The Dates that you have entered are invalid please check")
 
   }
 
@@ -46,13 +46,20 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     throw new ApiError(400, "Either you give the type of retriving or you give both start Date and end Date")
   }
 
+  let id
   // Get the user body 
-  const user = req.user
-  const id = req.params.id
+  if (req.params.id === "current") {
+    id = req.user?.id
+  }
+  else {
+    id = req.params.id
+  }
+  console.log(id);
+
 
   //DB Functions 
   const record = await Attendance.find({
-    user: id || user?.id,
+    user: id,
     date: {
       $gte: standardDateString(startDate),
       $lte: standardDateString(endDate)
