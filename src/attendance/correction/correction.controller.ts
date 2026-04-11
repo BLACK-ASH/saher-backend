@@ -19,6 +19,12 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
   return res.status(200).json({ success: true, message: "Attendance Correction Retrieve Successful.", data: requests })
 }
 
+export const getAttendanceCorrectionById = async (req: Request, res: Response) => {
+  const id = req.params.id
+  const request = await AttendanceCorrection.findById(id).populate("user manager", "name role").lean()
+  if (!request) throw new ApiError(404, "Attendance Correction Request Not Found.")
+  return res.status(200).json({ success: true, message: "Attendance Correction Retrieve Successful.", data: request })
+}
 
 export const getAllAttendanceCorrectionController = async (req: Request, res: Response) => {
   const requests = await AttendanceCorrection.find().populate("user manager", "name role").lean()
