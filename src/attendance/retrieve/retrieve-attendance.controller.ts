@@ -55,12 +55,14 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
   let finalID
   if (user?.role === "admin") {
 
-    if (req.body?.userID) {
-      finalID = req.query?.userID
+    if (req.params.id) {
+      finalID = req.params?.id
     }
     else {
       finalID = req.user?.id
     }
+  }else{
+    finalID = req.user?.id
   }
 
   //DB Functions 
