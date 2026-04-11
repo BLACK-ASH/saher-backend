@@ -6,7 +6,9 @@ import { sendSystemNotification } from "../libs/utils/system-notification.js";
 //Create a new Notification
 export const createNotificationController = async (req: Request, res: Response) => {
 
-  const { userID, type, title, description } = req.body;
+    const userID = req.params.id
+
+  const {  type, title, description } = req.body;
 
   let notification;
 
