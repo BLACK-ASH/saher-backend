@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { Attendance } from "../../database/attendance.model.js"
 import { ApiError } from "../../libs/class/api-error.js";
 import { timeDifference } from "../../libs/utils/time-difference.js";
+import { standardDateString } from "../../libs/utils/standard-date.js";
 
 
 export const checkOutController = async (req: Request, res: Response) => {
@@ -10,7 +11,7 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   const attendance = await Attendance.findOne({
     user: user?.id,
-    date: now.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
+    date: standardDateString(now),
     inTime: { $ne: null }
   })
 

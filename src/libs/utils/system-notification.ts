@@ -1,5 +1,4 @@
 import { Notification, notificationTypes} from "../../database/notification.model.js"
-import { ApiError } from "../class/api-error.js";
 import { z } from "zod";
 
 export const sendNotificationSchema = z.object({
@@ -11,7 +10,6 @@ export const sendNotificationSchema = z.object({
 
 
 export const sendSystemNotification = async(functionParameter : unknown)=>{
-
     const parsedParameter = sendNotificationSchema.parse(functionParameter)
 
     const notification = await Notification.create(parsedParameter)
