@@ -8,7 +8,7 @@ const notificationRouter = Router()
 
 notificationRouter.get("/" , getLatestNotificationController)
 notificationRouter.get("/all" , getAlltNotificationController)
-notificationRouter.post("/create" , authorize("write" , "notification") , validate(createNotificationSchema),  createNotificationController)
+notificationRouter.post("/create/:id" , authorize("write" , "notification") , validate(createNotificationSchema),  createNotificationController)
 notificationRouter.put("/update/:id" , authorize("update" ,"notification") , validate(updateNotificationSchema) , updateNotificationController)
 notificationRouter.delete("/delete" , authorize("delete","notification"),deleteNotificationController)
 
