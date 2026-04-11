@@ -22,7 +22,7 @@ attendanceRouter.get("/me", meAttendanceController)
 attendanceRouter.get("/today", todayAttendanceController)
 attendanceRouter.post("/check-in", checkInController)
 attendanceRouter.post("/check-out", checkOutController)
-attendanceRouter.get("/retrive", retrieveAttendanceController)
+attendanceRouter.get("/retrive/:id", retrieveAttendanceController)
 attendanceRouter.get("/retrieve/all-present-user", getAllUserController)
 
 // Attendance

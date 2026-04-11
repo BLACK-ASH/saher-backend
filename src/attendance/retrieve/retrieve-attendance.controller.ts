@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Attendance } from "../../database/attendance.model.js";
+import { standardDateString } from "../../libs/utils/standard-date.js";
 
 export const retrieveAttendanceController = async (req: Request, res: Response) => {
 
@@ -45,35 +46,21 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     throw new ApiError(400, "Either you give the type of retriving or you give both start Date and end Date")
   }
 
-
-  startDate.setHours(0, 0, 0, 0)
-  endDate.setHours(23, 59, 59, 999)
-
   // Get the user body 
   const user = req.user
-
-  let finalID
-  if (user?.role === "admin") {
-
-    if (req.body?.userID) {
-      finalID = req.query?.userID
-    }
-    else {
-      finalID = req.user?.id
-    }
-  }
+  const id = req.params.id
 
   //DB Functions 
   const record = await Attendance.find({
-    user: finalID,
+    user: id || user?.id,
     date: {
-      $gte: startDate.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
-      $lte: endDate.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })
+      $gte: standardDateString(startDate),
+      $lte: standardDateString(endDate)
     }
 
   }).sort({ date: -1 })
 
 
-  return res.status(200).json({ success: true, message: "The record you asked for ", data: { attendances: record, count: record.length } })
+  return res.status(200).json({ success: true, message: "The record you asked for ", data: record })
 
 }
