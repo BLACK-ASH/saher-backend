@@ -13,38 +13,36 @@ export const inboxController = async(req:Request , res:Response)=>{
         return res.status(200).json({message:"There are no mails for you" , count : 0 , data : null , success : true })
     }
 
-    return res.status(200).json({message:"The mails in your inbox are " , data : record , count : length , success : true  })
+    return res.status(200).json({message:"The mails in your inbox are " , data : record ,  success : true  })
 }
 
 export const sendMailController = async(req : Request , res:Response)=>{
     const user = req.user 
 
-    const { receiversID , subject , body } = req.body
+    const { receiversIDs , subject , body } = req.body
     
-    if(!Array.isArray(receiversID) || receiversID.length === 0){
+    if(!Array.isArray(receiversIDs) || receiversIDs.length === 0){
         throw new ApiError(400 , " ReceiversID must be a non empty array")
     }
     
-    if (receiversID.includes(user?.id.toString())) {
+    if (receiversIDs.includes(user?.id.toString())) {
         throw new ApiError(400, "You cannot send mail to yourself");
 }
-    const receivers  = await User.find({ _id : { $in :receiversID}}) 
-    if(receivers.length !== receiversID.length){
-        throw new ApiError(404,"Some users were noit found")
+    const receivers  = await User.find({ _id : { $in :receiversIDs}}) 
+    if(receivers.length !== receiversIDs.length){
+        throw new ApiError(404,"Some users were not found")
     }
-   const mails = receiversID.map( id =>({
+    const mails = await Mail.create({
         from : user?.id,
-        to: id ,
+        to: receiversIDs,
         subject : subject , 
         body : body
-    }))
-
-    await Mail.insertMany(mails)
-
-    return res.status(201).json({message:`The mail has been sent to ${receiversID} ` , count : receiversID.length ,  success : true , data : null})
+    })
+    return res.status(201).json({message:`The mail has been sent to ${receiversIDs} ` ,  success : true , data : null})
 }
 
 export const outboxController = async(req:Request , res:Response)=>{
+
     const user = req.user 
 
     const record = await Mail.find({from:user?.id})
