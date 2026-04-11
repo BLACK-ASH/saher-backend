@@ -4,56 +4,69 @@ import { string, success } from "zod";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Session } from "../../database/session.model.js";
 import { Participant } from "../../database/participant.model.js";
+import mongoose from "mongoose";
 
 export const markAttendance = async (req: Request, res: Response) => {
+  const sessionId = req.params.sessionId as string;
+  const { participantIds }: { participantIds: string[] } = req.body;
 
-    // storing sessionid and participantIds from req.body (participantId is storing in array for bulk attendance)
-    const sessionId = req.params.sessionId as string;
-    const { participantIds }: { participantIds: string[]; } = req.body;
+  if (!sessionId || !participantIds?.length) {
+    throw new ApiError(400, "sessionId and participantIds are required");
+  }
 
-    // conditon to check we have both sessionid and participantId if one them is not throw error
-    if (!sessionId || !participantIds?.length) throw new ApiError(400, "sessionId and participantIds is required");
+  const sessionExist = await Session.findById(sessionId);
+  if (!sessionExist) throw new ApiError(400, "Session not found");
 
-    // if the session of the follwing ID not exist throw error 
-    const sessionExist = await Session.findById(sessionId);
-    if (!sessionExist) throw new ApiError(400, "Session not found");
+  const validParticipants = await Participant.find({
+    _id: { $in: participantIds },
+    workshopId: sessionExist.workshopId,
+  }).select("_id");
 
-    // after finding the seesion get valid participants of the same workshop
-    const validParticipants = await Participant.find({
-        _id: { $in: participantIds },
-        workshopId: sessionExist.workshopID,
-    }).select("_id");
-    if (validParticipants.length === 0) {
-        throw new ApiError(400, "No participants found for this workshop");
-    }
+  const validIds = validParticipants.map((p) => p._id.toString());
 
-    // converting object into string
-    const validIds = validParticipants.map(p => p._id.toString());
+  const objectIds = validIds.map(
+  id => new mongoose.Types.ObjectId(id)
+);
 
-    const inValidIds = participantIds.filter(inId => !validIds.includes(inId))
-    if (inValidIds.length > 0) {
-        throw new ApiError(
-            400,
-            `These participants are not part of this workshop: ${inValidIds.join(", ")}`
-        );
-    }
+  const invalidIds = participantIds.filter((id) => !validIds.includes(id));
+  if (invalidIds.length > 0) {
+    throw new ApiError(400, `Invalid participants: ${invalidIds.join(", ")}`);
+  }
 
-    // only present participants will be shown
-    const filteredIds = participantIds.filter(id => validIds.includes(id));
+  await SessionAttendance.updateMany(
+    {
+      sessionId,
+      participantId: { $in: objectIds },
+    },
+    {
+      $set: { status: "present" },
+    },
+  );
 
-    // Convert array of IDs → array of database records
-    const records = filteredIds.map(participantId => ({ sessionId, participantId }))
+  const present = await SessionAttendance.find({ sessionId }).populate(
+    "participantId",
+  );
 
-    // Inserting the data and preventing duplicate data
-    await SessionAttendance.insertMany(records, {
-        ordered: false,
-    });
+  return res.status(200).json({
+    success: true,
+    message: "Attendance marked successfully",
+    data: present,
+  });
+};
 
-    // storing the data of the present participant and populating data
-    const present = await SessionAttendance.find({ sessionId }).populate("participantId");
-    return res.status(200).json({
-        success: true,
-        message: "Attendance is marked",
-        data: present
-    })
-}
+export const getSessionAttendance = async (req: Request, res: Response) => {
+  const { sessionId } = req.params;
+
+  if (!sessionId) {
+    throw new ApiError(400, "sessionId is required");
+  }
+
+  const data = await SessionAttendance.find({ sessionId }).populate(
+    "participantId",
+  );
+
+  return res.status(200).json({
+    success: true,
+    data,
+  });
+};

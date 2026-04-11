@@ -4,7 +4,7 @@ import { required } from "zod/mini";
 
 const sessionSchema = new mongoose.Schema(
   {
-    workshopID: {
+    workshopId: {
       type: Schema.Types.ObjectId,
       ref: "Workshop",
       required: true,

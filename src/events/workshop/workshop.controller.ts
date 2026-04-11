@@ -5,8 +5,10 @@ import { ApiError } from "../../libs/class/api-error.js";
 
 //Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
-  const newWorkshop = await Workshop.create(req.body);
-  if (!newWorkshop) throw new ApiError(500, "Failed to add a Workshop");
+  const newWorkshop = await Workshop.create({
+    title:req.body.title,
+    description:req.body.description,
+  });
   return res.status(200).json({
     success: true,
     message: "Workshop is added successfully.",
@@ -18,7 +20,10 @@ export const addWorkshop = async (req: Request, res: Response) => {
 export const editWorkshop = async (req: Request, res: Response) => {
   const updatedWorkshop = await Workshop.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    {
+     title:req.body.title,
+     description:req.body.description,
+    },
     {
       new: true,
       runValidators: true,

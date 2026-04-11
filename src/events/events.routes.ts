@@ -3,11 +3,12 @@ import { validate } from "../libs/middleware/validate-zod-schema.js";
 import { addSession, deleteSession, editSession, } from "./session/session.controller.js";
 import { addWorkshop, deleteWorkshop, editWorkshop, } from "./workshop/workshop.controller.js";
 import { addParticipant, deleteParticipant, editParticipant, readAllParticipant } from "./participant/participant.controller.js";
-import { markAttendance } from "./sessionAttendance/sessionAttendance.controller.js";
+import { markAttendance, getSessionAttendance} from "./sessionAttendance/sessionAttendance.controller.js";
 import { createWorkshopSchema, updatedWorkshopSchema, } from "./workshop/workshop.schema.js";
 import { createSessionSchema, updatedSessionSchema, } from "./session/session.schema.js";
 import { createParticipantSchema, updatedParticipantSchema } from "./participant/participant.schema.js";
-import { bulkSessionAttendanceSchema } from "./sessionAttendance/sessionAttendance.schema.js";
+import { bulkSessionAttendanceSchema, getSessionAttendanceSchema } from "./sessionAttendance/sessionAttendance.schema.js";
+
 
 const eventRouter = Router();
 
@@ -34,6 +35,7 @@ eventRouter.delete("/participants/:id", deleteParticipant);
 eventRouter.patch("/participants/:id", validate(updatedParticipantSchema), editParticipant,);
 
 // Session Attendance route ------------------------------------------------------------------------------
-eventRouter.post("/sessions/:sessionId/attendance", validate(bulkSessionAttendanceSchema), markAttendance)
+eventRouter.post("/sessions/:sessionId/attendance", validate(bulkSessionAttendanceSchema), markAttendance);
+eventRouter.get("/sessions/:sessionId/attendance",getSessionAttendance);
 
 export default eventRouter;

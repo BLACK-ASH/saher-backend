@@ -14,7 +14,7 @@ const dateField = z.union([z.string().datetime(), z.date()])
     })
 
 export const baseSchema = z.object({
-    workshopID: objectId,
+    workshopId: objectId,
     title: z.string().min(3),
     description: z.string().min(5).max(500),
     startTime: dateField,

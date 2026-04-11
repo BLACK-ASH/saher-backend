@@ -1,19 +1,27 @@
 import mongoose, { Schema } from "mongoose";
 
 const sessionAttendanceSchema = new mongoose.Schema(
-    {
-        sessionId: {
-            type: Schema.Types.ObjectId,
-            ref: "Session",
-            required: true,
-        },
-        participantId: {
-            type: Schema.Types.ObjectId,
-            ref: "Participant",
-            required: true,
-        }
-    }   
-)
+  {
+    sessionId: {
+      type: Schema.Types.ObjectId,
+      ref: "Session",
+      required: true,
+    },
+
+    participantId: {
+      type: Schema.Types.ObjectId,
+      ref: "Participant",
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["present", "absent"],
+      default: "absent",
+    },
+  },
+  { timestamps: true }
+);
 
 sessionAttendanceSchema.index({ sessionId: 1, participantId: 1 }, { unique: true });
 

@@ -13,25 +13,6 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
-    startDate: {
-      type: Date,
-      required: true,
-    },
-
-    endDate: {
-      type: Date,
-      required: true,
-    },
-
-    participantIds:{
-      type: Schema.Types.ObjectId,
-      ref: "Participant",
-    },
-
-    createdBy: {
-      type: String,
-      required: true,
-    },
   },
   { timestamps: true },
 );

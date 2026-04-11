@@ -7,28 +7,40 @@ import { Error } from "mongoose";
 
 //Add participant
 export const addParticipant = async (req: Request, res: Response) => {
-    const newParticipant = await Participant.create(req.body);
-    return res.status(200).json({
-        success: true,
-        message: "participant is added successfully.",
-        data: newParticipant,
-    });
+  const { name, age, gender, workshopId } = req.body;
+
+  if (!workshopId) {
+    throw new ApiError(400, "workshopId is required");
+  }
+
+  const newParticipant = await Participant.create({
+    name,
+    age,
+    gender,
+    workshopId,
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Participant added successfully",
+    data: newParticipant,
+  });
 };
 
 //Read participant
 export const readAllParticipant = async (req: Request, res: Response) => {
-    const workshopId = req.params.workshopId;
+  const { workshopId } = req.params;
 
-    if (!workshopId) {
-        throw new ApiError(400, "workshopId is required");
-    }
+  if (!workshopId) {
+    throw new ApiError(400, "workshopId is required");
+  }
 
-    const participants = await Participant.find({ workshopId });
+  const participants = await Participant.find({ workshopId });
 
-    return res.status(200).json({
-        success: true,
-        data: participants
-    });
+  return res.status(200).json({
+    success: true,
+    data: participants,
+  });
 };
 
 //Edit Participant
