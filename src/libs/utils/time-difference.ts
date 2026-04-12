@@ -7,3 +7,4 @@ export const timeDifference = (start: Date, end: Date): { seconds: number, minut
     hours: diff / (1000 * 60 * 60),
   }
 }
+
