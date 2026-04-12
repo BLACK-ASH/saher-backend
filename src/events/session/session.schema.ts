@@ -36,8 +36,7 @@ export const updatedSessionSchema =
     }, {
         message: "endTime must be after startTime",
         path: ["endTime"]
-    })
-        .strict();
+    });
 
 export type CreateSessionInputType = z.infer<typeof createSessionSchema>;
 
