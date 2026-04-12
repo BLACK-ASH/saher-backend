@@ -14,12 +14,8 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("update", "user"),
     createPermission("delete", "user"),
 
-<<<<<<< HEAD
 
-    // Holiday 
-=======
     // Holiday
->>>>>>> c3270e551926b6518c951014aecbdf731780a87b
     createPermission("write", "holiday"),
     createPermission("update", "holiday"),
     createPermission("delete", "holiday"),
@@ -42,16 +38,17 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("update","notification"),
     createPermission("delete","notification"),
 
-<<<<<<< HEAD
     // Event
     createPermission("write", "event"),
     createPermission("update", "event"),
     createPermission("delete", "event"),
 
-=======
+
+    //Mail 
+    createPermission("write","mail"),
+
     //Mail 
     createPermission("write","mail")
->>>>>>> c3270e551926b6518c951014aecbdf731780a87b
   ]),
   
   manager: new Set([
@@ -79,12 +76,10 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     // Attendance Correction
     createPermission("write", "attendance-correction"),
     createPermission("update", "attendance-correction"),
-<<<<<<< HEAD
 
     // Event
     createPermission("write", "event"),
     createPermission("update", "event"),
-=======
     
     //Notification 
     createPermission("write","notification"),
@@ -93,7 +88,6 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     
     //Mail 
     createPermission("write","mail")
->>>>>>> c3270e551926b6518c951014aecbdf731780a87b
   ]),
   
   user: new Set([
@@ -102,14 +96,17 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     
     // Attendance Correction
     createPermission("write", "attendance-correction"),
-<<<<<<< HEAD
 
     // Event
     createPermission("write", "event"),
-=======
+    
+    //Mail 
+    createPermission("write","mail"),
+
+    // Event
+    createPermission("write", "event"),
     
     //Mail 
     createPermission("write","mail")
->>>>>>> c3270e551926b6518c951014aecbdf731780a87b
   ]),
 };

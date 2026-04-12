@@ -11,12 +11,9 @@ import { protectedRoute } from "./libs/middleware/protected-route.js";
 import attendanceRouter from "./attendance/attendance.route.js"
 import uploadRouter from "./upload/upload.routes.js";
 import errorHandler from "./libs/middleware/error-handler.js";
-<<<<<<< HEAD
 import eventRouter from "./events/events.routes.js";
-=======
 import  notificationRouter from "./notification/notification.routes.js";
 import { mailRouter } from "./mail/mail.routes.js";
->>>>>>> c3270e551926b6518c951014aecbdf731780a87b
 
 // Env Config
 dotenv.config()
