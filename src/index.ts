@@ -10,7 +10,11 @@ import connectDb from "./database/connection.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
 import attendanceRouter from "./attendance/attendance.route.js"
 import uploadRouter from "./upload/upload.routes.js";
+<<<<<<< HEAD
 import errorHandler from "./libs/middleware/error-handler.js";
+=======
+import errorHandler from "./libs/middleware/error-handler.js"
+>>>>>>> 2af9c9b3a9983123bdfe2e8de610efcc5403540a
 import eventRouter from "./events/events.routes.js";
 import  notificationRouter from "./notification/notification.routes.js";
 import { mailRouter } from "./mail/mail.routes.js";
