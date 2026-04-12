@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import { required } from "zod/mini";
 
 const workshopSchema = new mongoose.Schema(
   {
@@ -13,6 +12,11 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
+    participantList: {
+      type: [Schema.Types.ObjectId],
+      ref: "Participant",
+      default: [],
+    },
   },
   { timestamps: true },
 );
