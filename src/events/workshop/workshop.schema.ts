@@ -1,11 +1,16 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 
+const objectId = z.string().refine((val) => Types.ObjectId.isValid(val), {
+  message: "Invalid ObjectId",
+});
+
 //Base workshop schema
 export const baseWorkshopSchema = z
   .object({
     title: z.string().min(5).max(50),
     description: z.string().min(10).max(500),
+    participantList: z.array(objectId).optional(),
   })
   .strict();
 
