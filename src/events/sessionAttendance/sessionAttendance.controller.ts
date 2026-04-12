@@ -10,6 +10,7 @@ export const markAttendance = async (req: Request, res: Response) => {
   const sessionId = req.params.sessionId as string;
   const { participantIds }: { participantIds: string[] } = req.body;
 
+
   if (!sessionId || !participantIds?.length) {
     throw new ApiError(400, "sessionId and participantIds are required");
   }
@@ -17,21 +18,24 @@ export const markAttendance = async (req: Request, res: Response) => {
   const sessionExist = await Session.findById(sessionId);
   if (!sessionExist) throw new ApiError(400, "Session not found");
 
-  const validParticipants = await Participant.find({
+  const existingParticipants = await Participant.find({
     _id: { $in: participantIds },
     workshopId: sessionExist.workshopId,
   }).select("_id");
 
-  const validIds = validParticipants.map((p) => p._id.toString());
+  const existingIdsSet = new Set(
+    existingParticipants.map((p) => p._id.toString())
+  )
 
-  const objectIds = validIds.map(
-  id => new mongoose.Types.ObjectId(id)
-);
+  const missingIds = participantIds.filter((id) => !existingIdsSet.has(id));
+  if (missingIds.length > 0) {
 
-  const invalidIds = participantIds.filter((id) => !validIds.includes(id));
-  if (invalidIds.length > 0) {
-    throw new ApiError(400, `Invalid participants: ${invalidIds.join(", ")}`);
   }
+
+  const objectIds = participantIds.map(
+    id => new mongoose.Types.ObjectId(id)
+  );
+
 
   await SessionAttendance.updateMany(
     {
