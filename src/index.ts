@@ -10,11 +10,10 @@ import connectDb from "./database/connection.js";
 import { protectedRoute } from "./libs/middleware/protected-route.js";
 import attendanceRouter from "./attendance/attendance.route.js"
 import uploadRouter from "./upload/upload.routes.js";
-import errorHandler from "./libs/middleware/error-handler.js";
+import errorHandler from "./libs/middleware/error-handler.js"
 import eventRouter from "./events/events.routes.js";
 import  notificationRouter from "./notification/notification.routes.js";
 import { mailRouter } from "./mail/mail.routes.js";
-
 
 // Env Config
 dotenv.config()

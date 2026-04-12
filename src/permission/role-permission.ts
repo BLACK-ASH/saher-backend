@@ -14,6 +14,7 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("update", "user"),
     createPermission("delete", "user"),
 
+
     // Holiday
     createPermission("write", "holiday"),
     createPermission("update", "holiday"),
@@ -41,6 +42,10 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission("write", "event"),
     createPermission("update", "event"),
     createPermission("delete", "event"),
+
+
+    //Mail 
+    createPermission("write","mail"),
 
     //Mail 
     createPermission("write","mail")
@@ -91,6 +96,12 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     
     // Attendance Correction
     createPermission("write", "attendance-correction"),
+
+    // Event
+    createPermission("write", "event"),
+    
+    //Mail 
+    createPermission("write","mail"),
 
     // Event
     createPermission("write", "event"),
