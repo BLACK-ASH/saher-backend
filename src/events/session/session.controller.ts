@@ -9,7 +9,6 @@ import { success } from "zod";
 export const addSession = async (req: Request, res: Response) => {
   const { workshopId } = req.body;
 
-
   if (!workshopId) {
     throw new ApiError(400, "workshopId is required");
   }
@@ -27,7 +26,7 @@ export const addSession = async (req: Request, res: Response) => {
       sessionId: newSession._id,
       participantId: p._id,
       status: "absent",
-    }))
+    })),
   );
 
   return res.status(200).json({
@@ -39,24 +38,32 @@ export const addSession = async (req: Request, res: Response) => {
 
 //Edit a session
 export const editSession = async (req: Request, res: Response) => {
+  const updates: any = {};
+
+  if (req.body.title !== undefined) updates.title = req.body.title;
+  if (req.body.date !== undefined) updates.date = req.body.date;
+  if (req.body.description !== undefined)
+    updates.description = req.body.description;
+
   const updatedSession = await Session.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    updates,
     {
       new: true,
       runValidators: true,
     },
   );
+
   if (!updatedSession) {
-    return res.status(404).json({ error: "Session not found" });
+    throw new ApiError(404, "Session not found");
   }
+
   return res.status(200).json({
     success: true,
     message: "Session has been Updated successfully",
     data: updatedSession,
   });
 };
-
 
 //Delete a session
 export const deleteSession = async (req: Request, res: Response) => {
@@ -69,4 +76,3 @@ export const deleteSession = async (req: Request, res: Response) => {
     data: null,
   });
 };
-
