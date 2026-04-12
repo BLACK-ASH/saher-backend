@@ -30,7 +30,7 @@ export const editWorkshop = async (req: Request, res: Response) => {
     },
   );
   if (!updatedWorkshop) {
-    return res.status(404).json({ error: "Workshop not found" });
+    return res.status(404).json({ error: "Workshop not found" }); // ApiError need to add  
   }
   return res.status(200).json({
     success: true,
