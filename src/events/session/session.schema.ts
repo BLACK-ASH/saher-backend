@@ -17,9 +17,10 @@ export const baseSchema = z.object({
     workshopId: objectId,
     title: z.string().min(3),
     description: z.string().min(5).max(500),
+    date: z.coerce.date(),
     startTime: dateField,
     endTime: dateField,
-    speaker: z.string().min(3)
+    speaker: z.string().min(3).max(15)
 })
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {

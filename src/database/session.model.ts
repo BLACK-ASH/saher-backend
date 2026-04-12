@@ -20,6 +20,11 @@ const sessionSchema = new mongoose.Schema(
       required: true,
     },
     
+    date: {
+      type: Date,
+      required: true
+    },
+    
     startTime: {
       type: String,
       required: true,
