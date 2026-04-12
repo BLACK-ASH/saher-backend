@@ -18,10 +18,8 @@ export const markAttendance = async (req: Request, res: Response) => {
   }
 
   // Invalid Id 
-  const invalidIds = participantIds.filter((id) => {
-    !mongoose.Types.ObjectId.isValid(id);
-  })
-  if (invalidIds) throw new ApiError(400, "Invalid Participant IDs")
+  const invalidIds = participantIds.filter((id) => !mongoose.Types.ObjectId.isValid(id))
+  if (invalidIds.length > 0) throw new ApiError(400, "Invalid Participant IDs")
 
   // get session
   const sessionExist = await Session.findById(sessionId);

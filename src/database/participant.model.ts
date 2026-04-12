@@ -19,11 +19,11 @@ const participantSchema = new mongoose.Schema(
       required: true,
     },
 
-    workshopId: {
-      type: Schema.Types.ObjectId,
-      ref: "Workshop",
-      required: true,
-    },
+  //   workshopId: {
+  //     type: Schema.Types.ObjectId,
+  //     ref: "Workshop",
+  //     required: true,
+  //   },
   },
   { timestamps: true },
 );
