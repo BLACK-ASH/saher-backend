@@ -1,7 +1,25 @@
 import mongoose, { Schema } from "mongoose";
-import { time } from "node:console";
-import { required } from "zod/mini";
 
+//Session attendance
+const attendanceSchema = new Schema(
+  {
+    participant: {
+      type: Schema.Types.ObjectId,
+      ref: "Participant",
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["present", "absent"],
+      default: "present",
+    },
+
+  },
+  { _id: false }
+);
+
+//Session base schema
 const sessionSchema = new mongoose.Schema(
   {
     workshopId: {
@@ -39,9 +57,17 @@ const sessionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    attendance: 
+      [attendanceSchema],
   },
   { timestamps: true },
 );
+
+//Duplicate participant prevention
+sessionSchema.path("attendance").validate(function (value: any[]) {
+  const ids = value.map(v => v.participant.toString());
+  return ids.length === new Set(ids).size;
+}, "Duplicate participants in attendance");
 
 export type sessionType = mongoose.InferSchemaType<typeof sessionSchema>;
 export const Session = mongoose.model<sessionType>("Session", sessionSchema);

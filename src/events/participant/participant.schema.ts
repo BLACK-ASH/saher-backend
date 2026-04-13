@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { objectId } from "../session/session.schema.js";
 
 export const createParticipantSchema = z.object({
-  // workshopId: objectId,
+  workshopId: objectId,
   name: z.string().min(4).max(30),
   age: z.string().min(1).max(120),
   gender: z.string().min(3).max(20),

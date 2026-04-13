@@ -7,17 +7,17 @@ import { Error } from "mongoose";
 
 //Add participant
 export const addParticipant = async (req: Request, res: Response) => {
-  const { name, age, gender } = req.body;
+  const { name, age, gender, workshopId } = req.body;
 
-  // if (!workshopId) {
-  //   throw new ApiError(400, "workshopId is required");
-  // }
+   if (!workshopId) {
+     throw new ApiError(400, "workshopId is required");
+   }
 
   const newParticipant = await Participant.create({
     name,
     age,
     gender,
-    // workshopId,
+    workshopId,
   });
 
   return res.status(200).json({

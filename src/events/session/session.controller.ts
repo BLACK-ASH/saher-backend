@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { Participant } from "../../database/participant.model.js";
-import { SessionAttendance } from "../../database/sessionAttendance.model.js";
 import { Session } from "../../database/session.model.js";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Workshop } from "../../database/workshop.model.js";
@@ -8,28 +6,17 @@ import { Workshop } from "../../database/workshop.model.js";
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
   const { workshopId } = req.body;
+
   if (!workshopId) {
     throw new ApiError(400, "workshopId is required");
   }
-  const workshop = await Workshop.findById(workshopId);
 
+  const workshop = await Workshop.findById(workshopId);
   if (!workshop) {
     throw new ApiError(404, "Workshop not found");
   }
 
   const newSession = await Session.create(req.body);
-
-  const participants = await Participant.find({ workshopId });
-
-  if (participants.length > 0) {
-    await SessionAttendance.insertMany(
-      participants.map((p) => ({
-        sessionId: newSession._id,
-        participantId: p._id,
-        status: "absent",
-      })),
-    );
-  }
 
   return res.status(200).json({
     success: true,
