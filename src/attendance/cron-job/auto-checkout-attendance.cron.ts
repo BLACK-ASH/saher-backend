@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Attendance } from "../../database/attendance.model.js";
 import { timeDifference } from "../../libs/utils/time-difference.js";
+import { standardDateString } from "../../libs/utils/standard-date.js";
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
@@ -12,7 +13,7 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
   }
 
   // 📅 Today (same format you are using)
-  const today = new Date().toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"});
+  const today = standardDateString(new Date());
 
   // 🕕 Default checkout time (6 PM IST)
   const defaultOutTime = new Date();

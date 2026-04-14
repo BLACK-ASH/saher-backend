@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { Attendance } from "../../database/attendance.model.js"
 import { ApiError } from "../../libs/class/api-error.js"
+import { standardDateString } from "../../libs/utils/standard-date.js"
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not   
@@ -10,7 +11,7 @@ export const checkInController = async (req: Request, res: Response) => {
   //Step 2 - Check karo ki user ne pehle se aaj ki attendence toh nahi mark kari hai 
   const existingRecord = await Attendance.findOne({
     user: user?.id,
-    date: now.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}),
+    date: standardDateString(now),
     inTime: { $ne: null },
   })
   //Step 3 - Agr haa toh oosko dubara attendence mark karne mat do 
@@ -38,7 +39,7 @@ export const checkInController = async (req: Request, res: Response) => {
   // Updating Cron Record
   const cronRecord = await Attendance.findOne({
     user: user?.id,
-    date: now.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}),
+    date: standardDateString(now),
   })
 
   if (cronRecord) {
@@ -56,7 +57,7 @@ export const checkInController = async (req: Request, res: Response) => {
     user: user?.id,
     inTime: now,
     status: "present",
-    date: now.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}),
+    date: standardDateString(now),
     isLate: now > expectedTime
   })
   return res.status(200).json({ message: "You have been marked present", success: true, data: newRecord })

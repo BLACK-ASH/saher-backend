@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Attendance } from "../../database/attendance.model.js";
 import { ApiError } from "../../libs/class/api-error.js";
 import { User } from "../../database/user.model.js";
+import { standardDateString } from "../../libs/utils/standard-date.js";
 
 export const createAttendanceCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
@@ -12,7 +13,7 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
   }
 
   // 📅 Today (your existing format)
-  const today = new Date().toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"});
+  const today = standardDateString(new Date());
 
   // 👥 Get all user IDs
   const users = (await User.find().select("_id").lean()).map((u) =>
