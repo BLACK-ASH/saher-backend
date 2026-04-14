@@ -27,12 +27,13 @@ app.use((req, res, next) => {
 });
 
 // Middlewares
+// CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: true,
     credentials: true,
   })
-);
+)
 
 // Image Upload Routes
 app.use("/api/upload", uploadRouter)

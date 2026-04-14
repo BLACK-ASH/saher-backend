@@ -33,8 +33,21 @@ export const loginController = async (req: Request, res: Response) => {
 
   const { accessToken, refreshToken } = generateToken(payload)
 
-  res.cookie("saher_access_token", accessToken, { maxAge: 604800000, httpOnly: true, secure: true, sameSite: "none" })
-  res.cookie("saher_refresh_token", refreshToken, { maxAge: 7776000000, httpOnly: true, secure: true, sameSite: "none" })
+  const isProd = process.env.NODE_ENV === "production"
+
+  res.cookie("saher_access_token", accessToken, {
+    maxAge: 604800000,
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  })
+
+  res.cookie("saher_refresh_token", refreshToken, {
+    maxAge: 604800000,
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  })
 
   return res.status(200).json({ success: true, message: "login succesfully.", data: { accessToken, refreshToken } })
 
