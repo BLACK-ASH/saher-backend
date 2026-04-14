@@ -5,18 +5,14 @@ import { Workshop } from "../../database/workshop.model.js";
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
-  const { workshopId } = req.body;
-
-  if (!workshopId) {
-    throw new ApiError(400, "workshopId is required");
-  }
+  const { workshopId } = req.params;
 
   const workshop = await Workshop.findById(workshopId);
   if (!workshop) {
     throw new ApiError(404, "Workshop not found");
   }
 
-  const newSession = await Session.create(req.body);
+  const newSession = await Session.create({ ...req.body, workshopId, });
 
   return res.status(200).json({
     success: true,
@@ -27,25 +23,18 @@ export const addSession = async (req: Request, res: Response) => {
 
 //Edit a session
 export const editSession = async (req: Request, res: Response) => {
-  const updates: any = {};
-
-  if (req.body.title !== undefined) updates.title = req.body.title;
-  if (req.body.date !== undefined) updates.date = req.body.date;
-  if (req.body.description !== undefined)
-    updates.description = req.body.description;
+  const updates = req.body; // ✅ already validated
 
   const updatedSession = await Session.findByIdAndUpdate(
-    req.params.id,
+    { _id: req.params.id, workshopId: req.params.workshopId },
     updates,
     {
       new: true,
       runValidators: true,
-    },
+    }
   );
 
-  if (!updatedSession) {
-    throw new ApiError(404, "Session not found");
-  }
+  if (!updatedSession) { throw new ApiError(404, "Session not found"); }
 
   return res.status(200).json({
     success: true,

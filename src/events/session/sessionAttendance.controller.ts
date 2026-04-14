@@ -3,78 +3,64 @@ import { ApiError } from "../../libs/class/api-error.js";
 import { Session } from "../../database/session.model.js";
 import { Workshop } from "../../database/workshop.model.js";
 import { sessionAttendance } from "../../database/session.model.js";
-import { AnyBulkWriteOperation } from "mongoose"; 
+import { AnyBulkWriteOperation } from "mongoose";
 import mongoose from "mongoose";
+import { Participant } from "../../database/participant.model.js";
 
 export const markAttendance = async (req: Request, res: Response) => {
   const sessionId = req.params.sessionId as string;
-  const { participantIds }: { participantIds: string[] } = req.body;
+  const { participantIds } = req.body;
 
-  if (!sessionId || !Array.isArray(participantIds) || participantIds.length === 0) {
-    throw new ApiError(400, "sessionId and participantIds are required");
+  if (!sessionId) {
+    throw new ApiError(400, "sessionId are required");
   }
 
-  // Validate IDs
-  const invalidIds = participantIds.filter(
-    (id) => !mongoose.Types.ObjectId.isValid(id)
-  );
-  if (invalidIds.length > 0) {
-    throw new ApiError(400, "Invalid Participant IDs");
-  }
-
-  
   // Get session
   const session = await Session.findById(sessionId);
   if (!session) throw new ApiError(404, "Session not found");
-  
-  // ✅ get workshop
-  const workshop = await Workshop.findById(session.workshopId); 
+
+  // get workshop
+  const workshop = await Workshop.findById(session.workshopId);
   if (!workshop) throw new ApiError(404, "Workshop not found");
 
-  // Convert IDs
-  const objectIds = participantIds.map(
-    (id) => new mongoose.Types.ObjectId(id)
+  const participants = new Set(workshop.participantList.map((id) => id.toString()));
+
+  const success = participantIds.filter((id: mongoose.Types.ObjectId) => participants.has(id.toString()));
+
+  const failure = participantIds.filter((id: mongoose.Types.ObjectId) => !participants.has(id.toString()));
+
+  const ParticipantsInCollection = await Participant.find({
+    _id: { $in: failure },
+  }).select("_id");
+
+  const dbSet = new Set(
+    ParticipantsInCollection.map((p) => p._id.toString())
   );
 
-  // ✅ existing participants in workshop list
-  const existingSet = new Set(
-    workshop.participantList.map((id: mongoose.Types.ObjectId) =>
-      id.toString()
-    )
+  const validFailure = failure.filter((id: mongoose.Types.ObjectId) =>
+    dbSet.has(id.toString())
   );
 
-  // ✅ find new participants
-  const newParticipantIds = objectIds.filter(
-    (id) => !existingSet.has(id.toString())
-  );
-
-  // ✅ ADD missing participants to workshop
-  if (newParticipantIds.length > 0) {
+  if (validFailure.lenght > 0) {
     await Workshop.updateOne(
       { _id: workshop._id },
       {
-        $addToSet: {
-          participantList: { $each: newParticipantIds }, 
-        },
+        $addToSet: { $each: validFailure }
       }
-    );
+    )
   }
 
-  // ✅ bulk attendance update
-  const bulkOps: AnyBulkWriteOperation<any>[] = objectIds.map((participantId) => ({
-    updateOne: {
-      filter: { sessionId, participantId },
-      update: { $set: { status: "present" } },
-      upsert: true,
-    },
-  }));
+  const finalSuccess = [...success, ...validFailure];
 
-  await sessionAttendance.bulkWrite(bulkOps);
+  await sessionAttendance.bulkWrite(finalSuccess);
 
   return res.status(200).json({
     success: true,
     message: "Attendance marked successfully",
-    data: session.attendance,
+    data: {
+      success,
+      failure,
+    },
   });
 };
 
@@ -92,6 +78,6 @@ export const getSessionAttendance = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     success: true,
-    data: session.attendance,
+    data: null,
   });
 };

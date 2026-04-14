@@ -23,7 +23,7 @@ const attendanceSchema = new Schema(
 const sessionSchema = new mongoose.Schema(
   {
     workshopId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Workshop",
       required: true,
     },
@@ -37,12 +37,12 @@ const sessionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    
+
     date: {
-      type: Date,
+      type: String,
       required: true
     },
-    
+
     startTime: {
       type: String,
       required: true,
@@ -54,20 +54,19 @@ const sessionSchema = new mongoose.Schema(
     },
 
     speaker: {
-      type: String,
+      type: [Schema.Types.ObjectId],
+      ref: "User",
       required: true,
     },
-    attendance: 
-      [attendanceSchema],
+
+    participants: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Participant",
+      default: [],
+    }
   },
   { timestamps: true },
 );
-
-//Duplicate participant prevention
-sessionSchema.path("attendance").validate(function (value: any[]) {
-  const ids = value.map(v => v.participant.toString());
-  return ids.length === new Set(ids).size;
-}, "Duplicate participants in attendance");
 
 export type sessionType = mongoose.InferSchemaType<typeof sessionSchema>;
 export const Session = mongoose.model<sessionType>("Session", sessionSchema);

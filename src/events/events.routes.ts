@@ -7,7 +7,7 @@ import { markAttendance, getSessionAttendance} from "./session/sessionAttendance
 import { createWorkshopSchema, updatedWorkshopSchema, } from "./workshop/workshop.schema.js";
 import { createSessionSchema, updatedSessionSchema, } from "./session/session.schema.js";
 import { createParticipantSchema, updatedParticipantSchema } from "./participant/participant.schema.js";
-import { bulkSessionAttendanceSchema, getSessionAttendanceSchema } from "./session/sessionAttendance.schema.js";
+import { SessionAttendanceSchema } from "./session/sessionAttendance.schema.js";
 
 
 const eventRouter = Router();
@@ -21,7 +21,7 @@ eventRouter.delete("/workshops/:id", deleteWorkshop);
 eventRouter.put("/workshops/:id", validate(updatedWorkshopSchema), editWorkshop,);
 
 // Session route ----------------------------------------------------------------------
-eventRouter.post("/sessions", validate(createSessionSchema), addSession);
+eventRouter.post("/:workshopId/sessions", validate(createSessionSchema), addSession);
 eventRouter.get("/sessions", (req: Request, res: Response) => {
   return res.status(200).json({ message: "This is a Session Router Page" });
 });
@@ -35,7 +35,7 @@ eventRouter.delete("/participants/:id", deleteParticipant);
 eventRouter.put("/participants/:id", validate(updatedParticipantSchema), editParticipant,);
 
 // Session Attendance route ------------------------------------------------------------------------------
-eventRouter.post("/sessions/:sessionId/attendance", validate(bulkSessionAttendanceSchema), markAttendance);
-eventRouter.get("/sessions/:sessionId/attendance",validate(getSessionAttendanceSchema),getSessionAttendance);
+eventRouter.post("/sessions/:sessionId/attendance", validate(SessionAttendanceSchema), markAttendance);
+// eventRouter.get("/sessions/:sessionId/attendance",validate(getSessionAttendanceSchema),getSessionAttendance);
 
 export default eventRouter;
