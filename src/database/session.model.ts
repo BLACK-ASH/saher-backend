@@ -71,3 +71,6 @@ sessionSchema.path("attendance").validate(function (value: any[]) {
 
 export type sessionType = mongoose.InferSchemaType<typeof sessionSchema>;
 export const Session = mongoose.model<sessionType>("Session", sessionSchema);
+
+export type sessionAttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>;
+export const sessionAttendance = mongoose.model<sessionAttendanceType>("sessionAttendance", attendanceSchema);

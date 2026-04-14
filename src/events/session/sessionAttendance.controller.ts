@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Session } from "../../database/session.model.js";
+import { Workshop } from "../../database/workshop.model.js";
+import { sessionAttendance } from "../../database/session.model.js";
+import { AnyBulkWriteOperation } from "mongoose"; 
 import mongoose from "mongoose";
 
 export const markAttendance = async (req: Request, res: Response) => {
@@ -19,40 +22,54 @@ export const markAttendance = async (req: Request, res: Response) => {
     throw new ApiError(400, "Invalid Participant IDs");
   }
 
+  
   // Get session
   const session = await Session.findById(sessionId);
   if (!session) throw new ApiError(404, "Session not found");
+  
+  // ✅ get workshop
+  const workshop = await Workshop.findById(session.workshopId); 
+  if (!workshop) throw new ApiError(404, "Workshop not found");
 
   // Convert IDs
   const objectIds = participantIds.map(
     (id) => new mongoose.Types.ObjectId(id)
   );
 
-  // Map existing attendance
-  const existingMap = new Map(
-  (session.attendance || []).map((a) => [
-    a.participant.toString(),
-    a,
-  ])
-);
+  // ✅ existing participants in workshop list
+  const existingSet = new Set(
+    workshop.participantList.map((id: mongoose.Types.ObjectId) =>
+      id.toString()
+    )
+  );
 
-  // Update or insert
-  objectIds.forEach((id) => {
-    const key = id.toString();
+  // ✅ find new participants
+  const newParticipantIds = objectIds.filter(
+    (id) => !existingSet.has(id.toString())
+  );
 
-    if (existingMap.has(key)) {
-      existingMap.get(key)!.status = "present";
-    } else {
-      session.attendance.push({
-        participant: id,
-        status: "present",
-      });
-    }
-  });
+  // ✅ ADD missing participants to workshop
+  if (newParticipantIds.length > 0) {
+    await Workshop.updateOne(
+      { _id: workshop._id },
+      {
+        $addToSet: {
+          participantList: { $each: newParticipantIds }, 
+        },
+      }
+    );
+  }
 
-  await session.save();
+  // ✅ bulk attendance update
+  const bulkOps: AnyBulkWriteOperation<any>[] = objectIds.map((participantId) => ({
+    updateOne: {
+      filter: { sessionId, participantId },
+      update: { $set: { status: "present" } },
+      upsert: true,
+    },
+  }));
 
-  await session.populate("attendance.participant");
+  await sessionAttendance.bulkWrite(bulkOps);
 
   return res.status(200).json({
     success: true,
