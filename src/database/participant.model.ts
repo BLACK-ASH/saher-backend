@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import { required } from "zod/mini";
 
 const participantSchema = new mongoose.Schema(
   {
@@ -18,6 +17,11 @@ const participantSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true },
 );

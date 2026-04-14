@@ -12,11 +12,15 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
-    participantList: {
+    participants: {
       type: [Schema.Types.ObjectId],
       ref: "Participant",
       default: [],
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true },
 );
