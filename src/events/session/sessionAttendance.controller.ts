@@ -3,7 +3,6 @@ import { ApiError } from "../../libs/class/api-error.js";
 import { Session } from "../../database/session.model.js";
 import { Workshop } from "../../database/workshop.model.js";
 import { sessionAttendance } from "../../database/session.model.js";
-import { AnyBulkWriteOperation } from "mongoose";
 import mongoose from "mongoose";
 import { Participant } from "../../database/participant.model.js";
 
@@ -23,7 +22,7 @@ export const markAttendance = async (req: Request, res: Response) => {
   const workshop = await Workshop.findById(session.workshopId);
   if (!workshop) throw new ApiError(404, "Workshop not found");
 
-  const participants = new Set(workshop.participantList.map((id) => id.toString()));
+  const participants = new Set(workshop.participants.map((id) => id.toString()));
 
   const success = participantIds.filter((id: mongoose.Types.ObjectId) => participants.has(id.toString()));
 
