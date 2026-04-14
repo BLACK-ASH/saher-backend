@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import { request, Request, Response } from "express"
 import { AttendanceCorrection } from "../../database/attendance-correction.model.js"
 import { ApiError } from "../../libs/class/api-error.js"
 import { Attendance } from "../../database/attendance.model.js"
@@ -12,9 +12,11 @@ import { removeUndefined } from "../../libs/utils/remove-undefined-value.js"
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user
 
-  const requests = await AttendanceCorrection.find({
-    user: user?.id
-  }).populate("user", "name role").lean()
+  const requests = await AttendanceCorrection.find({ user: user?.id })
+    .populate("user", "name role")
+    .populate("attendance", "date")
+    .populate("proof", "src alt")
+    .lean()
 
   return res.status(200).json({ success: true, message: "Attendance Correction Retrieve Successful.", data: requests })
 }
@@ -27,7 +29,12 @@ export const getAttendanceCorrectionById = async (req: Request, res: Response) =
 }
 
 export const getAllAttendanceCorrectionController = async (req: Request, res: Response) => {
-  const requests = await AttendanceCorrection.find().populate("user manager", "name role").lean()
+  const requests = await AttendanceCorrection.find()
+    .populate("user manager", "name role")
+    .populate("attendance", "date")
+    .populate("proof")
+    .lean()
+
   return res.status(200).json({ success: true, message: "Attendance Correction Retrieve Successful.", data: requests })
 }
 
