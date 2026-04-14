@@ -6,7 +6,7 @@ import { addParticipant, deleteParticipant, editParticipant, readAllParticipant 
 import { markAttendance, getSessionAttendance} from "./session/sessionAttendance.controller.js";
 import { createWorkshopSchema, updatedWorkshopSchema, } from "./workshop/workshop.schema.js";
 import { createSessionSchema, updatedSessionSchema, } from "./session/session.schema.js";
-import { createParticipantSchema, updatedParticipantSchema } from "./participant/participant.schema.js";
+import { participantSchema, updatedParticipantSchema } from "./participant/participant.schema.js";
 import { bulkSessionAttendanceSchema, getSessionAttendanceSchema } from "./session/sessionAttendance.schema.js";
 
 
@@ -29,7 +29,7 @@ eventRouter.delete("/sessions/:id", deleteSession);
 eventRouter.put("/sessions/:id", validate(updatedSessionSchema), editSession);
 
 // Particiapnt route ------------------------------------------------------------------------
-eventRouter.post("/participants", validate(createParticipantSchema), addParticipant);
+eventRouter.post("/participants", validate(participantSchema), addParticipant);
 eventRouter.get("/workshops/:workshopId/participants", readAllParticipant);
 eventRouter.delete("/participants/:id", deleteParticipant);
 eventRouter.put("/participants/:id", validate(updatedParticipantSchema), editParticipant,);
