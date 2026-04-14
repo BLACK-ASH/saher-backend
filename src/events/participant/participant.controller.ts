@@ -4,13 +4,7 @@ import { ApiError } from "../../libs/class/api-error.js";
 
 //Add participant
 export const addParticipant = async (req: Request, res: Response) => {
-  const body = req.body;
-
-  const newParticipant = await Participant.create({
-    name: body.name,
-    age: body.age,
-    gender: body.gender,
-  });
+  const newParticipant = await Participant.create(req.body);
 
   return res.status(200).json({
     success: true,
