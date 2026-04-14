@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Attendance } from "../../database/attendance.model.js";
+import { standardDateString } from "../../libs/utils/standard-date.js";
 
 export const retrieveAttendanceController = async (req: Request, res: Response) => {
 
@@ -15,7 +16,7 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     endDate = new Date(req.query.endDate as string)
     endDate.setHours(23, 59, 59, 999)
 
-    if (startDate > endDate) throw new ApiError(400, "The Datess that you have entered are invalid please check")
+    if (startDate > endDate) throw new ApiError(400, "The Dates that you have entered are invalid please check")
 
   }
 
@@ -45,37 +46,28 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     throw new ApiError(400, "Either you give the type of retriving or you give both start Date and end Date")
   }
 
-
-  startDate.setHours(0, 0, 0, 0)
-  endDate.setHours(23, 59, 59, 999)
-
+  let id
   // Get the user body 
-  const user = req.user
-
-  let finalID
-  if (user?.role === "admin") {
-
-    if (req.params.id) {
-      finalID = req.params?.id
-    }
-    else {
-      finalID = req.user?.id
-    }
-  }else{
-    finalID = req.user?.id
+  if (req.params.id === "current") {
+    id = req.user?.id
   }
+  else {
+    id = req.params.id
+  }
+  console.log(id);
+
 
   //DB Functions 
   const record = await Attendance.find({
-    user: finalID,
+    user: id,
     date: {
-      $gte: startDate.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
-      $lte: endDate.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })
+      $gte: standardDateString(startDate),
+      $lte: standardDateString(endDate)
     }
 
   }).sort({ date: -1 })
 
 
-  return res.status(200).json({ success: true, message: "The record you asked for ", data: { attendances: record, count: record.length } })
+  return res.status(200).json({ success: true, message: "The record you asked for ", data: record })
 
 }

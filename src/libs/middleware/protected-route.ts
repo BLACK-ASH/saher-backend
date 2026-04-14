@@ -6,6 +6,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
   try {
     const access = req.cookies?.saher_access_token;
     const refresh = req.cookies?.saher_refresh_token;
+    const isProd = process.env.NODE_ENV === "production"
 
     if (!access) {
       if (!refresh) {
@@ -29,16 +30,16 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
       res.cookie("saher_access_token", accessToken, {
         maxAge: 604800000,
         httpOnly: true,
-        secure: true,      // ✅ dev fix
-        sameSite: "lax",
-      });
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+      })
 
       res.cookie("saher_refresh_token", refreshToken, {
-        maxAge: 7776000000,
+        maxAge: 604800000,
         httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-      });
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+      })
 
       req.user = user;
       return next();

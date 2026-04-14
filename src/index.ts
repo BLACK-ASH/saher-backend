@@ -12,6 +12,7 @@ import attendanceRouter from "./attendance/attendance.route.js"
 import uploadRouter from "./upload/upload.routes.js";
 import errorHandler from "./libs/middleware/error-handler.js";
 import  notificationRouter from "./notification/notification.routes.js";
+import { mailRouter } from "./mail/mail.routes.js";
 
 // Env Config
 dotenv.config()
@@ -26,12 +27,13 @@ app.use((req, res, next) => {
 });
 
 // Middlewares
+// CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: true,
     credentials: true,
   })
-);
+)
 
 // Image Upload Routes
 app.use("/api/upload", uploadRouter)
@@ -46,6 +48,8 @@ app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/attendance", protectedRoute, attendanceRouter)
 app.use("/api/auth", authRouter)
 app.use("/api/notification" , protectedRoute , notificationRouter)
+
+app.use("/api/mail",protectedRoute , mailRouter)
 app.use("/", express.static(path.join(process.cwd(), "docs")));
 app.use(express.static(path.join(process.cwd(), "public")))
 
