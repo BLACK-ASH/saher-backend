@@ -3,7 +3,7 @@ import { ApiError } from "../../libs/class/api-error.js";
 import { Session } from "../../database/session.model.js";
 import { Workshop } from "../../database/workshop.model.js";
 import { sessionAttendance } from "../../database/session.model.js";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Participant } from "../../database/participant.model.js";
 
 export const markAttendance = async (req: Request, res: Response) => {
@@ -22,36 +22,35 @@ export const markAttendance = async (req: Request, res: Response) => {
   const workshop = await Workshop.findById(session.workshopId);
   if (!workshop) throw new ApiError(404, "Workshop not found");
 
-  const participants = new Set(workshop.participants.map((id) => id.toString()));
+  // existing workshop participants
+  const participants = workshop.participants ?? []
+  console.log({ participantIds, participants })
 
-  const success = participantIds.filter((id: mongoose.Types.ObjectId) => participants.has(id.toString()));
+  const paricipantsString = participants.map(id => id.toString())
+  let success: Types.ObjectId[] = [], failure: Types.ObjectId[] = [];
 
-  const failure = participantIds.filter((id: mongoose.Types.ObjectId) => !participants.has(id.toString()));
+  participantIds.forEach((participant: Types.ObjectId) => {
+    if (paricipantsString.includes(participant.toString())) {
+      success.push(participant)
+    }
+    else {
+      failure.push(participant)
+    }
+  });
 
   const ParticipantsInCollection = await Participant.find({
     _id: { $in: failure },
-  }).select("_id");
+  }).select("_id").lean();
 
-  const dbSet = new Set(
-    ParticipantsInCollection.map((p) => p._id.toString())
-  );
+  ParticipantsInCollection.map((e) => {
+    success.push(e._id)
+    failure.filter(p => e._id != p)
+  })
 
-  const validFailure = failure.filter((id: mongoose.Types.ObjectId) =>
-    dbSet.has(id.toString())
-  );
+  await Workshop.updateOne({ _id: workshop._id }, { $addToSet: { participants: { $each: success } } })
 
-  if (validFailure.lenght > 0) {
-    await Workshop.updateOne(
-      { _id: workshop._id },
-      {
-        $addToSet: { $each: validFailure }
-      }
-    )
-  }
-
-  const finalSuccess = [...success, ...validFailure];
-
-  await sessionAttendance.bulkWrite(finalSuccess);
+  session.participants = success
+  await session.save()
 
   return res.status(200).json({
     success: true,
@@ -60,23 +59,5 @@ export const markAttendance = async (req: Request, res: Response) => {
       success,
       failure,
     },
-  });
-};
-
-export const getSessionAttendance = async (req: Request, res: Response) => {
-  const { sessionId } = req.params;
-
-  if (!sessionId) {
-    throw new ApiError(400, "sessionId is required");
-  }
-
-  const session = await Session.findById(sessionId)
-    .populate("attendance.participant");
-
-  if (!session) throw new ApiError(404, "Session not found");
-
-  return res.status(200).json({
-    success: true,
-    data: null,
   });
 };

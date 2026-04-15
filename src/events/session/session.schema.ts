@@ -1,10 +1,13 @@
 import { Types } from "mongoose"
 import z, { date } from "zod"
+import { convertToObjectId } from "../../libs/utils/convert-objectId.js"
 
 
 export const objectId = z.string().refine(val =>
     Types.ObjectId.isValid(val), {
     message: "Invalid ID"
+}).transform((e)=>{
+    return convertToObjectId(e)
 })
 
 const dateField = z.union([z.string().datetime(), z.date()])

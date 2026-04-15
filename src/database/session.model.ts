@@ -12,11 +12,11 @@ const attendanceSchema = new Schema(
     status: {
       type: String,
       enum: ["present", "absent"],
-      default: "present",
+      default: "absent",
     },
 
   },
-  { _id: false }
+  { timestamps: true }
 );
 
 //Session base schema
