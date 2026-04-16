@@ -3,7 +3,13 @@ import { ApiError } from "../../libs/class/api-error.js";
 import { Attendance } from "../../database/attendance.model.js";
 import { standardDateString } from "../../libs/utils/standard-date.js";
 
-export const retrieveAttendanceController = async (req: Request, res: Response) => {
+
+export const getAllUserController = async (req: Request, res: Response) => {
+
+
+  // Get the user body 
+  const user = req.user
+
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate 
   let startDate, endDate
 
@@ -15,7 +21,8 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     endDate = new Date(req.query.endDate as string)
     endDate.setHours(23, 59, 59, 999)
 
-    if (startDate > endDate) throw new ApiError(400, "The Dates that you have entered are invalid please check")
+    if (startDate > endDate) throw new ApiError(400, "The Datess that you have entered are invalid please check")
+
   }
 
   //Agar user ko custom range nahi chahiye toh fir user ke paas option hai ki woh retrieve karne ka type bata de 
@@ -44,32 +51,23 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     throw new ApiError(400, "Either you give the type of retriving or you give both start Date and end Date")
   }
 
-  let id
-  // Get the user body 
-  if (req.params.id === "current") {
-    id = req.user?.id
-  }
-  else {
-    id = req.params.id
-  }
+  startDate.setHours(0, 0, 0, 0)
+  endDate.setHours(23, 59, 59, 999)
 
   const sort = req.query.sort === "asc"
-    ? 1
-    : req.query.sort === "desc"
-      ? -1
-      : -1 // default
-
+  ? 1
+  : req.query.sort === "desc"
+  ? -1
+  : -1 // default
 
   //DB Functions 
   const record = await Attendance.find({
-    user: id,
     date: {
       $gte: standardDateString(startDate),
       $lte: standardDateString(endDate)
     }
+  }).sort({ date: sort })
 
-  })
-    .sort({ date: sort })
+  return res.status(200).json({ message: "The record you asked for ", data: record, count: record.length })
 
-  return res.status(200).json({ success: true, message: "The record you asked for ", data: record })
 }

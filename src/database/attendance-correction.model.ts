@@ -16,8 +16,6 @@ const attendanceRecord = new mongoose.Schema({
   }
 })
 
-export const attendanceRequestStatus = ["pending", "approve", "reject"]
-
 const attendanceCorrectionSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +34,7 @@ const attendanceCorrectionSchema = new mongoose.Schema({
   changes: attendanceRecord,
   status: {
     type: String,
-    enum: attendanceRequestStatus,
+    enum: ["pending","on-hold", "approve", "reject"],
     default: "pending"
   },
   message: {
