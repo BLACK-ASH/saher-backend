@@ -27,11 +27,11 @@ servers:
   - url: https://api.saher.org/api
     description: Production
 
-paths: 
+paths:
   #Upload
   /upload/image:
     $ref: ./paths/upload/image-upload.yaml
-  # --------------------------------------------------------------------- # 
+  # --------------------------------------------------------------------- #
 
   # Auth
   /auth/login:
@@ -43,7 +43,7 @@ paths:
   /auth/me:
     $ref: ./paths/auth/me.yaml
 
-  # --------------------------------------------------------------------- # 
+  # --------------------------------------------------------------------- #
 
   # Admin
   # Bank Operation
@@ -74,10 +74,10 @@ paths:
   /user/delete/{id}:
     $ref: ./paths/user/delete.yaml
 
-  # --------------------------------------------------------------------- # 
+  # --------------------------------------------------------------------- #
 
   # Attendance
-    # Mark
+  # Mark
   /attendance/check-in:
     $ref: ./paths/attendance/check-in.yaml
   /attendance/check-out:

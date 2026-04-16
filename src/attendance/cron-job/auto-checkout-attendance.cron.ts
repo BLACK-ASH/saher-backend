@@ -1,15 +1,15 @@
-import { Request, Response } from "express";
-import { ApiError } from "../../libs/class/api-error.js";
-import { Attendance } from "../../database/attendance.model.js";
-import { timeDifference } from "../../libs/utils/time-difference.js";
-import { standardDateString } from "../../libs/utils/standard-date.js";
+import { Request, Response } from 'express';
+import { ApiError } from '../../libs/class/api-error.js';
+import { Attendance } from '../../database/attendance.model.js';
+import { timeDifference } from '../../libs/utils/time-difference.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
 
   // 🔐 Basic protection (use ENV in production)
-  if (pass !== "super") {
-    throw new ApiError(403, "Forbidden. You are not allowed to perform this action.");
+  if (pass !== 'super') {
+    throw new ApiError(403, 'Forbidden. You are not allowed to perform this action.');
   }
 
   // 📅 Today (same format you are using)
@@ -29,7 +29,7 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
   if (!records.length) {
     return res.status(200).json({
       success: true,
-      message: "No pending auto checkouts.",
+      message: 'No pending auto checkouts.',
       data: { updated: 0 },
     });
   }
@@ -39,10 +39,10 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
     const inTime = new Date(record.inTime as Date);
 
     // ⏱ Calculate work hours
-    const workHours = timeDifference(defaultOutTime, inTime).hours
+    const workHours = timeDifference(defaultOutTime, inTime).hours;
 
     // 📊 Decide status
-    const status = workHours < 5 ? "half-day" : "present";
+    const status = workHours < 5 ? 'half-day' : 'present';
 
     return {
       updateOne: {
@@ -64,7 +64,7 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     success: true,
-    message: "Auto checkout completed successfully.",
+    message: 'Auto checkout completed successfully.',
     data: {
       updated: bulkOps.length,
     },

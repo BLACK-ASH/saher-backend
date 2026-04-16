@@ -1,45 +1,50 @@
-import { NextFunction, Request, Response } from "express";
-import { generateToken, ReqUser, verifyAccessToken, verifyRefreshToken } from "../utils/jwt-token.js";
-import { ApiError } from "../class/api-error.js";
+import { NextFunction, Request, Response } from 'express';
+import {
+  generateToken,
+  ReqUser,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from '../utils/jwt-token.js';
+import { ApiError } from '../class/api-error.js';
 
 export const protectedRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const access = req.cookies?.saher_access_token;
     const refresh = req.cookies?.saher_refresh_token;
-    const isProd = process.env.NODE_ENV === "production"
+    const isProd = process.env.NODE_ENV === 'production';
 
     if (!access) {
       if (!refresh) {
-        throw new ApiError(401, "Login Required.");
+        throw new ApiError(401, 'Login Required.');
       }
 
       const verifyToken = verifyRefreshToken(refresh);
       if (!verifyToken) {
-        throw new ApiError(401, "Invalid Refresh Token.");
+        throw new ApiError(401, 'Invalid Refresh Token.');
       }
 
       const user: ReqUser = {
         id: verifyToken.id,
         name: verifyToken.name,
         role: verifyToken.role,
-        employeeType: verifyToken.employeeType
+        employeeType: verifyToken.employeeType,
       };
 
       const { accessToken, refreshToken } = generateToken(user);
 
-      res.cookie("saher_access_token", accessToken, {
+      res.cookie('saher_access_token', accessToken, {
         maxAge: 604800000,
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "none" : "lax",
-      })
+        sameSite: isProd ? 'none' : 'lax',
+      });
 
-      res.cookie("saher_refresh_token", refreshToken, {
+      res.cookie('saher_refresh_token', refreshToken, {
         maxAge: 604800000,
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "none" : "lax",
-      })
+        sameSite: isProd ? 'none' : 'lax',
+      });
 
       req.user = user;
       return next();
@@ -47,26 +52,21 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
     const verifyToken = verifyAccessToken(access);
     if (!verifyToken) {
-      throw new ApiError(401, "Invalid Access Token.");
+      throw new ApiError(401, 'Invalid Access Token.');
     }
 
     req.user = {
       id: verifyToken.id,
       name: verifyToken.name,
       role: verifyToken.role,
-      employeeType: verifyToken.employeeType
+      employeeType: verifyToken.employeeType,
     };
 
     return next();
-
   } catch (error) {
-    res.clearCookie("saher_access_token");
-    res.clearCookie("saher_refresh_token");
+    res.clearCookie('saher_access_token');
+    res.clearCookie('saher_refresh_token');
 
-    return next(
-      error instanceof ApiError
-        ? error
-        : new ApiError(401, "Invalid Tokens")
-    );
+    return next(error instanceof ApiError ? error : new ApiError(401, 'Invalid Tokens'));
   }
 };

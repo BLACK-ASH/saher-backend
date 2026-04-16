@@ -1,5 +1,5 @@
 put:
-  tags: [Admin,Bank]
+  tags: [Admin, Bank]
   summary: Update Bank Details
   operationId: updateBankAccount
   parameters:
@@ -15,22 +15,21 @@ put:
         schema:
           $ref: ../../../components/bank/update-request.yaml
   responses:
-    "200":
+    '200':
       description: Bank Details Update Successfully
       content:
         application/json:
           schema:
             $ref: ../../../components/bank/register-response.yaml
-    "400":
+    '400':
       description: Invalid Details
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-    "500":
-      description: Internal Server Error 
+    '500':
+      description: Internal Server Error
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-

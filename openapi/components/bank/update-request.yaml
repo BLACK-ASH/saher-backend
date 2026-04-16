@@ -11,7 +11,7 @@ properties:
     example: branch
   ifcs:
     type: string
-    example: abcd1234abcd 
+    example: abcd1234abcd
   mobileNumber:
     type: string
     example: 90XXXXXX54

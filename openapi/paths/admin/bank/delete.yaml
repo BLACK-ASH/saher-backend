@@ -1,5 +1,5 @@
 delete:
-  tags: [Admin,Bank]
+  tags: [Admin, Bank]
   summary: Delete Bank Details
   operationId: deleteBankAccount
   parameters:
@@ -9,22 +9,21 @@ delete:
       schema:
         type: string
   responses:
-    "200":
+    '200':
       description: Bank Details Delete Successfully
       content:
         application/json:
           schema:
             $ref: ../../../components/common/succes-response.yaml
-    "404":
+    '404':
       description: Bank Details Not Found
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-    "500":
-      description: Internal Server Error 
+    '500':
+      description: Internal Server Error
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-

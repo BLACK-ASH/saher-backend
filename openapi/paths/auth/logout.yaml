@@ -3,7 +3,7 @@ post:
   summary: User Logout
   operationId: logoutUser
   responses:
-    "200":
+    '200':
       description: User Logout Successfully
       headers:
         Set-Cookie:
@@ -13,12 +13,10 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/auth/logout-response.yaml 
-    "404":
-      description: No Token Found 
+            $ref: ../../components/auth/logout-response.yaml
+    '404':
+      description: No Token Found
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-
-
