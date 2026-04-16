@@ -3,11 +3,12 @@ import { validate } from "../libs/middleware/validate-zod-schema.js";
 import { addSession, deleteSession, editSession, } from "./session/session.controller.js";
 import { addWorkshop, deleteWorkshop, editWorkshop, } from "./workshop/workshop.controller.js";
 import { addParticipant, deleteParticipant, editParticipant, readAllParticipant } from "./participant/participant.controller.js";
-import { markAttendance, getSessionAttendance} from "./session/sessionAttendance.controller.js";
+import { markAttendance, } from "./session/sessionAttendance.controller.js";
 import { createWorkshopSchema, updatedWorkshopSchema, } from "./workshop/workshop.schema.js";
 import { createSessionSchema, updatedSessionSchema, } from "./session/session.schema.js";
 import { participantSchema, updatedParticipantSchema } from "./participant/participant.schema.js";
 import { SessionAttendanceSchema } from "./session/sessionAttendance.schema.js";
+import { updateAttendance } from "./session/session-update-attendance.controller.js";
 
 
 const eventRouter = Router();
@@ -36,6 +37,7 @@ eventRouter.put("/participants/:id", validate(updatedParticipantSchema), editPar
 
 // Session Attendance route ------------------------------------------------------------------------------
 eventRouter.post("/sessions/:sessionId/attendance", validate(SessionAttendanceSchema), markAttendance);
-// eventRouter.get("/sessions/:sessionId/attendance",validate(getSessionAttendanceSchema),getSessionAttendance);
+eventRouter.put("/sessions/:sessionId/attendance", validate(SessionAttendanceSchema), updateAttendance);
+
 
 export default eventRouter;

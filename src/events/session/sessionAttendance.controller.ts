@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { ApiError } from "../../libs/class/api-error.js";
 import { Session } from "../../database/session.model.js";
 import { Workshop } from "../../database/workshop.model.js";
-import { sessionAttendance } from "../../database/session.model.js";
 import mongoose, { Types } from "mongoose";
 import { Participant } from "../../database/participant.model.js";
 
@@ -38,14 +37,16 @@ export const markAttendance = async (req: Request, res: Response) => {
     }
   });
 
-  const ParticipantsInCollection = await Participant.find({
+  const participantsInCollection = await Participant.find({
     _id: { $in: failure },
   }).select("_id").lean();
+  const collectionString = participantsInCollection.map(e => e._id.toString())
 
-  ParticipantsInCollection.map((e) => {
+  participantsInCollection.map((e) => {
     success.push(e._id)
-    failure.filter(p => e._id != p)
+    // failure.filter(p => e._id != p)
   })
+  failure = failure.filter((p) => !collectionString.includes(p.toString()))
 
   await Workshop.updateOne({ _id: workshop._id }, { $addToSet: { participants: { $each: success } } })
 
