@@ -1,5 +1,5 @@
 put:
-  tags: [Admin,User]
+  tags: [Admin, User]
   summary: Update User Details
   operationId: getUserDetails
   parameters:
@@ -15,27 +15,26 @@ put:
         schema:
           $ref: ../../components/user/update.yaml
   responses:
-    "200":
+    '200':
       description: User Details Update Successfully
       content:
         application/json:
           schema:
             type: object
             properties:
-              success: 
+              success:
                 type: boolean
               user:
                 $ref: ../../components/user/response.yaml
-    "400":
+    '400':
       description: Invalid Details
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-    "500":
-      description: Internal Server Error 
+    '500':
+      description: Internal Server Error
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-

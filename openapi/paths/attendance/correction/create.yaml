@@ -19,30 +19,30 @@ post:
               type: string
               description: Image file upload Url
   responses:
-    "200":
-      description:  Attendance Correction Added Successfully
+    '200':
+      description: Attendance Correction Added Successfully
       content:
         application/json:
           schema:
             type: object
             properties:
-              success: 
+              success:
                 type: boolean
-              message: 
+              message:
                 type: string
                 example: Attendance Correction Added Successfully
               data:
                 type: object
                 properties:
-                  id: 
+                  id:
                     type: string
-    "400":
+    '400':
       description: Invalid Details
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-    "500":
+    '500':
       description: Internal Server Error
       content:
         application/json:
