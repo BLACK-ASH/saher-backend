@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import z from "zod";
-import { attendanceRequestStatus } from "../../database/attendance-correction.model.js";
 import { attendanceStatus } from "../../database/attendance.model.js";
 
 export const objectId = z.string().refine(val => Types.ObjectId.isValid(val), {
@@ -23,13 +22,16 @@ export const attendanceCorrectionSchema = z.object({
   proof: z.string().optional()
 })
 
-export const attendanceCorrectionUpdateSchema = attendanceCorrectionSchema.omit({ attendanceId: true, message: true, proof: true })
-  .extend({
-    "request-status": z.enum(attendanceRequestStatus),
-    reason: z.string().min(3).max(300),
-    id: objectId
-  })
+export const attendanceCorrectionHandleSchema = z.object({
+  changes: z.object({
+    inTime: dateField,
+    outTime: dateField,
+    status: z.enum(["absent", "half-day", "present"]),
+  }),
+  reason: z.string().max(300,"Maximum Reason Is 300 Characters.").optional(),
+  status: z.enum(["reject", "pending","on-hold", "approve"])
+})
 
 export const attendanceRecordSchema = attendanceCorrectionSchema.omit({ attendanceId: true, message: true, proof: true })
 export type AttendanceCorrectionInputType = z.infer<typeof attendanceCorrectionSchema>
-export type AttendanceCorrectionUpdateInputType = z.infer<typeof attendanceCorrectionUpdateSchema>
+export type AttendanceCorrectionHandleInputType = z.infer<typeof attendanceCorrectionHandleSchema>
