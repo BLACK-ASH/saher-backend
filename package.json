@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start",
-    "prepare": "husky",
+    "prepare": "pnpm exec husky install",
     "spellcheck": "cspell ."
   },
   "type": "module",
