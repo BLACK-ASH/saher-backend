@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start",
-    "prepare": "husky"
+    "prepare": "husky",
+    "spellcheck": "cspell ."
   },
   "type": "module",
   "keywords": [],
@@ -49,6 +50,7 @@
     "@types/node": "^25.0.8",
     "@typescript-eslint/eslint-plugin": "^8.58.2",
     "@typescript-eslint/parser": "^8.58.2",
+    "cspell": "^10.0.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unicorn": "^64.0.0",
