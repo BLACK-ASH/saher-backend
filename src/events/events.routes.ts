@@ -9,6 +9,7 @@ import { createSessionSchema, updatedSessionSchema, } from "./session/session.sc
 import { participantSchema, updatedParticipantSchema } from "./participant/participant.schema.js";
 import { SessionAttendanceSchema } from "./session/sessionAttendance.schema.js";
 import { updateAttendance } from "./session/session-update-attendance.controller.js";
+import { removeAttendance } from "./session/session-remove-attendance.controller.js";
 
 
 const eventRouter = Router();
@@ -38,6 +39,7 @@ eventRouter.put("/participants/:id", validate(updatedParticipantSchema), editPar
 // Session Attendance route ------------------------------------------------------------------------------
 eventRouter.post("/sessions/:sessionId/attendance", validate(SessionAttendanceSchema), markAttendance);
 eventRouter.put("/sessions/:sessionId/attendance", validate(SessionAttendanceSchema), updateAttendance);
+eventRouter.delete("/sessions/:sessionId/attendance", validate(SessionAttendanceSchema), removeAttendance);
 
 
 export default eventRouter;

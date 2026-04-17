@@ -1,4 +1,4 @@
-export class ApiError extends Error {
+export class ApiError<T = unknown> extends Error {
   statusCode: number;
   isOperational: boolean;
   data: any
@@ -7,7 +7,7 @@ export class ApiError extends Error {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
-    this.data = data
+    this.data = data;
 
     Error.captureStackTrace(this, this.constructor);
   }

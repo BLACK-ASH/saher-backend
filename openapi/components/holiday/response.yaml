@@ -3,7 +3,7 @@ properties:
   success:
     type: boolean
     example: true
-  data: 
+  data:
     type: object
     properties:
       date:
@@ -15,5 +15,5 @@ properties:
         example: Christmas
       type:
         type: string
-        enum: ["national","organization","optional","other"]
+        enum: ['national', 'organization', 'optional', 'other']
         example: national

@@ -8,4 +8,3 @@ extends:
 rules:
   no-unused-components: warn
   operation-summary: warn
-
