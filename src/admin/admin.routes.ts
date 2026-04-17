@@ -6,7 +6,7 @@ import {
   updateBankDetailController,
 } from './bank/bank.controller.js';
 import { validateBankRegisterSchema, validateBankUpdateSchema } from './bank/bank.middleware.js';
-import { validateAccountRegister, validateAccountUpdate } from './account/account.middleware.js';
+import { accountRegisterSchema, accountUpdateSchema } from './account/account.schema.js';
 import {
   accountGetController,
   accountRegisterController,
@@ -20,6 +20,7 @@ import {
 } from './user/user.controller.js';
 import { validateUserUpdate } from './user/user.middleware.js';
 import { authorize } from '../permission/authorize.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
 
 const adminRouter = Router();
 
@@ -49,13 +50,13 @@ adminRouter
   .post(
     '/account/register',
     authorize('write', 'account'),
-    validateAccountRegister,
+    validate(accountRegisterSchema),
     accountRegisterController,
   )
   .put(
     '/account/update/:id',
     authorize('update', 'account'),
-    validateAccountUpdate,
+    validate(accountUpdateSchema),
     accountUpdateController,
   )
   .get('/account/get/:id', accountGetController);

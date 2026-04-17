@@ -1,10 +1,6 @@
-import { Types } from 'mongoose';
 import z from 'zod';
 import { attendanceStatus } from '../../database/attendance.model.js';
-
-export const objectId = z.string().refine((val) => Types.ObjectId.isValid(val), {
-  message: 'Invalid ID',
-});
+import { objectId } from '../../libs/utils/zod-object-id.js';
 
 const dateField = z.union([z.string(), z.date(), z.null()]).transform((val) => {
   if (val === null || val === undefined) return null;
@@ -12,7 +8,7 @@ const dateField = z.union([z.string(), z.date(), z.null()]).transform((val) => {
 });
 
 export const attendanceCorrectionSchema = z.object({
-  attendanceId: objectId,
+  attendanceId: objectId('Invalid Attendance Id.'),
   message: z.string().min(3).max(300),
   inTime: dateField,
   outTime: dateField,

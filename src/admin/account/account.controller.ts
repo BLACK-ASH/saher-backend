@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { AccountRegister } from './account.middleware.js';
+import { AccountRegisterInput } from './account.schema.js';
 import { User } from '../../database/user.model.js';
 import { Account } from '../../database/account.model.js';
 import mongoose from 'mongoose';
 import { ApiError } from '../../libs/class/api-error.js';
 
 export const accountRegisterController = async (req: Request, res: Response) => {
-  const registerInput: AccountRegister = req.body;
+  const registerInput: AccountRegisterInput = req.body;
   const session = await mongoose.startSession();
 
   let createdUser;

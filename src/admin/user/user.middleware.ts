@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { userSchema } from '../account/account.middleware.js';
+import { userSchema } from '../account/account.schema.js';
 import z from 'zod';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 import { ApiError } from '../../libs/class/api-error.js';
