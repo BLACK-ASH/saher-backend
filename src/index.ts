@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import dotenv from "dotenv";
-import express from "express";
-import mongoose from "mongoose";
-import path from "path";
-import adminRouter from "./admin/admin.routes.js";
-import authRouter from "./auth/auth.routes.js";
-import connectDb from "./database/connection.js";
-import { protectedRoute } from "./libs/middleware/protected-route.js";
-import attendanceRouter from "./attendance/attendance.route.js"
-import uploadRouter from "./upload/upload.routes.js";
-import errorHandler from "./libs/middleware/error-handler.js";
-import eventRouter from "./events/events.routes.js";
-import  notificationRouter from "./notification/notification.routes.js";
-import { mailRouter } from "./mail/mail.routes.js";
-=======
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -29,9 +11,10 @@ import { protectedRoute } from './libs/middleware/protected-route.js';
 import attendanceRouter from './attendance/attendance.route.js';
 import uploadRouter from './upload/upload.routes.js';
 import errorHandler from './libs/middleware/error-handler.js';
+import eventRouter from './events/events.routes.js';
 import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
->>>>>>> d72bcf44c4b8e201915ebe08181aea1ace4c2a52
+
 
 // Env Config
 dotenv.config();
@@ -64,18 +47,18 @@ app.use(cookieParser());
 await connectDb();
 
 // Routes
-<<<<<<< HEAD
 app.use("/api/admin", protectedRoute, adminRouter)
 app.use("/api/attendance", protectedRoute, attendanceRouter)
 app.use("/api/events", eventRouter)
 app.use("/api/auth", authRouter)
 app.use("/api/notification" , protectedRoute , notificationRouter)
-=======
+
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
+app.use('/api/events', eventRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
->>>>>>> d72bcf44c4b8e201915ebe08181aea1ace4c2a52
+
 
 app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
@@ -89,8 +72,7 @@ app.get('/health', async (req, res) => {
   }
   res.status(200).json({ status: 'ok' });
 });
-<<<<<<< HEAD
-=======
+
 
 // Global Error Handling
 app.use(errorHandler);
@@ -99,4 +81,4 @@ app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log('Server Started', PORT);
 });
->>>>>>> d72bcf44c4b8e201915ebe08181aea1ace4c2a52
+

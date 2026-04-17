@@ -2,93 +2,86 @@
 import { createPermission } from './permission.js';
 
 export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
-  admin: new Set([
-    // Full access except read (implicitly allowed)
-    // Account
-    createPermission('write', 'account'),
-    createPermission('update', 'account'),
-    createPermission('delete', 'account'),
+    admin: new Set([
+        // Full access except read (implicitly allowed)
+        // Account
+        createPermission('write', 'account'),
+        createPermission('update', 'account'),
+        createPermission('delete', 'account'),
 
-    // User
-    createPermission('write', 'user'),
-    createPermission('update', 'user'),
-    createPermission('delete', 'user'),
-
-
-    // Holiday
-    createPermission('write', 'holiday'),
-    createPermission('update', 'holiday'),
-    createPermission('delete', 'holiday'),
-
-    // Event
-    createPermission("write", "event"),
-    createPermission("update", "event"),
-    createPermission("delete", "event"),
+        // User
+        createPermission('write', 'user'),
+        createPermission('update', 'user'),
+        createPermission('delete', 'user'),
 
 
-    //Mail 
-    createPermission("write","mail"),
+        // Holiday
+        createPermission('write', 'holiday'),
+        createPermission('update', 'holiday'),
+        createPermission('delete', 'holiday'),
 
-    //Mail 
-    createPermission("write","mail")
-  ]),
+        // Event
+        createPermission("write", "event"),
+        createPermission("update", "event"),
+        createPermission("delete", "event"),
 
-  manager: new Set([
-    // Account
-    createPermission('write', 'account'),
-    createPermission('update', 'account'),
+        //Mail 
+        createPermission("write", "mail"),
 
-    // User
-    createPermission('write', 'user'),
-    createPermission('update', 'user'),
+        //Mail 
+        createPermission("write", "mail")
+    ]),
 
-    // holiday
-    createPermission('write', 'holiday'),
-    createPermission('update', 'holiday'),
-    createPermission('delete', 'holiday'),
+    manager: new Set([
+        // Account
+        createPermission('write', 'account'),
+        createPermission('update', 'account'),
 
-    // Bank
-    createPermission('write', 'bank'),
-    createPermission('update', 'bank'),
+        // User
+        createPermission('write', 'user'),
+        createPermission('update', 'user'),
 
-    // Attendance
-    createPermission('write', 'attendance'),
-    createPermission('update', 'attendance'),
+        // holiday
+        createPermission('write', 'holiday'),
+        createPermission('update', 'holiday'),
+        createPermission('delete', 'holiday'),
 
-    // Attendance Correction
-    createPermission("write", "attendance-correction"),
-    createPermission("update", "attendance-correction"),
+        // Bank
+        createPermission('write', 'bank'),
+        createPermission('update', 'bank'),
 
-    // Event
-    createPermission("write", "event"),
-    createPermission("update", "event"),
-    
-    //Notification 
-    createPermission("write","notification"),
-    createPermission("update","notification"),
-    createPermission("delete","notification"),
-    
-    //Mail 
-    createPermission("write","mail")
-  ]),
+        // Attendance
+        createPermission('write', 'attendance'),
+        createPermission('update', 'attendance'),
 
-  user: new Set([
-    // Attendance
-    createPermission('write', 'attendance'),
+        // Attendance Correction
+        createPermission("write", "attendance-correction"),
+        createPermission("update", "attendance-correction"),
 
-    // Attendance Correction
-    createPermission("write", "attendance-correction"),
+        // Event
+        createPermission("write", "event"),
+        createPermission("update", "event"),
 
-    // Event
-    createPermission("write", "event"),
-    
-    //Mail 
-    createPermission("write","mail"),
+        //Notification 
+        createPermission("write", "notification"),
+        createPermission("update", "notification"),
+        createPermission("delete", "notification"),
 
-    // Event
-    createPermission("write", "event"),
-    
-    //Mail 
-    createPermission("write","mail")
-  ]),
+        //Mail 
+        createPermission("write", "mail")
+    ]),
+
+    user: new Set([
+        // Attendance
+        createPermission('write', 'attendance'),
+
+        // Attendance Correction
+        createPermission("write", "attendance-correction"),
+
+        // Event
+        createPermission("write", "event"),
+
+        //Mail 
+        createPermission("write", "mail")
+    ]),
 };
