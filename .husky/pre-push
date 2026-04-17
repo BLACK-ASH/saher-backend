@@ -6,6 +6,6 @@ pnpm lint || exit 1
 pnpm typecheck || exit 1
 
 if [ "$branch" = "main" ] || [ "$branch" = "dev" ]; then
-  pnpm lint --max-warnings=20 || exit 1
+  pnpm lint --max-warnings=10 || exit 1
   pnpm typecheck || exit 1
 fi

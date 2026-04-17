@@ -22,6 +22,7 @@ const PORT = Number(process.env.PORT) || 4000;
 
 // Route Login
 app.use((req, res, next) => {
+  // eslint-disable-next-line no-console
   console.log(req.method, req.url);
   next();
 });
@@ -66,5 +67,6 @@ app.get('/health', async (req, res) => {
 app.use(errorHandler);
 
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log('Server Started', PORT);
 });

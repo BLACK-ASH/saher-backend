@@ -17,7 +17,7 @@ export default [
       globals: globals.node,
     },
     rules: {
-      'no-console': 'warn',
+      'no-console': ['error', { allow: ['warn', 'error'] }],
 
       '@typescript-eslint/no-unused-vars': [
         'warn',
