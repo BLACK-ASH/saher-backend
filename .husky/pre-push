@@ -1,0 +1,9 @@
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+pnpm lint || exit 1
+pnpm typecheck || exit 1
+
+if [ "$branch" = "main" ] || [ "$branch" = "dev" ]; then
+  pnpm lint --max-warnings=10 || exit 1
+  pnpm typecheck || exit 1
+fi

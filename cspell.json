@@ -1,0 +1,27 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "saher",
+    "bcrypt",
+    "jsonwebtoken",
+    "middleware",
+    "mongoose",
+    "eslint",
+    "prettier",
+    "typescript",
+    "zod",
+    "nestjs",
+    "dotenv"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    "build",
+    "docs",
+    ".git",
+    "package.json",
+    "package-lock.json",
+    "pnpm-lock.yaml"
+  ]
+}

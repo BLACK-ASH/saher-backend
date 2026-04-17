@@ -1,5 +1,5 @@
 delete:
-  tags: [Admin,User]
+  tags: [Admin, User]
   summary: Delete User Details
   operationId: deleteUser
   parameters:
@@ -9,22 +9,21 @@ delete:
       schema:
         type: string
   responses:
-    "200":
+    '200':
       description: User Details Delete Successfully
       content:
         application/json:
           schema:
             $ref: ../../components/common/succes-response.yaml
-    "404":
+    '404':
       description: User Details Not Found
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-    "500":
-      description: Internal Server Error 
+    '500':
+      description: Internal Server Error
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-
