@@ -46,13 +46,6 @@ export const checkOutController = async (req: Request, res: Response) => {
   return res.status(200).json({
     message: 'Checked out successfully',
     success: true,
-<<<<<<< HEAD
-    data: attendance
-  })
-
-}
-=======
     data: attendance,
   });
 };
->>>>>>> d72bcf44c4b8e201915ebe08181aea1ace4c2a52

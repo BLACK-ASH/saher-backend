@@ -67,8 +67,4 @@ adminRouter
   .put('/user/update/:id', authorize('update', 'user'), validateUserUpdate, userUpdateController)
   .delete('/user/delete/:id', authorize('delete', 'user'), userDeleteController);
 
-<<<<<<< HEAD
-export default adminRouter
-=======
 export default adminRouter;
->>>>>>> d72bcf44c4b8e201915ebe08181aea1ace4c2a52

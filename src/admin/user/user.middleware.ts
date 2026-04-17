@@ -4,13 +4,8 @@ import z from 'zod';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 import { ApiError } from '../../libs/class/api-error.js';
 
-<<<<<<< HEAD
-const userUpdateSchema = userSchema.partial()
-export type UserUpdate = z.infer<typeof userSchema>
-=======
 const userUpdateSchema = userSchema.partial();
 export type UserUpdate = z.infer<typeof userSchema>;
->>>>>>> d72bcf44c4b8e201915ebe08181aea1ace4c2a52
 
 export const validateUserUpdate = async (req: Request, res: Response, next: NextFunction) => {
   if (req.body?.password) {

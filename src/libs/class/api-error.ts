@@ -1,9 +1,9 @@
 export class ApiError<T = unknown> extends Error {
   statusCode: number;
   isOperational: boolean;
-  data: any
+  data: T | null;
 
-  constructor(statusCode = 500, message: string, data: any = null) {
+  constructor(statusCode = 500, message: string, data: T | null = null) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
