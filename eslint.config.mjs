@@ -8,7 +8,14 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,
-
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    'out/**',
+    'build/**',
+    'dist/**',
+    'docs/*',
+    'public/*',
+  ]),
   {
     plugins: {
       unicorn,
