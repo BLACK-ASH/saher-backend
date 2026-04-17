@@ -21,14 +21,21 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   // Calculate The Work Hour And Status
   const employeeDetails = {
-    fullTime: { fullWorkHours: 9, halfWorkHours: 4.5, graceHours: 1 },
-    partTime: { fullWorkHours: 4, halfWorkHours: 2, graceHours: 0.5 },
+    fullTime: { fullWorkHours: 9, halfWorkHours: 4.5, graceHours: 1, expectedTime: 9 },
+    // partTimeShift1: { fullWorkHours: 4, halfWorkHours: 2, graceHours: 0.5 , expectedTime : 9  },
+    partTime: { fullWorkHours: 4, halfWorkHours: 2, graceHours: 0.5, expectedTime: 2 },
   };
 
   const final =
     req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
 
-  const workHours = Number(timeDifference(attendance.inTime as Date, now).hours.toFixed(3));
+  const actualWorkHours = Number(timeDifference(attendance.inTime as Date, now).hours.toFixed(3));
+  const expectedTime = new Date(now);
+  expectedTime.setHours(final.expectedTime, 0, 0, 0);
+  const workHoursFromExpectedTime = Number(timeDifference(expectedTime, now).hours.toFixed(3));
+
+  const workHours = Math.min(actualWorkHours, workHoursFromExpectedTime);
+
   if (!workHours) throw new ApiError(400, 'Work Hours Is Not Valid.');
   const status =
     workHours === 0
