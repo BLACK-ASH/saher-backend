@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { Mail } from '../database/mail.model.js';
-import { success } from 'zod';
 import { ApiError } from '../libs/class/api-error.js';
 import { User } from '../database/user.model.js';
 
@@ -44,7 +43,7 @@ export const sendMailController = async (req: Request, res: Response) => {
   });
   return res
     .status(201)
-    .json({ message: `The mail has been sent to ${receiversIDs} `, success: true, data: null });
+    .json({ message: `The mail has been sent to ${receiversIDs} `, success: true, data: mails });
 };
 
 export const outboxController = async (req: Request, res: Response) => {
