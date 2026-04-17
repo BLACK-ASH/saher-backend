@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { number } from "zod";
 
 const participantSchema = new mongoose.Schema(
   {
@@ -9,13 +10,37 @@ const participantSchema = new mongoose.Schema(
     },
 
     age: {
-      type: String,
+      type: Number,
       required: true,
     },
 
     gender: {
       type: String,
+    },
+
+    phoneNumber: {
+      type: String,
       required: true,
+    },
+
+    photo: {
+      type: String,
+    },
+
+    address: {
+      type: String,
+    },
+
+    affiliation: {
+      type: String,
+    },
+
+    parentDetails: {
+      type: String,
+    },
+
+    document: {
+      type: String,
     },
 
     isDeleted: {

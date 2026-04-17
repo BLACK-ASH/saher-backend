@@ -5,5 +5,4 @@ export const RESOURCES = ["account","user","bank","attendance","attendance-corre
 export type Action = (typeof ACTIONS)[number];
 export type Resource = (typeof RESOURCES)[number];
 
-export const createPermission = (action: Action, resource: Resource) =>
-  `${resource}:${action}`;
+export const createPermission = (action: Action, resource: Resource) => `${resource}:${action}`;

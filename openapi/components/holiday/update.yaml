@@ -9,5 +9,5 @@ properties:
     example: Christmas
   type:
     type: string
-    enum: ["national","organization","optional","other"]
+    enum: ['national', 'organization', 'optional', 'other']
     example: national
