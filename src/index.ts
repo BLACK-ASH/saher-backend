@@ -15,7 +15,6 @@ import eventRouter from './events/events.routes.js';
 import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
 
-
 // Env Config
 dotenv.config();
 
@@ -47,19 +46,11 @@ app.use(cookieParser());
 await connectDb();
 
 // Routes
-app.use("/api/admin", protectedRoute, adminRouter)
-app.use("/api/attendance", protectedRoute, attendanceRouter)
-app.use("/api/events", eventRouter)
-app.use("/api/auth", authRouter)
-app.use("/api/notification" , protectedRoute , notificationRouter)
-
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
 app.use('/api/events', eventRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
-
-
 app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
 app.use(express.static(path.join(process.cwd(), 'public')));
@@ -73,7 +64,6 @@ app.get('/health', async (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-
 // Global Error Handling
 app.use(errorHandler);
 
@@ -81,4 +71,3 @@ app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log('Server Started', PORT);
 });
-
