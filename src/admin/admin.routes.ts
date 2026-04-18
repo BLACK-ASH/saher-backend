@@ -17,8 +17,8 @@ import {
   userDeleteController,
   userGetController,
   userUpdateController,
-} from './user/user.controller.js';
-import { validateUserUpdate } from './user/user.middleware.js';
+} from './user/controller.js';
+import { userUpdateSchema } from './user/schema.js';
 import { authorize } from '../permission/authorize.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 
@@ -58,10 +58,11 @@ adminRouter
 
 // User Routes
 // NOTE:Change Routes
+adminRouter.get('/users', getAllUser);
 adminRouter
-  .get('/user/get/:id', userGetController)
-  .get('/user/get-all', getAllUser)
-  .put('/user/update/:id', authorize('update', 'user'), validateUserUpdate, userUpdateController)
-  .delete('/user/delete/:id', authorize('delete', 'user'), userDeleteController);
+  .route('/user/:id')
+  .get(userGetController)
+  .put(authorize('update', 'user'), validate(userUpdateSchema), userUpdateController)
+  .delete(authorize('delete', 'user'), userDeleteController);
 
 export default adminRouter;

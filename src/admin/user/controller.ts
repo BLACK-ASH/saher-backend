@@ -48,6 +48,7 @@ export const userDeleteController = async (req: Request, res: Response) => {
   const deleteData = {
     isActive: false,
     deletedAt: new Date(),
+    deletedBy: req.user?.id,
   };
 
   const deleted = await User.findByIdAndUpdate(id, deleteData);
