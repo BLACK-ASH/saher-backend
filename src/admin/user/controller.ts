@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 
-export const userGetController = async (req: Request, res: Response) => {
+export const adminUserGetController = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   const user = await User.findById(id).populate('image');
@@ -15,7 +15,7 @@ export const userGetController = async (req: Request, res: Response) => {
   });
 };
 
-export const getAllUser = async (req: Request, res: Response) => {
+export const getAllUserController = async (req: Request, res: Response) => {
   const fields = req.query.fields as string;
   let defaultFields = 'name displayName email image role ';
   if (fields) {
@@ -29,7 +29,7 @@ export const getAllUser = async (req: Request, res: Response) => {
     .json({ success: true, message: 'All User Retrieve Successful.', data: users });
 };
 
-export const userUpdateController = async (req: Request, res: Response) => {
+export const adminUserUpdateController = async (req: Request, res: Response) => {
   const id = req.params.id;
   const updateInput = req.body;
 

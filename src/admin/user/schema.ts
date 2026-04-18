@@ -1,5 +1,5 @@
 import { userSchema } from '../account/schema.js';
 import z from 'zod';
 
-export const userUpdateSchema = userSchema.partial();
-export type UserUpdate = z.infer<typeof userUpdateSchema>;
+export const adminUserUpdateSchema = userSchema.partial();
+export type UserUpdate = z.infer<typeof adminUserUpdateSchema>;

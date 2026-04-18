@@ -13,12 +13,12 @@ import {
   accountUpdateController,
 } from './account/controller.js';
 import {
-  getAllUser,
+  getAllUserController,
   userDeleteController,
-  userGetController,
-  userUpdateController,
+  adminUserGetController,
+  adminUserUpdateController,
 } from './user/controller.js';
-import { userUpdateSchema } from './user/schema.js';
+import { adminUserUpdateSchema } from './user/schema.js';
 import { authorize } from '../permission/authorize.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 
@@ -58,11 +58,11 @@ adminRouter
 
 // User Routes
 // NOTE:Change Routes
-adminRouter.get('/users', getAllUser);
+adminRouter.get('/users', getAllUserController);
 adminRouter
   .route('/user/:id')
-  .get(userGetController)
-  .put(authorize('update', 'user'), validate(userUpdateSchema), userUpdateController)
+  .get(adminUserGetController)
+  .put(authorize('update', 'user'), validate(adminUserUpdateSchema), adminUserUpdateController)
   .delete(authorize('delete', 'user'), userDeleteController);
 
 export default adminRouter;
