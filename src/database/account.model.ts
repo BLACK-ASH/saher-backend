@@ -63,7 +63,7 @@ const accountSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    bankDetail: {
+    bank: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'BankDetail',
     },

@@ -31,4 +31,4 @@ const bankSchema = new mongoose.Schema(
 );
 
 type BankType = mongoose.InferSchemaType<typeof bankSchema>;
-export const Bank = mongoose.model<BankType>('BankDetail', bankSchema);
+export const Bank = mongoose.model<BankType>('Bank', bankSchema);
