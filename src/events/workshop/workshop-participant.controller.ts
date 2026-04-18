@@ -30,7 +30,7 @@ export const removeParticipantFromWorkshop = async (req: Request, res: Response)
   const workshop = await Workshop.findByIdAndUpdate(
     workshopId,
     {
-      $pull: { participants: participantId },
+      $pull: { participants: { $in: participantId } },
     },
     { new: true },
   );
