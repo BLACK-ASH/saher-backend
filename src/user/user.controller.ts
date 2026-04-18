@@ -20,7 +20,15 @@ export const updateUserController = async (req: Request, res: Response) => {
 export const userGetController = async (req: Request, res: Response) => {
   const id = req.user?.id;
 
-  const user = await Account.find({ user: id }).populate('user user.image bank aadhar pan resume');
+  const user = await Account.find({ user: id })
+    .populate({
+      path: 'user',
+      select: '-password',
+      populate: {
+        path: 'image',
+      },
+    })
+    .populate('bank aadhar pan resume');
   if (!user) throw new ApiError(404, 'User Not Found.');
 
   return res.status(200).json({
