@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { timeDifference } from '../../libs/utils/time-difference.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const todayAttendanceController = async (req: Request, res: Response) => {
-  const today = await Attendance.find().lean();
+  const now = new Date();
+  const today = await Attendance.find({ date: standardDateString(now) }).lean();
 
   if (!today) throw new ApiError(404, 'Today Attendance Not Found.');
 
-  const now = new Date();
   const updatedToday = today.map((record) => {
     let workHours = record.workHours;
 
