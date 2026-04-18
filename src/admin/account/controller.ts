@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AccountRegisterInput } from './account.schema.js';
+import { AccountRegisterInput } from './schema.js';
 import { User } from '../../database/user.model.js';
 import { Account } from '../../database/account.model.js';
 import mongoose from 'mongoose';

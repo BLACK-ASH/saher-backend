@@ -4,14 +4,14 @@ import {
   deleteBankDetailController,
   getBankDetailController,
   updateBankDetailController,
-} from './bank/bank.controller.js';
-import { bankDetailSchema, bankUpdateSchema } from './bank/bank.middleware.js';
-import { accountRegisterSchema, accountUpdateSchema } from './account/account.schema.js';
+} from './bank/controller.js';
+import { bankDetailSchema, bankUpdateSchema } from './bank/schema.js';
+import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
 import {
   accountGetController,
   accountRegisterController,
   accountUpdateController,
-} from './account/account.controller.js';
+} from './account/controller.js';
 import {
   getAllUser,
   userDeleteController,
