@@ -1,48 +1,31 @@
-import { Response, Request, NextFunction } from 'express';
 import z from 'zod';
-import { ApiError } from '../../libs/class/api-error.js';
 
 // Schemas
 // Register Schema
-const bankRegisterSchema = z.object({
-  accountHolderName: z.string(),
-  bankName: z.string(),
-  ifcs: z.string(),
-  branch: z.string(),
-  mobileNumber: z.string(),
+export const bankDetailSchema = z.object({
+  accountHolderName: z.string('Account Holder Name Is Required'),
+  bankName: z.string('Bank Name Is Required.'),
+  accountNumber: z.string('Bank Account Number Is Required.'),
+  ifcs: z
+    .string('Bank IFCS Code Is Required.')
+    .trim()
+    .regex(/^[a-zA-Z]{4}0[a-zA-Z0-9]{6}$/, {
+      message: 'Invalid IFCS Code According To Indian Banks.',
+    })
+    .transform((val) => val.toUpperCase()),
+  branch: z.string('Branch Name Is Required.'),
+  mobileNumber: z
+    .string()
+    .trim()
+    .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
+      message: 'Invalid Indian mobile number',
+    })
+    .transform((val) => val.replace(/^\+91[\s-]?|^91[\s-]?/, '')),
 });
 
 // Update Schema
-const bankUpdateSchema = bankRegisterSchema.partial();
+export const bankUpdateSchema = bankDetailSchema.partial();
 
 // Types
-export type bankRegisterType = z.infer<typeof bankRegisterSchema>;
-export type bankUpdateType = z.infer<typeof bankUpdateSchema>;
-
-// Validate Update Bank Register Schema
-export const validateBankRegisterSchema = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const parsedBankRegisterInput = bankRegisterSchema.safeParse(req.body);
-
-  const message = 'Invalid Input - ' + parsedBankRegisterInput.error?.issues[0].message;
-  if (!parsedBankRegisterInput.success)
-    throw new ApiError(400, message, parsedBankRegisterInput.error?.issues[0].message);
-
-  req.body = parsedBankRegisterInput.data;
-  next();
-};
-
-// Validate Update Bank Update Schema
-export const validateBankUpdateSchema = async (req: Request, res: Response, next: NextFunction) => {
-  const parsedBankUpdateInput = bankUpdateSchema.safeParse(req.body);
-
-  const message = 'Invalid Input - ' + parsedBankUpdateInput.error?.issues[0].message;
-  if (!parsedBankUpdateInput.success)
-    throw new ApiError(400, message, parsedBankUpdateInput.error?.issues[0].message);
-
-  req.body = parsedBankUpdateInput.data;
-  next();
-};
+export type BankRegisterType = z.infer<typeof bankDetailSchema>;
+export type BankUpdateType = z.infer<typeof bankUpdateSchema>;

@@ -3,7 +3,19 @@ import { hashPassword } from '../../libs/utils/password-hash.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const userSchema = z.object({
-  name: z.string('Username Is Required.').trim().min(2),
+  name: z
+    .string('Username Is Required.')
+    .trim()
+    .regex(/^[a-zA-Z0-9_-]+$/, {
+      message: 'Only alphanumeric, underscore and hyphen allowed',
+    })
+    .refine((val) => !/^[0-9_-]/.test(val), {
+      message: 'Cannot start with _ and - or Number',
+    })
+    .refine((val) => !/[_-]$/.test(val), {
+      message: 'Cannot end with _ or -',
+    })
+    .min(2),
   displayName: z.string().optional(),
   image: objectId('User Profile Image Is Required.'),
   role: z.enum(['user', 'manager', 'admin']).default('user'),
@@ -16,8 +28,21 @@ const accountSchema = z
     gender: z.enum(['male', 'female', 'other']).default('other'),
     dateOfBirth: z.coerce.date('Date Of Birth Is Required.'),
     dateOfJoining: z.coerce.date('Date Of Joining Is Required.'),
-    phoneNumber: z.string().trim().min(1, 'Phone Number Is Required.'),
-    secondaryPhoneNumber: z.string().trim().optional(),
+    phoneNumber: z
+      .string()
+      .trim()
+      .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
+        message: 'Invalid Indian Mobile Number',
+      })
+      .transform((val) => val.replace(/^\+91[\s-]?|^91[\s-]?/, '')),
+    secondaryPhoneNumber: z
+      .string()
+      .trim()
+      .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
+        message: 'Invalid Indian Mobile Number',
+      })
+      .transform((val) => val.replace(/^\+91[\s-]?|^91[\s-]?/, ''))
+      .optional(),
     employeeId: z.string('Employee Id Is Required.'),
     department: z.string('Department Is Required.'),
     designation: z.string('Designation Is Required.'),

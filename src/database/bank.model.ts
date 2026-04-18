@@ -1,8 +1,12 @@
 import mongoose from 'mongoose';
 
-const bankDetailSchema = new mongoose.Schema(
+const bankSchema = new mongoose.Schema(
   {
     accountHolderName: {
+      type: String,
+      require: true,
+    },
+    accountNumber: {
       type: String,
       require: true,
     },
@@ -26,5 +30,5 @@ const bankDetailSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-type BankDetailType = mongoose.InferSchemaType<typeof bankDetailSchema>;
-export const BankDetail = mongoose.model<BankDetailType>('BankDetail', bankDetailSchema);
+type BankType = mongoose.InferSchemaType<typeof bankSchema>;
+export const Bank = mongoose.model<BankType>('BankDetail', bankSchema);
