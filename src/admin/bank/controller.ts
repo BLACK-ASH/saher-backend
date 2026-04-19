@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { BankDetail } from '../../database/bank-detail.model.js';
+import { Bank } from '../../database/bank.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 
 // Create Bank Controller
 export const createBankDetailController = async (req: Request, res: Response) => {
   const { accountHolderName, bankName, ifcs, branch, mobileNumber } = req.body;
 
-  const details = await BankDetail.create({
+  const details = await Bank.create({
     accountHolderName,
     bankName,
     ifcs,
@@ -23,7 +23,7 @@ export const createBankDetailController = async (req: Request, res: Response) =>
 export const getBankDetailController = async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const details = await BankDetail.findById(id);
+  const details = await Bank.findById(id);
   if (!details) throw new ApiError(400, 'Bank Details Not Exist.');
 
   return res
@@ -36,7 +36,7 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
   const id = req.params.id;
   const data = req.body;
 
-  const updated = await BankDetail.findByIdAndUpdate(id, data);
+  const updated = await Bank.findByIdAndUpdate(id, data);
   if (!updated) throw new ApiError(404, 'Bank Details Nott Exist.');
 
   return res
@@ -48,7 +48,7 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
 export const deleteBankDetailController = async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const deleted = await BankDetail.findByIdAndDelete(id);
+  const deleted = await Bank.findByIdAndDelete(id);
   if (!deleted) throw new ApiError(404, 'Bank Details Not Exist.');
 
   return res

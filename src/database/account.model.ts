@@ -36,6 +36,10 @@ const accountSchema = new mongoose.Schema(
       enum: ['full-time', 'part-time', 'volunteer'],
       default: 'full-time',
     },
+    employeeShift: {
+      type: String,
+      enum: ['shift-1', 'shift-2'],
+    },
     phoneNumber: {
       type: String,
       require: true,
