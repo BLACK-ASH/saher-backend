@@ -53,7 +53,7 @@ export const checkInController = async (req: Request, res: Response) => {
 
   // Special case is user is check in before cron job
   //Step 5 - if User exist and have not submitted today's attendence start making new entry
-  //Step6 - Note the current time so that late hai ki nahi ka pata chal sake
+  //Step6 - Note the current time so that late hai ki nahi ka pata chal     sake
   const newRecord = await Attendance.create({
     user: user?.id,
     inTime: now,
@@ -63,5 +63,5 @@ export const checkInController = async (req: Request, res: Response) => {
   });
   return res
     .status(200)
-    .json({ message: 'You have been marked present', success: true, data: newRecord });
+    .json({ message: 'You have been marked presenty', success: true, data: newRecord });
 };

@@ -4,9 +4,6 @@ import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const getAllUserController = async (req: Request, res: Response) => {
-  // Get the user body
-  const user = req.user;
-
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate
   let startDate, endDate;
 
