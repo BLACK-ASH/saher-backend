@@ -4,7 +4,8 @@ import { Request, Response } from 'express';
 
 //Add participant to workshop
 export const addParticipantToWorkshop = async (req: Request, res: Response) => {
-  const { workshopId, participantId } = req.body;
+  const { participantId } = req.body;
+  const { workshopId } = req.params;
 
   const workshop = await Workshop.findByIdAndUpdate(
     workshopId,
@@ -25,7 +26,7 @@ export const addParticipantToWorkshop = async (req: Request, res: Response) => {
 
 //Remove participant from worskhop
 export const removeParticipantFromWorkshop = async (req: Request, res: Response) => {
-  const { workshopId, participantId } = req.body;
+  const { workshopId, participantId } = req.params;
 
   const workshop = await Workshop.findByIdAndUpdate(
     workshopId,
