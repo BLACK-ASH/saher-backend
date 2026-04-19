@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const participantSchema = z.object({
+export const baseSchema = z.object({
   name: z.string().min(4).max(30),
   age: z.coerce.number().min(1).max(100),
   gender: z.string().min(3).max(20),
@@ -10,15 +10,19 @@ export const participantSchema = z.object({
   affiliation: z.string().min(20).max(50),
   parentDetails: z.string(),
   document: z.string(),
-})
-.refine((data) => {
-  return data.age >= 18 || !!data.parentDetails;
-}, {
-  message: "parentDetails is required if age < 18",
-  path: ["parentDetails"],
 });
 
-export const updatedParticipantSchema =  participantSchema.partial()
+export const participantSchema = baseSchema.refine(
+  (data) => {
+    return data.age >= 18 || !!data.parentDetails;
+  },
+  {
+    message: 'parentDetails is required if age < 18',
+    path: ['parentDetails'],
+  },
+);
+
+export const updatedParticipantSchema = baseSchema.partial();
 
 export type CreateParticipantInputType = z.infer<typeof participantSchema>;
 export type UpdateParticipantInputType = z.infer<typeof updatedParticipantSchema>;

@@ -6,7 +6,6 @@ import {
   addParticipant,
   deleteParticipant,
   editParticipant,
-  readAllParticipant,
 } from './participant/participant.controller.js';
 import { markAttendance } from './session/session-attendance.controller.js';
 import { createWorkshopSchema, updatedWorkshopSchema } from './workshop/workshop.schema.js';
@@ -24,23 +23,16 @@ const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
 eventRouter.post('/workshops', validate(createWorkshopSchema), addWorkshop);
-eventRouter.get('/workshops', (req: Request, res: Response) => {
-  return res.status(200).json({ message: 'This is a Workshop Router Page' });
-});
 eventRouter.delete('/workshops/:id', deleteWorkshop);
 eventRouter.put('/workshops/:id', validate(updatedWorkshopSchema), editWorkshop);
 
 // Session route ----------------------------------------------------------------------
 eventRouter.post('/:workshopId/sessions', validate(createSessionSchema), addSession);
-eventRouter.get('/sessions', (req: Request, res: Response) => {
-  return res.status(200).json({ message: 'This is a Session Router Page' });
-});
 eventRouter.delete('/sessions/:id', deleteSession);
 eventRouter.put('/sessions/:id', validate(updatedSessionSchema), editSession);
 
 // Particiapnt route ------------------------------------------------------------------------
 eventRouter.post('/participants', validate(participantSchema), addParticipant);
-eventRouter.get('/workshops/:workshopId/participants', readAllParticipant);
 eventRouter.delete('/participants/:id', deleteParticipant);
 eventRouter.put('/participants/:id', validate(updatedParticipantSchema), editParticipant);
 
