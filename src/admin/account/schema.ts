@@ -96,7 +96,7 @@ export const accountRegisterSchema = z
     };
   });
 
-export const accountUpdateSchema = accountSchema.partial();
+export const accountUpdateSchema = z.object(accountSchema.shape).partial();
 
 export type AccountRegisterInput = z.infer<typeof accountRegisterSchema>;
 export type AccountUpdateInput = z.infer<typeof accountUpdateSchema>;
