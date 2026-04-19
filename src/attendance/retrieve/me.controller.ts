@@ -2,9 +2,21 @@ import { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { timeDifference } from '../../libs/utils/time-difference.js';
+import { redisDatabase } from '../../redis/client.js';
 
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
+
+  const cacheKey = `meAttendance:${user?.id}`;
+
+  const cachedData = await redisDatabase.get(cacheKey);
+
+  if (cachedData) {
+    return res
+      .status(200)
+      .json({ success: true, message: 'Data is coming from Redis', data: JSON.parse(cachedData) });
+  }
+
   const now = new Date();
   const today = await Attendance.findOne({
     user: user?.id,
@@ -18,7 +30,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   }
 
   let workHours;
-  if (today.inTime) {
+  if (today.workHours === 0) {
     const employeeDetails = {
       fullTime: { fullWorkHours: 9, halfWorkHours: 4.5, graceHours: 1, expectedTime: 9 },
       // partTimeShift1: { fullWorkHours: 4, halfWorkHours: 2, graceHours: 0.5 , expectedTime : 9  },
@@ -35,6 +47,8 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
     workHours =
       actualWorkHours > workHoursFromExpectedTime ? workHoursFromExpectedTime : actualWorkHours;
+
+    await redisDatabase.set(cacheKey, JSON.stringify({ ...today, workHours }), { EX: 60 });
   }
 
   return res
