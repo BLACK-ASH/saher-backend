@@ -4,7 +4,7 @@ import { User } from '../../database/user.model.js';
 import { Account } from '../../database/account.model.js';
 import mongoose from 'mongoose';
 import { ApiError } from '../../libs/class/api-error.js';
-import { onboardEmailTemplate } from '../../libs/mail/templates/onboardmail.js';
+import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 
 export const accountRegisterController = async (
