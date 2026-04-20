@@ -28,32 +28,33 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   // const cacheKeyTodayWorkHours = `attendance:me:${user?.id}:today:workHours`;
   const todayWorkHoursKey = createKey('attendance', 'me', user?.id, 'today', 'workHours');
 
-  let [today, workHours] = await Promise.all([
+  const [cachedToday, cachedWorkHours] = await Promise.all([
     getCache<AttendanceCacheType>(todayKey),
     getCache<number>(todayWorkHoursKey),
   ]);
 
-  if (today && workHours) {
+  if (cachedToday && cachedWorkHours) {
     return res.status(200).json({
       message: 'Both data is Coming from Redis ',
       success: true,
-      data: { ...today, workHours },
+      data: { ...cachedToday, workHours: cachedWorkHours },
     });
   }
 
   if (!user?.employeeType) throw new ApiError(400, 'Employee type not found');
 
-  if (today && !workHours) {
-    workHours = calculateWorkHours(user.employeeType, new Date(today.inTime));
+  if (cachedToday && !cachedWorkHours) {
+    const workHours = calculateWorkHours(user.employeeType, new Date(cachedToday.inTime));
     await setCache(todayWorkHoursKey, workHours, 60);
     return res.status(200).json({
       message: 'today from redis , workhours from DB ',
       success: true,
-      data: { ...today, workHours },
+      data: { ...cachedToday, workHours },
     });
   }
   const now = new Date();
-  today = await Attendance.findOne({ user: user?.id, date: standardDateString(now) }).lean();
+
+  const today = await Attendance.findOne({ user: user?.id, date: standardDateString(now) }).lean();
 
   if (!today) {
     throw new ApiError(404, 'Today record not found');
@@ -62,9 +63,19 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     throw new ApiError(400, 'You have not yet checked in ');
   }
 
-  await setCache(todayKey, today, 14400);
+  const serializedToday: AttendanceCacheType = {
+    ...today,
+    _id: today._id.toString(),
+    user: today.user.toString(),
+    inTime: today.inTime?.toISOString(),
+    outTime: today.outTime ? today.outTime.toISOString() : null,
+    createdAt: today.createdAt.toISOString(),
+    updatedAt: today.updatedAt.toISOString(),
+  };
 
-  workHours = today.workHours;
+  await setCache(todayKey, serializedToday, 14400);
+
+  let workHours = today.workHours;
   if (today.workHours === 0) {
     workHours = calculateWorkHours(user?.employeeType, today.inTime);
 
@@ -72,9 +83,17 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .json({ message: 'The today and workhours ', success: true, data: { ...today, workHours } });
+      .json({
+        message: 'The today and workhours ',
+        success: true,
+        data: { ...serializedToday, workHours },
+      });
   }
   return res
     .status(200)
-    .json({ message: 'The today and workhours ', success: true, data: { ...today, workHours } });
+    .json({
+      message: 'The today and workhours ',
+      success: true,
+      data: { ...serializedToday, workHours },
+    });
 };
