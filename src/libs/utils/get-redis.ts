@@ -1,11 +1,11 @@
-import { redisDatabase } from '../../redis/client.js';
+// import { redisDatabase } from '../../redis/client.js';
 
-export const getRedis = async (cacheKey: string) => {
-  const data = await redisDatabase.get(cacheKey);
+// export const getRedis = async (cacheKey: string) => {
+//   const data = await redisDatabase.get(cacheKey);
 
-  if (!data) return null;
+//   if (!data) return null;
 
-  const JSONData = JSON.parse(data);
+//   const JSONData = JSON.parse(data);
 
-  return JSONData;
-};
+//   return JSONData;
+// };
