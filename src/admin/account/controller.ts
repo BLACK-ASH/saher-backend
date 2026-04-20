@@ -1,62 +1,71 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { AccountRegisterInput } from './schema.js';
 import { User } from '../../database/user.model.js';
 import { Account } from '../../database/account.model.js';
 import mongoose from 'mongoose';
 import { ApiError } from '../../libs/class/api-error.js';
+import { onboardEmailTemplate } from '../../libs/mail/templates/onboardmail.js';
+import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 
-export const accountRegisterController = async (req: Request, res: Response) => {
+export const accountRegisterController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const registerInput: AccountRegisterInput = req.body;
   const session = await mongoose.startSession();
 
-  let createdUser;
+  const existingEmail = await User.findOne({ email: registerInput.user.email });
+  if (existingEmail) throw new ApiError(400, 'User Already Exist.');
+
+  const existingEmpId = await Account.findOne({
+    employeeId: registerInput.account.employeeId,
+  });
+  if (existingEmpId) throw new ApiError(400, 'User With Same Employee Id Exist.');
 
   try {
-    const existingEmail = await User.findOne({ email: registerInput.user.email });
-    if (existingEmail) {
-      throw new ApiError(409, 'User with email already exists.');
-    }
+    const user = await session.withTransaction(async () => {
+      const user = new User(registerInput.user);
+      await user.save({ session });
 
-    const existingEmpId = await Account.findOne({
-      employeeId: registerInput.account.employeeId,
-    });
-    if (existingEmpId) {
-      throw new ApiError(409, 'User with Employee ID already exists.');
-    }
+      const account = new Account({
+        user: user._id,
+        ...registerInput.account,
+      });
 
-    await session.withTransaction(async () => {
-      // 1. Create User
-      const user = await User.create([registerInput.user], { session });
-      createdUser = user[0];
-
-      // 2. Create Account
-      const account = await Account.create(
-        [
-          {
-            user: createdUser._id,
-            ...registerInput.account,
-          },
-        ],
-        { session },
-      );
-
-      if (!account.length) {
-        throw new Error('Account creation failed.');
-      }
+      await account.save({ session });
+      return user;
     });
 
-    // ✅ Send response AFTER transaction success
+    // ❗ Ensure user exists after transaction
+    if (!user) {
+      return next(new ApiError(500, 'User creation failed.'));
+    }
+
+    // ✅ Send email AFTER transaction success
+    const html = onboardEmailTemplate({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+
+    await sendEmail({
+      to: user.email,
+      subject: 'Welcome to Saher Internal',
+      html,
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Employee registered successfully.',
-      // @ts-expect-error - is of type user
-      data: createdUser?._id,
+      data: user._id,
     });
+  } catch (error) {
+    return next(error);
   } finally {
-    await session.endSession(); // ✅ always runs
+    await session.endSession();
   }
 };
-
 export const accountUpdateController = async (req: Request, res: Response) => {
   const id = req.params.id;
   const updateInput = req.body;

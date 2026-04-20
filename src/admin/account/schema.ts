@@ -50,7 +50,7 @@ const accountSchema = z
     employeeShift: z.enum(['shift-1', 'shift-2']).optional(),
     salaryStructure: z.string('Salary Structure Is Required.'),
     address: z.string('Address Is Required.'),
-    bankDetail: objectId('Bank Details Are Required.'),
+    bank: objectId('Bank Details Are Required.'),
     aadhar: objectId('Aadhar Card Is Required.'),
     pan: objectId('Pan Card Is Required.'),
     resume: objectId('Resume Is Required.'),

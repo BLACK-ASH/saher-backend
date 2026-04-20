@@ -20,7 +20,7 @@ import {
 } from './user/controller.js';
 import { userUpdateSchema } from './user/schema.js';
 import { authorize } from '../permission/authorize.js';
-import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { validate, validateAsync } from '../libs/middleware/validate-zod-schema.js';
 
 const adminRouter = Router();
 
@@ -41,20 +41,17 @@ adminRouter.post(
 
 // Account Routes
 // NOTE:Change Routes
+adminRouter.post(
+  '/account',
+  authorize('write', 'account'),
+  validateAsync(accountRegisterSchema),
+  accountRegisterController,
+);
+
 adminRouter
-  .post(
-    '/account/register',
-    authorize('write', 'account'),
-    validate(accountRegisterSchema),
-    accountRegisterController,
-  )
-  .put(
-    '/account/update/:id',
-    authorize('update', 'account'),
-    validate(accountUpdateSchema),
-    accountUpdateController,
-  )
-  .get('/account/get/:id', accountGetController);
+  .route('/account/:id')
+  .put(authorize('update', 'account'), validate(accountUpdateSchema), accountUpdateController)
+  .get(accountGetController);
 
 // User Routes
 // NOTE:Change Routes

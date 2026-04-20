@@ -18,6 +18,7 @@ client.on('error', (err: Error) => {
 });
 
 client.on('connect', () => {
+  // WARN:Remove This After Development
   // eslint-disable-next-line no-console
   console.log('Redis connected');
 });

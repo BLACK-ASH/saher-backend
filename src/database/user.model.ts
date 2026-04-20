@@ -6,19 +6,19 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
     },
     displayName: {
       type: String,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     password: {
       type: String,
-      require: true,
+      required: true,
     },
     emailVerified: {
       type: Boolean,
@@ -53,5 +53,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-type UserType = mongoose.InferSchemaType<typeof userSchema>;
+export type UserType = mongoose.InferSchemaType<typeof userSchema>;
 export const User = mongoose.model<UserType>('User', userSchema);
