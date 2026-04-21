@@ -15,6 +15,8 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
   if (!user?.id) throw new ApiError(400, 'Forbidden user');
   // const cacheKeyToday = `attendance:me:${user?.id}:today`;
+  const todayKey = createKey('attendance', 'today', 'me', user?.id);
+
   const AttendanceSchemaFinal = z
     .object({
       id: z.string(),
@@ -31,36 +33,23 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     .readonly();
 
   type AttendanceT = z.infer<typeof AttendanceSchemaFinal>;
-  const todayKey = createKey('attendance', 'today', 'me', user?.id);
   // const cacheKeyTodayWorkHours = `attendance:me:${user?.id}:today:workHours`;
-  const todayWorkHoursKey = createKey('attendance', 'me', user?.id, 'today', 'workHours');
+  // const todayWorkHoursKey = createKey('attendance', 'me', user?.id, 'today', 'workHours');
 
-  const [cachedToday, cachedWorkHours] = await Promise.all([
-    getCache<AttendanceT>(todayKey),
-    getCache<number>(todayWorkHoursKey),
-  ]);
+  const cachedToday = await getCache<AttendanceT>(todayKey);
 
-  if (cachedToday && cachedWorkHours) {
+  const account = await Account.findById(user?.id);
+  if (!account) throw new ApiError(400, 'Account not found');
+
+  if (cachedToday) {
+    const workHours = calculateWorkHours(account.employeeType, new Date(cachedToday.inTime));
     return res.status(200).json({
       message: 'Both data is Coming from Redis ',
-      success: true,
-      data: { ...cachedToday, workHours: cachedWorkHours },
-    });
-  }
-
-  // if (!user?.employeeType) throw new ApiError(400, 'Employee type not found');
-
-  if (cachedToday && !cachedWorkHours) {
-    const account = await Account.findById(user?.id);
-    if (!account) throw new ApiError(400, 'Account not found');
-    const workHours = calculateWorkHours(account.employeeType, new Date(cachedToday.inTime));
-    // await setCache(todayWorkHoursKey, workHours, 60);
-    return res.status(200).json({
-      message: 'today from redis , workhours from DB ',
       success: true,
       data: { ...cachedToday, workHours },
     });
   }
+
   const now = new Date();
 
   const today = await Attendance.findOne({ user: user?.id, date: standardDateString(now) }).lean();
@@ -72,34 +61,18 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     throw new ApiError(400, 'You have not yet checked in ');
   }
 
-  // const serializedToday: AttendanceCacheType = {
-  //   ...today,
-  //   _id: today._id.toString(),
-  //   user: today.user.toString(),
-  //   inTime: today.inTime?.toISOString(),
-  //   outTime: today.outTime ? today.outTime.toISOString() : null,
-  //   createdAt: today.createdAt.toISOString(),
-  //   updatedAt: today.updatedAt.toISOString(),
-  // };
-
   const normalize = normalizeDoc(today);
   const parsed = AttendanceSchemaFinal.parse(normalize);
   await setCache(todayKey, parsed, 14400);
 
-  const workHours = today.workHours;
+  let workHours = today.workHours;
+
   if (today.workHours === 0) {
-    // workHours = calculateWorkHours(user?.employeeType, today.inTime);
-
-    await setCache(todayWorkHoursKey, workHours, 60);
-
-    return res.status(200).json({
-      message: 'The today and workhours ',
-      success: true,
-      data: { ...parsed, workHours },
-    });
+    workHours = calculateWorkHours(account.employeeType, today.inTime);
   }
+  // await setCache(todayWorkHoursKey, workHours, 60);
   return res.status(200).json({
-    message: 'The today and workhours ',
+    message: 'today from redis , workhours from DB ',
     success: true,
     data: { ...parsed, workHours },
   });
