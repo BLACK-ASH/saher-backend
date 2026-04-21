@@ -14,26 +14,26 @@ post:
             user:
               $ref: ../../../components/user/create.yaml
   responses:
-    "200":
-      description:  Account Added Successfully
+    '200':
+      description: Account Added Successfully
       content:
         application/json:
           schema:
             type: object
             properties:
-              success: 
+              success:
                 type: boolean
               account:
                 $ref: ../../../components/account/response.yaml
               user:
                 $ref: ../../../components/user/response.yaml
-    "400":
+    '400':
       description: Invalid Details
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-    "500":
+    '500':
       description: Internal Server Error
       content:
         application/json:

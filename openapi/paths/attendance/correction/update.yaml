@@ -23,35 +23,35 @@ post:
               format: date
             status:
               type: string
-              enum: [present,absent,late,half-day]
+              enum: [present, absent, late, half-day]
             isLate:
               type: boolean
 
   responses:
-    "200":
-      description:  Attendance Correction Update Successfully
+    '200':
+      description: Attendance Correction Update Successfully
       content:
         application/json:
           schema:
             type: object
             properties:
-              success: 
+              success:
                 type: boolean
-              message: 
+              message:
                 type: string
                 example: Attendance Correction Update Successfully
               data:
                 type: object
                 properties:
-                  id: 
+                  id:
                     type: string
-    "400":
+    '400':
       description: Invalid Details
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-    "500":
+    '500':
       description: Internal Server Error
       content:
         application/json:

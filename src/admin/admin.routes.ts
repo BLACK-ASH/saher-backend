@@ -1,33 +1,65 @@
-import { Router, Request, Response } from "express";
-import { createBankDetailController, deleteBankDetailController, getBankDetailController, updateBankDetailController } from "./bank/bank.controller.js";
-import { validateBankRegisterSchema, validateBankUpdateSchema } from "./bank/bank.middleware.js";
-import { validateAccountRegister, validateAccountUpdate } from "./account/account.middleware.js";
-import { accountGetController, accountRegisterController, accountUpdateController } from "./account/account.controller.js";
-import { getAllUser, userDeleteController, userGetController, userUpdateController } from "./user/user.controller.js";
-import { validateUserUpdate } from "./user/user.middleware.js";
-import { authorize } from "../permission/authorize.js";
+import { Router } from 'express';
+import {
+  createBankDetailController,
+  deleteBankDetailController,
+  getBankDetailController,
+  updateBankDetailController,
+} from './bank/controller.js';
+import { bankSchema, bankUpdateSchema } from './bank/schema.js';
+import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
+import {
+  accountGetController,
+  accountRegisterController,
+  accountUpdateController,
+} from './account/controller.js';
+import {
+  getAllUser,
+  userDeleteController,
+  userGetController,
+  userUpdateController,
+} from './user/controller.js';
+import { userUpdateSchema } from './user/schema.js';
+import { authorize } from '../permission/authorize.js';
+import { validate, validateAsync } from '../libs/middleware/validate-zod-schema.js';
 
-const adminRouter = Router()
-
-adminRouter.get("/", (req: Request, res: Response) => {
-  return res.status(200).json({ message: "This Is A adminRouter Page" })
-})
+const adminRouter = Router();
 
 // Bank Routes
-adminRouter.post("/bank/register", authorize("write", "bank"), validateBankRegisterSchema, createBankDetailController)
-  .get("/bank/get/:id", getBankDetailController)
-  .put("/bank/update/:id", authorize("update", "bank"), validateBankUpdateSchema, updateBankDetailController)
-  .delete("/bank/delete/:id", authorize("delete", "bank"), deleteBankDetailController)
+// For Common endpoint using express route
+adminRouter
+  .route('/bank/:id')
+  .get(getBankDetailController)
+  .put(authorize('update', 'bank'), validate(bankUpdateSchema), updateBankDetailController)
+  .delete(authorize('delete', 'bank'), deleteBankDetailController);
+
+adminRouter.post(
+  '/bank',
+  authorize('write', 'bank'),
+  validate(bankSchema),
+  createBankDetailController,
+);
 
 // Account Routes
-adminRouter.post("/account/register", authorize("write", "account"), validateAccountRegister, accountRegisterController)
-  .put("/account/update/:id", authorize("update", "account"), validateAccountUpdate, accountUpdateController)
-  .get("/account/get/:id", accountGetController)
+// NOTE:Change Routes
+adminRouter.post(
+  '/account',
+  authorize('write', 'account'),
+  validateAsync(accountRegisterSchema),
+  accountRegisterController,
+);
+
+adminRouter
+  .route('/account/:id')
+  .put(authorize('update', 'account'), validate(accountUpdateSchema), accountUpdateController)
+  .get(accountGetController);
 
 // User Routes
-adminRouter.get("/user/get/:id", userGetController)
-  .get("/user/get-all",getAllUser)
-  .put("/user/update/:id", authorize("update", "user"), validateUserUpdate, userUpdateController)
-  .delete("/user/delete/:id", authorize("delete", "user"), userDeleteController)
+// NOTE:Change Routes
+adminRouter.get('/users', getAllUser);
+adminRouter
+  .route('/user/:id')
+  .get(userGetController)
+  .put(authorize('update', 'user'), validate(userUpdateSchema), userUpdateController)
+  .delete(authorize('delete', 'user'), userDeleteController);
 
-export default adminRouter
+export default adminRouter;

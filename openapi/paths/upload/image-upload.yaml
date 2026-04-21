@@ -22,7 +22,7 @@ post:
               description: Alt text for the image
               example: Profile picture
   responses:
-    "200":
+    '200':
       description: Image uploaded successfully
       content:
         application/json:
@@ -59,12 +59,12 @@ post:
                   mimetype:
                     type: string
                     example: image/webp
-    "400":
+    '400':
       description: Invalid Request
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
 
-    "500":
+    '500':
       $ref: ../../components/common/internal-server-error.yaml
