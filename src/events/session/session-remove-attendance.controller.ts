@@ -33,10 +33,13 @@ export const removeAttendance = async (req: Request, res: Response) => {
   participantIds.forEach((e: Types.ObjectId) => {
     if (sessionString.includes(e.toString())) {
       remove.push(e);
+    } else {
+      throw new ApiError(404, 'Session participants does not match the given participants');
     }
   });
 
   await Session.updateOne({ _id: session._id }, { $pull: { participants: { $in: remove } } });
+
   return res.status(200).json({
     sucess: true,
     message: 'Participants remove from attendance Successfully',

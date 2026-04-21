@@ -1,22 +1,21 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 //Session attendance
 const attendanceSchema = new Schema(
   {
     participant: {
       type: Schema.Types.ObjectId,
-      ref: "Participant",
+      ref: 'Participant',
       required: true,
     },
 
     status: {
       type: String,
-      enum: ["present", "absent"],
-      default: "absent",
+      enum: ['present', 'absent'],
+      default: 'absent',
     },
-
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 //Session base schema
@@ -24,7 +23,7 @@ const sessionSchema = new mongoose.Schema(
   {
     workshopId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Workshop",
+      ref: 'Workshop',
       required: true,
     },
 
@@ -40,7 +39,7 @@ const sessionSchema = new mongoose.Schema(
 
     date: {
       type: String,
-      required: true
+      required: true,
     },
 
     startTime: {
@@ -55,21 +54,28 @@ const sessionSchema = new mongoose.Schema(
 
     speaker: {
       type: [Schema.Types.ObjectId],
-      ref: "User",
+      ref: 'User',
       required: true,
     },
 
     participants: {
       type: [mongoose.Schema.Types.ObjectId],
-      ref: "Participant",
+      ref: 'Participant',
       default: [],
-    }
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
 
 export type sessionType = mongoose.InferSchemaType<typeof sessionSchema>;
-export const Session = mongoose.model<sessionType>("Session", sessionSchema);
+export const Session = mongoose.model<sessionType>('Session', sessionSchema);
 
 export type sessionAttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>;
-export const sessionAttendance = mongoose.model<sessionAttendanceType>("sessionAttendance", attendanceSchema);
+export const sessionAttendance = mongoose.model<sessionAttendanceType>(
+  'sessionAttendance',
+  attendanceSchema,
+);
