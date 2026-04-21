@@ -8,6 +8,7 @@ import { calculateWorkHours } from '../../libs/utils/calculate-work-hours.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { Account } from '../../database/account.model.js';
 
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -19,7 +20,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
       id: z.string(),
       user: z.string(),
       inTime: z.string(),
-      outTime: z.string().optional(),
+      outTime: z.string().optional().nullable(),
       workHours: z.number(),
       date: z.string(),
       status: z.string(),
@@ -50,12 +51,14 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   // if (!user?.employeeType) throw new ApiError(400, 'Employee type not found');
 
   if (cachedToday && !cachedWorkHours) {
-    // const workHours = calculateWorkHours(user.employeeType, new Date(cachedToday.inTime));
+    const account = await Account.findById(user?.id);
+    if (!account) throw new ApiError(400, 'Account not found');
+    const workHours = calculateWorkHours(account.employeeType, new Date(cachedToday.inTime));
     // await setCache(todayWorkHoursKey, workHours, 60);
     return res.status(200).json({
       message: 'today from redis , workhours from DB ',
       success: true,
-      // data: { ...cachedToday, workHours },
+      data: { ...cachedToday, workHours },
     });
   }
   const now = new Date();
