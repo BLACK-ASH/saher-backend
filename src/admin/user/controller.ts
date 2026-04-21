@@ -13,9 +13,6 @@ export const userGetController = async (req: Request, res: Response) => {
   const user = await getAccountByUser(id);
   if (!user) throw new ApiError(404, 'User Not Found.');
 
-  const key = createKey('user', 'list');
-  await deleteCache(key);
-
   return res.status(200).json({
     success: true,
     message: 'User get successfully.',
@@ -66,6 +63,7 @@ export const userUpdateController = async (req: Request, res: Response) => {
 
 export const userDeleteController = async (req: Request, res: Response) => {
   const id = req.params.id as string;
+
   const deleteData = {
     isActive: false,
     deletedAt: new Date(),

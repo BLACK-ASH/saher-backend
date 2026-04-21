@@ -40,7 +40,7 @@ export const getAccount = async (id: string): Promise<AccountT | null> => {
   const normalize = normalizeDoc(account);
   const parsed = accountSchemaFinal.parse(normalize);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return parsed;
 };
@@ -64,7 +64,7 @@ export const getAccountByUser = async (id: string): Promise<AccountT | null> => 
   const normalize = normalizeDoc(account);
   const parsed = accountSchemaFinal.parse(normalize);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return parsed;
 };

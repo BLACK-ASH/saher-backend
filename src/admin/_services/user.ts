@@ -34,7 +34,7 @@ export const getUser = async (id: string) => {
   const normalize = normalizeDoc(user);
   const parsed = userSchemaFinal.parse(normalize);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return parsed;
 };
