@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { getAccountByUser } from '../_services/account.js';
 
 export const userGetController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req.params.id as string;
 
-  const user = await User.findById(id).populate('image');
+  const user = await getAccountByUser(id);
   if (!user) throw new ApiError(404, 'User Not Found.');
 
   return res.status(200).json({
@@ -48,6 +49,7 @@ export const userDeleteController = async (req: Request, res: Response) => {
   const deleteData = {
     isActive: false,
     deletedAt: new Date(),
+    deletedBy: req.user?.id,
   };
 
   const deleted = await User.findByIdAndUpdate(id, deleteData);

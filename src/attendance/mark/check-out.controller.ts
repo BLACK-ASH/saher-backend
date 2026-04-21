@@ -26,8 +26,10 @@ export const checkOutController = async (req: Request, res: Response) => {
     partTime: { fullWorkHours: 4, halfWorkHours: 2, graceHours: 0.5, expectedTime: 2 },
   };
 
-  const final =
-    req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
+  // WARN: Change this
+  // const final = req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
+
+  const final = employeeDetails.fullTime;
 
   const actualWorkHours = Number(timeDifference(attendance.inTime as Date, now).hours.toFixed(3));
   const expectedTime = new Date(now);

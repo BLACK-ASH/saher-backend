@@ -6,30 +6,36 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { calculateWorkHours } from '../../libs/utils/calculate-work-hours.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import z from 'zod';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
 
   if (!user?.id) throw new ApiError(400, 'Forbidden user');
   // const cacheKeyToday = `attendance:me:${user?.id}:today`;
-  type AttendanceCacheType = {
-    _id: string;
-    user: string;
-    inTime: string;
-    outTime: string | null;
-    workHours: number;
-    date: string;
-    status: string;
-    isLate: boolean;
-    createdAt: string;
-    updatedAt: string;
-  };
+  const AttendanceSchemaFinal = z
+    .object({
+      id: z.string(),
+      user: z.string(),
+      inTime: z.string(),
+      outTime: z.string().optional(),
+      workHours: z.number(),
+      date: z.string(),
+      status: z.string(),
+      isLate: z.boolean(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })
+    .readonly();
+
+  type AttendanceT = z.infer<typeof AttendanceSchemaFinal>;
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
   // const cacheKeyTodayWorkHours = `attendance:me:${user?.id}:today:workHours`;
   const todayWorkHoursKey = createKey('attendance', 'me', user?.id, 'today', 'workHours');
 
   const [cachedToday, cachedWorkHours] = await Promise.all([
-    getCache<AttendanceCacheType>(todayKey),
+    getCache<AttendanceT>(todayKey),
     getCache<number>(todayWorkHoursKey),
   ]);
 
@@ -41,15 +47,15 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     });
   }
 
-  if (!user?.employeeType) throw new ApiError(400, 'Employee type not found');
+  // if (!user?.employeeType) throw new ApiError(400, 'Employee type not found');
 
   if (cachedToday && !cachedWorkHours) {
-    const workHours = calculateWorkHours(user.employeeType, new Date(cachedToday.inTime));
-    await setCache(todayWorkHoursKey, workHours, 60);
+    // const workHours = calculateWorkHours(user.employeeType, new Date(cachedToday.inTime));
+    // await setCache(todayWorkHoursKey, workHours, 60);
     return res.status(200).json({
       message: 'today from redis , workhours from DB ',
       success: true,
-      data: { ...cachedToday, workHours },
+      // data: { ...cachedToday, workHours },
     });
   }
   const now = new Date();
@@ -63,37 +69,35 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     throw new ApiError(400, 'You have not yet checked in ');
   }
 
-  const serializedToday: AttendanceCacheType = {
-    ...today,
-    _id: today._id.toString(),
-    user: today.user.toString(),
-    inTime: today.inTime?.toISOString(),
-    outTime: today.outTime ? today.outTime.toISOString() : null,
-    createdAt: today.createdAt.toISOString(),
-    updatedAt: today.updatedAt.toISOString(),
-  };
+  // const serializedToday: AttendanceCacheType = {
+  //   ...today,
+  //   _id: today._id.toString(),
+  //   user: today.user.toString(),
+  //   inTime: today.inTime?.toISOString(),
+  //   outTime: today.outTime ? today.outTime.toISOString() : null,
+  //   createdAt: today.createdAt.toISOString(),
+  //   updatedAt: today.updatedAt.toISOString(),
+  // };
 
-  await setCache(todayKey, serializedToday, 14400);
+  const normalize = normalizeDoc(today);
+  const parsed = AttendanceSchemaFinal.parse(normalize);
+  await setCache(todayKey, parsed, 14400);
 
-  let workHours = today.workHours;
+  const workHours = today.workHours;
   if (today.workHours === 0) {
-    workHours = calculateWorkHours(user?.employeeType, today.inTime);
+    // workHours = calculateWorkHours(user?.employeeType, today.inTime);
 
     await setCache(todayWorkHoursKey, workHours, 60);
 
-    return res
-      .status(200)
-      .json({
-        message: 'The today and workhours ',
-        success: true,
-        data: { ...serializedToday, workHours },
-      });
-  }
-  return res
-    .status(200)
-    .json({
+    return res.status(200).json({
       message: 'The today and workhours ',
       success: true,
-      data: { ...serializedToday, workHours },
+      data: { ...parsed, workHours },
     });
+  }
+  return res.status(200).json({
+    message: 'The today and workhours ',
+    success: true,
+    data: { ...parsed, workHours },
+  });
 };

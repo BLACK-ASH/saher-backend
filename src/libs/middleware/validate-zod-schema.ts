@@ -8,7 +8,20 @@ export const validate = (schema: ZodSchema) => {
 
     if (!parsed.success) {
       const message = parsed.error.issues.map((i) => i.message).join(', ');
-      throw new ApiError(400, message);
+      throw new ApiError(400, message, parsed);
+    }
+
+    req.body = parsed.data; // ✅ clean data
+    next();
+  };
+};
+export const validateAsync = (schema: ZodSchema) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const parsed = await schema.safeParseAsync(req.body);
+
+    if (!parsed.success) {
+      const message = parsed.error.issues.map((i) => i.message).join(', ');
+      throw new ApiError(400, message, parsed);
     }
 
     req.body = parsed.data; // ✅ clean data

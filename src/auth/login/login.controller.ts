@@ -3,7 +3,6 @@ import { User } from '../../database/user.model.js';
 import { comparePassword } from '../../libs/utils/password-hash.js';
 import { generateToken } from '../../libs/utils/jwt-token.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { Account } from '../../database/account.model.js';
 
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -23,13 +22,7 @@ export const loginController = async (req: Request, res: Response) => {
   const matchPassword = await comparePassword(password, user.password!);
   if (!matchPassword) throw new ApiError(403, 'Invalid Credentials.');
 
-  const account = await Account.findOne({ user: user._id }).lean();
-  if (!account) throw new ApiError(404, 'Account Not Found.');
-
-  const role = user.role;
-  const employeeType = account.employeeType;
-
-  const payload = { id: user._id.toString(), name: user.name!, role, employeeType };
+  const payload = { id: user._id.toString(), name: user.name!, role: user.role, email: user.email };
 
   const { accessToken, refreshToken } = generateToken(payload);
 

@@ -27,7 +27,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
         id: verifyToken.id,
         name: verifyToken.name,
         role: verifyToken.role,
-        employeeType: verifyToken.employeeType,
+        email: verifyToken.email,
       };
 
       const { accessToken, refreshToken } = generateToken(user);
@@ -59,7 +59,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
       id: verifyToken.id,
       name: verifyToken.name,
       role: verifyToken.role,
-      employeeType: verifyToken.employeeType,
+      email: verifyToken.email,
     };
 
     return next();

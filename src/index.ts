@@ -53,7 +53,6 @@ app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
-
 app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
 app.use(express.static(path.join(process.cwd(), 'public')));
