@@ -25,8 +25,10 @@ export const checkOutController = async (req: Request, res: Response) => {
     partTime: { fullWorkHours: 4, halfWorkHours: 2, graceHours: 0.5 },
   };
 
-  const final =
-    req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
+  // WARN: Change this
+  // const final = req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
+
+  const final = employeeDetails.fullTime;
 
   const workHours = Number(timeDifference(attendance.inTime as Date, now).hours.toFixed(3));
   if (!workHours) throw new ApiError(400, 'Work Hours Is Not Valid.');

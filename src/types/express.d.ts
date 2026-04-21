@@ -1,6 +1,5 @@
 import 'express';
 import { UserRole } from '../database/user.model.ts';
-import { EmployeeType } from '../database/account.model.ts';
 
 declare global {
   namespace Express {
@@ -10,7 +9,7 @@ declare global {
         id: string;
         name: string;
         role: UserRole;
-        employeeType: EmployeeType;
+        email: string;
       };
     }
   }

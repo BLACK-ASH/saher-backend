@@ -6,19 +6,19 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
     },
     displayName: {
       type: String,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     password: {
       type: String,
-      require: true,
+      required: true,
     },
     emailVerified: {
       type: Boolean,
@@ -32,15 +32,11 @@ const userSchema = new mongoose.Schema(
     image: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
-      require: true,
+      required: true,
     },
     isActive: {
       type: Boolean,
       default: true,
-    },
-    isBanned: {
-      type: Boolean,
-      default: false,
     },
     deletedAt: {
       type: Date,
@@ -49,9 +45,20 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    bannedAt: {
+      type: Date,
+    },
+    bannedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
   { timestamps: true },
 );
 
-type UserType = mongoose.InferSchemaType<typeof userSchema>;
+export type UserType = mongoose.InferSchemaType<typeof userSchema>;
 export const User = mongoose.model<UserType>('User', userSchema);
