@@ -1,6 +1,7 @@
 import z from 'zod';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
+import { bankSchema } from '../bank/schema.js';
 
 export const userSchema = z.object({
   name: z
@@ -23,7 +24,7 @@ export const userSchema = z.object({
   password: z.string().optional(),
 });
 
-const accountSchema = z
+export const accountSchema = z
   .object({
     gender: z.enum(['male', 'female', 'other']).default('other'),
     dateOfBirth: z.coerce.date('Date Of Birth Is Required.'),
@@ -50,7 +51,7 @@ const accountSchema = z
     employeeShift: z.enum(['shift-1', 'shift-2']).optional(),
     salaryStructure: z.string('Salary Structure Is Required.'),
     address: z.string('Address Is Required.'),
-    bank: objectId('Bank Details Are Required.'),
+    bank: bankSchema,
     aadhar: objectId('Aadhar Card Is Required.'),
     pan: objectId('Pan Card Is Required.'),
     resume: objectId('Resume Is Required.'),

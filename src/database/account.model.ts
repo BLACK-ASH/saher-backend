@@ -7,29 +7,26 @@ const accountSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      require: true,
+      required: true,
       unique: true,
-    },
-    sessions: {
-      type: [String],
     },
     employeeId: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     gender: {
       type: String,
       enum: ['male', 'female', 'other'],
-      require: true,
+      required: true,
     },
     dateOfBirth: {
       type: Date,
-      require: true,
+      required: true,
     },
     dateOfJoining: {
       type: Date,
-      require: true,
+      required: true,
     },
     employeeType: {
       type: String,
@@ -42,42 +39,46 @@ const accountSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      require: true,
+      required: true,
     },
     secondaryPhoneNumber: {
       type: String,
     },
     address: {
       type: String,
-      require: true,
+      required: true,
     },
     department: {
       type: String,
-      require: true,
+      required: true,
     },
     designation: {
       type: String,
-      require: true,
+      required: true,
     },
     salaryStructure: {
       type: String,
-      require: true,
+      required: true,
     },
-    bankDetail: {
+    bank: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'BankDetail',
+      ref: 'Bank',
+      required: true,
     },
     aadhar: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
+      required: true,
     },
     pan: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
+      required: true,
     },
     resume: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
+      required: true,
     },
   },
   { timestamps: true },

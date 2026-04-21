@@ -2,7 +2,7 @@ import z from 'zod';
 
 // Schemas
 // Register Schema
-export const bankDetailSchema = z.object({
+export const bankSchema = z.object({
   accountHolderName: z.string('Account Holder Name Is Required'),
   bankName: z.string('Bank Name Is Required.'),
   accountNumber: z.string('Bank Account Number Is Required.'),
@@ -24,8 +24,8 @@ export const bankDetailSchema = z.object({
 });
 
 // Update Schema
-export const bankUpdateSchema = bankDetailSchema.partial();
+export const bankUpdateSchema = bankSchema.partial();
 
 // Types
-export type BankRegisterType = z.infer<typeof bankDetailSchema>;
+export type BankRegisterType = z.infer<typeof bankSchema>;
 export type BankUpdateType = z.infer<typeof bankUpdateSchema>;

@@ -32,20 +32,27 @@ const userSchema = new mongoose.Schema(
     image: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
-      require: true,
+      required: true,
     },
     isActive: {
       type: Boolean,
       default: true,
     },
-    isBanned: {
-      type: Boolean,
-      default: false,
-    },
     deletedAt: {
       type: Date,
     },
     deleteBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    bannedAt: {
+      type: Date,
+    },
+    bannedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },

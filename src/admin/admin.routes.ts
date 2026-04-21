@@ -5,7 +5,7 @@ import {
   getBankDetailController,
   updateBankDetailController,
 } from './bank/controller.js';
-import { bankDetailSchema, bankUpdateSchema } from './bank/schema.js';
+import { bankSchema, bankUpdateSchema } from './bank/schema.js';
 import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
 import {
   accountGetController,
@@ -35,7 +35,7 @@ adminRouter
 adminRouter.post(
   '/bank',
   authorize('write', 'bank'),
-  validate(bankDetailSchema),
+  validate(bankSchema),
   createBankDetailController,
 );
 

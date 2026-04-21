@@ -66,6 +66,7 @@ export const accountRegisterController = async (
     await session.endSession();
   }
 };
+
 export const accountUpdateController = async (req: Request, res: Response) => {
   const id = req.params.id;
   const updateInput = req.body;
