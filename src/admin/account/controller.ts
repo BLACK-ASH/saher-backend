@@ -6,13 +6,14 @@ import mongoose from 'mongoose';
 import { ApiError } from '../../libs/class/api-error.js';
 import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+import { Bank } from '../../database/bank.model.js';
 
 export const accountRegisterController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const registerInput: AccountRegisterInput = req.body;
+  const registerInput = req.body as AccountRegisterInput;
   const session = await mongoose.startSession();
 
   const existingEmail = await User.findOne({ email: registerInput.user.email });
@@ -28,8 +29,12 @@ export const accountRegisterController = async (
       const user = new User(registerInput.user);
       await user.save({ session });
 
+      const bank = new Bank(registerInput.bank);
+      await bank.save({ session });
+
       const account = new Account({
         user: user._id,
+        bank: bank._id,
         ...registerInput.account,
       });
 
