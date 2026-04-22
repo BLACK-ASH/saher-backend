@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-export const reimbursementStatus = ['ON-HOLD', 'REJECTED', 'ACCEPTED', 'PAID'];
+export const BillStatus = ['ON-HOLD', 'REJECTED', 'ACCEPTED'];
 
-const reimbursementSchema = new mongoose.Schema(
+const billSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -27,12 +27,12 @@ const reimbursementSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: reimbursementStatus,
+      enum: BillStatus,
       default: 'ON-HOLD',
     },
   },
   { timestamps: true },
 );
 
-type ReimbursementType = mongoose.InferSchemaType<typeof reimbursementSchema>;
-export const Reimbursement = mongoose.model<ReimbursementType>('Media', reimbursementSchema);
+type ReimbursementType = mongoose.InferSchemaType<typeof billSchema>;
+export const Reimbursement = mongoose.model<ReimbursementType>('Media', billSchema);

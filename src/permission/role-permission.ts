@@ -88,9 +88,8 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     //Mail
     createPermission('write', 'mail'),
-    //Mail
-    createPermission('write', 'mail'),
-    //Mail
-    createPermission('write', 'mail'),
+
+    // Reimbursement
+    createPermission('write', 'reimbursement'),
   ]),
 };

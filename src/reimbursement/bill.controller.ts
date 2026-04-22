@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { Reimbursement } from '../database/reimbursement.model.js';
-import { reimbursementIdSchema } from './reimbursement.schema.js';
-import { reimbursementReviewSchema } from './reimbursement.schema.js';
-import { reimbursementSchema } from './reimbursement.schema.js';
+import { Reimbursement } from '../database/bill.model.js';
+import { BillIdSchema } from './bill.schema.js';
+import { BillReviewSchema } from './bill.schema.js';
+import { billSchema } from './bill.schema.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { isPastDate } from '../libs/utils/check-date.js';
 
-export const createReimbursement = async (req: Request, res: Response) => {
+export const createBill = async (req: Request, res: Response) => {
   const user = req.user;
 
-  const parsed = reimbursementSchema.safeParse(req.body);
+  const parsed = billSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new ApiError(400, parsed.error.message);
   }
@@ -26,7 +26,7 @@ export const createReimbursement = async (req: Request, res: Response) => {
     throw new ApiError(400, 'Reimbursement already exists for this bill');
   }
 
-  const reimbursement = await Reimbursement.create({
+  const bills = await Reimbursement.create({
     user: user?.id,
     billImg,
     billAmount,
@@ -37,17 +37,17 @@ export const createReimbursement = async (req: Request, res: Response) => {
   return res.status(201).json({
     success: true,
     message: 'Applied for reimbursement successfully',
-    data: reimbursement,
+    data: bills,
   });
 };
 
-export const reviewReimbursement = async (req: Request, res: Response) => {
-  const paramParsed = reimbursementIdSchema.safeParse(req.params);
+export const reviewBill = async (req: Request, res: Response) => {
+  const paramParsed = BillIdSchema.safeParse(req.params);
   if (!paramParsed.success) {
     throw new ApiError(400, paramParsed.error.message);
   }
 
-  const bodyParsed = reimbursementReviewSchema.safeParse({
+  const bodyParsed = BillReviewSchema.safeParse({
     ...req.body,
     id: req.params.id,
   });
@@ -58,47 +58,47 @@ export const reviewReimbursement = async (req: Request, res: Response) => {
 
   const { id, status } = bodyParsed.data;
 
-  const reimbursement = await Reimbursement.findByIdAndUpdate(id, { status }, { new: true });
+  const bills = await Reimbursement.findByIdAndUpdate(id, { status }, { new: true });
 
-  if (!reimbursement) {
+  if (!bills) {
     throw new ApiError(404, 'Reimbursement not found');
   }
 
   return res.status(200).json({
     success: true,
     message: 'Reimbursement reviewed successfully',
-    data: reimbursement,
+    data: bills,
   });
 };
 
-export const getMyReimbursements = async (req: Request, res: Response) => {
+export const getMyBill = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
-  const reimbursements = await Reimbursement.find({ user: userId }).lean();
+  const bills = await Reimbursement.find({ user: userId }).lean();
 
-  if (reimbursements.length === 0) {
+  if (bills.length === 0) {
     throw new ApiError(404, 'No reimbursements found');
   }
 
   return res.status(200).json({
     success: true,
     message: 'Reimbursements fetched successfully',
-    data: reimbursements,
+    data: bills,
   });
 };
 
-export const getAllReimbursements = async (req: Request, res: Response) => {
+export const getAllBill = async (req: Request, res: Response) => {
   const role = req.user?.role;
 
   if (!['admin', 'manager'].includes(role!)) {
     throw new ApiError(403, 'Only admins and managers are permitted');
   }
 
-  const reimbursements = await Reimbursement.find().populate('user', 'name email').lean();
+  const bills = await Reimbursement.find().populate('user', 'name email').lean();
 
   return res.status(200).json({
     success: true,
     message: 'All reimbursements fetched successfully',
-    data: reimbursements,
+    data: bills,
   });
 };

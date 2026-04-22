@@ -13,6 +13,7 @@ import uploadRouter from './upload/upload.routes.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
+import { reimbursementRouter } from './reimbursement/bill.routes.js';
 
 // Env Config
 dotenv.config();
