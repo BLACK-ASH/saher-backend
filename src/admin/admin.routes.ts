@@ -8,6 +8,7 @@ import {
 import { bankSchema, bankUpdateSchema } from './bank/schema.js';
 import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
 import {
+  accountGetByUserController,
   accountGetController,
   accountRegisterController,
   accountUpdateController,
@@ -47,6 +48,8 @@ adminRouter.post(
   validateAsync(accountRegisterSchema),
   accountRegisterController,
 );
+
+adminRouter.get('/account/user/', accountGetByUserController);
 
 adminRouter
   .route('/account/:id')

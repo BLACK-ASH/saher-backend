@@ -7,7 +7,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { Bank } from '../../database/bank.model.js';
-import { getAccount } from '../_services/account.js';
+import { getAccount, getAccountByUser } from '../_services/account.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 
 export const accountRegisterController = async (
@@ -102,6 +102,21 @@ export const accountGetController = async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
   const account = await getAccount(id);
+  if (!account) throw new ApiError(404, 'User Not Found.');
+
+  return res.status(200).json({
+    success: true,
+    message: 'Employee get successfully.',
+    data: account,
+  });
+};
+
+export const accountGetByUserController = async (req: Request, res: Response) => {
+  const id = req.user?.id;
+
+  if (!id) throw new ApiError(403, 'Forbidden: Action Not Allowed.');
+
+  const account = await getAccountByUser(id);
   if (!account) throw new ApiError(404, 'User Not Found.');
 
   return res.status(200).json({
