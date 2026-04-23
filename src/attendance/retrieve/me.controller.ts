@@ -48,7 +48,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
   const cachedToday = await getCache<AttendanceT>(todayKey);
 
-  const account = await Account.findById(user?.id);
+  const account = await Account.findOne({ user: user?.id });
   if (!account) throw new ApiError(400, 'Account not found');
 
   let responseData;
@@ -66,7 +66,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     // })
 
     return res.status(200).json({
-      message: 'Both data is Coming from Redis ',
+      message: 'data is Coming from Redis ',
       success: true,
       data: responseData,
     });
@@ -104,7 +104,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   responseData = buildResponse(parsed, workHours);
 
   return res.status(200).json({
-    message: 'today from redis , workhours from DB ',
+    message: 'data from DB ',
     success: true,
     data: responseData,
   });
