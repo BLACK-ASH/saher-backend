@@ -8,9 +8,11 @@ import { userSchemaFinal } from '../_services/user.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
 export const userGetController = async (req: Request, res: Response) => {
-  const id = req.params.id as string;
+  const id = req.params.id.toString().trim();
+  // Get Current User If Id Not Provided
+  const userId = id === 'me' ? (req.user?.id as string) : id;
 
-  const user = await getAccountByUser(id);
+  const user = await getAccountByUser(userId);
   if (!user) throw new ApiError(404, 'User Not Found.');
 
   return res.status(200).json({
@@ -21,7 +23,7 @@ export const userGetController = async (req: Request, res: Response) => {
 };
 
 export const getAllUser = async (req: Request, res: Response) => {
-  const key = createKey('user', 'list');
+  const key = createKey('users', 'list');
   const data = await getCache(key);
 
   if (data) {
@@ -34,7 +36,7 @@ export const getAllUser = async (req: Request, res: Response) => {
   const normalized = normalizeDoc(users);
   const parsed = userArraySchema.parse(normalized);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return res
     .status(200)
@@ -48,7 +50,7 @@ export const userUpdateController = async (req: Request, res: Response) => {
   const update = await User.findByIdAndUpdate(id, updateInput);
   if (!update) throw new ApiError(404, 'User Not Found.');
 
-  const key1 = createKey('user', 'list');
+  const key1 = createKey('users', 'list');
   const key2 = createKey('user', id);
 
   await deleteCache(key1);

@@ -7,7 +7,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { Bank } from '../../database/bank.model.js';
-import { getAccount } from '../_services/account.js';
+import { getAccount, getAccountByUser } from '../_services/account.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 
 export const accountRegisterController = async (
@@ -52,7 +52,7 @@ export const accountRegisterController = async (
 
     // ✅ Send email AFTER transaction success
     const html = onboardEmailTemplate({
-      name: user.name,
+      name: user.displayName || user.name,
       email: user.email,
       role: user.role,
     });
@@ -100,6 +100,20 @@ export const accountUpdateController = async (req: Request, res: Response) => {
 
 export const accountGetController = async (req: Request, res: Response) => {
   const id = req.params.id as string;
+
+  let user;
+  if (id === 'me') {
+    const userId = req.user?.id as string;
+
+    user = await getAccountByUser(userId);
+    if (!user) throw new ApiError(404, 'User Not Found.');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Employee get successfully.',
+      data: user,
+    });
+  }
 
   const account = await getAccount(id);
   if (!account) throw new ApiError(404, 'User Not Found.');
