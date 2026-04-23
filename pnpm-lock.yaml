@@ -32,6 +32,9 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.0.2
+      resend:
+        specifier: ^6.12.0
+        version: 6.12.0
       redis:
         specifier: ^5.12.1
         version: 5.12.1(@opentelemetry/api@1.9.0)
@@ -2499,8 +2502,13 @@ packages:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
 
+<<<<<<< HEAD
   resend@6.12.2:
     resolution: {integrity: sha512-xwgmU4b0OqoabJsIoK/x0Whk0Fcs3bpbK4i/DEWPiE5hYJHyHl0TbB6QbI3gIr+bLdLUJ1GYm/fe41aVFuHXgw==}
+=======
+  resend@6.12.0:
+    resolution: {integrity: sha512-CaxEvX1z+/MGbgnhsM/bvmkbnZd1v1sEXELAjBNSDBQNMaB7MgqOyrBgI27CYikEgdaDnBrXghAXYWTBs/h5Bw==}
+>>>>>>> 99c29c2984e79172d5633bbc8e8b1150e96b027b
     engines: {node: '>=20'}
     peerDependencies:
       '@react-email/render': '*'
@@ -5327,7 +5335,11 @@ snapshots:
 
   require-from-string@2.0.2: {}
 
+<<<<<<< HEAD
   resend@6.12.2:
+=======
+  resend@6.12.0:
+>>>>>>> 99c29c2984e79172d5633bbc8e8b1150e96b027b
     dependencies:
       postal-mime: 2.7.4
       svix: 1.90.0

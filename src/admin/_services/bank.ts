@@ -19,7 +19,7 @@ export const getBank = async (id: string): Promise<BankT | null> => {
   const normalize = normalizeDoc(bank);
   const parsed = bankSchemaFinal.parse(normalize);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return parsed;
 };

@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-// import { getRedis } from '../../libs/utils/get-redis.js';
-// import { setRedis } from '../../libs/utils/set-redis.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { calculateWorkHours } from '../../libs/utils/calculate-work-hours.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
@@ -32,7 +30,19 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     })
     .readonly();
 
+  const AttendanceResponseSchema = z.object({
+    inTime: z.string(),
+    outTime: z.string().nullable().optional(),
+    workHours: z.number(),
+    date: z.string(),
+    status: z.string(),
+    isLate: z.boolean(),
+  });
+
   type AttendanceT = z.infer<typeof AttendanceSchemaFinal>;
+  const buildResponse = (data: AttendanceT, workHours: number) => {
+    return AttendanceResponseSchema.parse({ ...data, workHours });
+  };
   // const cacheKeyTodayWorkHours = `attendance:me:${user?.id}:today:workHours`;
   // const todayWorkHoursKey = createKey('attendance', 'me', user?.id, 'today', 'workHours');
 
@@ -41,12 +51,24 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   const account = await Account.findById(user?.id);
   if (!account) throw new ApiError(400, 'Account not found');
 
+  let responseData;
   if (cachedToday) {
     const workHours = calculateWorkHours(account.employeeType, new Date(cachedToday.inTime));
+
+    responseData = buildResponse(cachedToday, workHours);
+    // responseData = AttendanceResponseSchema.parse({
+    //   inTime : cachedToday.inTime,
+    //   outTime : cachedToday.outTime,
+    //   workHours : workHours ,
+    //   date : cachedToday.date ,
+    //   status : cachedToday.status,
+    //   isLate : cachedToday.isLate
+    // })
+
     return res.status(200).json({
       message: 'Both data is Coming from Redis ',
       success: true,
-      data: { ...cachedToday, workHours },
+      data: responseData,
     });
   }
 
@@ -70,10 +92,20 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   if (today.workHours === 0) {
     workHours = calculateWorkHours(account.employeeType, today.inTime);
   }
-  // await setCache(todayWorkHoursKey, workHours, 60);
+
+  // responseData = AttendanceResponseSchema.parse({
+  //     inTime : parsed.inTime,
+  //     outTime : parsed.outTime,
+  //     workHours : workHours ,
+  //     date : parsed.date ,
+  //     status : parsed.status,
+  //     isLate : parsed.isLate
+  //   })
+  responseData = buildResponse(parsed, workHours);
+
   return res.status(200).json({
     message: 'today from redis , workhours from DB ',
     success: true,
-    data: { ...parsed, workHours },
+    data: responseData,
   });
 };
