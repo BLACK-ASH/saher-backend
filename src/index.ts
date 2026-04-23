@@ -13,6 +13,7 @@ import uploadRouter from './upload/upload.routes.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
+import { connectRedis } from './libs/redis/redis-client.js';
 
 // Env Config
 dotenv.config();
@@ -44,12 +45,14 @@ app.use(cookieParser());
 // Databse Connection
 await connectDb();
 
+//Redis Server Connnection
+await connectRedis();
+
 // Routes
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
-
 app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
 app.use(express.static(path.join(process.cwd(), 'public')));

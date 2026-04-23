@@ -16,7 +16,9 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start",
-    "prepare": "husky install"
+    "prepare": "pnpm exec husky install",
+    "spellcheck": "cspell .",
+    "seed": "pnpm tsx src/seeds/runner.ts"
   },
   "type": "module",
   "keywords": [],
@@ -32,6 +34,8 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.3",
     "multer": "^2.0.2",
+    "resend": "^6.12.0",
+    "redis": "^5.12.1",
     "sharp": "^0.34.5",
     "zod": "^4.3.5"
   },
@@ -49,6 +53,7 @@
     "@types/node": "^25.0.8",
     "@typescript-eslint/eslint-plugin": "^8.58.2",
     "@typescript-eslint/parser": "^8.58.2",
+    "cspell": "^10.0.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unicorn": "^64.0.0",
