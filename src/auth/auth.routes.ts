@@ -12,6 +12,10 @@ import {
   changePasswordRequestController,
 } from './change-password/controller.js';
 import { changeEmailController, changeEmailRequestController } from './change-email/controller.js';
+import {
+  forgotPasswordController,
+  forgotPasswordRequestController,
+} from './forgot-password/controller.js';
 
 const authRouter = Router();
 
@@ -20,13 +24,16 @@ authRouter.post('/logout', protectedRoute, logoutController);
 authRouter.post('/revalidate-token', protectedRoute, revalidateController);
 authRouter.get('/me', protectedRoute, meController);
 
-authRouter.route('/email-verify/request').post(protectedRoute, verifyEmailRequestController);
-authRouter.route('/email-verify/confirm').post(verifyEmailController);
+authRouter.route('/verify-email/request').post(protectedRoute, verifyEmailRequestController);
+authRouter.route('/verify-email/confirm').post(verifyEmailController);
 
-authRouter.route('/password-change/request').post(protectedRoute, changePasswordRequestController);
-authRouter.route('/password-change/confirm').post(changePasswordController);
+authRouter.route('/change-password/request').post(protectedRoute, changePasswordRequestController);
+authRouter.route('/change-password/confirm').post(changePasswordController);
 
-authRouter.route('/email-change/request').post(protectedRoute, changeEmailRequestController);
-authRouter.route('/email-change/confirm').post(changeEmailController);
+authRouter.route('/forgot-password/request').post(forgotPasswordRequestController);
+authRouter.route('/forgot-password/confirm').post(forgotPasswordController);
+
+authRouter.route('/change-email/request').post(protectedRoute, changeEmailRequestController);
+authRouter.route('/change-email/confirm').post(changeEmailController);
 
 export default authRouter;

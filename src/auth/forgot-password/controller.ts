@@ -17,7 +17,7 @@ export const forgotPasswordRequestController = async (req: Request, res: Respons
   if (!parsedEmail.success) throw new ApiError(400, 'Invalid Email Address');
 
   const token = crypto.randomBytes(32).toString('hex');
-  const url = process.env.BASE_URL + '/auth/forgot-password?token=' + token;
+  const url = process.env.BASE_URL + '/forgot-password?token=' + token;
 
   const key = createKey('forgot-password', token);
 
