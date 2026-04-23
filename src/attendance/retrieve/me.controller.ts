@@ -8,6 +8,31 @@ import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { Account } from '../../database/account.model.js';
 
+export const AttendanceSchemaFinal = z.object({
+  id: z.string(),
+  user: z.string(),
+  inTime: z.string(),
+  outTime: z.string().optional().nullable(),
+  workHours: z.number(),
+  date: z.string(),
+  status: z.string(),
+  isLate: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const AttendanceResponseSchema = z.object({
+  user: z.string(),
+  inTime: z.string(),
+  outTime: z.string().nullable().optional(),
+  workHours: z.number(),
+  date: z.string(),
+  status: z.string(),
+  isLate: z.boolean(),
+});
+
+const AttendanceTodayMeSchema = AttendanceSchemaFinal.readonly();
+const AttendanceTodayMeResponseSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
   const day = new Date();
@@ -28,33 +53,9 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   // const cacheKeyToday = `attendance:me:${user?.id}:today`;
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
 
-  const AttendanceSchemaFinal = z
-    .object({
-      id: z.string(),
-      user: z.string(),
-      inTime: z.string(),
-      outTime: z.string().optional().nullable(),
-      workHours: z.number(),
-      date: z.string(),
-      status: z.string(),
-      isLate: z.boolean(),
-      createdAt: z.string(),
-      updatedAt: z.string(),
-    })
-    .readonly();
-
-  const AttendanceResponseSchema = z.object({
-    inTime: z.string(),
-    outTime: z.string().nullable().optional(),
-    workHours: z.number(),
-    date: z.string(),
-    status: z.string(),
-    isLate: z.boolean(),
-  });
-
-  type AttendanceT = z.infer<typeof AttendanceSchemaFinal>;
+  type AttendanceT = z.infer<typeof AttendanceTodayMeSchema>;
   const buildResponse = (data: AttendanceT, workHours: number) => {
-    return AttendanceResponseSchema.parse({ ...data, workHours });
+    return AttendanceTodayMeResponseSchema.parse({ ...data, workHours });
   };
   // const cacheKeyTodayWorkHours = `attendance:me:${user?.id}:today:workHours`;
   // const todayWorkHoursKey = createKey('attendance', 'me', user?.id, 'today', 'workHours');
@@ -97,7 +98,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   }
 
   const normalize = normalizeDoc(today);
-  const parsed = AttendanceSchemaFinal.parse(normalize);
+  const parsed = AttendanceTodayMeSchema.parse(normalize);
   await setCache(todayKey, parsed, 14400);
 
   let workHours = today.workHours;
