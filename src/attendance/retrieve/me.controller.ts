@@ -10,6 +10,19 @@ import { Account } from '../../database/account.model.js';
 
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
+  const day = new Date();
+  const record = await Attendance.find({ date: standardDateString(day) });
+  if (record.length === 0) {
+    const data = {
+      inTime: '00:00',
+      outTime: '00:00:00',
+      workHours: '00:00:00',
+      date: standardDateString(day),
+      status: 'Holiday',
+      isLate: '-',
+    };
+    return res.status(200).json({ success: true, message: 'Today is holiday', data: data });
+  }
 
   if (!user?.id) throw new ApiError(400, 'Forbidden user');
   // const cacheKeyToday = `attendance:me:${user?.id}:today`;
