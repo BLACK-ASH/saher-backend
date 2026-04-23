@@ -22,7 +22,7 @@ export const userGetController = async (req: Request, res: Response) => {
   });
 };
 
-export const getAllUser = async (req: Request, res: Response) => {
+export const getAllUsersController = async (req: Request, res: Response) => {
   const key = createKey('users', 'list');
   const data = await getCache(key);
 
