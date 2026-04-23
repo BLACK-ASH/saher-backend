@@ -4,7 +4,7 @@ export type ReqUser = {
   id: string;
   name: string;
   role: 'user' | 'manager' | 'admin';
-  employeeType: 'part-time' | 'full-time' | 'volunteer';
+  email: string;
 };
 
 export const generateToken = (data: ReqUser) => {

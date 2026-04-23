@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { Bank } from '../../database/bank.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { getBank } from '../_services/bank.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { getAccountByUser } from '../_services/account.js';
 
 // Create Bank Controller
 export const createBankDetailController = async (req: Request, res: Response) => {
@@ -21,9 +24,18 @@ export const createBankDetailController = async (req: Request, res: Response) =>
 
 // Get Bank Controller
 export const getBankDetailController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req.params.id as string;
 
-  const details = await Bank.findById(id);
+  let user;
+  if (id === 'me') {
+    const userId = req.user?.id as string;
+    user = await getAccountByUser(userId);
+    if (!user) throw new ApiError(404, 'User Not Found.');
+  }
+
+  const bankId = user?.bank.id || id;
+
+  const details = await getBank(bankId);
   if (!details) throw new ApiError(400, 'Bank Details Not Exist.');
 
   return res
@@ -33,11 +45,14 @@ export const getBankDetailController = async (req: Request, res: Response) => {
 
 // Update Bank Controller
 export const updateBankDetailController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req.params.id as string;
   const data = req.body;
 
   const updated = await Bank.findByIdAndUpdate(id, data);
   if (!updated) throw new ApiError(404, 'Bank Details Nott Exist.');
+
+  const key = createKey('bank', id);
+  await deleteCache(key);
 
   return res
     .status(200)
@@ -46,10 +61,13 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
 
 // Delete Bank Controller
 export const deleteBankDetailController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req.params.id as string;
 
   const deleted = await Bank.findByIdAndDelete(id);
   if (!deleted) throw new ApiError(404, 'Bank Details Not Exist.');
+
+  const key = createKey('bank', id);
+  await deleteCache(key);
 
   return res
     .status(200)

@@ -5,7 +5,7 @@ import {
   getBankDetailController,
   updateBankDetailController,
 } from './bank/controller.js';
-import { bankDetailSchema, bankUpdateSchema } from './bank/schema.js';
+import { bankSchema, bankUpdateSchema } from './bank/schema.js';
 import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
 import {
   accountGetController,
@@ -13,12 +13,12 @@ import {
   accountUpdateController,
 } from './account/controller.js';
 import {
-  getAllUserController,
+  getAllUsersController,
   userDeleteController,
-  adminUserGetController,
-  adminUserUpdateController,
+  userGetController,
+  userUpdateController,
 } from './user/controller.js';
-import { adminUserUpdateSchema } from './user/schema.js';
+import { userUpdateSchema } from './user/schema.js';
 import { authorize } from '../permission/authorize.js';
 import { validate, validateAsync } from '../libs/middleware/validate-zod-schema.js';
 
@@ -35,12 +35,11 @@ adminRouter
 adminRouter.post(
   '/bank',
   authorize('write', 'bank'),
-  validate(bankDetailSchema),
+  validate(bankSchema),
   createBankDetailController,
 );
 
 // Account Routes
-// NOTE:Change Routes
 adminRouter.post(
   '/account',
   authorize('write', 'account'),
@@ -49,17 +48,17 @@ adminRouter.post(
 );
 
 adminRouter
-  .route('/accout/:id')
+  .route('/account/:id')
   .put(authorize('update', 'account'), validate(accountUpdateSchema), accountUpdateController)
   .get(accountGetController);
 
 // User Routes
-// NOTE:Change Routes
-adminRouter.get('/users', getAllUserController);
+adminRouter.get('/users', getAllUsersController);
+
 adminRouter
   .route('/user/:id')
-  .get(adminUserGetController)
-  .put(authorize('update', 'user'), validate(adminUserUpdateSchema), adminUserUpdateController)
+  .get(userGetController)
+  .put(authorize('update', 'user'), validate(userUpdateSchema), userUpdateController)
   .delete(authorize('delete', 'user'), userDeleteController);
 
 export default adminRouter;

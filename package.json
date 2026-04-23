@@ -17,7 +17,8 @@
     "clean": "rm -rf dist",
     "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start",
     "prepare": "pnpm exec husky install",
-    "spellcheck": "cspell ."
+    "spellcheck": "cspell .",
+    "seed": "pnpm tsx src/seeds/runner.ts"
   },
   "type": "module",
   "keywords": [],
@@ -33,6 +34,8 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.3",
     "multer": "^2.0.2",
+    "resend": "^6.12.0",
+    "redis": "^5.12.1",
     "sharp": "^0.34.5",
     "zod": "^4.3.5"
   },

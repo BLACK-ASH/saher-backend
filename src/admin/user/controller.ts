@@ -1,11 +1,18 @@
 import { Request, Response } from 'express';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { getAccountByUser } from '../_services/account.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import z from 'zod';
+import { userSchemaFinal } from '../_services/user.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
-export const adminUserGetController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+export const userGetController = async (req: Request, res: Response) => {
+  const id = req.params.id.toString().trim();
+  // Get Current User If Id Not Provided
+  const userId = id === 'me' ? (req.user?.id as string) : id;
 
-  const user = await User.findById(id).populate('image');
+  const user = await getAccountByUser(userId);
   if (!user) throw new ApiError(404, 'User Not Found.');
 
   return res.status(200).json({
@@ -15,26 +22,39 @@ export const adminUserGetController = async (req: Request, res: Response) => {
   });
 };
 
-export const getAllUserController = async (req: Request, res: Response) => {
-  const fields = req.query.fields as string;
-  let defaultFields = 'name displayName email image role ';
-  if (fields) {
-    defaultFields += fields.split(',').join(' ');
+export const getAllUsersController = async (req: Request, res: Response) => {
+  const key = createKey('users', 'list');
+  const data = await getCache(key);
+
+  if (data) {
+    return res.status(200).json({ success: true, message: 'All User Retrieve Successful.', data });
   }
 
-  const users = await User.find().populate('image', 'src alt').select(defaultFields).lean();
+  const userArraySchema = z.array(userSchemaFinal);
+  const users = await User.find().populate('image', 'src alt').lean();
+
+  const normalized = normalizeDoc(users);
+  const parsed = userArraySchema.parse(normalized);
+
+  await setCache(key, parsed, 604800);
 
   return res
     .status(200)
-    .json({ success: true, message: 'All User Retrieve Successful.', data: users });
+    .json({ success: true, message: 'All User Retrieve Successful.', data: parsed });
 };
 
-export const adminUserUpdateController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+export const userUpdateController = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
   const updateInput = req.body;
 
   const update = await User.findByIdAndUpdate(id, updateInput);
   if (!update) throw new ApiError(404, 'User Not Found.');
+
+  const key1 = createKey('users', 'list');
+  const key2 = createKey('user', id);
+
+  await deleteCache(key1);
+  await deleteCache(key2);
 
   return res.status(200).json({
     success: true,
@@ -44,7 +64,8 @@ export const adminUserUpdateController = async (req: Request, res: Response) => 
 };
 
 export const userDeleteController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req.params.id as string;
+
   const deleteData = {
     isActive: false,
     deletedAt: new Date(),
@@ -53,6 +74,12 @@ export const userDeleteController = async (req: Request, res: Response) => {
 
   const deleted = await User.findByIdAndUpdate(id, deleteData);
   if (!deleted) throw new ApiError(404, 'User Not Found.');
+
+  const key1 = createKey('user', 'list');
+  const key2 = createKey('user', id);
+
+  await deleteCache(key1);
+  await deleteCache(key2);
 
   return res.status(200).json({
     success: true,

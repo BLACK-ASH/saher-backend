@@ -4,27 +4,27 @@ const bankSchema = new mongoose.Schema(
   {
     accountHolderName: {
       type: String,
-      require: true,
+      required: true,
     },
     accountNumber: {
       type: String,
-      require: true,
+      required: true,
     },
     bankName: {
       type: String,
-      require: true,
+      required: true,
     },
     branch: {
       type: String,
-      require: true,
+      required: true,
     },
     ifcs: {
       type: String,
-      require: true,
+      required: true,
     },
     mobileNumber: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   { timestamps: true },

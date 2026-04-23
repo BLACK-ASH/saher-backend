@@ -14,6 +14,7 @@ import errorHandler from './libs/middleware/error-handler.js';
 import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
 import userRouter from './user/user.routes.js';
+import { connectRedis } from './libs/redis/redis-client.js';
 
 // Env Config
 dotenv.config();
@@ -44,6 +45,7 @@ app.use(cookieParser());
 
 // Databse Connection
 await connectDb();
+await connectRedis();
 
 // Routes
 app.use('/api/auth', authRouter);

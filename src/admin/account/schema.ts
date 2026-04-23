@@ -1,74 +1,78 @@
 import z from 'zod';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
+import { bankSchema } from '../bank/schema.js';
 
-export const userSchema = z
-  .object({
-    name: z
-      .string('Username Is Required.')
-      .trim()
-      .regex(/^[a-zA-Z0-9_-]+$/, {
-        message: 'Only alphanumeric, underscore and hyphen allowed',
-      })
-      .min(2),
-    displayName: z.string().optional(),
-    image: objectId('User Profile Image Is Required.'),
-    role: z.enum(['user', 'manager', 'admin']).default('user'),
-    email: z.email('Email Address Is Required.'),
-    password: z.string().optional(),
-  })
-  .refine((data) => /^[a-zA-Z]/.test(data.name) && !/[_-]$/.test(data.name), {
-    message: 'Name must start with a letter and cannot end with _ or -',
-    path: ['name'],
-  });
+export const userSchema = z.object({
+  name: z
+    .string('Username Is Required.')
+    .trim()
+    .regex(/^[a-zA-Z0-9_-]+$/, {
+      message: 'Only alphanumeric, underscore and hyphen allowed',
+    })
+    .refine((val) => !/^[0-9_-]/.test(val), {
+      message: 'Cannot start with _ and - or Number',
+    })
+    .refine((val) => !/[_-]$/.test(val), {
+      message: 'Cannot end with _ or -',
+    })
+    .min(2),
+  displayName: z.string().optional(),
+  image: objectId('User Profile Image Is Required.'),
+  role: z.enum(['user', 'manager', 'admin']).default('user'),
+  email: z.email('Email Address Is Required.'),
+  password: z.string().optional(),
+});
 
-const accountSchema = z
-  .object({
-    gender: z.enum(['male', 'female', 'other']).default('other'),
-    dateOfBirth: z.coerce.date('Date Of Birth Is Required.'),
-    dateOfJoining: z.coerce.date('Date Of Joining Is Required.'),
-    phoneNumber: z
-      .string()
-      .trim()
-      .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
-        message: 'Invalid Indian Mobile Number',
-      }),
-    secondaryPhoneNumber: z
-      .string()
-      .trim()
-      .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
-        message: 'Invalid Indian Mobile Number',
-      })
-      .optional(),
-    employeeId: z.string('Employee Id Is Required.'),
-    department: z.string('Department Is Required.'),
-    designation: z.string('Designation Is Required.'),
-    employeeType: z.enum(['full-time', 'part-time', 'volunteer'], 'Employee Type Is Required.'),
-    employeeShift: z.enum(['shift-1', 'shift-2']).optional(),
-    salaryStructure: z.string('Salary Structure Is Required.'),
-    address: z.string('Address Is Required.'),
-    bank: objectId('Bank Details Are Required.'),
-    aadhar: objectId('Aadhar Card Is Required.'),
-    pan: objectId('Pan Card Is Required.'),
-    resume: objectId('Resume Is Required.'),
-  })
-  .refine(
-    (data) => {
-      if (data.employeeType === 'part-time') {
-        return !!data.employeeShift;
-      }
-      return true;
-    },
-    {
-      message: 'Employee Shift Is Required For Part Time Employee.',
-      path: ['employeeShift'],
-    },
-  );
+export const accountBaseSchema = z.object({
+  gender: z.enum(['male', 'female', 'other']).default('other'),
+  dateOfBirth: z.coerce.date('Date Of Birth Is Required.'),
+  dateOfJoining: z.coerce.date('Date Of Joining Is Required.'),
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
+      message: 'Invalid Indian Mobile Number',
+    })
+    .transform((val) => val.replace(/^\+91[\s-]?|^91[\s-]?/, '')),
+  secondaryPhoneNumber: z
+    .string()
+    .trim()
+    .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
+      message: 'Invalid Indian Mobile Number',
+    })
+    .transform((val) => val.replace(/^\+91[\s-]?|^91[\s-]?/, ''))
+    .optional(),
+  employeeId: z.string('Employee Id Is Required.'),
+  department: z.string('Department Is Required.'),
+  designation: z.string('Designation Is Required.'),
+  employeeType: z.enum(['full-time', 'part-time', 'volunteer'], 'Employee Type Is Required.'),
+  employeeShift: z.enum(['shift-1', 'shift-2']).optional(),
+  salaryStructure: z.string('Salary Structure Is Required.'),
+  address: z.string('Address Is Required.'),
+  aadhar: objectId('Aadhar Card Is Required.'),
+  pan: objectId('Pan Card Is Required.'),
+  resume: objectId('Resume Is Required.'),
+});
+
+const accountSchema = accountBaseSchema.refine(
+  (data) => {
+    if (data.employeeType === 'part-time') {
+      return !!data.employeeShift;
+    }
+    return true;
+  },
+  {
+    message: 'Employee Shift Is Required For Part Time Employee.',
+    path: ['employeeShift'],
+  },
+);
 
 export const accountRegisterSchema = z
   .object({
     user: userSchema,
     account: accountSchema,
+    bank: bankSchema,
   })
   .transform(async (data) => {
     const displayName = data.user.displayName || data.user.name;
@@ -77,9 +81,8 @@ export const accountRegisterSchema = z
       data.user.name.slice(0, 4).toUpperCase() + new Date(data.account.dateOfBirth).getFullYear();
 
     const hashedPassword = await hashPassword(password);
-    const phoneNumber = data.account.phoneNumber.replace(/^\+91[\s-]?|^91[\s-]?/, '');
-    const secondaryPhoneNumber =
-      data.account.secondaryPhoneNumber?.replace(/^\+91[\s-]?|^91[\s-]?/, '') ?? phoneNumber;
+
+    const secondaryPhoneNumber = data.account.secondaryPhoneNumber || data.account.phoneNumber;
 
     return {
       user: {
@@ -89,27 +92,13 @@ export const accountRegisterSchema = z
       },
       account: {
         ...data.account,
-        phoneNumber,
         secondaryPhoneNumber,
       },
+      bank: data.bank,
     };
   });
 
-export const accountUpdateSchema = z
-  .object(accountSchema.shape)
-  .partial()
-  .refine(
-    (data) => {
-      if (data.employeeType === 'part-time') {
-        return !!data.employeeShift;
-      }
-      return true;
-    },
-    {
-      message: 'Employee Shift Is Required For Part Time Employee.',
-      path: ['employeeShift'],
-    },
-  );
+export const accountUpdateSchema = z.object(accountSchema.shape).partial();
 
 export type AccountRegisterInput = z.infer<typeof accountRegisterSchema>;
 export type AccountUpdateInput = z.infer<typeof accountUpdateSchema>;
