@@ -30,16 +30,3 @@ export const validateAsync = (schema: ZodSchema) => {
     next();
   };
 };
-export const validateAsync = (schema: ZodSchema) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const parsed = await schema.safeParseAsync(req.body);
-
-    if (!parsed.success) {
-      const message = parsed.error.issues.map((i) => i.message).join(', ');
-      return next(new ApiError(400, message));
-    }
-
-    req.body = parsed.data; // ✅ transformed + validated data
-    next();
-  };
-};
