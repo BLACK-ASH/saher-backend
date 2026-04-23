@@ -14,14 +14,14 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   const record = await Attendance.find({ date: standardDateString(day) });
   if (record.length === 0) {
     const data = {
-      inTime: '00:00',
-      outTime: '00:00:00',
-      workHours: '00:00:00',
+      inTime: '',
+      outTime: '',
+      workHours: 0,
       date: standardDateString(day),
-      status: 'Holiday',
-      isLate: '-',
+      status: '',
+      isLate: false,
     };
-    return res.status(200).json({ success: true, message: 'Today is holiday', data: data });
+    return res.status(200).json({ success: true, message: 'Today is not working day', data: data });
   }
 
   if (!user?.id) throw new ApiError(400, 'Forbidden user');
