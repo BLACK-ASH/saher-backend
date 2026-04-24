@@ -55,7 +55,7 @@ const attendanceCorrectionSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-attendanceCorrectionSchema.index({ attendance: 1, status: 1 }, { unique: true });
+attendanceCorrectionSchema.index({ attendance: 1 });
 type AttendanceCorrectionType = mongoose.InferSchemaType<typeof attendanceCorrectionSchema>;
 export const AttendanceCorrection = mongoose.model<AttendanceCorrectionType>(
   'AttendenceCorrection',

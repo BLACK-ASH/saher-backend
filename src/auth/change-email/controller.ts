@@ -53,6 +53,9 @@ export const changeEmailController = async (req: Request, res: Response) => {
   await deleteCache(userKey);
   await deleteCache(userKey2);
 
+  res.clearCookie('saher_access_token');
+  res.clearCookie('saher_refresh_token');
+
   return res.status(200).json({
     success: true,
     message: 'Email Change Successful.',

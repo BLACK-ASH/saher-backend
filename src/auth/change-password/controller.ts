@@ -12,7 +12,7 @@ export const changePasswordRequestController = async (req: Request, res: Respons
   if (!user) throw new ApiError(403, 'Forbidden: Action Not Allowed.');
 
   const token = crypto.randomBytes(32).toString('hex');
-  const url = process.env.BASE_URL + '/auth/change-password?token=' + token;
+  const url = process.env.BASE_URL + '/change-password?token=' + token;
 
   const key = createKey('change-password', token);
 
