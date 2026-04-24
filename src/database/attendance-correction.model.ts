@@ -3,9 +3,11 @@ import mongoose from 'mongoose';
 const attendanceRecord = new mongoose.Schema({
   inTime: {
     type: Date,
+    required: true,
   },
   outTime: {
     type: Date,
+    required: true,
   },
   status: {
     type: String,

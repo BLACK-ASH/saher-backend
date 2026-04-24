@@ -15,12 +15,12 @@ import {
   attendanceCorrectionHandleSchema,
 } from './correction/correction.schema.js';
 import {
-  createAttendanceCorrectionController,
   getAllAttendanceCorrectionController,
   getAttendanceCorrectionById,
   getAttendanceCorrectionController,
-  handleAttendanceCorrectionController,
 } from './correction/correction.controller.js';
+import { createAttendanceCorrectionController } from './correction/create-correction.js';
+import { handleAttendanceCorrectionController } from './correction/handle-correction.js';
 import { todayAttendanceController } from './retrieve/today.controller.js';
 import { meAttendanceController } from './retrieve/me.controller.js';
 import { getAllUserController } from './retrieve/get-all-user.controller.js';
