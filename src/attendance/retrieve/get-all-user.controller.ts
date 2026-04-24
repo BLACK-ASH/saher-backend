@@ -7,6 +7,11 @@ export const getAllUserController = async (req: Request, res: Response) => {
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate
   let startDate, endDate;
 
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 1;
+
+  const skip = (page - 1) * limit;
+
   //Agar user ko ek custom range chahiyetoh oos case mein user ko startDate and endDate dono hii banatani padegi
   if (req.query.startDate && req.query.endDate) {
     startDate = new Date(req.query.startDate as string);
@@ -54,7 +59,10 @@ export const getAllUserController = async (req: Request, res: Response) => {
       $gte: standardDateString(startDate),
       $lte: standardDateString(endDate),
     },
-  }).sort({ date: sort });
+  })
+    .sort({ date: sort })
+    .skip(skip)
+    .limit(limit);
 
   return res
     .status(200)
