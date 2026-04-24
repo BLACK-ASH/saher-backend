@@ -4,9 +4,8 @@ import { AttendanceCorrection } from '../../database/attendance-correction.model
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-import { removeUndefined } from '../../libs/utils/remove-undefined-value.js';
-import { timeDifference } from '../../libs/utils/time-difference.js';
 import { AttendanceCorrectionHandleInputType } from './correction.schema.js';
+import { calculateWorkStatus, checkIsLate } from '../../libs/utils/calculate-work-status.js';
 
 export const handleAttendanceCorrectionController = async (req: Request, res: Response) => {
   const input: AttendanceCorrectionHandleInputType = req.body;
@@ -75,34 +74,23 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         throw new ApiError(404, 'Attendance Record Not Found.');
       }
       // let make an empty object to store the change
-      let change: { inTime: Date; outTime: Date };
-
       // if isAdmin is true then system should calculate the all the attendance status
-      if (input.isAdmin) {
-        //WARN: fix this
-        //eslint-disable-next-line no-useless-assignment
-        change = input.changes;
-      }
-      // if isAdmin is false then system should calculate the all the attendance status
-      change = request.changes!;
+      const change = input.isAdmin ? input.changes : request.changes!;
 
       // ✅ calculate work hours safely
-      const workHours =
-        change.inTime && change.outTime
-          ? Number(timeDifference(change.inTime, change.outTime).hours.toFixed(3))
-          : null;
+      const { workHours, status } = calculateWorkStatus({
+        inTime: change.inTime,
+        outTime: change.outTime,
+        shift: 'free',
+      });
 
-      if (workHours === null) {
-        throw new ApiError(400, 'Work Hours Is Not Valid.');
-      }
-
-      const status = workHours === 0 ? 'absent' : workHours > 5 ? 'present' : 'half-day';
-
-      // ✅ remove undefined fields
-      const filteredChanges = removeUndefined(change);
+      const isLate = input.isAdmin
+        ? input.changes.isLate
+        : checkIsLate({ inTime: change.inTime, shift: 'free' });
 
       const newRecord = {
-        ...filteredChanges,
+        ...change,
+        isLate,
         status,
         workHours,
       };

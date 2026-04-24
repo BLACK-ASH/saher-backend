@@ -25,6 +25,20 @@ export const workHourData = new Map<string, ShiftData>([
   ['shift-2', { in: 14, out: 18, half: 2, full: 4, grace: 0.5 }],
 ]);
 
+export const checkIsLate = ({ inTime, shift }: Omit<InputType, 'outTime'>): boolean => {
+  if (shift === 'free') return false;
+  const inDate = new Date(inTime);
+
+  const shiftData = workHourData.get(shift);
+  if (!shiftData) {
+    throw new Error(`Invalid shift: ${shift}`);
+  }
+  const lateTime = new Date(inDate);
+  lateTime.setHours(shiftData.in + shiftData.grace, 0, 0, 0);
+
+  return inDate > lateTime;
+};
+
 export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): OutputType => {
   const inDate = new Date(inTime);
   const outDate = new Date(outTime);
