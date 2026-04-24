@@ -22,7 +22,7 @@ export const userGetController = async (req: Request, res: Response) => {
   });
 };
 
-export const getAllUser = async (req: Request, res: Response) => {
+export const getAllUsersController = async (req: Request, res: Response) => {
   const key = createKey('users', 'list');
   const data = await getCache(key);
 
@@ -52,9 +52,11 @@ export const userUpdateController = async (req: Request, res: Response) => {
 
   const key1 = createKey('users', 'list');
   const key2 = createKey('user', id);
+  const key3 = createKey('account', 'userId', id);
 
   await deleteCache(key1);
   await deleteCache(key2);
+  await deleteCache(key3);
 
   return res.status(200).json({
     success: true,

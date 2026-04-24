@@ -11,7 +11,7 @@ export const changeEmailRequestController = async (req: Request, res: Response) 
   if (!user) throw new ApiError(403, 'Forbidden: Action Not Allowed.');
 
   const token = crypto.randomBytes(32).toString('hex');
-  const url = process.env.BASE_URL + '/auth/change-email?token=' + token;
+  const url = process.env.BASE_URL + '/change-email?token=' + token;
 
   const key = createKey('change-email', token);
 
@@ -43,6 +43,7 @@ export const changeEmailController = async (req: Request, res: Response) => {
   if (!user) throw new ApiError(404, 'User Not Found.');
 
   const userKey = createKey('user', user._id.toString());
+  const userKey2 = createKey('account', 'userId', user._id.toString());
 
   user.email = email;
   user.emailVerified = false;
@@ -50,6 +51,10 @@ export const changeEmailController = async (req: Request, res: Response) => {
 
   await deleteCache(key);
   await deleteCache(userKey);
+  await deleteCache(userKey2);
+
+  res.clearCookie('saher_access_token');
+  res.clearCookie('saher_refresh_token');
 
   return res.status(200).json({
     success: true,

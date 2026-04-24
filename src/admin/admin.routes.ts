@@ -13,7 +13,7 @@ import {
   accountUpdateController,
 } from './account/controller.js';
 import {
-  getAllUser,
+  getAllUsersController,
   userDeleteController,
   userGetController,
   userUpdateController,
@@ -40,7 +40,6 @@ adminRouter.post(
 );
 
 // Account Routes
-// NOTE:Change Routes
 adminRouter.post(
   '/account',
   authorize('write', 'account'),
@@ -54,8 +53,8 @@ adminRouter
   .get(accountGetController);
 
 // User Routes
-// NOTE:Change Routes
-adminRouter.get('/users', getAllUser);
+adminRouter.get('/users', getAllUsersController);
+
 adminRouter
   .route('/user/:id')
   .get(userGetController)
