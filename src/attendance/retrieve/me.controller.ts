@@ -35,49 +35,26 @@ const AttendanceTodayMeSchema = AttendanceSchemaFinal.readonly();
 const AttendanceTodayMeResponseSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
-  const day = new Date();
-  const record = await Attendance.find({ date: standardDateString(day) });
-  if (record.length === 0) {
-    const data = {
-      inTime: '',
-      outTime: '',
-      workHours: 0,
-      date: standardDateString(day),
-      status: '',
-      isLate: false,
-    };
-    return res.status(200).json({ success: true, message: 'Today is not working day', data: data });
-  }
-
   if (!user?.id) throw new ApiError(400, 'Forbidden user');
-  // const cacheKeyToday = `attendance:me:${user?.id}:today`;
+
+  const now = new Date();
+
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
 
   type AttendanceT = z.infer<typeof AttendanceTodayMeSchema>;
   const buildResponse = (data: AttendanceT, workHours: number) => {
     return AttendanceTodayMeResponseSchema.parse({ ...data, workHours });
   };
-  // const cacheKeyTodayWorkHours = `attendance:me:${user?.id}:today:workHours`;
-  // const todayWorkHoursKey = createKey('attendance', 'me', user?.id, 'today', 'workHours');
 
   const cachedToday = await getCache<AttendanceT>(todayKey);
 
+  let responseData;
   const account = await Account.findOne({ user: user?.id });
   if (!account) throw new ApiError(400, 'Account not found');
-
-  let responseData;
   if (cachedToday) {
     const workHours = calculateWorkHours(account.employeeType, new Date(cachedToday.inTime));
 
     responseData = buildResponse(cachedToday, workHours);
-    // responseData = AttendanceResponseSchema.parse({
-    //   inTime : cachedToday.inTime,
-    //   outTime : cachedToday.outTime,
-    //   workHours : workHours ,
-    //   date : cachedToday.date ,
-    //   status : cachedToday.status,
-    //   isLate : cachedToday.isLate
-    // })
 
     return res.status(200).json({
       message: 'data is Coming from Redis ',
@@ -86,13 +63,23 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     });
   }
 
-  const now = new Date();
+  // const now = new Date();
 
   const today = await Attendance.findOne({ user: user?.id, date: standardDateString(now) }).lean();
+  // const today = await record.lean();
 
   if (!today) {
-    throw new ApiError(404, 'Today record not found');
+    const data = {
+      inTime: '',
+      outTime: '',
+      workHours: 0,
+      date: standardDateString(now),
+      status: '',
+      isLate: false,
+    };
+    return res.status(200).json({ success: true, message: 'Today is not working day', data: data });
   }
+
   if (!today.inTime) {
     throw new ApiError(400, 'You have not yet checked in ');
   }
@@ -107,14 +94,6 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     workHours = calculateWorkHours(account.employeeType, today.inTime);
   }
 
-  // responseData = AttendanceResponseSchema.parse({
-  //     inTime : parsed.inTime,
-  //     outTime : parsed.outTime,
-  //     workHours : workHours ,
-  //     date : parsed.date ,
-  //     status : parsed.status,
-  //     isLate : parsed.isLate
-  //   })
   responseData = buildResponse(parsed, workHours);
 
   return res.status(200).json({
