@@ -9,6 +9,7 @@ import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { Bank } from '../../database/bank.model.js';
 import { getAccount, getAccountByUser } from '../_services/account.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const accountRegisterController = async (
   req: Request,
@@ -66,11 +67,7 @@ export const accountRegisterController = async (
     const key = createKey('account', 'list');
     await deleteCache(key);
 
-    return res.status(201).json({
-      success: true,
-      message: 'Employee registered successfully.',
-      data: user._id,
-    });
+    return ApiResponse.created(res, { message: 'Employee registered.', data: user._id });
   } catch (error) {
     return next(error);
   } finally {
@@ -91,11 +88,7 @@ export const accountUpdateController = async (req: Request, res: Response) => {
   await deleteCache(key);
   await deleteCache(key1);
 
-  return res.status(200).json({
-    success: true,
-    message: 'Employee update successfully.',
-    data: null,
-  });
+  return ApiResponse.success(res, { message: 'Employee registered.' });
 };
 
 export const accountGetController = async (req: Request, res: Response) => {
@@ -108,19 +101,19 @@ export const accountGetController = async (req: Request, res: Response) => {
     user = await getAccountByUser(userId);
     if (!user) throw new ApiError(404, 'User Not Found.');
 
-    return res.status(200).json({
-      success: true,
+    return ApiResponse.success(res, {
       message: 'Employee get successfully.',
       data: user,
+      statusCode: 200,
     });
   }
 
   const account = await getAccount(id);
   if (!account) throw new ApiError(404, 'User Not Found.');
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Employee get successfully.',
     data: account,
+    statusCode: 200,
   });
 };

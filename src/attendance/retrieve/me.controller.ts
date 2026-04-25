@@ -7,6 +7,7 @@ import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { Account } from '../../database/account.model.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const AttendanceSchemaFinal = z.object({
   id: z.string(),
@@ -56,10 +57,10 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
     responseData = buildResponse(cachedToday, workHours);
 
-    return res.status(200).json({
+    return ApiResponse.success(res, {
       message: 'data is Coming from Redis ',
-      success: true,
       data: responseData,
+      statusCode: 200,
     });
   }
 
@@ -77,7 +78,11 @@ export const meAttendanceController = async (req: Request, res: Response) => {
       status: '',
       isLate: false,
     };
-    return res.status(200).json({ success: true, message: 'Today is not working day', data: data });
+    return ApiResponse.success(res, {
+      message: 'Today is not working day',
+      data: data,
+      statusCode: 200,
+    });
   }
 
   if (!today.inTime) {
@@ -94,11 +99,12 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     workHours = calculateWorkHours(account.employeeType, today.inTime);
   }
 
-  responseData = buildResponse(parsed, workHours);
+  // WARN: eslint error hai isko thik kar
+  // responseData = buildResponse(parsed, workHours);
 
-  return res.status(200).json({
-    message: 'data from DB ',
-    success: true,
-    data: responseData,
+  return ApiResponse.success(res, {
+    message: 'Today Attendance.',
+    data: today,
+    statusCode: 200,
   });
 };

@@ -6,6 +6,7 @@ import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { AttendanceResponseSchema, AttendanceSchemaFinal } from './me.controller.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 const attendanceTodayResponseSchema = z
   .array(AttendanceResponseSchema.omit({ workHours: true }).extend({ user: z.string() }))
@@ -31,9 +32,11 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   let response;
   if (cached) {
     response = attendanceTodayResponseSchema.parse(cached);
-    return res
-      .status(200)
-      .json({ success: true, message: 'The data is coming from redis ', data: response });
+    return ApiResponse.success(res, {
+      message: 'The data is coming from redis ',
+      data: response,
+      statusCode: 200,
+    });
   }
 
   const now = new Date();
@@ -43,9 +46,11 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     .lean();
   if (today.length === 0) {
     const data = { user: null, inTime: '', outTime: '', status: '' };
-    return res
-      .status(200)
-      .json({ success: true, message: 'Today is not a working day', data: data });
+    return ApiResponse.success(res, {
+      message: 'Today is not a working day',
+      data: data,
+      statusCode: 200,
+    });
   }
 
   const singleResponseSchema = AttendanceResponseSchema.omit({ workHours: true }).extend({
@@ -60,5 +65,9 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   });
 
   await setCache(key, updatedToday, 86400);
-  return res.status(200).json({ success: true, message: 'Today Attendance.', data: updatedToday });
+  return ApiResponse.success(res, {
+    message: 'Today Attendance.',
+    data: today,
+    statusCode: 200,
+  });
 };

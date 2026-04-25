@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Mail } from '../database/mail.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { User } from '../database/user.model.js';
+import { ApiResponse } from '../libs/class/api-response.js';
 
 export const inboxController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -9,14 +10,18 @@ export const inboxController = async (req: Request, res: Response) => {
   const record = await Mail.find({ to: user?.id }).lean().sort({ createdAt: -1 });
   const length = record.length;
   if (length === 0) {
-    return res
-      .status(200)
-      .json({ message: 'There are no mails for you', count: 0, data: null, success: true });
+    return ApiResponse.success(res, {
+      message: 'There are no mails for you',
+      data: null,
+      statusCode: 200,
+    });
   }
 
-  return res
-    .status(200)
-    .json({ message: 'The mails in your inbox are ', data: record, success: true });
+  return ApiResponse.success(res, {
+    message: 'The mails in your inbox are ',
+    data: record,
+    statusCode: 200,
+  });
 };
 
 export const sendMailController = async (req: Request, res: Response) => {
@@ -41,9 +46,12 @@ export const sendMailController = async (req: Request, res: Response) => {
     subject: subject,
     body: body,
   });
-  return res
-    .status(201)
-    .json({ message: `The mail has been sent to ${receiversIDs} `, success: true, data: mails });
+
+  return ApiResponse.success(res, {
+    message: `The mail has been sent to ${receiversIDs} `,
+    data: null,
+    statusCode: 201,
+  });
 };
 
 export const outboxController = async (req: Request, res: Response) => {
@@ -52,15 +60,16 @@ export const outboxController = async (req: Request, res: Response) => {
   const record = await Mail.find({ from: user?.id });
 
   if (record.length === 0) {
-    return res
-      .status(200)
-      .json({ message: 'There are no mails for you', count: 0, data: null, success: true });
+    return ApiResponse.success(res, {
+      message: 'There are no mails for you',
+      data: null,
+      statusCode: 200,
+    });
   }
 
-  return res.status(200).json({
+  return ApiResponse.success(res, {
     message: 'The mails sent by you are ',
     data: record,
-    count: record.length,
-    success: true,
+    statusCode: 200,
   });
 };

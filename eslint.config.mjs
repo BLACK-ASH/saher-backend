@@ -3,27 +3,32 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import prettier from 'eslint-config-prettier';
-import { globalIgnores } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import noResJson from './dist/libs/eslint-rules/no-res-json.js';
 
-export default [
+export default defineConfig([
+  {
+    files: ['**/*.ts'],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    'out/**',
-    'build/**',
-    'dist/**',
-    'docs/*',
-    'public/*',
-  ]),
+  globalIgnores(['out/**', 'build/**', 'dist/**', 'docs/*', 'public/*']),
   {
+    ignores: ['**/api-response.ts', '**/error-handler.ts', '**/middleware/**'],
+
     plugins: {
       unicorn,
+      custom: {
+        rules: {
+          'no-res-json': noResJson,
+        },
+      },
     },
     languageOptions: {
       globals: globals.node,
     },
+
     rules: {
       'no-console': ['error', { allow: ['warn', 'error'] }],
 
@@ -35,13 +40,14 @@ export default [
         },
       ],
 
-      // 👇 File naming rule
+      'custom/no-res-json': 'warn',
+
       'unicorn/filename-case': [
         'error',
         {
-          case: 'kebabCase', // or camelCase / snake_case
+          case: 'kebabCase',
         },
       ],
     },
   },
-];
+]);

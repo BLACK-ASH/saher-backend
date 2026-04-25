@@ -5,6 +5,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { AttendanceCorrectionInputType, attendanceRecordSchema } from './correction.schema.js';
 import z from 'zod';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const createAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -55,9 +56,9 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
     proof: input?.proof,
   });
 
-  return res.status(201).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Attendance Correction Request Successful.',
     data: request,
+    statusCode: 201,
   });
 };

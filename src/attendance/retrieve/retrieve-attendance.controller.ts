@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ApiError } from '../../libs/class/api-error.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const retrieveAttendanceController = async (req: Request, res: Response) => {
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate
@@ -70,7 +71,9 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     .skip(skip)
     .limit(limit);
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'The record you asked for ', data: record });
+  return ApiResponse.success(res, {
+    message: 'The record you asked for ',
+    data: record,
+    statusCode: 200,
+  });
 };

@@ -5,6 +5,7 @@ import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/red
 import { User } from '../../database/user.model.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { changeEmailTemplate } from '../../libs/mail/templates/change-email-mail.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const changeEmailRequestController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -24,10 +25,10 @@ export const changeEmailRequestController = async (req: Request, res: Response) 
   });
 
   await sendEmail({ to: user.email, subject: 'Change Email Request.', html });
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Mail Is Send To Your Registered Email For Verification.',
     data: null,
+    statusCode: 200,
   });
 };
 
@@ -56,9 +57,9 @@ export const changeEmailController = async (req: Request, res: Response) => {
   res.clearCookie('saher_access_token');
   res.clearCookie('saher_refresh_token');
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Email Change Successful.',
     data: null,
+    statusCode: 200,
   });
 };
