@@ -20,6 +20,17 @@ type OutputType = {
   status: 'present' | 'half-day' | 'absent';
 };
 
+const IST_OFFSET_MINUTES = 330; // 5h 30m
+
+function setISTTime(date: Date, hours: number): Date {
+  const totalMinutes = hours * 60 - IST_OFFSET_MINUTES;
+
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+
+  return new Date(date.setUTCHours(h, m, 0, 0));
+}
+
 export const workHourData = new Map<string, ShiftData>([
   ['full-time', { in: 9, out: 18, half: 4, full: 8, grace: 1 }],
   ['shift-1', { in: 9, out: 13, half: 2, full: 4, grace: 0.5 }],
@@ -66,11 +77,9 @@ export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): Outp
   }
 
   // Expected shift boundaries
-  const expectedIn = new Date(inDate);
-  expectedIn.setHours(shiftData.in, 0, 0, 0);
 
-  const expectedOut = new Date(inDate);
-  expectedOut.setHours(shiftData.out, 0, 0, 0);
+  const expectedIn = setISTTime(new Date(inDate), shiftData.in);
+  const expectedOut = setISTTime(new Date(inDate), shiftData.out);
 
   // Clamp work within shift window
   const effectiveIn = new Date(Math.max(inDate.getTime(), expectedIn.getTime()));
@@ -80,7 +89,7 @@ export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): Outp
   const workHours = Math.max(0, Number(timeDifference(effectiveIn, effectiveOut).hours.toFixed(3)));
 
   // Apply grace
-  const workHoursAfterGrace = workHours - shiftData.grace;
+  const workHoursAfterGrace = workHours + shiftData.grace;
 
   const status =
     workHoursAfterGrace >= shiftData.full
