@@ -2,13 +2,18 @@
 import { Response, NextFunction, Request } from 'express';
 import { Action, createPermission, Resource } from './permission.js';
 import { ROLE_PERMISSIONS } from './role-permission.js';
+import { ApiResponse } from '../libs/class/api-response.js';
 
 export const authorize = (action: Action, resource: Resource) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
 
     if (!user) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return ApiResponse.success(res, {
+        message: 'Unauthorized',
+        data: undefined,
+        statusCode: 401,
+      });
     }
 
     // ✅ READ is allowed for all authenticated users
@@ -22,9 +27,10 @@ export const authorize = (action: Action, resource: Resource) => {
     const allowedPermissions = ROLE_PERMISSIONS[role];
 
     if (!allowedPermissions || !allowedPermissions.has(permission)) {
-      return res.status(403).json({
-        success: false,
+      return ApiResponse.success(res, {
         message: `You do not have permission to ${action} this ${resource}.`,
+        data: undefined,
+        statusCode: 403,
       });
     }
 

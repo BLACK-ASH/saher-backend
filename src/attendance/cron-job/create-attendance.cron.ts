@@ -3,6 +3,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { User } from '../../database/user.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const createAttendanceCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
@@ -43,13 +44,13 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
   const create = createAttendance.length;
   const skip = users.length - create;
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Attendance Created Successfully.',
     data: {
       total: users.length,
       create,
       skip,
     },
+    statusCode: 200,
   });
 };

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -11,5 +12,9 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
   if (!today) throw new ApiError(404, 'Today Attendance Not Found.');
 
-  return res.status(200).json({ success: true, message: 'Today Attendance.', data: today });
+  return ApiResponse.success(res, {
+    message: 'Today Attendance.',
+    data: today,
+    statusCode: 200,
+  });
 };

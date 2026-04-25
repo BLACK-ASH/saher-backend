@@ -7,6 +7,7 @@ import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 import z from 'zod';
 import { forgotPasswordTemplate } from '../../libs/mail/templates/forgot-password.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const forgotPasswordRequestController = async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -31,10 +32,10 @@ export const forgotPasswordRequestController = async (req: Request, res: Respons
 
   await sendEmail({ to: parsedEmail.data, subject: 'forgot Password Request.', html });
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Mail Is Send To Your Registered Email For Verification.',
     data: null,
+    statusCode: 200,
   });
 };
 
@@ -57,9 +58,9 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
   await deleteCache(key);
   await deleteCache(userKey);
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Password Change Successful.',
     data: null,
+    statusCode: 200,
   });
 };

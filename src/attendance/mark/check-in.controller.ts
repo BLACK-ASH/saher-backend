@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
@@ -46,9 +47,11 @@ export const checkInController = async (req: Request, res: Response) => {
     cronRecord.status = 'present';
     cronRecord.isLate = now > expectedTime;
     await cronRecord.save();
-    return res
-      .status(200)
-      .json({ message: 'You have been marked present', success: true, data: cronRecord });
+    return ApiResponse.success(res, {
+      message: 'You have been marked present',
+      data: cronRecord,
+      statusCode: 200,
+    });
   }
 
   // Special case is user is check in before cron job
@@ -61,7 +64,9 @@ export const checkInController = async (req: Request, res: Response) => {
     date: standardDateString(now),
     isLate: now > expectedTime,
   });
-  return res
-    .status(200)
-    .json({ message: 'You have been marked present', success: true, data: newRecord });
+  return ApiResponse.success(res, {
+    message: 'You have been marked present',
+    data: newRecord,
+    statusCode: 200,
+  });
 };

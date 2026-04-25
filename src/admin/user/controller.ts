@@ -6,6 +6,7 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import z from 'zod';
 import { userSchemaFinal } from '../_services/user.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const userGetController = async (req: Request, res: Response) => {
   const id = req.params.id.toString().trim();
@@ -15,10 +16,10 @@ export const userGetController = async (req: Request, res: Response) => {
   const user = await getAccountByUser(userId);
   if (!user) throw new ApiError(404, 'User Not Found.');
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'User get successfully.',
     data: user,
+    statusCode: 200,
   });
 };
 
@@ -27,7 +28,11 @@ export const getAllUsersController = async (req: Request, res: Response) => {
   const data = await getCache(key);
 
   if (data) {
-    return res.status(200).json({ success: true, message: 'All User Retrieve Successful.', data });
+    return ApiResponse.success(res, {
+      message: 'All User Retrieve Successful.',
+      data: data,
+      statusCode: 200,
+    });
   }
 
   const userArraySchema = z.array(userSchemaFinal);
@@ -38,9 +43,11 @@ export const getAllUsersController = async (req: Request, res: Response) => {
 
   await setCache(key, parsed, 604800);
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'All User Retrieve Successful.', data: parsed });
+  return ApiResponse.success(res, {
+    message: 'All User Retrieve Successful.',
+    data: parsed,
+    statusCode: 200,
+  });
 };
 
 export const userUpdateController = async (req: Request, res: Response) => {
@@ -58,10 +65,10 @@ export const userUpdateController = async (req: Request, res: Response) => {
   await deleteCache(key2);
   await deleteCache(key3);
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'User Update Successfully.',
     data: null,
+    statusCode: 200,
   });
 };
 
@@ -83,9 +90,9 @@ export const userDeleteController = async (req: Request, res: Response) => {
   await deleteCache(key1);
   await deleteCache(key2);
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'User Deleted Successfully.',
     data: null,
+    statusCode: 200,
   });
 };

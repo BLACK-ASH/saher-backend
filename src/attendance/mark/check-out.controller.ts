@@ -3,6 +3,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { timeDifference } from '../../libs/utils/time-difference.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -45,9 +46,9 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   await attendance.save();
 
-  return res.status(200).json({
+  return ApiResponse.success(res, {
     message: 'Checked out successfully',
-    success: true,
     data: attendance,
+    statusCode: 200,
   });
 };

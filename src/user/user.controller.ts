@@ -3,6 +3,7 @@ import { User } from '../database/user.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { getAccountByUser } from '../admin/_services/account.js';
 import { createKey, deleteCache } from '../libs/redis/redis-utils.js';
+import { ApiResponse } from '../libs/class/api-response.js';
 
 export const updateUserController = async (req: Request, res: Response) => {
   const id = req.user?.id as string;
@@ -19,10 +20,10 @@ export const updateUserController = async (req: Request, res: Response) => {
   await deleteCache(key2);
   await deleteCache(key3);
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'User Update Successfully.',
     data: null,
+    statusCode: 200,
   });
 };
 
@@ -32,9 +33,9 @@ export const userGetController = async (req: Request, res: Response) => {
   const user = await getAccountByUser(id);
   if (!user) throw new ApiError(404, 'User Not Found.');
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'User Get Successfully.',
     data: user,
+    statusCode: 200,
   });
 };
