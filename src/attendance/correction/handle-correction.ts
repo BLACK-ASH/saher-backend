@@ -5,7 +5,12 @@ import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { AttendanceCorrectionHandleInputType } from './correction.schema.js';
-import { calculateWorkStatus, checkIsLate } from '../../libs/utils/calculate-work-status.js';
+import {
+  calculateWorkStatus,
+  checkIsLate,
+  getShift,
+} from '../../libs/utils/calculate-work-status.js';
+import { getAccountByUser } from '../../admin/_services/account.js';
 
 export const handleAttendanceCorrectionController = async (req: Request, res: Response) => {
   const input: AttendanceCorrectionHandleInputType = req.body;
@@ -34,7 +39,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       if (request.status === 'reject')
         throw new ApiError(400, 'Attendance Correction Is Rejected.');
 
-      // If Attendance Is Reject
+      // To Handle Approve
       if (input.status === 'reject') {
         request.manager = convertToObjectId(user.id);
         request.status = 'reject';
@@ -51,7 +56,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         return;
       }
 
-      // If Attendance Is On Hold
+      // To Handle On Hold
       if (input.status === 'on-hold') {
         request.manager = convertToObjectId(user.id);
         request.status = 'on-hold';
@@ -68,20 +73,28 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         return;
       }
 
-      // If Attendance Is Approve
+      // To Handle Approve
       const attendance = await Attendance.findById(request.attendance).session(session);
       if (!attendance) {
         throw new ApiError(404, 'Attendance Record Not Found.');
       }
-      // let make an empty object to store the change
-      // if isAdmin is true then system should calculate the all the attendance status
-      const change = input.isAdmin ? input.changes : request.changes!;
+
+      // If isAdmin is false then system should calculate the all the attendance status if true accept what admin says
+
+      const account = await getAccountByUser(user.id);
+      if (!account) throw new ApiError(404, 'User Not Found.');
+
+      const shift = getShift(account);
+
+      const change = input.isAdmin
+        ? input.changes
+        : { inTime: request.changes.inTime, outTime: request.changes.outTime };
 
       // ✅ calculate work hours safely
       const { workHours, status } = calculateWorkStatus({
         inTime: change.inTime,
         outTime: change.outTime,
-        shift: 'free',
+        shift: shift,
       });
 
       const isLate = input.isAdmin
@@ -95,7 +108,11 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         workHours,
       };
 
-      // ✅ update request
+      if (!newRecord?.inTime || !newRecord?.outTime) {
+        throw new ApiError(400, 'Invalid inTime or outTime');
+      }
+
+      //  update request
       request.manager = convertToObjectId(user.id);
       request.changes = change;
       request.status = 'approve';
@@ -109,7 +126,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       await request.save({ session });
 
       responsePayload = { message: 'Attendance Correction Approve.', data: null };
-      // ✅ update attendance
+      //  update attendance
       await Attendance.findByIdAndUpdate(request.attendance, { $set: newRecord }, { session });
 
       return;
@@ -120,6 +137,6 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       ...responsePayload,
     });
   } finally {
-    await session.endSession(); // ✅ always cleanup
+    await session.endSession();
   }
 };

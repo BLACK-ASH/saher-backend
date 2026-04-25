@@ -32,7 +32,16 @@ import { getAttendanceById } from './retrieve/get-attendance.controller.js';
 
 const attendanceRouter = Router();
 
-// Attendance Retrieval Route
+// TODO:Implement the Route in the following structured
+// method:GET path: /me function: current user status
+// method:GET path: /today function: all user status
+// method:POST path: /check-in function: to check in
+// method:POST path: /check-out function: to check out
+// method:GET path: /(:id/me) function: get all attendance records acc to user-id/me with pagination
+// method:GET path: /record function: get all attendance records all users with pagination
+// method:GET path: /record/:id function: get specific attendance record by attendance id
+// Leave The Retrieve as like before
+
 attendanceRouter.get('/me', meAttendanceController);
 attendanceRouter.get('/today', todayAttendanceController);
 attendanceRouter.post('/check-in', checkInController);
@@ -44,6 +53,12 @@ attendanceRouter.get('/retrieve-all', getAllUserController);
 attendanceRouter.get('/attendance/:id', getAttendanceById);
 
 // Attendance Correction Route
+// TODO:Implement the Route in the following structured
+// method:GET path: /correction/(:id/me) function: get all correction record acc to user-id/me with pagination
+// method:GET path: /admin/correction function: get all users correction record
+// method:POST path: /correction function: create correction record
+// method:PUT path: /correction/:id function: handle attendance correction
+
 attendanceRouter.get('/attendance-correction', getAttendanceCorrectionController);
 attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById);
 attendanceRouter.get('/attendance-correction-all', getAllAttendanceCorrectionController);
@@ -60,6 +75,21 @@ attendanceRouter.put(
   handleAttendanceCorrectionController,
 );
 
+// TODO:Implement the Route in the following structured
+// method:GET path: /holiday function: get all holiday
+// method:GET path: /holiday/:id function: get specific holiday
+// method:POST path: /holiday/:id function: create holiday
+// method:PUT path: /holiday/:id function: update holiday
+// method:DELETE path: /holiday/:id function: delete holiday
+
+attendanceRouter.get('/holiday/get-all', getAllHolidayController);
+attendanceRouter.get('/holiday/get/:id', getHolidayController);
+attendanceRouter.delete(
+  '/holiday/delete/:id',
+  authorize('delete', 'holiday'),
+  deleteHolidayController,
+);
+
 // Holiday Routes
 attendanceRouter.post(
   '/holiday/create',
@@ -73,16 +103,9 @@ attendanceRouter.put(
   validate(holidayUpdateSchema),
   updateHolidayController,
 );
-attendanceRouter.get('/holiday/get-all', getAllHolidayController);
-attendanceRouter.get('/holiday/get/:id', getHolidayController);
-attendanceRouter.delete(
-  '/holiday/delete/:id',
-  authorize('delete', 'holiday'),
-  deleteHolidayController,
-);
 
+// WARN: Do Not Change This Part
 // Cron Jobs
-// Do Not Change This Part
 attendanceRouter.post('/cron/create/:pass', createAttendanceCron);
 attendanceRouter.post('/cron/auto-checkout/:pass', autoCheckoutCron);
 

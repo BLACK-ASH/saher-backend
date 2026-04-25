@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { required } from 'zod/mini';
 
 const attendanceRecord = new mongoose.Schema({
   inTime: {
@@ -33,8 +34,8 @@ const attendanceCorrectionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Attendance',
     },
-    previous: attendanceRecord,
-    changes: attendanceRecord,
+    previous: { type: attendanceRecord, required: true },
+    changes: { type: attendanceRecord, required: true },
     status: {
       type: String,
       enum: ['pending', 'on-hold', 'approve', 'reject'],

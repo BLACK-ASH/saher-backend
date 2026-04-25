@@ -14,17 +14,29 @@ export const attendanceCorrectionSchema = z.object({
   proof: z.string().optional(),
 });
 
-export const attendanceCorrectionHandleSchema = z.object({
-  changes: z.object({
-    inTime: z.coerce.date(),
-    outTime: z.coerce.date(),
-    status: z.enum(['absent', 'half-day', 'present']),
-    isLate: z.boolean(),
-  }),
-  isAdmin: z.boolean(),
-  reason: z.string().max(300, 'Maximum Reason Is 300 Characters.').optional(),
-  status: z.enum(['reject', 'pending', 'on-hold', 'approve']),
-});
+export const attendanceCorrectionHandleSchema = z
+  .object({
+    changes: z.object({
+      inTime: z.coerce.date(),
+      outTime: z.coerce.date(),
+      status: z.enum(['absent', 'half-day', 'present']).optional(),
+      isLate: z.boolean().optional(),
+    }),
+    isAdmin: z.boolean(),
+    reason: z.string().max(300, 'Maximum Reason Is 300 Characters.').optional(),
+    status: z.enum(['reject', 'pending', 'on-hold', 'approve']),
+  })
+  .refine(
+    (data) => {
+      if (data.isAdmin) {
+        return !!data.changes.status && !!data.changes.isLate;
+      }
+      return true;
+    },
+    {
+      message: 'All The Fields Are Required.',
+    },
+  );
 
 export const attendanceRecordSchema = attendanceCorrectionSchema.omit({
   attendanceId: true,

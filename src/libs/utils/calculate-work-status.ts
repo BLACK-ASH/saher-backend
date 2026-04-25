@@ -1,3 +1,4 @@
+import { AccountT } from '../../admin/_services/account.js';
 import { timeDifference } from './time-difference.js';
 
 type InputType = {
@@ -24,6 +25,16 @@ export const workHourData = new Map<string, ShiftData>([
   ['shift-1', { in: 9, out: 13, half: 2, full: 4, grace: 0.5 }],
   ['shift-2', { in: 14, out: 18, half: 2, full: 4, grace: 0.5 }],
 ]);
+
+export const getShift = (account: AccountT): 'full-time' | 'shift-1' | 'shift-2' | 'free' => {
+  if (account.employeeType === 'full-time') return 'full-time';
+  if (account.employeeType === 'part-time') {
+    if (account.employeeShift) {
+      return account.employeeShift;
+    }
+  }
+  return 'free';
+};
 
 export const checkIsLate = ({ inTime, shift }: Omit<InputType, 'outTime'>): boolean => {
   if (shift === 'free') return false;
