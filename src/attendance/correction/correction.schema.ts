@@ -54,5 +54,31 @@ export const attendanceRecordSchema = attendanceCorrectionSchema.omit({
   message: true,
   proof: true,
 });
+
+export const CorrectionResponseSchema = z.object({
+  id: z.string(),
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    role: z.string(),
+  }),
+  attendance: z.object({
+    id: z.string(),
+    date: z.string(),
+  }),
+  previous: z.object({
+    inTime: z.string(),
+    outTime: z.string().nullable().optional(),
+  }),
+  changes: z.object({
+    inTime: z.string(),
+    outTime: z.string(),
+  }),
+  status: z.string(),
+  message: z.string(),
+  reason: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
 export type AttendanceCorrectionInputType = z.infer<typeof attendanceCorrectionSchema>;
 export type AttendanceCorrectionHandleInputType = z.infer<typeof attendanceCorrectionHandleSchema>;

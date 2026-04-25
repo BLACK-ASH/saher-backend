@@ -88,5 +88,6 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     message: 'The record you asked for ',
     data: record,
     statusCode: 200,
+    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
   });
 };

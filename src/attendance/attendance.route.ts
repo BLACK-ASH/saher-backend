@@ -53,12 +53,12 @@ attendanceRouter.get('/attendance/:id', getAttendanceById);
 
 // Attendance Correction Route
 // TODO:Implement the Route in the following structured
-// method:GET path: /correction/(:id/me) function: get all correction record acc to user-id/me with pagination
+// method:GET path: /correction/(:id/me) function: get all correction record acc to user-id/me with pagination --- Done
 // method:GET path: /admin/correction function: get all users correction record --- Done
 // method:POST path: /correction function: create correction record ---Done
 // method:PUT path: /correction/:id function: handle attendance correction  ----Done
 
-attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionController);
+attendanceRouter.get('/correction/:id', getAttendanceCorrectionController);
 // attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById);
 attendanceRouter.get('/admin/correction', getAllAttendanceCorrectionController);
 attendanceRouter.post(

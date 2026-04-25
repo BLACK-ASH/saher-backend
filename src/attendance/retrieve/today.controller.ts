@@ -46,6 +46,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
       message: 'The data is coming from redis ',
       data: response,
       statusCode: 200,
+      meta: cached.meta,
     });
   }
 
@@ -95,5 +96,6 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     message: 'Today Attendance.',
     data: today,
     statusCode: 200,
+    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
   });
 };
