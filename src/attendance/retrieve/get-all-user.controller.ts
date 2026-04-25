@@ -89,7 +89,8 @@ export const getAllUserController = async (req: Request, res: Response) => {
   //   meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
   return ApiResponse.success(res, {
     message: 'The record you asked for ',
-    data: record,
+    data: parsed,
     statusCode: 200,
+    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
   });
 };
