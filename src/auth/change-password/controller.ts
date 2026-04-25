@@ -6,6 +6,7 @@ import { User } from '../../database/user.model.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 import { changePasswordTemplate } from '../../libs/mail/templates/change-password.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const changePasswordRequestController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -26,10 +27,10 @@ export const changePasswordRequestController = async (req: Request, res: Respons
 
   await sendEmail({ to: user.email, subject: 'Change Password Request.', html });
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Mail Is Send To Your Registered Email For Verification.',
     data: null,
+    statusCode: 200,
   });
 };
 
@@ -52,9 +53,9 @@ export const changePasswordController = async (req: Request, res: Response) => {
   await deleteCache(key);
   await deleteCache(userKey);
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Password Change Successful.',
     data: null,
+    statusCode: 200,
   });
 };

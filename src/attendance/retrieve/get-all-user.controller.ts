@@ -5,6 +5,7 @@ import { standardDateString } from '../../libs/utils/standard-date.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { AttendanceResponseSchema, AttendanceSchemaFinal } from './me.controller.js';
 import z from 'zod';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 // const AttendanceAllUserSchema = AttendanceSchemaFinal.readonly()
 
@@ -82,9 +83,13 @@ export const getAllUserController = async (req: Request, res: Response) => {
     },
   });
 
-  return res.status(200).json({
+  // return res.status(200).json({
+  //   message: 'The record you asked for ',
+  //   data: parsed,
+  //   meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+  return ApiResponse.success(res, {
     message: 'The record you asked for ',
-    data: parsed,
-    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+    data: record,
+    statusCode: 200,
   });
 };

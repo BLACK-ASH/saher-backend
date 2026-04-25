@@ -66,6 +66,9 @@ importers:
       '@types/cors':
         specifier: ^2.8.19
         version: 2.8.19
+      '@types/estree':
+        specifier: ^1.0.8
+        version: 1.0.8
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6

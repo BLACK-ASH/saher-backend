@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AttendanceCorrection } from '../../database/attendance-correction.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -24,9 +25,11 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
     .sort({ createdAt: -1 })
     .lean();
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'Attendance Correction Retrieve Successful.', data: requests });
+  return ApiResponse.success(res, {
+    message: 'Attendance Correction Retrieve Successful.',
+    data: requests,
+    statusCode: 200,
+  });
 };
 
 // export const getAttendanceCorrectionById = async (req: Request, res: Response) => {
@@ -37,9 +40,11 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
 //     .populate('proof', 'src alt')
 //     .lean();
 //   if (!request) throw new ApiError(404, 'Attendance Correction Request Not Found.');
-//   return res
-//     .status(200)
-//     .json({ success: true, message: 'Attendance Correction Retrieve Successful.', data: request });
+//   return ApiResponse.success(res, {
+//     message: 'Attendance Correction Retrieve Successful.',
+//     data: request,
+//     statusCode: 200,
+//   });
 // };
 
 export const getAllAttendanceCorrectionController = async (req: Request, res: Response) => {
@@ -50,7 +55,9 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
     .sort({ createdAt: -1 })
     .lean();
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'Attendance Correction Retrieve Successful.', data: requests });
+  return ApiResponse.success(res, {
+    message: 'Attendance Correction Retrieve Successful.',
+    data: requests,
+    statusCode: 200,
+  });
 };

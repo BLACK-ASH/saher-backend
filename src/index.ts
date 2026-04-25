@@ -15,6 +15,7 @@ import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
 import userRouter from './user/user.routes.js';
 import { connectRedis } from './libs/redis/redis-client.js';
+import { ApiResponse } from './libs/class/api-response.js';
 
 // Env Config
 dotenv.config();
@@ -65,9 +66,17 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 app.get('/health', async (req, res) => {
   const dbStatus = mongoose.connection.readyState;
   if (dbStatus !== 1) {
-    return res.status(500).json({ status: 'db not connected' });
+    return ApiResponse.success(res, {
+      message: 'Server Unhealthy',
+      data: undefined,
+      statusCode: 500,
+    });
   }
-  res.status(200).json({ status: 'ok' });
+  return ApiResponse.success(res, {
+    message: 'Server Haelthy',
+    data: undefined,
+    statusCode: 200,
+  });
 });
 
 // Global Error Handling
