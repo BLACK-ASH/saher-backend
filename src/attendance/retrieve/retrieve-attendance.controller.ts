@@ -70,7 +70,18 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     .skip(skip)
     .limit(limit);
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'The record you asked for ', data: record });
+  const totalRecord = await Attendance.countDocuments({
+    user: id,
+    date: {
+      $gte: standardDateString(startDate),
+      $lte: standardDateString(endDate),
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: 'The record you asked for ',
+    data: record,
+    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+  });
 };

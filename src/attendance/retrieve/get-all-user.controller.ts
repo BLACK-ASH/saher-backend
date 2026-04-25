@@ -2,6 +2,13 @@ import { Request, Response } from 'express';
 import { ApiError } from '../../libs/class/api-error.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from './me.controller.js';
+import z from 'zod';
+
+// const AttendanceAllUserSchema = AttendanceSchemaFinal.readonly()
+
+const AttendanceAllUserResponseSchema = z.array(AttendanceResponseSchema).readonly();
 
 export const getAllUserController = async (req: Request, res: Response) => {
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate
@@ -62,9 +69,22 @@ export const getAllUserController = async (req: Request, res: Response) => {
   })
     .sort({ date: sort })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .lean();
 
-  return res
-    .status(200)
-    .json({ message: 'The record you asked for ', data: record, count: record.length });
+  const normalize = normalizeDoc(record);
+  const parsed = AttendanceAllUserResponseSchema.parse(normalize);
+
+  const totalRecord = await Attendance.countDocuments({
+    date: {
+      $gte: standardDateString(startDate),
+      $lte: standardDateString(endDate),
+    },
+  });
+
+  return res.status(200).json({
+    message: 'The record you asked for ',
+    data: parsed,
+    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+  });
 };

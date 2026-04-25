@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
-import { calculateWorkHours } from '../../libs/utils/calculate-work-hours.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { Account } from '../../database/account.model.js';
+import { calculateWorkStatus } from '../../libs/utils/calculate-work-status.js';
 
 export const AttendanceSchemaFinal = z.object({
   id: z.string(),
@@ -51,8 +51,16 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   let responseData;
   const account = await Account.findOne({ user: user?.id });
   if (!account) throw new ApiError(400, 'Account not found');
+  const shift =
+    account.employeeType === 'full-time'
+      ? 'full-time'
+      : account.employeeShift === 'shift-1'
+        ? 'shift-1'
+        : 'shift-2';
+
   if (cachedToday) {
-    const workHours = calculateWorkHours(account.employeeType, new Date(cachedToday.inTime));
+    const result = calculateWorkStatus({ inTime: cachedToday.inTime, outTime: now, shift });
+    const workHours = result.workHours;
 
     responseData = buildResponse(cachedToday, workHours);
 
@@ -91,7 +99,9 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   let workHours = today.workHours;
 
   if (today.workHours === 0) {
-    workHours = calculateWorkHours(account.employeeType, today.inTime);
+    // workHours = calculateWorkHours(account.employeeType, today.inTime);
+    const result = calculateWorkStatus({ inTime: today.inTime, outTime: now, shift });
+    workHours = result.workHours;
   }
 
   responseData = buildResponse(parsed, workHours);

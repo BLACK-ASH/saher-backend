@@ -26,18 +26,26 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   const key = attendancetodayKey(page, limit);
 
   type AttendanceT = z.infer<typeof attendanceTodayResponseSchema>;
+  type cacheType = {
+    data: AttendanceT;
+    meta: { page: number; limit: number; totalRecords: number; totalPages: number };
+  };
 
-  const cached = await getCache<AttendanceT>(key);
+  const cached = await getCache<cacheType>(key);
   let response;
   if (cached) {
-    response = attendanceTodayResponseSchema.parse(cached);
-    return res
-      .status(200)
-      .json({ success: true, message: 'The data is coming from redis ', data: response });
+    response = attendanceTodayResponseSchema.parse(cached.data);
+    return res.status(200).json({
+      success: true,
+      message: 'The data is coming from redis ',
+      data: response,
+      meta: cached.meta,
+    });
   }
 
   const now = new Date();
   const today = await Attendance.find({ date: standardDateString(now) })
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .lean();
@@ -59,6 +67,20 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     return response;
   });
 
-  await setCache(key, updatedToday, 86400);
-  return res.status(200).json({ success: true, message: 'Today Attendance.', data: updatedToday });
+  const totalRecord = await Attendance.countDocuments({ date: standardDateString(now) });
+
+  await setCache(
+    key,
+    {
+      data: updatedToday,
+      meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+    },
+    86400,
+  );
+  return res.status(200).json({
+    success: true,
+    message: 'Today Attendance.',
+    data: updatedToday,
+    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+  });
 };

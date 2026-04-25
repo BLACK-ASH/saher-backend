@@ -16,7 +16,6 @@ import {
 } from './correction/correction.schema.js';
 import {
   getAllAttendanceCorrectionController,
-  getAttendanceCorrectionById,
   getAttendanceCorrectionController,
 } from './correction/correction.controller.js';
 import { createAttendanceCorrectionController } from './correction/create-correction.js';
@@ -55,50 +54,46 @@ attendanceRouter.get('/attendance/:id', getAttendanceById);
 // Attendance Correction Route
 // TODO:Implement the Route in the following structured
 // method:GET path: /correction/(:id/me) function: get all correction record acc to user-id/me with pagination
-// method:GET path: /admin/correction function: get all users correction record
-// method:POST path: /correction function: create correction record
-// method:PUT path: /correction/:id function: handle attendance correction
+// method:GET path: /admin/correction function: get all users correction record --- Done
+// method:POST path: /correction function: create correction record ---Done
+// method:PUT path: /correction/:id function: handle attendance correction  ----Done
 
-attendanceRouter.get('/attendance-correction', getAttendanceCorrectionController);
-attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById);
-attendanceRouter.get('/attendance-correction-all', getAllAttendanceCorrectionController);
+attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionController);
+// attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById);
+attendanceRouter.get('/admin/correction', getAllAttendanceCorrectionController);
 attendanceRouter.post(
-  '/attendance-correction',
+  '/correction',
   authorize('write', 'attendance-correction'),
   validate(attendanceCorrectionSchema),
   createAttendanceCorrectionController,
 );
 attendanceRouter.put(
-  '/attendance-correction/:id',
+  '/correction/:id',
   authorize('update', 'attendance-correction'),
   validate(attendanceCorrectionHandleSchema),
   handleAttendanceCorrectionController,
 );
 
 // TODO:Implement the Route in the following structured
-// method:GET path: /holiday function: get all holiday
-// method:GET path: /holiday/:id function: get specific holiday
-// method:POST path: /holiday/:id function: create holiday
-// method:PUT path: /holiday/:id function: update holiday
-// method:DELETE path: /holiday/:id function: delete holiday
+// method:GET path: /holiday function: get all holiday --- Done
+// method:GET path: /holiday/:id function: get specific holiday --Done
+// method:POST path: /holiday/:id function: create holiday ---- why would i need ID to create holiday
+// method:PUT path: /holiday/:id function: update holiday --Done
+// method:DELETE path: /holiday/:id function: delete holiday --DOne
 
-attendanceRouter.get('/holiday/get-all', getAllHolidayController);
-attendanceRouter.get('/holiday/get/:id', getHolidayController);
-attendanceRouter.delete(
-  '/holiday/delete/:id',
-  authorize('delete', 'holiday'),
-  deleteHolidayController,
-);
+attendanceRouter.get('/holiday', getAllHolidayController);
+attendanceRouter.get('/holiday/:id', getHolidayController);
+attendanceRouter.delete('/holiday/:id', authorize('delete', 'holiday'), deleteHolidayController);
 
 // Holiday Routes
 attendanceRouter.post(
-  '/holiday/create',
+  '/holiday',
   authorize('write', 'holiday'),
   validate(holidaySchema),
   addHolidayController,
 );
 attendanceRouter.put(
-  '/holiday/update/:id',
+  '/holiday/:id',
   authorize('update', 'holiday'),
   validate(holidayUpdateSchema),
   updateHolidayController,
