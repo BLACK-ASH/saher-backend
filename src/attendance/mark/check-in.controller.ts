@@ -3,6 +3,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { Account } from '../../database/account.model.js';
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
@@ -21,20 +22,38 @@ export const checkInController = async (req: Request, res: Response) => {
 
   // Change Bad Mai Karna Hai
 
-  // ----------------------------------------Need to uncomment after employeeType in req.user is updated ------
-  // const employeeDetails = { fullTime :{ expectedTimeHours : 10 , expectedTimeMins : 0 } , partTimeShift1 : {expectedTimeHours : 9  , expectedTimeMins : 30 } , partTimeShift2 : {expectedTimeHours : 2  , expectedTimeMins : 30 } }
+  // ----------------------------------------Need to uncomment after employeeType in req.user is updated ------\
+  const User = await Account.findById({ user: user?.id });
+  const employeeDetails = {
+    fullTime: { expectedTimeHours: 10, expectedTimeMins: 0 },
+    partTimeShift1: { expectedTimeHours: 9, expectedTimeMins: 30 },
+    partTimeShift2: { expectedTimeHours: 2, expectedTimeMins: 30 },
+  };
+  let finalEmployeeDetails;
+  if (User?.employeeType === 'full-time') {
+    finalEmployeeDetails = employeeDetails.fullTime;
+  } else if (User?.employeeShift === 'shift-1') {
+    finalEmployeeDetails = employeeDetails.partTimeShift1;
+  } else {
+    finalEmployeeDetails = employeeDetails.partTimeShift2;
+  }
 
-  // const hours  = user.employeeType==="full-time" ? employeeDetails.fullTime.expectedTimeHours  : user.employeeType === "part-time-morning" ? employeeDetails.partTimeShift1.expectedTimeHours : employeeDetails.partTimeShift2.expectedTimeHours
+  // const hours  = User?.employeeType==="full-time" ? employeeDetails.fullTime.expectedTimeHours  : User?.employeeType === "part-time-morning" ? employeeDetails.partTimeShift1.expectedTimeHours : employeeDetails.partTimeShift2.expectedTimeHours
 
   // const mins = req.user?.employeeType === "full-time" ? employeeDetails.fullTime.expectedTimeMins : user.employeeType === "part-time-morning" ? employeeDetails.partTimeShift1.expectedTimeMins : employeeDetails.partTimeShift2.expectedTimeMins
 
-  // const expectedTime = new Date()
-  // expectedTime.setHours(hours , mins , 0 ,0)
+  const expectedTime = new Date();
+  expectedTime.setHours(
+    finalEmployeeDetails.expectedTimeHours,
+    finalEmployeeDetails.expectedTimeMins,
+    0,
+    0,
+  );
 
   // ------------------------------------------------------
-  const expectedTime = new Date();
-  //Abhi ke liye aise hii hardcore data liya hai
-  expectedTime.setHours(10, 0, 0, 0);
+  // const expectedTime = new Date();
+  // //Abhi ke liye aise hii hardcore data liya hai
+  // expectedTime.setHours(10, 0, 0, 0);
 
   // Updating Cron Record
   const cronRecord = await Attendance.findOne({
