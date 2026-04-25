@@ -4,7 +4,13 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { Account } from '../../database/account.model.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { AttendanceResponseSchema } from '../retrieve/me.controller.js';
 
+const AttendanceCheckInSchema = AttendanceResponseSchema.omit({
+  user: true,
+  workHours: true,
+}).readonly();
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
   const user = req.user;
@@ -23,26 +29,30 @@ export const checkInController = async (req: Request, res: Response) => {
   // Change Bad Mai Karna Hai
 
   // ----------------------------------------Need to uncomment after employeeType in req.user is updated ------\
-  const User = await Account.findById({ user: user?.id });
+  const account = await Account.findOne({ user: user?.id });
+  if (!account) throw new ApiError(400, 'Account not found ');
   const employeeDetails = {
     fullTime: { expectedTimeHours: 10, expectedTimeMins: 0 },
     partTimeShift1: { expectedTimeHours: 9, expectedTimeMins: 30 },
     partTimeShift2: { expectedTimeHours: 2, expectedTimeMins: 30 },
   };
   let finalEmployeeDetails;
-  if (User?.employeeType === 'full-time') {
+
+  if (account?.employeeType === 'full-time') {
     finalEmployeeDetails = employeeDetails.fullTime;
-  } else if (User?.employeeShift === 'shift-1') {
+  } else if (account?.employeeShift === 'shift-1') {
     finalEmployeeDetails = employeeDetails.partTimeShift1;
-  } else {
+  } else if (account?.employeeShift === 'shift-2') {
     finalEmployeeDetails = employeeDetails.partTimeShift2;
+  } else {
+    throw new ApiError(400, 'Invalid employee configuration');
   }
 
   // const hours  = User?.employeeType==="full-time" ? employeeDetails.fullTime.expectedTimeHours  : User?.employeeType === "part-time-morning" ? employeeDetails.partTimeShift1.expectedTimeHours : employeeDetails.partTimeShift2.expectedTimeHours
 
   // const mins = req.user?.employeeType === "full-time" ? employeeDetails.fullTime.expectedTimeMins : user.employeeType === "part-time-morning" ? employeeDetails.partTimeShift1.expectedTimeMins : employeeDetails.partTimeShift2.expectedTimeMins
 
-  const expectedTime = new Date();
+  const expectedTime = new Date(now);
   expectedTime.setHours(
     finalEmployeeDetails.expectedTimeHours,
     finalEmployeeDetails.expectedTimeMins,
@@ -66,9 +76,12 @@ export const checkInController = async (req: Request, res: Response) => {
     cronRecord.status = 'present';
     cronRecord.isLate = now > expectedTime;
     await cronRecord.save();
+
+    const normalized = normalizeDoc(cronRecord);
+    const parsed = AttendanceCheckInSchema.parse(normalized);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
-      data: cronRecord,
+      data: parsed,
       statusCode: 200,
     });
   }
@@ -83,9 +96,12 @@ export const checkInController = async (req: Request, res: Response) => {
     date: standardDateString(now),
     isLate: now > expectedTime,
   });
+
+  const normalized = normalizeDoc(newRecord);
+  const parsed = AttendanceCheckInSchema.parse(normalized);
   return ApiResponse.success(res, {
     message: 'You have been marked present',
-    data: newRecord,
+    data: parsed,
     statusCode: 200,
   });
 };
