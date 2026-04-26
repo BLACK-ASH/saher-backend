@@ -3,7 +3,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { AttendanceResponseSchema, AttendanceSchemaFinal } from './me.controller.js';
+import { AttendanceResponseSchema } from './me.controller.js';
 import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
 
