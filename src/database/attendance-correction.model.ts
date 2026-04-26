@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 const attendanceRecord = new mongoose.Schema({
   inTime: {
     type: Date,
-    required: true,
+    default: null,
   },
   outTime: {
     type: Date,
-    required: true,
+    default: null,
   },
   status: {
     type: String,
@@ -34,7 +34,26 @@ const attendanceCorrectionSchema = new mongoose.Schema(
       ref: 'Attendance',
     },
     previous: { type: attendanceRecord, required: true },
-    changes: { type: attendanceRecord, required: true },
+    changes: {
+      type: {
+        inTime: {
+          type: Date,
+          required: true,
+        },
+        outTime: {
+          type: Date,
+          required: true,
+        },
+        status: {
+          type: String,
+          enum: ['present', 'absent', 'half-day'],
+        },
+        isLate: {
+          type: Boolean,
+        },
+      },
+      required: true,
+    },
     status: {
       type: String,
       enum: ['pending', 'on-hold', 'approve', 'reject'],

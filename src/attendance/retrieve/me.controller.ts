@@ -110,11 +110,11 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   }
 
   // WARN: eslint error hai isko thik kar
-  // responseData = buildResponse(parsed, workHours);
+  responseData = buildResponse(parsed, workHours);
 
   return ApiResponse.success(res, {
     message: 'Today Attendance.',
-    data: today,
+    data: responseData,
     statusCode: 200,
   });
 };

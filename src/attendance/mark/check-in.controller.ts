@@ -77,7 +77,7 @@ export const checkInController = async (req: Request, res: Response) => {
     cronRecord.isLate = now > expectedTime;
     await cronRecord.save();
 
-    const normalized = normalizeDoc(cronRecord);
+    const normalized = normalizeDoc(cronRecord.toObject());
     const parsed = AttendanceCheckInSchema.parse(normalized);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
@@ -97,7 +97,8 @@ export const checkInController = async (req: Request, res: Response) => {
     isLate: now > expectedTime,
   });
 
-  const normalized = normalizeDoc(newRecord);
+  const normalized = normalizeDoc(newRecord.toObject());
+  // console.log(normalized)
   const parsed = AttendanceCheckInSchema.parse(normalized);
   return ApiResponse.success(res, {
     message: 'You have been marked present',

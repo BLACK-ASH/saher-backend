@@ -94,7 +94,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   await setCache(key, updatedToday, 86400);
   return ApiResponse.success(res, {
     message: 'Today Attendance.',
-    data: today,
+    data: updatedToday,
     statusCode: 200,
     meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
   });

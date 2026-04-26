@@ -28,17 +28,18 @@ import { createAttendanceCron } from './cron-job/create-attendance.cron.js';
 import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { getAttendanceById } from './retrieve/get-attendance.controller.js';
+import { allAttendanceController } from './retrieve/all-attendance.controller.js';
 
 const attendanceRouter = Router();
 
 // TODO:Implement the Route in the following structured
-// method:GET path: /me function: current user status
-// method:GET path: /today function: all user status
-// method:POST path: /check-in function: to check in
+// method:GET path: /me function: current user status -- Done
+// method:GET path: /today function: all user status --- No  major change
+// method:POST path: /check-in function: to check in --- Implemented the account logic
 // method:POST path: /check-out function: to check out
-// method:GET path: /(:id/me) function: get all attendance records acc to user-id/me with pagination
-// method:GET path: /record function: get all attendance records all users with pagination
-// method:GET path: /record/:id function: get specific attendance record by attendance id
+// method:GET path: /(:id/me) function: get all attendance records acc to user-id/me with pagination --- Done
+// method:GET path: /record function: get all attendance records all users with pagination -- Done
+// method:GET path: /record/:id function: get specific attendance record by attendance id -- Done
 // Leave The Retrieve as like before
 
 attendanceRouter.get('/me', meAttendanceController);
@@ -47,9 +48,10 @@ attendanceRouter.post('/check-in', checkInController);
 attendanceRouter.post('/check-out', checkOutController);
 attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
 attendanceRouter.get('/retrieve-all', getAllUserController);
+attendanceRouter.get('/:id', allAttendanceController);
 
 // Attendance
-attendanceRouter.get('/attendance/:id', getAttendanceById);
+attendanceRouter.get('/record/:id', getAttendanceById);
 
 // Attendance Correction Route
 // TODO:Implement the Route in the following structured
