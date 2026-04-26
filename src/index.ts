@@ -13,7 +13,7 @@ import uploadRouter from './upload/upload.routes.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
-import { reimbursementRouter } from './reimbursement/bill.routes.js';
+import { BillRouter } from './reimbursement/reimbursement.routes.js';
 
 // Env Config
 dotenv.config();
@@ -52,7 +52,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 
 app.use('/api/mail', protectedRoute, mailRouter);
-app.use('/api/reimbursement', protectedRoute, reimbursementRouter);
+app.use('/api/reimbursement', protectedRoute, BillRouter);
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
 app.use(express.static(path.join(process.cwd(), 'public')));
 
