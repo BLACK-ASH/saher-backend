@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { Reimbursement } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { isPastDate } from '../../libs/utils/check-date.js';
 import { success } from 'zod';
 
 export const createBill = async (req: Request, res: Response) => {
@@ -19,7 +18,11 @@ export const createBill = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return ApiResponse.success(res, {
+  message: 'Unauthorized',
+  data: undefined,
+  statusCode: 401
+})
   }
 
   const bill = await Reimbursement.create({
@@ -29,9 +32,9 @@ export const createBill = async (req: Request, res: Response) => {
     dateOfPayment,
     description,
   });
-  return res.status(201).json({
-    success: true,
-    message: 'bill created successfully',
-    data: bill,
-  });
+  return ApiResponse.success(res, {
+  message: 'bill created successfully',
+  data: bill,
+  statusCode: 201
+})
 };

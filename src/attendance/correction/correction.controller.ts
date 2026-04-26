@@ -11,6 +11,7 @@ import { timeDifference } from '../../libs/utils/time-difference.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import mongoose from 'mongoose';
 import { removeUndefined } from '../../libs/utils/remove-undefined-value.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -22,9 +23,11 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
     .sort({ createdAt: -1 })
     .lean();
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'Attendance Correction Retrieve Successful.', data: requests });
+  return ApiResponse.success(res, {
+    message: 'Attendance Correction Retrieve Successful.',
+    data: requests,
+    statusCode: 200,
+  });
 };
 
 export const getAttendanceCorrectionById = async (req: Request, res: Response) => {
@@ -35,9 +38,11 @@ export const getAttendanceCorrectionById = async (req: Request, res: Response) =
     .populate('proof', 'src alt')
     .lean();
   if (!request) throw new ApiError(404, 'Attendance Correction Request Not Found.');
-  return res
-    .status(200)
-    .json({ success: true, message: 'Attendance Correction Retrieve Successful.', data: request });
+  return ApiResponse.success(res, {
+    message: 'Attendance Correction Retrieve Successful.',
+    data: request,
+    statusCode: 200,
+  });
 };
 
 export const getAllAttendanceCorrectionController = async (req: Request, res: Response) => {
@@ -48,9 +53,11 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
     .sort({ createdAt: -1 })
     .lean();
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'Attendance Correction Retrieve Successful.', data: requests });
+  return ApiResponse.success(res, {
+    message: 'Attendance Correction Retrieve Successful.',
+    data: requests,
+    statusCode: 200,
+  });
 };
 
 export const createAttendanceCorrectionController = async (req: Request, res: Response) => {
@@ -102,10 +109,10 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
     proof: input?.proof,
   });
 
-  return res.status(201).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Attendance Correction Request Successful.',
     data: request,
+    statusCode: 201,
   });
 };
 
@@ -220,9 +227,10 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       return;
     });
 
-    return res.status(200).json({
-      success: true,
-      ...responsePayload,
+    return ApiResponse.success(res, {
+      message: undefined,
+      data: undefined,
+      statusCode: 200,
     });
   } finally {
     await session.endSession(); // ✅ always cleanup

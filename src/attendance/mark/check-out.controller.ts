@@ -3,6 +3,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { timeDifference } from '../../libs/utils/time-difference.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -25,8 +26,10 @@ export const checkOutController = async (req: Request, res: Response) => {
     partTime: { fullWorkHours: 4, halfWorkHours: 2, graceHours: 0.5 },
   };
 
-  const final =
-    req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
+  // WARN: Change this
+  // const final = req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
+
+  const final = employeeDetails.fullTime;
 
   const workHours = Number(timeDifference(attendance.inTime as Date, now).hours.toFixed(3));
   if (!workHours) throw new ApiError(400, 'Work Hours Is Not Valid.');
@@ -43,9 +46,9 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   await attendance.save();
 
-  return res.status(200).json({
+  return ApiResponse.success(res, {
     message: 'Checked out successfully',
-    success: true,
     data: attendance,
+    statusCode: 200,
   });
 };

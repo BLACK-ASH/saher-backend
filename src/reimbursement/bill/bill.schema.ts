@@ -4,8 +4,7 @@ import z from 'zod';
 import { BillStatus } from '../../database/bill.model.js';
 import { BillRouter } from '../reimbursement.routes.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { objectId } from '../../attendance/correction/correction.schema.js';
-import { isPastDate } from '../../libs/utils/check-date.js';
+import { objectId } from '../../libs/utils/zod-object-id.js';
 
 const dateField = z.union([z.string().datetime(), z.date()]).transform((val) => new Date(val));
 

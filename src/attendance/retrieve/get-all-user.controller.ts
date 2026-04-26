@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ApiError } from '../../libs/class/api-error.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const getAllUserController = async (req: Request, res: Response) => {
   // Get the user body
@@ -59,7 +60,9 @@ export const getAllUserController = async (req: Request, res: Response) => {
     },
   }).sort({ date: sort });
 
-  return res
-    .status(200)
-    .json({ message: 'The record you asked for ', data: record, count: record.length });
+  return ApiResponse.success(res, {
+    message: 'The record you asked for ',
+    data: record,
+    statusCode: 200,
+  });
 };

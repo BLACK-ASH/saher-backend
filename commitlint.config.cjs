@@ -10,7 +10,7 @@ module.exports = {
 
     'scope-empty': [2, 'never'],
 
-    'subject-max-length': [2, 'always', 72],
+    'subject-max-length': [2, 'always', 100],
 
     'subject-case': [2, 'never', ['sentence-case', 'start-case', 'pascal-case']],
   },
