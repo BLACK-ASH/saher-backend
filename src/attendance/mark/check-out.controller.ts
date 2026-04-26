@@ -5,10 +5,12 @@ import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { Account } from '../../database/account.model.js';
 import { calculateWorkStatus } from '../../libs/utils/calculate-work-status.js';
-import { AttendanceResponseSchema } from '../retrieve/me.controller.js';
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../retrieve/me.controller.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { createKey, deleteCache, setCache } from '../../libs/redis/redis-utils.js';
 
 const AttendanceCheckOutSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
+const CheckOutSetCacheSchema = AttendanceSchemaFinal.readonly();
 export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user;
   const now = new Date();
@@ -103,8 +105,16 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   await attendance.save();
 
-  const normalized = normalizeDoc(attendance);
+  const normalized = normalizeDoc(attendance.toObject());
   const parsed = AttendanceCheckOutSchema.parse(normalized);
+
+  const cacheParsed = CheckOutSetCacheSchema.parse(normalized);
+  if (!user?.id) throw new ApiError(400, 'Unauthorized');
+  const todayKey = createKey('attendance', 'today', 'me', user?.id);
+  await deleteCache(todayKey);
+  await setCache(todayKey, cacheParsed, 14400);
+
+  // await setCache()
 
   return ApiResponse.success(res, {
     message: 'Checked out successfully',

@@ -76,13 +76,13 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     return response;
   });
 
-  const totalRecord = await Attendance.countDocuments({ date: standardDateString(now) });
+  const totalRecords = await Attendance.countDocuments({ date: standardDateString(now) });
 
   await setCache(
     key,
     {
       data: updatedToday,
-      meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+      meta: { page, limit, totalRecords, totalPages: Math.ceil(totalRecords / limit) },
     },
     86400,
   );
@@ -91,11 +91,11 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   //   message: 'Today Attendance.',
   //   data: updatedToday,
   //   meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
-  await setCache(key, updatedToday, 86400);
+  // await setCache(key, updatedToday, 86400);
   return ApiResponse.success(res, {
     message: 'Today Attendance.',
     data: updatedToday,
     statusCode: 200,
-    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+    meta: { page, limit, totalRecords, totalPages: Math.ceil(totalRecords / limit) },
   });
 };

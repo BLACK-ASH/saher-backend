@@ -60,6 +60,14 @@ export const meAttendanceController = async (req: Request, res: Response) => {
         : 'shift-2';
 
   if (cachedToday) {
+    if (cachedToday.outTime !== null) {
+      responseData = buildResponse(cachedToday, cachedToday.workHours);
+      return ApiResponse.success(res, {
+        message: 'data is Coming from Redis ',
+        data: responseData,
+        statusCode: 200,
+      });
+    }
     const result = calculateWorkStatus({ inTime: cachedToday.inTime, outTime: now, shift });
     const workHours = result.workHours;
 
