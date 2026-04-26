@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Reimbursement } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { success } from 'zod';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const createBill = async (req: Request, res: Response) => {
   // write a code create a bill
@@ -19,10 +20,10 @@ export const createBill = async (req: Request, res: Response) => {
 
   if (!userId) {
     return ApiResponse.success(res, {
-  message: 'Unauthorized',
-  data: undefined,
-  statusCode: 401
-})
+      message: 'Unauthorized',
+      data: undefined,
+      statusCode: 401,
+    });
   }
 
   const bill = await Reimbursement.create({
@@ -33,8 +34,8 @@ export const createBill = async (req: Request, res: Response) => {
     description,
   });
   return ApiResponse.success(res, {
-  message: 'bill created successfully',
-  data: bill,
-  statusCode: 201
-})
+    message: 'bill created successfully',
+    data: bill,
+    statusCode: 201,
+  });
 };
