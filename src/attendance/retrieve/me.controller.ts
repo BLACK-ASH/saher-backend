@@ -5,11 +5,10 @@ import { standardDateString } from '../../libs/utils/standard-date.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { Account } from '../../database/account.model.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../attendance.schema.js';
-import { getAccount, getAccountByUser } from '../../admin/_services/account.js';
+import { getAccountByUser } from '../../admin/_services/account.js';
 
 const AttendanceTodayMeSchema = AttendanceSchemaFinal.readonly();
 const AttendanceTodayMeResponseSchema = AttendanceResponseSchema.omit({ user: true }).readonly();

@@ -5,7 +5,6 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { CorrectionResponseSchema } from './correction.schema.js';
 import z from 'zod';
-import { count } from 'node:console';
 
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
