@@ -95,3 +95,33 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
 //     statusCode: 200,
 //   });
 // };
+
+const getAllAttendanceCorrectionSchema = z.array(
+  CorrectionResponseSchema.omit({ createdAt: true, updatedAt: true }),
+);
+export const getAllAttendanceCorrectionController = async (req: Request, res: Response) => {
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const requests = await AttendanceCorrection.find()
+    .populate('user manager', 'name role')
+    .populate('attendance', 'date')
+    .populate('proof')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const normalize = normalizeDoc(requests);
+  const parsed = getAllAttendanceCorrectionSchema.parse(normalize);
+
+  const count = await AttendanceCorrection.countDocuments();
+
+  return ApiResponse.success(res, {
+    message: 'Attendance Correction Retrieve Successful.',
+    data: parsed,
+    statusCode: 200,
+    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
+  });
+};
