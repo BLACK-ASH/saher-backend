@@ -6,31 +6,10 @@ import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { Account } from '../../database/account.model.js';
-import { calculateWorkStatus } from '../../libs/utils/calculate-work-status.js';
+import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-
-export const AttendanceSchemaFinal = z.object({
-  id: z.string(),
-  user: z.string(),
-  inTime: z.string(),
-  outTime: z.string().optional().nullable(),
-  workHours: z.number(),
-  date: z.string(),
-  status: z.string(),
-  isLate: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
-export const AttendanceResponseSchema = z.object({
-  user: z.string(),
-  inTime: z.string(),
-  outTime: z.string().nullable().optional(),
-  workHours: z.number(),
-  date: z.string(),
-  status: z.string(),
-  isLate: z.boolean(),
-});
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../attendance.schema.js';
+import { getAccount, getAccountByUser } from '../../admin/_services/account.js';
 
 const AttendanceTodayMeSchema = AttendanceSchemaFinal.readonly();
 const AttendanceTodayMeResponseSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
@@ -50,14 +29,18 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   const cachedToday = await getCache<AttendanceT>(todayKey);
 
   let responseData;
-  const account = await Account.findOne({ user: user?.id });
+  // const account = await Account.findOne({ user: user?.id });
+  // if (!account) throw new ApiError(400, 'Account not found');
+  // const shift =
+  //   account.employeeType === 'full-time'
+  //     ? 'full-time'
+  //     : account.employeeShift === 'shift-1'
+  //       ? 'shift-1'
+  //       : 'shift-2';
+  const account = await getAccountByUser(user.id);
   if (!account) throw new ApiError(400, 'Account not found');
-  const shift =
-    account.employeeType === 'full-time'
-      ? 'full-time'
-      : account.employeeShift === 'shift-1'
-        ? 'shift-1'
-        : 'shift-2';
+
+  const shift = getShift(account);
 
   if (cachedToday) {
     if (cachedToday.outTime !== null) {

@@ -5,8 +5,8 @@ import { standardDateString } from '../../libs/utils/standard-date.js';
 import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
-import { AttendanceResponseSchema, AttendanceSchemaFinal } from './me.controller.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../attendance.schema.js';
 
 const attendanceTodayResponseSchema = z
   .array(AttendanceResponseSchema.omit({ workHours: true }).extend({ user: z.string() }))
@@ -21,7 +21,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   if (userRole === 'user') throw new ApiError(400, 'Only admins and managers are permitted');
 
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 1;
+  const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
   const key = attendancetodayKey(page, limit);
@@ -76,13 +76,13 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     return response;
   });
 
-  const totalRecords = await Attendance.countDocuments({ date: standardDateString(now) });
+  const count = await Attendance.countDocuments({ date: standardDateString(now) });
 
   await setCache(
     key,
     {
       data: updatedToday,
-      meta: { page, limit, totalRecords, totalPages: Math.ceil(totalRecords / limit) },
+      meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
     },
     86400,
   );
@@ -96,6 +96,6 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     message: 'Today Attendance.',
     data: updatedToday,
     statusCode: 200,
-    meta: { page, limit, totalRecords, totalPages: Math.ceil(totalRecords / limit) },
+    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
   });
 };

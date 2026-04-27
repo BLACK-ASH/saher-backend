@@ -3,9 +3,9 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { AttendanceResponseSchema } from './me.controller.js';
 import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { AttendanceResponseSchema } from '../attendance.schema.js';
 
 // const AttendanceAllUserSchema = AttendanceSchemaFinal.readonly()
 
@@ -16,7 +16,7 @@ export const getAllUserController = async (req: Request, res: Response) => {
   let startDate, endDate;
 
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 1;
+  const limit = Number(req.query.limit) || 10;
 
   const skip = (page - 1) * limit;
 
@@ -76,7 +76,7 @@ export const getAllUserController = async (req: Request, res: Response) => {
   const normalize = normalizeDoc(record);
   const parsed = AttendanceAllUserResponseSchema.parse(normalize);
 
-  const totalRecord = await Attendance.countDocuments({
+  const count = await Attendance.countDocuments({
     date: {
       $gte: standardDateString(startDate),
       $lte: standardDateString(endDate),
@@ -91,6 +91,6 @@ export const getAllUserController = async (req: Request, res: Response) => {
     message: 'The record you asked for ',
     data: parsed,
     statusCode: 200,
-    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
   });
 };

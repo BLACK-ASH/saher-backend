@@ -4,10 +4,11 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { Account } from '../../database/account.model.js';
-import { calculateWorkStatus } from '../../libs/utils/calculate-work-status.js';
-import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../retrieve/me.controller.js';
+import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { createKey, deleteCache, setCache } from '../../libs/redis/redis-utils.js';
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../attendance.schema.js';
+import { getAccountByUser } from '../../admin/_services/account.js';
 
 const AttendanceCheckOutSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
 const CheckOutSetCacheSchema = AttendanceSchemaFinal.readonly();
@@ -26,62 +27,19 @@ export const checkOutController = async (req: Request, res: Response) => {
   // If User Is Already Check Out
   if (attendance?.outTime) throw new ApiError(400, 'You Have Already Checked Out Today');
 
-  // Calculate The Work Hour And Status
-  const employeeDetails = {
-    fullTime: {
-      fullWorkHours: 9,
-      halfWorkHours: 4.5,
-      graceHours: 1,
-      expectedTime: 9,
-      shift: 'full-time',
-    },
-    partTimeShift1: {
-      fullWorkHours: 4,
-      halfWorkHours: 2,
-      graceHours: 0.5,
-      expectedTime: 9,
-      shift: 'shift-1',
-    },
-    partTimeShift2: {
-      fullWorkHours: 4,
-      halfWorkHours: 2,
-      graceHours: 0.5,
-      expectedTime: 2,
-      shift: 'shift-2',
-    },
-  } as const;
-
-  let final;
-
-  const account = await Account.findOne({ user: user?.id });
+  // const account = await Account.findOne({ user: user?.id });
+  if (!user?.id) throw new ApiError(400, ' Unauthorized');
+  const account = await getAccountByUser(user?.id);
   if (!account) throw new ApiError(400, 'Account not found ');
 
-  if (account?.employeeType === 'full-time') {
-    final = employeeDetails.fullTime;
-  } else if (account?.employeeShift === 'shift-1') {
-    final = employeeDetails.partTimeShift1;
-  } else if (account?.employeeShift === 'shift-2') {
-    final = employeeDetails.partTimeShift2;
-  } else {
-    throw new ApiError(400, 'Invalid employee configuration');
-  }
-
-  // WARN: Change this
-  // const final = req.user?.employeeType === 'full-time' ? employeeDetails.fullTime : employeeDetails.partTime;
-
-  // const final = employeeDetails.fullTime;
-
-  // const actualWorkHours = Number(timeDifference(attendance.inTime as Date, now).hours.toFixed(3));
-  // const expectedTime = new Date(now);
-  // expectedTime.setHours(final.expectedTime, 0, 0, 0);
-  // const workHoursFromExpectedTime = Number(timeDifference(expectedTime, now).hours.toFixed(3));
+  const shift = getShift(account);
 
   if (!attendance.inTime) throw new ApiError(400, 'Intime was not found ');
 
   const workHoursAndStatus = calculateWorkStatus({
     inTime: attendance.inTime,
     outTime: now,
-    shift: final.shift,
+    shift: shift,
   });
 
   // const workHours = Math.min(actualWorkHours, workHoursFromExpectedTime);
@@ -90,12 +48,6 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   if (workHours === undefined || workHours === null)
     throw new ApiError(400, 'Work Hours Is Not Valid.');
-  // const status =
-  //   workHours === 0
-  //     ? 'absent'
-  //     : workHours > final.fullWorkHours - final.graceHours
-  //       ? 'present'
-  //       : 'half-day';
 
   const status = workHoursAndStatus.status;
 

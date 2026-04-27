@@ -48,7 +48,7 @@ attendanceRouter.post('/check-in', checkInController);
 attendanceRouter.post('/check-out', checkOutController);
 attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
 attendanceRouter.get('/retrieve-all', getAllUserController);
-attendanceRouter.get('/:id', allAttendanceController);
+attendanceRouter.get('/complete/:id', allAttendanceController);
 
 // Attendance
 attendanceRouter.get('/record/:id', getAttendanceById);
