@@ -83,10 +83,6 @@ export const getAllUserController = async (req: Request, res: Response) => {
     },
   });
 
-  // return res.status(200).json({
-  //   message: 'The record you asked for ',
-  //   data: parsed,
-  //   meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
   return ApiResponse.success(res, {
     message: 'The record you asked for ',
     data: parsed,

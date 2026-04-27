@@ -59,8 +59,6 @@ export const attendancePreviousSchema = z.object({
 export const attendanceChangesSchema = z.object({
   inTime: z.coerce.date(),
   outTime: z.coerce.date(),
-  status: z.enum(['absent', 'half-day', 'present']),
-  isLate: z.boolean(),
 });
 
 export const correctionResponseSchema = z.object({

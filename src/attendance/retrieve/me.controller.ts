@@ -50,7 +50,12 @@ export const meAttendanceController = async (req: Request, res: Response) => {
         statusCode: 200,
       });
     }
-    const result = calculateWorkStatus({ inTime: cachedToday.inTime, outTime: now, shift });
+    const result = calculateWorkStatus({
+      //WARN : fix this i have temporarily fix it using casting
+      inTime: cachedToday.inTime as unknown as Date,
+      outTime: now,
+      shift,
+    });
     const workHours = result.workHours;
 
     responseData = buildResponse(cachedToday, workHours);

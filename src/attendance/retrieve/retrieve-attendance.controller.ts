@@ -79,11 +79,6 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     },
   });
 
-  // return res.status(200).json({
-  //   success: true,
-  //   message: 'The record you asked for ',
-  //   data: record,
-  //   meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
   return ApiResponse.success(res, {
     message: 'The record you asked for ',
     data: record,
