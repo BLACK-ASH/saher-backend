@@ -3,7 +3,11 @@ import { AttendanceCorrection } from '../../database/attendance-correction.model
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-import { AttendanceCorrectionInputType, attendanceRecordSchema } from './correction.schema.js';
+import {
+  attendanceChangesSchema,
+  AttendanceCorrectionInputType,
+  attendancePreviousSchema,
+} from './correction.schema.js';
 import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
 
@@ -30,10 +34,10 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
   }
 
   // Parse previous (DB data)
-  const previous = attendanceRecordSchema.parse(attendance);
+  const previous = attendancePreviousSchema.parse(attendance);
 
   // Parse changes (input)
-  const changesParsed = attendanceRecordSchema.safeParse({
+  const changesParsed = attendanceChangesSchema.safeParse({
     inTime: input.inTime,
     outTime: input.outTime,
   });

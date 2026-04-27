@@ -49,13 +49,21 @@ export const attendanceCorrectionHandleSchema = z
     }
   });
 
-export const attendanceRecordSchema = attendanceCorrectionSchema.omit({
-  attendanceId: true,
-  message: true,
-  proof: true,
+export const attendancePreviousSchema = z.object({
+  inTime: z.coerce.date().nullable(),
+  outTime: z.coerce.date().nullable(),
+  status: z.enum(['absent', 'half-day', 'present']),
+  isLate: z.boolean(),
 });
 
-export const CorrectionResponseSchema = z.object({
+export const attendanceChangesSchema = z.object({
+  inTime: z.coerce.date(),
+  outTime: z.coerce.date(),
+  status: z.enum(['absent', 'half-day', 'present']),
+  isLate: z.boolean(),
+});
+
+export const correctionResponseSchema = z.object({
   id: z.string(),
   user: z.object({
     id: z.string(),
@@ -66,19 +74,21 @@ export const CorrectionResponseSchema = z.object({
     id: z.string(),
     date: z.string(),
   }),
-  previous: z.object({
-    inTime: z.string(),
-    outTime: z.string().nullable().optional(),
-  }),
-  changes: z.object({
-    inTime: z.string(),
-    outTime: z.string(),
-  }),
+  previous: attendancePreviousSchema,
+  changes: attendanceChangesSchema,
   status: z.string(),
   message: z.string(),
   reason: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  manager: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      role: z.string(),
+    })
+    .optional(),
 });
+
+export const correctionResponsListSchema = z.array(correctionResponseSchema);
+
 export type AttendanceCorrectionInputType = z.infer<typeof attendanceCorrectionSchema>;
 export type AttendanceCorrectionHandleInputType = z.infer<typeof attendanceCorrectionHandleSchema>;

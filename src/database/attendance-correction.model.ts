@@ -79,6 +79,6 @@ const attendanceCorrectionSchema = new mongoose.Schema(
 attendanceCorrectionSchema.index({ attendance: 1 });
 type AttendanceCorrectionType = mongoose.InferSchemaType<typeof attendanceCorrectionSchema>;
 export const AttendanceCorrection = mongoose.model<AttendanceCorrectionType>(
-  'AttendenceCorrection',
+  'AttendanceCorrection',
   attendanceCorrectionSchema,
 );
