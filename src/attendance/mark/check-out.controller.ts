@@ -6,11 +6,11 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { createKey, deleteCache, setCache } from '../../libs/redis/redis-utils.js';
-import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../retrieve/attendance.schema.js';
+import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
 
-const AttendanceCheckOutSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
-const CheckOutSetCacheSchema = AttendanceSchemaFinal.readonly();
+// const AttendanceCheckOutSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
+// const CheckOutSetCacheSchema = AttendanceSchemaFinal.readonly();
 export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user;
   const now = new Date();
@@ -19,14 +19,13 @@ export const checkOutController = async (req: Request, res: Response) => {
     user: user?.id,
     date: standardDateString(now),
     inTime: { $ne: null },
-  });
+  }).populate('user', 'name  email role ');
 
   //  If User Is Not Check In
   if (!attendance) throw new ApiError(400, 'You Have Not Checked in Today.');
   // If User Is Already Check Out
   if (attendance?.outTime) throw new ApiError(400, 'You Have Already Checked Out Today');
 
-  // const account = await Account.findOne({ user: user?.id });
   if (!user?.id) throw new ApiError(400, ' Unauthorized');
   const account = await getAccountByUser(user?.id);
   if (!account) throw new ApiError(400, 'Account not found ');
@@ -41,8 +40,6 @@ export const checkOutController = async (req: Request, res: Response) => {
     shift: shift,
   });
 
-  // const workHours = Math.min(actualWorkHours, workHoursFromExpectedTime);
-
   const workHours = workHoursAndStatus.workHours;
 
   if (workHours === undefined || workHours === null)
@@ -56,16 +53,14 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   await attendance.save();
 
-  const normalized = normalizeDoc(attendance.toObject());
-  const parsed = AttendanceCheckOutSchema.parse(normalized);
+  const normalized = normalizeDoc(attendance);
+  const parsed = attendanceResponseSchema.parse(normalized);
 
-  const cacheParsed = CheckOutSetCacheSchema.parse(normalized);
+  // const cacheParsed = CheckOutSetCacheSchema.parse(normalized);
   if (!user?.id) throw new ApiError(400, 'Unauthorized');
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
   await deleteCache(todayKey);
-  await setCache(todayKey, cacheParsed, 14400);
-
-  // await setCache()
+  await setCache(todayKey, parsed, 14400);
 
   return ApiResponse.success(res, {
     message: 'Checked out successfully',

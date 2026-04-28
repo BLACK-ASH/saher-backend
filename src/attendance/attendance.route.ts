@@ -61,7 +61,7 @@ attendanceRouter.get('/record/:id', getAttendanceById);
 // method:PUT path: /correction/:id function: handle attendance correction  ----Done
 
 attendanceRouter.get('/correction/:id', getAttendanceCorrectionController);
-// attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById);
+// attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById); --- We dont need this now
 attendanceRouter.get('/admin/correction', getAllAttendanceCorrectionController);
 attendanceRouter.post(
   '/correction',

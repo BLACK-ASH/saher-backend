@@ -3,13 +3,10 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { AttendanceResponseSchema } from './attendance.schema.js';
+import { attendanceListSchema } from './attendance.schema.js';
 
 // const AttendanceAllUserSchema = AttendanceSchemaFinal.readonly()
-
-const AttendanceAllUserResponseSchema = z.array(AttendanceResponseSchema).readonly();
 
 export const getAllUserController = async (req: Request, res: Response) => {
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate
@@ -68,13 +65,14 @@ export const getAllUserController = async (req: Request, res: Response) => {
       $lte: standardDateString(endDate),
     },
   })
+    .populate('user', 'name email role ')
     .sort({ date: sort })
     .skip(skip)
     .limit(limit)
     .lean();
 
   const normalize = normalizeDoc(record);
-  const parsed = AttendanceAllUserResponseSchema.parse(normalize);
+  const parsed = attendanceListSchema.parse(normalize);
 
   const count = await Attendance.countDocuments({
     date: {

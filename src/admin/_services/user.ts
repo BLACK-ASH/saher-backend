@@ -21,6 +21,10 @@ export const userSchemaFinal = userSchema
   .omit({ password: true })
   .readonly();
 
+export const shortUserSchema = userSchema
+  .pick({ name: true, email: true, role: true })
+  .extend({ id: z.string() });
+
 export type UserT = z.infer<typeof userSchemaFinal>;
 
 export const getUser = async (id: string) => {

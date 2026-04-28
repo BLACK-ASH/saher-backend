@@ -3,9 +3,8 @@ import { Attendance } from '../../database/attendance.model.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { AttendanceResponseSchema } from './attendance.schema.js';
+import { attendanceListSchema } from './attendance.schema.js';
 
-const AttendanceAllSchema = z.array(AttendanceResponseSchema.omit({ user: true }).readonly());
 export const allAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
   let id;
@@ -21,6 +20,7 @@ export const allAttendanceController = async (req: Request, res: Response) => {
   const skip = (page - 1) * limit;
 
   const record = await Attendance.find({ user: id })
+    .populate('user', 'name email role ')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -29,7 +29,7 @@ export const allAttendanceController = async (req: Request, res: Response) => {
   const count = await Attendance.countDocuments({ user: id });
 
   const normalized = normalizeDoc(record);
-  const parsed = AttendanceAllSchema.parse(normalized);
+  const parsed = attendanceListSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'All Attendance ',

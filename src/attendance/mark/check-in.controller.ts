@@ -6,12 +6,9 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
 import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
-import { AttendanceResponseSchema } from '../retrieve/attendance.schema.js';
+import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
 
-const AttendanceCheckInSchema = AttendanceResponseSchema.omit({
-  user: true,
-  workHours: true,
-}).readonly();
+const AttendanceCheckInSchema = attendanceResponseSchema.readonly();
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
   const user = req.user;
@@ -24,7 +21,7 @@ export const checkInController = async (req: Request, res: Response) => {
     user: user?.id,
     date: standardDateString(now),
     inTime: { $ne: null },
-  });
+  }).populate('user', 'name role email ');
   //Step 3 - Agr haa toh oosko dubara attendence mark karne mat do
   // Using Custom Api Error Handler To Automatically handle error response
   if (existingRecord) throw new ApiError(400, 'You Have Already Check In Today.');
@@ -53,7 +50,7 @@ export const checkInController = async (req: Request, res: Response) => {
     await cronRecord.save();
 
     const normalized = normalizeDoc(cronRecord.toObject());
-    const parsed = AttendanceCheckInSchema.parse(normalized);
+    const parsed = attendanceResponseSchema.parse(normalized);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
       data: parsed,
@@ -74,7 +71,7 @@ export const checkInController = async (req: Request, res: Response) => {
 
   const normalized = normalizeDoc(newRecord.toObject());
   // console.log(normalized)
-  const parsed = AttendanceCheckInSchema.parse(normalized);
+  const parsed = attendanceResponseSchema.parse(normalized);
   return ApiResponse.success(res, {
     message: 'You have been marked present',
     data: parsed,

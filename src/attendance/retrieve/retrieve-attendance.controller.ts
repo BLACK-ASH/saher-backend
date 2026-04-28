@@ -3,6 +3,8 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { attendanceListSchema } from './attendance.schema.js';
 
 export const retrieveAttendanceController = async (req: Request, res: Response) => {
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate
@@ -69,9 +71,11 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
   })
     .sort({ date: sort })
     .skip(skip)
-    .limit(limit);
+    .populate('user', 'name email role ')
+    .limit(limit)
+    .lean();
 
-  const totalRecord = await Attendance.countDocuments({
+  const count = await Attendance.countDocuments({
     user: id,
     date: {
       $gte: standardDateString(startDate),
@@ -79,10 +83,13 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     },
   });
 
+  const normalized = normalizeDoc(record);
+  const parsed = attendanceListSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'The record you asked for ',
-    data: record,
+    data: parsed,
     statusCode: 200,
-    meta: { page, limit, totalRecord, totalPages: Math.ceil(totalRecord / limit) },
+    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
   });
 };
