@@ -5,7 +5,7 @@ import { standardDateString } from '../../libs/utils/standard-date.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { AttendanceResponseSchema } from '../attendance.schema.js';
+import { AttendanceResponseSchema } from './attendance.schema.js';
 
 // const AttendanceAllUserSchema = AttendanceSchemaFinal.readonly()
 

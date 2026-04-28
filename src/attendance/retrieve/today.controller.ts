@@ -6,7 +6,7 @@ import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../attendance.schema.js';
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from './attendance.schema.js';
 
 const attendanceTodayResponseSchema = z
   .array(AttendanceResponseSchema.omit({ workHours: true }).extend({ user: z.string() }))

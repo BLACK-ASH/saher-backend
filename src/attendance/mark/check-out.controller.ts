@@ -6,7 +6,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { createKey, deleteCache, setCache } from '../../libs/redis/redis-utils.js';
-import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../attendance.schema.js';
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../retrieve/attendance.schema.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
 
 const AttendanceCheckOutSchema = AttendanceResponseSchema.omit({ user: true }).readonly();

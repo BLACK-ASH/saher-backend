@@ -3,7 +3,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import z from 'zod';
-import { AttendanceResponseSchema } from '../attendance.schema.js';
+import { AttendanceResponseSchema } from './attendance.schema.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 const AttendanceByIdSchema = AttendanceResponseSchema.extend({

@@ -7,11 +7,26 @@ import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { AttendanceResponseSchema, AttendanceSchemaFinal } from '../attendance.schema.js';
+import { AttendanceResponseSchema, AttendanceSchemaFinal } from './attendance.schema.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
+
+const defaultResponse = {
+  inTime: null,
+  outTime: null,
+  workHours: 0,
+  date: standardDateString(new Date()),
+  status: 'absent',
+  isLate: true,
+};
 
 const AttendanceTodayMeSchema = AttendanceSchemaFinal.readonly();
 const AttendanceTodayMeResponseSchema = AttendanceResponseSchema.omit({ user: true }).readonly();
+type AttendanceT = z.infer<typeof AttendanceTodayMeSchema>;
+
+export const buildResponse = (data: AttendanceT, workHours: number) => {
+  return AttendanceTodayMeResponseSchema.parse({ ...data, workHours });
+};
+
 export const meAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
   if (!user?.id) throw new ApiError(400, 'Forbidden user');
@@ -20,22 +35,9 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
 
-  type AttendanceT = z.infer<typeof AttendanceTodayMeSchema>;
-  const buildResponse = (data: AttendanceT, workHours: number) => {
-    return AttendanceTodayMeResponseSchema.parse({ ...data, workHours });
-  };
-
   const cachedToday = await getCache<AttendanceT>(todayKey);
 
   let responseData;
-  // const account = await Account.findOne({ user: user?.id });
-  // if (!account) throw new ApiError(400, 'Account not found');
-  // const shift =
-  //   account.employeeType === 'full-time'
-  //     ? 'full-time'
-  //     : account.employeeShift === 'shift-1'
-  //       ? 'shift-1'
-  //       : 'shift-2';
   const account = await getAccountByUser(user.id);
   if (!account) throw new ApiError(400, 'Account not found');
 
@@ -50,6 +52,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
         statusCode: 200,
       });
     }
+
     const result = calculateWorkStatus({
       //WARN : fix this i have temporarily fix it using casting
       inTime: cachedToday.inTime as unknown as Date,

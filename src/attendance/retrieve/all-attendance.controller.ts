@@ -3,7 +3,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { AttendanceResponseSchema } from '../attendance.schema.js';
+import { AttendanceResponseSchema } from './attendance.schema.js';
 
 const AttendanceAllSchema = z.array(AttendanceResponseSchema.omit({ user: true }).readonly());
 export const allAttendanceController = async (req: Request, res: Response) => {

@@ -6,7 +6,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
 import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
-import { AttendanceResponseSchema } from '../attendance.schema.js';
+import { AttendanceResponseSchema } from '../retrieve/attendance.schema.js';
 
 const AttendanceCheckInSchema = AttendanceResponseSchema.omit({
   user: true,
