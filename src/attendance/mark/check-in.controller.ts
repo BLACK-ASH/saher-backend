@@ -8,7 +8,6 @@ import { getAccountByUser } from '../../admin/_services/account.js';
 import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
 import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
 
-const AttendanceCheckInSchema = attendanceResponseSchema.readonly();
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
   const user = req.user;

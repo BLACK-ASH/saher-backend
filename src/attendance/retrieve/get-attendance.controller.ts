@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import z from 'zod';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { attendanceResponseSchema } from './attendance.schema.js';
 
