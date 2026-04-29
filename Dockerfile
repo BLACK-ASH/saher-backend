@@ -4,7 +4,7 @@ RUN apk add --no-cache curl
 
 WORKDIR /app
 
-RUN npm i -g pnpm
+RUN corepack enable
 
 COPY package.json ./
 

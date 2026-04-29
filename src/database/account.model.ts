@@ -1,81 +1,88 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-export type EmployeeType = "part-time" | "full-time" | "volunteer"
+export type EmployeeType = 'part-time' | 'full-time' | 'volunteer';
 
-const accountSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    require: true,
-    unique: true
+const accountSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      unique: true,
+    },
+    employeeId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'other'],
+      required: true,
+    },
+    dateOfBirth: {
+      type: Date,
+      required: true,
+    },
+    dateOfJoining: {
+      type: Date,
+      required: true,
+    },
+    employeeType: {
+      type: String,
+      enum: ['full-time', 'part-time', 'volunteer'],
+      default: 'full-time',
+    },
+    employeeShift: {
+      type: String,
+      enum: ['shift-1', 'shift-2'],
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    secondaryPhoneNumber: {
+      type: String,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+    department: {
+      type: String,
+      required: true,
+    },
+    designation: {
+      type: String,
+      required: true,
+    },
+    salaryStructure: {
+      type: String,
+      required: true,
+    },
+    bank: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Bank',
+      required: true,
+    },
+    aadhar: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Media',
+      required: true,
+    },
+    pan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Media',
+      required: true,
+    },
+    resume: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Media',
+      required: true,
+    },
   },
-  sessions: {
-    type: [String]
-  },
-  employeeId: {
-    type: String,
-    require: true,
-    unique: true
-  },
-  gender: {
-    type: String,
-    enum: ["male", "female", "other"],
-    require: true
-  },
-  dateOfBirth: {
-    type: Date,
-    require: true
-  },
-  dateOfJoining: {
-    type: Date,
-    require: true
-  },
-  employeeType: {
-    type: String,
-    enum: ["full-time", "part-time", "volunteer"],
-    default: "full-time",
-  },
-  phoneNumber: {
-    type: String,
-    require: true
-  },
-  secondaryPhoneNumber: {
-    type: String,
-  },
-  address: {
-    type: String,
-    require: true
-  },
-  department: {
-    type: String,
-    require: true
-  },
-  designation: {
-    type: String,
-    require: true
-  },
-  salaryStructure: {
-    type: String,
-    require: true
-  },
-  bankDetail: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "BankDetail"
-  },
-  aadhar: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Media"
-  },
-  pan: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Media"
-  },
-  resume: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Media"
-  },
-}, { timestamps: true })
+  { timestamps: true },
+);
 
-export type AccountType = mongoose.InferSchemaType<typeof accountSchema>
-export const Account = mongoose.model<AccountType>("Account", accountSchema)
-
+export type AccountType = mongoose.InferSchemaType<typeof accountSchema>;
+export const Account = mongoose.model<AccountType>('Account', accountSchema);

@@ -4,4 +4,3 @@ properties:
     type: string
   refreshToken:
     type: string
-
