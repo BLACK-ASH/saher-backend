@@ -40,7 +40,7 @@ export const checkInController = async (req: Request, res: Response) => {
   const cronRecord = await Attendance.findOne({
     user: user?.id,
     date: standardDateString(now),
-  });
+  }).populate('user', 'name email role');
 
   if (cronRecord) {
     cronRecord.inTime = now;
@@ -68,7 +68,9 @@ export const checkInController = async (req: Request, res: Response) => {
     isLate,
   });
 
-  const normalized = normalizeDoc(newRecord.toObject());
+  const populated = await newRecord.populate('user', 'name email role');
+
+  const normalized = normalizeDoc(populated.toObject());
   // console.log(normalized)
   const parsed = attendanceResponseSchema.parse(normalized);
   return ApiResponse.success(res, {

@@ -53,7 +53,7 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   await attendance.save();
 
-  const normalized = normalizeDoc(attendance);
+  const normalized = normalizeDoc(attendance.toObject());
   const parsed = attendanceResponseSchema.parse(normalized);
 
   // const cacheParsed = CheckOutSetCacheSchema.parse(normalized);
