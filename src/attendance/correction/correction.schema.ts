@@ -1,5 +1,6 @@
 import z from 'zod';
 import { objectId } from '../../libs/utils/zod-object-id.js';
+import { userSchemaFinal } from '../../admin/_services/user.js';
 
 export const attendanceCorrectionSchema = z.object({
   attendanceId: objectId('Invalid Attendance Id.'),
@@ -63,11 +64,7 @@ export const attendanceChangesSchema = z.object({
 
 export const correctionResponseSchema = z.object({
   id: z.string(),
-  user: z.object({
-    id: z.string(),
-    name: z.string(),
-    role: z.string(),
-  }),
+  user: userSchemaFinal,
   attendance: z.object({
     id: z.string(),
     date: z.string(),
@@ -77,13 +74,7 @@ export const correctionResponseSchema = z.object({
   status: z.string(),
   message: z.string(),
   reason: z.string(),
-  manager: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-      role: z.string(),
-    })
-    .optional(),
+  manager: userSchemaFinal.optional(),
 });
 
 export const correctionResponsListSchema = z.array(correctionResponseSchema);

@@ -32,7 +32,10 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
   }
 
   const requests = await AttendanceCorrection.find({ user: id })
-    .populate('user manager', 'name role')
+    .populate({
+      path: 'user manager',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .populate('attendance', 'date')
     .populate('proof', 'src alt')
     .sort({ createdAt: sort === 'asc' ? 1 : -1 })
@@ -59,7 +62,10 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
   const sort = req.query.sort === 'asc' ? 'asc' : 'desc';
 
   const requests = await AttendanceCorrection.find()
-    .populate('user manager', 'name role')
+    .populate({
+      path: 'user manager',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .populate('attendance', 'date')
     .populate('proof')
     .sort({ createdAt: sort === 'asc' ? 1 : -1 })
@@ -78,18 +84,3 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
     meta: { page, limit, count, total: Math.ceil(count / limit) },
   });
 };
-
-// export const getAttendanceCorrectionById = async (req: Request, res: Response) => {
-//   const id = req.params.id;
-//   const request = await AttendanceCorrection.findById(id)
-//     .populate('user manager', 'name role')
-//     .populate('attendance', 'date')
-//     .populate('proof', 'src alt')
-//     .lean();
-//   if (!request) throw new ApiError(404, 'Attendance Correction Request Not Found.');
-//   return ApiResponse.success(res, {
-//     message: 'Attendance Correction Retrieve Successful.',
-//     data: request,
-//     statusCode: 200,
-//   });
-// };
