@@ -81,3 +81,4 @@ export const correctionResponsListSchema = z.array(correctionResponseSchema);
 
 export type AttendanceCorrectionInputType = z.infer<typeof attendanceCorrectionSchema>;
 export type AttendanceCorrectionHandleInputType = z.infer<typeof attendanceCorrectionHandleSchema>;
+export type AttendanceCorrectionResponse = z.infer<typeof correctionResponseSchema>;

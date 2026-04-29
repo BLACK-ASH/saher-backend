@@ -12,6 +12,7 @@ import {
 } from '../../libs/utils/calculate-work-status.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 
 export const handleAttendanceCorrectionController = async (req: Request, res: Response) => {
   const input: AttendanceCorrectionHandleInputType = req.body;
@@ -132,6 +133,8 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
 
       return;
     });
+
+    await deleteCacheGroup('attendance', 'correction');
 
     return ApiResponse.success(res, {
       message: responsePayload.message,

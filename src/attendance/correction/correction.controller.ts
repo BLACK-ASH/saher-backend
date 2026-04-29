@@ -3,7 +3,8 @@ import { AttendanceCorrection } from '../../database/attendance-correction.model
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { correctionResponsListSchema } from './correction.schema.js';
+import { AttendanceCorrectionResponse, correctionResponsListSchema } from './correction.schema.js';
+import { createKey, getCache, setCacheWithGroup } from '../../libs/redis/redis-utils.js';
 
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -31,6 +32,15 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
     id = userID;
   }
 
+  const key = createKey('attendance', 'correction', id, limit, page, sort);
+  const cache = await getCache<{
+    message: string;
+    data: AttendanceCorrectionResponse[];
+    meta: { total: number; page: number; count: number; limit: number };
+  }>(key);
+
+  if (cache) return ApiResponse.success(res, cache);
+
   const requests = await AttendanceCorrection.find({ user: id })
     .populate({
       path: 'user manager',
@@ -47,12 +57,15 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
   const parsed = correctionResponsListSchema.parse(normalize);
   const count = await AttendanceCorrection.countDocuments({ user: id });
 
-  return ApiResponse.success(res, {
+  const body = {
     message: 'Attendance Correction Retrieve Successful.',
     data: parsed,
-    statusCode: 200,
     meta: { page, limit, count, total: Math.ceil(count / limit) },
-  });
+  };
+
+  await setCacheWithGroup(key, body, ['attendance', 'correction']);
+
+  return ApiResponse.success(res, body);
 };
 
 export const getAllAttendanceCorrectionController = async (req: Request, res: Response) => {
@@ -60,6 +73,15 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
   const sort = req.query.sort === 'asc' ? 'asc' : 'desc';
+  const key = createKey('attendance', 'correction', 'list', limit, page, sort);
+
+  const cache = await getCache<{
+    message: string;
+    data: AttendanceCorrectionResponse[];
+    meta: { total: number; page: number; count: number; limit: number };
+  }>(key);
+
+  if (cache) return ApiResponse.success(res, cache);
 
   const requests = await AttendanceCorrection.find()
     .populate({
@@ -77,10 +99,13 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
   const parsed = correctionResponsListSchema.parse(normalize);
   const count = await AttendanceCorrection.countDocuments();
 
-  return ApiResponse.success(res, {
+  const body = {
     message: 'Attendance Correction Retrieve Successful.',
     data: parsed,
-    statusCode: 200,
     meta: { page, limit, count, total: Math.ceil(count / limit) },
-  });
+  };
+
+  await setCacheWithGroup(key, body, ['attendance', 'correction']);
+
+  return ApiResponse.success(res, body);
 };
