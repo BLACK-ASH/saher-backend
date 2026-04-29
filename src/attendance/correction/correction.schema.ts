@@ -72,6 +72,13 @@ export const correctionResponseSchema = z.object({
   previous: attendancePreviousSchema,
   changes: attendanceChangesSchema,
   status: z.string(),
+  proof: z
+    .object({
+      id: z.string(),
+      src: z.string(),
+      alt: z.string(),
+    })
+    .optional(),
   message: z.string(),
   reason: z.string(),
   manager: userSchemaFinal.optional(),
