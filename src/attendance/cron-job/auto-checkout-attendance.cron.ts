@@ -4,12 +4,13 @@ import { Attendance } from '../../database/attendance.model.js';
 import { timeDifference } from '../../libs/utils/time-difference.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import 'dotenv/config';
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
 
   // 🔐 Basic protection (use ENV in production)
-  if (pass !== 'super') {
+  if (pass !== process.env.CRON_SECRET) {
     throw new ApiError(403, 'Forbidden. You are not allowed to perform this action.');
   }
 

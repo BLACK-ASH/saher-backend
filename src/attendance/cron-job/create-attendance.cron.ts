@@ -4,12 +4,13 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { User } from '../../database/user.model.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import 'dotenv/config';
 
 export const createAttendanceCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
 
   // 🔐 Basic protection (replace with ENV later)
-  if (pass !== 'super') {
+  if (pass !== process.env.CRON_SECRET) {
     throw new ApiError(403, 'Forbidden. You are not allowed to perform this action.');
   }
 
