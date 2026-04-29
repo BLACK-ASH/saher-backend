@@ -1,43 +1,67 @@
-import { Request, Response } from "express"
-import { Attendance } from "../../database/attendance.model.js"
-import { ApiError } from "../../libs/class/api-error.js";
-import { timeDifference } from "../../libs/utils/time-difference.js";
-
+import { Request, Response } from 'express';
+import { Attendance } from '../../database/attendance.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
+import { getAccountByUser } from '../../admin/_services/account.js';
 
 export const checkOutController = async (req: Request, res: Response) => {
-  const user = req.user
-  const now = new Date()
+  const user = req.user;
+  const now = new Date();
 
   const attendance = await Attendance.findOne({
     user: user?.id,
-    date: now.toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"}),
-    inTime: { $ne: null }
-  })
+    date: standardDateString(now),
+    inTime: { $ne: null },
+  }).populate('user', 'name  email role ');
 
-  // If User Is Not Check In
-  if (!attendance) throw new ApiError(400, "You Have Not Checked Out Today.")
+  //  If User Is Not Check In
+  if (!attendance) throw new ApiError(400, 'You Have Not Checked in Today.');
   // If User Is Already Check Out
-  if (attendance?.outTime) throw new ApiError(400, "You Have Already Checked Out Today")
+  if (attendance?.outTime) throw new ApiError(400, 'You Have Already Checked Out Today');
 
-  // Calculate The Work Hour And Status
-  const employeeDetails = { fullTime :{fullWorkHours:9 , halfWorkHours : 4.5 , graceHours : 1   } , partTime : {fullWorkHours:4 , halfWorkHours : 2 , graceHours : 0.5   }}
- 
-  const  final =  req.user?.employeeType === "full-time" ? employeeDetails.fullTime : employeeDetails.partTime
+  if (!user?.id) throw new ApiError(400, ' Unauthorized');
+  const account = await getAccountByUser(user?.id);
+  if (!account) throw new ApiError(400, 'Account not found ');
 
-  const workHours = timeDifference(attendance.inTime as Date, now).hours
-  if (!workHours) throw new ApiError(400, "Work Hours Is Not Valid.")
-  const status = workHours === 0 ? "absent" : workHours > (final.fullWorkHours- final.graceHours) ? "present" : "half-day"
+  const shift = getShift(account);
 
-  attendance.outTime = now
-  attendance.status = status
-  attendance.workHours = workHours
+  if (!attendance.inTime) throw new ApiError(400, 'Intime was not found ');
 
-  await attendance.save()
-  
-  return res.status(200).json({
-    message: "Checked out successfully",
-    success: true,
-    data: attendance
-  })
+  const workHoursAndStatus = calculateWorkStatus({
+    inTime: attendance.inTime,
+    outTime: now,
+    shift: shift,
+  });
 
-}
+  const workHours = workHoursAndStatus.workHours;
+
+  if (workHours === undefined || workHours === null)
+    throw new ApiError(400, 'Work Hours Is Not Valid.');
+
+  const status = workHoursAndStatus.status;
+
+  attendance.outTime = now;
+  attendance.status = status;
+  attendance.workHours = workHours;
+
+  await attendance.save();
+
+  const normalized = normalizeDoc(attendance.toObject());
+  const parsed = attendanceResponseSchema.parse(normalized);
+
+  // const cacheParsed = CheckOutSetCacheSchema.parse(normalized);
+  if (!user?.id) throw new ApiError(400, 'Unauthorized');
+  const todayKey = createKey('attendance', 'today', 'me', user?.id);
+  await deleteCache(todayKey);
+
+  return ApiResponse.success(res, {
+    message: 'Checked out successfully',
+    data: parsed,
+    statusCode: 200,
+  });
+};

@@ -1,18 +1,21 @@
-import { Request, Response } from "express";
-import { ApiError } from "../../libs/class/api-error.js";
-import { Attendance } from "../../database/attendance.model.js";
-import { timeDifference } from "../../libs/utils/time-difference.js";
+import { Request, Response } from 'express';
+import { ApiError } from '../../libs/class/api-error.js';
+import { Attendance } from '../../database/attendance.model.js';
+import { timeDifference } from '../../libs/utils/time-difference.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import 'dotenv/config';
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
 
   // 🔐 Basic protection (use ENV in production)
-  if (pass !== "super") {
-    throw new ApiError(403, "Forbidden. You are not allowed to perform this action.");
+  if (pass !== process.env.CRON_SECRET) {
+    throw new ApiError(403, 'Forbidden. You are not allowed to perform this action.');
   }
 
   // 📅 Today (same format you are using)
-  const today = new Date().toLocaleDateString("en-CA",{timeZone : "Asia/Kolkata"});
+  const today = standardDateString(new Date());
 
   // 🕕 Default checkout time (6 PM IST)
   const defaultOutTime = new Date();
@@ -26,10 +29,10 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
   }).lean();
 
   if (!records.length) {
-    return res.status(200).json({
-      success: true,
-      message: "No pending auto checkouts.",
+    return ApiResponse.success(res, {
+      message: 'No pending auto checkouts.',
       data: { updated: 0 },
+      statusCode: 200,
     });
   }
 
@@ -38,10 +41,10 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
     const inTime = new Date(record.inTime as Date);
 
     // ⏱ Calculate work hours
-    const workHours = timeDifference(defaultOutTime, inTime).hours
+    const workHours = timeDifference(defaultOutTime, inTime).hours;
 
     // 📊 Decide status
-    const status = workHours < 5 ? "half-day" : "present";
+    const status = workHours < 5 ? 'half-day' : 'present';
 
     return {
       updateOne: {
@@ -61,11 +64,11 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
   // 🚀 Execute bulk update
   await Attendance.bulkWrite(bulkOps);
 
-  return res.status(200).json({
-    success: true,
-    message: "Auto checkout completed successfully.",
+  return ApiResponse.success(res, {
+    message: 'Auto checkout completed successfully.',
     data: {
       updated: bulkOps.length,
     },
+    statusCode: 200,
   });
 };

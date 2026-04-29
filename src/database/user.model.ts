@@ -1,55 +1,64 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-export type UserRole = "user" | "manager" | "admin"
+export type UserRole = 'user' | 'manager' | 'admin';
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    require: true
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    displayName: {
+      type: String,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    role: {
+      type: String,
+      enum: ['user', 'manager', 'admin'],
+      default: 'user',
+    },
+    image: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Media',
+      required: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    deletedAt: {
+      type: Date,
+    },
+    deleteBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    bannedAt: {
+      type: Date,
+    },
+    bannedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
-  displayName: {
-    type: String,
-  },
-  email: {
-    type: String,
-    require: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    require: true,
-  },
-  emailVerified: {
-    type: Boolean,
-    default: false
-  },
-  role: {
-    type: String,
-    enum: ["user", "manager", "admin"],
-    default: "user"
-  },
-  image: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Media",
-    require: true
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  isBanned: {
-    type: Boolean,
-    default: false
-  },
-  deletedAt: {
-    type: Date
-  },
-  deleteBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  },
-}, { timestamps: true })
+  { timestamps: true },
+);
 
-type UserType = mongoose.InferSchemaType<typeof userSchema>
-export const User = mongoose.model<UserType>("User", userSchema)
-
+export type UserType = mongoose.InferSchemaType<typeof userSchema>;
+export const User = mongoose.model<UserType>('User', userSchema);

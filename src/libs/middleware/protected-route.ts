@@ -1,63 +1,72 @@
-import { NextFunction, Request, Response } from "express";
-import { generateToken, ReqUser, verifyAccessToken, verifyRefreshToken } from "../utils/jwt-token.js";
+import { NextFunction, Request, Response } from 'express';
+import {
+  generateToken,
+  ReqUser,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from '../utils/jwt-token.js';
+import { ApiError } from '../class/api-error.js';
 
 export const protectedRoute = async (req: Request, res: Response, next: NextFunction) => {
-
   try {
+    const access = req.cookies?.saher_access_token;
+    const refresh = req.cookies?.saher_refresh_token;
+    const isProd = process.env.NODE_ENV === 'production';
 
-    const access = req.cookies?.saher_access_token
-    const refresh = req.cookies?.saher_refresh_token
+    if (!access) {
+      if (!refresh) {
+        throw new ApiError(401, 'Login Required.');
+      }
 
-    if (!access && !refresh) {
-      return res.status(401).json({ success: false, message: "Login Required." })
-    }
-
-    if (!access && refresh) {
-      const verifyToken = verifyRefreshToken(refresh)
-
+      const verifyToken = verifyRefreshToken(refresh);
       if (!verifyToken) {
-        return res.status(401).json({ success: false, message: "Login Required." })
+        throw new ApiError(401, 'Invalid Refresh Token.');
       }
 
       const user: ReqUser = {
         id: verifyToken.id,
         name: verifyToken.name,
         role: verifyToken.role,
-        employeeType: verifyToken.employeeType
-      }
+        email: verifyToken.email,
+      };
 
-      const { accessToken, refreshToken } = generateToken(user)
+      const { accessToken, refreshToken } = generateToken(user);
 
-      req.user = user
-      res.cookie("saher_access_token", accessToken, { maxAge: 604800000, httpOnly: true, secure: true, sameSite: "none" })
-      res.cookie("saher_refresh_token", refreshToken, { maxAge: 7776000000, httpOnly: true, secure: true, sameSite: "none" })
-      return next()
+      res.cookie('saher_access_token', accessToken, {
+        maxAge: 604800000,
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+      });
+
+      res.cookie('saher_refresh_token', refreshToken, {
+        maxAge: 604800000,
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+      });
+
+      req.user = user;
+      return next();
     }
 
-    const verifyToken = verifyAccessToken(access)
-
+    const verifyToken = verifyAccessToken(access);
     if (!verifyToken) {
-      return res.status(401).json({ success: false, message: "Login Required." })
+      throw new ApiError(401, 'Invalid Access Token.');
     }
 
-    const user: ReqUser = {
+    req.user = {
       id: verifyToken.id,
       name: verifyToken.name,
       role: verifyToken.role,
-      employeeType: verifyToken.employeeType
-    }
+      email: verifyToken.email,
+    };
 
-    if (!verifyToken) {
-      return res.status(401).json({ success: false, message: "Login Required." })
-    }
-
-    req.user = user
-    return next()
-
+    return next();
   } catch (error) {
-    console.error(error);
-    res.clearCookie("saher_access_token")
-    res.clearCookie("saher_refresh_token")
-    return res.status(401).json({ success: false, message: "Invalid Token.", data: error })
+    res.clearCookie('saher_access_token');
+    res.clearCookie('saher_refresh_token');
+
+    return next(error instanceof ApiError ? error : new ApiError(401, 'Invalid Tokens'));
   }
-}
+};
