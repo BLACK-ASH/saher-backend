@@ -2,7 +2,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import mongoose from 'mongoose';
 import path from 'path';
 import adminRouter from './admin/admin.routes.js';
 import authRouter from './auth/auth.routes.js';
@@ -15,7 +14,7 @@ import notificationRouter from './notification/notification.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
 import userRouter from './user/user.routes.js';
 import { connectRedis } from './libs/redis/redis-client.js';
-import { ApiResponse } from './libs/class/api-response.js';
+import publicRouter from './public/public.routes.js';
 
 // Env Config
 dotenv.config();
@@ -51,6 +50,7 @@ await connectDb();
 await connectRedis();
 
 // Routes
+app.use('/api', publicRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);
@@ -61,23 +61,6 @@ app.use('/api/mail', protectedRoute, mailRouter);
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
 app.use(express.static(path.join(process.cwd(), 'public')));
-
-// To Check Services Is Healthy
-app.get('/health', async (req, res) => {
-  const dbStatus = mongoose.connection.readyState;
-  if (dbStatus !== 1) {
-    return ApiResponse.success(res, {
-      message: 'Server Unhealthy',
-      data: undefined,
-      statusCode: 500,
-    });
-  }
-  return ApiResponse.success(res, {
-    message: 'Server Haelthy',
-    data: undefined,
-    statusCode: 200,
-  });
-});
 
 // Global Error Handling
 app.use(errorHandler);
