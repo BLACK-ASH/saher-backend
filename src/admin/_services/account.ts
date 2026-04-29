@@ -19,7 +19,7 @@ const accountSchemaFinal = accountBaseSchema
   })
   .readonly();
 
-type AccountT = z.infer<typeof accountSchemaFinal>;
+export type AccountT = z.infer<typeof accountSchemaFinal>;
 
 export const getAccount = async (id: string): Promise<AccountT | null> => {
   const key = createKey('account', id);

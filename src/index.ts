@@ -46,6 +46,8 @@ app.use(cookieParser());
 
 // Databse Connection
 await connectDb();
+
+//Redis Server Connnection
 await connectRedis();
 
 // Routes

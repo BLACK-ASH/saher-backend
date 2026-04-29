@@ -15,12 +15,11 @@ import {
   attendanceCorrectionHandleSchema,
 } from './correction/correction.schema.js';
 import {
-  createAttendanceCorrectionController,
   getAllAttendanceCorrectionController,
-  getAttendanceCorrectionById,
   getAttendanceCorrectionController,
-  handleAttendanceCorrectionController,
 } from './correction/correction.controller.js';
+import { createAttendanceCorrectionController } from './correction/create-correction.js';
+import { handleAttendanceCorrectionController } from './correction/handle-correction.js';
 import { todayAttendanceController } from './retrieve/today.controller.js';
 import { meAttendanceController } from './retrieve/me.controller.js';
 import { getAllUserController } from './retrieve/get-all-user.controller.js';
@@ -29,60 +28,56 @@ import { createAttendanceCron } from './cron-job/create-attendance.cron.js';
 import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { getAttendanceById } from './retrieve/get-attendance.controller.js';
+import { allAttendanceController } from './retrieve/all-attendance.controller.js';
 
 const attendanceRouter = Router();
 
-// Attendance Retrieval Route
+// Attendance
 attendanceRouter.get('/me', meAttendanceController);
 attendanceRouter.get('/today', todayAttendanceController);
 attendanceRouter.post('/check-in', checkInController);
 attendanceRouter.post('/check-out', checkOutController);
-attendanceRouter.get('/retrive/:id', retrieveAttendanceController);
+attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
 attendanceRouter.get('/retrieve-all', getAllUserController);
+attendanceRouter.get('/user/:id', allAttendanceController);
 
-// Attendance
-attendanceRouter.get('/attendance/:id', getAttendanceById);
-
-// Attendance Correction Route
-attendanceRouter.get('/attendance-correction', getAttendanceCorrectionController);
-attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById);
-attendanceRouter.get('/attendance-correction-all', getAllAttendanceCorrectionController);
+// Attendance correction
+attendanceRouter.get('/record/:id', getAttendanceById);
+attendanceRouter.get('/correction/:id', getAttendanceCorrectionController);
+attendanceRouter.get('/admin/correction', getAllAttendanceCorrectionController);
 attendanceRouter.post(
-  '/attendance-correction',
+  '/correction',
   authorize('write', 'attendance-correction'),
   validate(attendanceCorrectionSchema),
   createAttendanceCorrectionController,
 );
 attendanceRouter.put(
-  '/attendance-correction/:id',
+  '/correction/:id',
   authorize('update', 'attendance-correction'),
   validate(attendanceCorrectionHandleSchema),
   handleAttendanceCorrectionController,
 );
 
+attendanceRouter.get('/holiday', getAllHolidayController);
+attendanceRouter.get('/holiday/:id', getHolidayController);
+attendanceRouter.delete('/holiday/:id', authorize('delete', 'holiday'), deleteHolidayController);
+
 // Holiday Routes
 attendanceRouter.post(
-  '/holiday/create',
+  '/holiday',
   authorize('write', 'holiday'),
   validate(holidaySchema),
   addHolidayController,
 );
 attendanceRouter.put(
-  '/holiday/update/:id',
+  '/holiday/:id',
   authorize('update', 'holiday'),
   validate(holidayUpdateSchema),
   updateHolidayController,
 );
-attendanceRouter.get('/holiday/get-all', getAllHolidayController);
-attendanceRouter.get('/holiday/get/:id', getHolidayController);
-attendanceRouter.delete(
-  '/holiday/delete/:id',
-  authorize('delete', 'holiday'),
-  deleteHolidayController,
-);
 
+// WARN: Do Not Change This Part
 // Cron Jobs
-// Do Not Change This Part
 attendanceRouter.post('/cron/create/:pass', createAttendanceCron);
 attendanceRouter.post('/cron/auto-checkout/:pass', autoCheckoutCron);
 
