@@ -13,13 +13,13 @@ export const createNotificationController = async (req: Request, res: Response) 
   if (userID) {
     const notification = await sendSystemNotification({ userID, ...notificationBody });
     if (!notification) throw new ApiError(400, "Failed To Create Notification")
-    return res.status(201).json({ success: true, message: "Notification sent to user successfully", data: notification, count: 1 });
+    return res.status(201).json({ success: true, message: "Notification sent to user successfully", data: notification});
   }
 
   //  Global Notification
   const notification = await Notification.create(notificationBody);
   if (!notification) throw new ApiError(400, "Failed To Create Notification")
-  return res.status(201).json({ success: true, message: "Global notification created successfully", data: notification, count: 1 });
+  return res.status(201).json({ success: true, message: "Global notification created successfully", data: notification });
 
 };
 
@@ -34,7 +34,7 @@ export const getLatestNotificationController = async (req: Request, res: Respons
   }
 
   const latestNotification = await Notification.findOne({ $or: [{ user: user?.id }, { user: null }] }).sort({ createdAt: -1 })
-  return res.status(200).json({ message: "The most recent notification is ", data: latestNotification, success: true, count: 1 })
+  return res.status(200).json({ message: "The most recent notification is ", data: latestNotification, success: true})
 
 }
 
@@ -49,7 +49,7 @@ export const getAlltNotificationController = async (req: Request, res: Response)
   }
 
   const allNotification = await Notification.find({ $or: [{ user: user?.id }, { user: null }] }).sort({ createdAt: -1 }).lean()
-  return res.status(200).json({ message: "The notifications are  ", data: allNotification, count: allNotification.length, success: true })
+  return res.status(200).json({ message: "The notifications are  ", data: allNotification, success: true })
 
 }
 
@@ -58,7 +58,7 @@ export const getAlltNotificationController = async (req: Request, res: Response)
 export const updateNotificationController = async (req: Request, res: Response) => {
   const ID = req.params.id
 
-  const { type, title, description } = req.body
+//   const { type, title, description } = req.body
   //Sabse pehle Db mein existing notification dhundho 
   const updatedNotification = await Notification.findByIdAndUpdate(ID, req.body, { new: true })
 
