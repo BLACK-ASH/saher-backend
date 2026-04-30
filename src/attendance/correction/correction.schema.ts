@@ -1,5 +1,6 @@
 import z from 'zod';
 import { objectId } from '../../libs/utils/zod-object-id.js';
+import { userSchemaFinal } from '../../admin/_services/user.js';
 
 export const attendanceCorrectionSchema = z.object({
   attendanceId: objectId('Invalid Attendance Id.'),
@@ -56,18 +57,23 @@ export const attendancePreviousSchema = z.object({
   isLate: z.boolean(),
 });
 
+export const attendanceRecordSchema = z.object({
+  inTime: z.coerce.date(),
+  outTime: z.coerce.date(),
+  status: z.enum(['absent', 'half-day', 'present']),
+  isLate: z.boolean(),
+});
+
 export const attendanceChangesSchema = z.object({
   inTime: z.coerce.date(),
   outTime: z.coerce.date(),
+  status: z.enum(['absent', 'half-day', 'present']).optional(),
+  isLate: z.boolean().optional(),
 });
 
 export const correctionResponseSchema = z.object({
   id: z.string(),
-  user: z.object({
-    id: z.string(),
-    name: z.string(),
-    role: z.string(),
-  }),
+  user: userSchemaFinal,
   attendance: z.object({
     id: z.string(),
     date: z.string(),
@@ -75,18 +81,20 @@ export const correctionResponseSchema = z.object({
   previous: attendancePreviousSchema,
   changes: attendanceChangesSchema,
   status: z.string(),
-  message: z.string(),
-  reason: z.string(),
-  manager: z
+  proof: z
     .object({
       id: z.string(),
-      name: z.string(),
-      role: z.string(),
+      src: z.string(),
+      alt: z.string(),
     })
     .optional(),
+  message: z.string(),
+  reason: z.string(),
+  manager: userSchemaFinal.optional(),
 });
 
 export const correctionResponsListSchema = z.array(correctionResponseSchema);
 
 export type AttendanceCorrectionInputType = z.infer<typeof attendanceCorrectionSchema>;
 export type AttendanceCorrectionHandleInputType = z.infer<typeof attendanceCorrectionHandleSchema>;
+export type AttendanceCorrectionResponse = z.infer<typeof correctionResponseSchema>;

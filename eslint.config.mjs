@@ -40,7 +40,7 @@ export default defineConfig([
         },
       ],
 
-      'custom/no-res-json': 'warn',
+      'custom/no-res-json': 'error',
 
       'unicorn/filename-case': [
         'error',

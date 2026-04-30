@@ -10,6 +10,7 @@ import {
 } from './correction.schema.js';
 import z from 'zod';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 
 export const createAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -59,6 +60,8 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
     message: input.message,
     proof: input?.proof,
   });
+
+  await deleteCacheGroup('attendance', 'correction');
 
   return ApiResponse.success(res, {
     message: 'Attendance Correction Request Successful.',

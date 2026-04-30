@@ -4,7 +4,10 @@ import { AttendanceCorrection } from '../../database/attendance-correction.model
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-import { AttendanceCorrectionHandleInputType } from './correction.schema.js';
+import {
+  AttendanceCorrectionHandleInputType,
+  attendanceRecordSchema,
+} from './correction.schema.js';
 import {
   calculateWorkStatus,
   checkIsLate,
@@ -12,6 +15,7 @@ import {
 } from '../../libs/utils/calculate-work-status.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 
 export const handleAttendanceCorrectionController = async (req: Request, res: Response) => {
   const input: AttendanceCorrectionHandleInputType = req.body;
@@ -95,19 +99,21 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       const { workHours, status } = calculateWorkStatus({
         inTime: change.inTime,
         outTime: change.outTime,
-        shift: shift,
+        shift,
       });
 
       const isLate = input.isAdmin
         ? input.changes?.isLate
-        : checkIsLate({ inTime: change.inTime, shift: 'free' });
+        : checkIsLate({ inTime: change.inTime, shift });
 
       const newRecord = {
         ...change,
         isLate,
-        status,
+        status: input.isAdmin ? input.changes?.status : status,
         workHours,
       };
+
+      const finalChange = attendanceRecordSchema.parse(newRecord);
 
       if (!newRecord?.inTime || !newRecord?.outTime) {
         throw new ApiError(400, 'Invalid inTime or outTime');
@@ -115,7 +121,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
 
       //  update request
       request.manager = convertToObjectId(user.id);
-      request.changes = change;
+      request.changes = finalChange;
       request.status = 'approve';
 
       if (input.reason?.trim()?.length) {
@@ -132,6 +138,8 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
 
       return;
     });
+
+    await deleteCacheGroup('attendance', 'correction');
 
     return ApiResponse.success(res, {
       message: responsePayload.message,

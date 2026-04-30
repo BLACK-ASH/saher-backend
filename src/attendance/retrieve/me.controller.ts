@@ -39,7 +39,9 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   const record = await Attendance.findOne({ user: user.id, date: standardDateString(now) })
     .populate('user', 'name email role')
     .lean();
+
   let data;
+
   if (!record) {
     data = attendanceResponseSchema.parse({ ...defaultResponse, id: 'test', user });
     const body = {
@@ -81,6 +83,6 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     data,
   };
 
-  await setCache(todayKey, body);
+  await setCache(todayKey, body, 14400);
   return ApiResponse.success(res, body);
 };

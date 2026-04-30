@@ -32,16 +32,7 @@ import { allAttendanceController } from './retrieve/all-attendance.controller.js
 
 const attendanceRouter = Router();
 
-// TODO:Implement the Route in the following structured
-// method:GET path: /me function: current user status -- Done
-// method:GET path: /today function: all user status --- No  major change
-// method:POST path: /check-in function: to check in --- Implemented the account logic
-// method:POST path: /check-out function: to check out
-// method:GET path: /(:id/me) function: get all attendance records acc to user-id/me with pagination --- Done
-// method:GET path: /record function: get all attendance records all users with pagination -- Done
-// method:GET path: /record/:id function: get specific attendance record by attendance id -- Done
-// Leave The Retrieve as like before
-
+// Attendance
 attendanceRouter.get('/me', meAttendanceController);
 attendanceRouter.get('/today', todayAttendanceController);
 attendanceRouter.post('/check-in', checkInController);
@@ -50,18 +41,9 @@ attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
 attendanceRouter.get('/retrieve-all', getAllUserController);
 attendanceRouter.get('/user/:id', allAttendanceController);
 
-// Attendance
+// Attendance correction
 attendanceRouter.get('/record/:id', getAttendanceById);
-
-// Attendance Correction Route
-// TODO:Implement the Route in the following structured
-// method:GET path: /correction/(:id/me) function: get all correction record acc to user-id/me with pagination --- Done
-// method:GET path: /admin/correction function: get all users correction record --- Done
-// method:POST path: /correction function: create correction record ---Done
-// method:PUT path: /correction/:id function: handle attendance correction  ----Done
-
 attendanceRouter.get('/correction/:id', getAttendanceCorrectionController);
-// attendanceRouter.get('/attendance-correction/:id', getAttendanceCorrectionById); --- We dont need this now
 attendanceRouter.get('/admin/correction', getAllAttendanceCorrectionController);
 attendanceRouter.post(
   '/correction',
@@ -75,13 +57,6 @@ attendanceRouter.put(
   validate(attendanceCorrectionHandleSchema),
   handleAttendanceCorrectionController,
 );
-
-// TODO:Implement the Route in the following structured
-// method:GET path: /holiday function: get all holiday --- Done
-// method:GET path: /holiday/:id function: get specific holiday --Done
-// method:POST path: /holiday/:id function: create holiday ---- why would i need ID to create holiday
-// method:PUT path: /holiday/:id function: update holiday --Done
-// method:DELETE path: /holiday/:id function: delete holiday --DOne
 
 attendanceRouter.get('/holiday', getAllHolidayController);
 attendanceRouter.get('/holiday/:id', getHolidayController);

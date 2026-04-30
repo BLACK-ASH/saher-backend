@@ -23,13 +23,8 @@ export const checkInController = async (req: Request, res: Response) => {
     inTime: { $ne: null },
   }).populate('user', 'name role email ');
   //Step 3 - Agr haa toh oosko dubara attendence mark karne mat do
-  // Using Custom Api Error Handler To Automatically handle error response
   if (existingRecord) throw new ApiError(400, 'You Have Already Check In Today.');
 
-  // Change Bad Mai Karna Hai
-
-  // const dummy = getAccountByUser(user?.id)
-  // const account = await Account.findOne({ user: user?.id });
   const account = await getAccountByUser(user?.id);
   if (!account) throw new ApiError(400, 'Account not found ');
 
@@ -75,7 +70,6 @@ export const checkInController = async (req: Request, res: Response) => {
   const populated = await newRecord.populate('user', 'name email role');
 
   const normalized = normalizeDoc(populated.toObject());
-  // console.log(normalized)
   const parsed = attendanceResponseSchema.parse(normalized);
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
