@@ -48,7 +48,6 @@ export const checkInController = async (req: Request, res: Response) => {
     const parsed = attendanceResponseSchema.parse(normalized);
     const todayKey = createKey('attendance', 'today', 'me', user?.id);
     await deleteCache(todayKey);
-    await setCache(todayKey, parsed, 14400);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
       data: parsed,
@@ -74,7 +73,6 @@ export const checkInController = async (req: Request, res: Response) => {
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
   await deleteCache(todayKey);
-  await setCache(todayKey, parsed, 14400);
   return ApiResponse.success(res, {
     message: 'You have been marked present',
     data: parsed,
