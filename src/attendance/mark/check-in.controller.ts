@@ -7,6 +7,7 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
 import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
 import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
@@ -45,6 +46,9 @@ export const checkInController = async (req: Request, res: Response) => {
 
     const normalized = normalizeDoc(cronRecord.toObject());
     const parsed = attendanceResponseSchema.parse(normalized);
+
+    const todayKey = createKey('attendance', 'today', 'me', user?.id);
+    deleteCache(todayKey);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
       data: parsed,
@@ -68,6 +72,8 @@ export const checkInController = async (req: Request, res: Response) => {
   const normalized = normalizeDoc(populated.toObject());
   const parsed = attendanceResponseSchema.parse(normalized);
 
+  const todayKey = createKey('attendance', 'today', 'me', user?.id);
+  deleteCache(todayKey);
   return ApiResponse.success(res, {
     message: 'You have been marked present',
     data: parsed,
