@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
 export const notificationTypes = ['Announcement', 'Urgent', 'Reminder', 'Request', 'Task'];
-
+export const notificationScope = ['user', 'aamnager' , 'admin' , 'specific' , 'global']
 const notificationSchema = new mongoose.Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: [mongoose.Schema.Types.ObjectId],
       ref: 'User',
       required: false,
     },
@@ -21,6 +21,11 @@ const notificationSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    scope : {
+      type : String ,
+      enum : notificationScope ,
+      required : true 
+    }
   },
   { timestamps: true },
 );

@@ -1,38 +1,31 @@
 import { Request, Response } from 'express';
 import { ApiError } from '../libs/class/api-error.js';
 import { Notification } from '../database/notification.model.js';
-import { sendSystemNotification } from '../libs/utils/system-notification.js';
-import { NotificationCreateInputType } from './notification.schema.js';
+import { sendNotification } from '../libs/utils/system-notification.js';
+// import { NotificationCreateInputType, notificationResponseSchema } from './notification.schema.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import { normalizeDoc } from '../libs/utils/normailize-doc.js';
+import { notificationResponseSchema } from './notification.schema.js';
+
 
 //Create a new Notification
 export const createNotificationController = async (req: Request, res: Response) => {
-  const userID = req.params.id;
-  const notificationBody = req.body as NotificationCreateInputType;
 
-  // Individual Notification
-  if (userID) {
-    const notification = await sendSystemNotification({ userID, ...notificationBody });
-    if (!notification) throw new ApiError(400, 'Failed To Create Notification');
-    return ApiResponse.success(res, {
-      message: 'Notification sent to user successfully',
-      data: notification,
-      statusCode: 201,
-    });
-  }
+  const { user, type, title, description , scope } = req.body;
 
-  //  Global Notification
-  const notification = await Notification.create(notificationBody);
-  if (!notification) throw new ApiError(400, 'Failed To Create Notification');
+  const data = await sendNotification(req.body);
+
   return ApiResponse.success(res, {
-    message: 'Global notification created successfully',
-    data: notification,
-    statusCode: 201,
+    statusCode : 201 ,
+    message: 'Notification created successfully',
+    data : null,
   });
-};
+}
+
 
 //Get the most recent Notification
 export const getLatestNotificationController = async (req: Request, res: Response) => {
+  
   const user = req.user;
 
   const countNotification = await Notification.countDocuments();
