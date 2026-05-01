@@ -38,11 +38,11 @@ export const createPaymentController = async (req: Request, res: Response) => {
     pocketAmount: 0,
   });
 
-  return res.status(201).json({
-    success: true,
-    message: 'Payment created successfully',
-    data: payment,
-  });
+  return ApiResponse.success(res, {
+  message: 'Payment created successfully',
+  data: payment,
+  statusCode: 201
+})
 };
 
 export const updatePaymentController = async (req: Request, res: Response) => {
@@ -62,11 +62,11 @@ export const updatePaymentController = async (req: Request, res: Response) => {
   const payment = await Payment.findByIdAndUpdate(id, updateData, { new: true });
   if (!payment) throw new ApiError(404, 'Payment not found');
 
-  return res.status(200).json({
-    success: true,
-    message: 'Payment updated successfully',
-    data: payment,
-  });
+  return ApiResponse.success(res, {
+  message: 'Payment updated successfully',
+  data: payment,
+  statusCode: 200
+})
 };
 
 export const getPaymentController = async (req: Request, res: Response) => {
@@ -75,11 +75,11 @@ export const getPaymentController = async (req: Request, res: Response) => {
   const payment = await Payment.findById(id).populate('user reimbursement billImg clearedBy');
   if (!payment) throw new ApiError(404, 'Payment not found.');
 
-  return res.status(200).json({
-    success: true,
-    message: 'Payment retrieved successfully',
-    data: payment,
-  });
+  return ApiResponse.success(res, {
+  message: 'Payment retrieved successfully',
+  data: payment,
+  statusCode: 200
+})
 };
 
 export const getMyPaymentsController = async (req: Request, res: Response) => {
@@ -91,11 +91,11 @@ export const getMyPaymentsController = async (req: Request, res: Response) => {
     throw new ApiError(404, 'No payments found');
   }
 
-  return res.status(200).json({
-    success: true,
-    message: 'Payments fetched successfully',
-    data: payments,
-  });
+  return ApiResponse.success(res, {
+  message: 'Payments fetched successfully',
+  data: payments,
+  statusCode: 200
+})
 };
 
 export const getAllPaymentsController = async (req: Request, res: Response) => {
@@ -107,11 +107,11 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
 
   const payments = await Payment.find().populate('user reimbursement billImg clearedBy').lean();
 
-  return res.status(200).json({
-    success: true,
-    message: 'All payments fetched successfully',
-    data: payments,
-  });
+  return ApiResponse.success(res, {
+  message: 'All payments fetched successfully',
+  data: payments,
+  statusCode: 200
+})
 };
 
 export const createPaymentRecoveryController = async (req: Request, res: Response) => {
@@ -147,15 +147,15 @@ export const createPaymentRecoveryController = async (req: Request, res: Respons
     requestBy: adminUser?.id,
     requestType: 'ADMIN_RECOVERY',
     reimbursement: reimbursementId,
-    billImg: originalReimbursement.billImg,
+    billImg: originalReimbursement.image,
     paidAmount: recoveryAmount,
     recoveryAmount,
     notes: notes || 'Admin recovery - unused advance',
   });
 
-  return res.status(201).json({
-    success: true,
-    message: 'Recovery request created successfully',
-    data: recoveryPayment,
-  });
+  return ApiResponse.success(res, {
+  message: 'Recovery request created successfully',
+  data: recoveryPayment,
+  statusCode: 201
+})
 };
