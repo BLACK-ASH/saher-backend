@@ -8,6 +8,7 @@ import {
   paymentUpdateSchema,
   createRecoverySchema,
 } from './payment.schema.js';
+import { ApiResponse } from '../libs/class/api-response.js';
 
 export const createPaymentController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -39,10 +40,10 @@ export const createPaymentController = async (req: Request, res: Response) => {
   });
 
   return ApiResponse.success(res, {
-  message: 'Payment created successfully',
-  data: payment,
-  statusCode: 201
-})
+    message: 'Payment created successfully',
+    data: payment,
+    statusCode: 201,
+  });
 };
 
 export const updatePaymentController = async (req: Request, res: Response) => {
@@ -63,10 +64,10 @@ export const updatePaymentController = async (req: Request, res: Response) => {
   if (!payment) throw new ApiError(404, 'Payment not found');
 
   return ApiResponse.success(res, {
-  message: 'Payment updated successfully',
-  data: payment,
-  statusCode: 200
-})
+    message: 'Payment updated successfully',
+    data: payment,
+    statusCode: 200,
+  });
 };
 
 export const getPaymentController = async (req: Request, res: Response) => {
@@ -76,10 +77,10 @@ export const getPaymentController = async (req: Request, res: Response) => {
   if (!payment) throw new ApiError(404, 'Payment not found.');
 
   return ApiResponse.success(res, {
-  message: 'Payment retrieved successfully',
-  data: payment,
-  statusCode: 200
-})
+    message: 'Payment retrieved successfully',
+    data: payment,
+    statusCode: 200,
+  });
 };
 
 export const getMyPaymentsController = async (req: Request, res: Response) => {
@@ -92,10 +93,10 @@ export const getMyPaymentsController = async (req: Request, res: Response) => {
   }
 
   return ApiResponse.success(res, {
-  message: 'Payments fetched successfully',
-  data: payments,
-  statusCode: 200
-})
+    message: 'Payments fetched successfully',
+    data: payments,
+    statusCode: 200,
+  });
 };
 
 export const getAllPaymentsController = async (req: Request, res: Response) => {
@@ -108,10 +109,10 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
   const payments = await Payment.find().populate('user reimbursement billImg clearedBy').lean();
 
   return ApiResponse.success(res, {
-  message: 'All payments fetched successfully',
-  data: payments,
-  statusCode: 200
-})
+    message: 'All payments fetched successfully',
+    data: payments,
+    statusCode: 200,
+  });
 };
 
 export const createPaymentRecoveryController = async (req: Request, res: Response) => {
@@ -154,8 +155,8 @@ export const createPaymentRecoveryController = async (req: Request, res: Respons
   });
 
   return ApiResponse.success(res, {
-  message: 'Recovery request created successfully',
-  data: recoveryPayment,
-  statusCode: 201
-})
+    message: 'Recovery request created successfully',
+    data: recoveryPayment,
+    statusCode: 201,
+  });
 };
