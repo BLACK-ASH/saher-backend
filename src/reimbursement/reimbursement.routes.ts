@@ -1,17 +1,44 @@
 import { Router } from 'express';
-import { createBill } from './bill/bill.controller.js';
+import { createBill, updateBill, softDeleteBill } from './bill/create-bill.controller.js';
 import { authorize } from '../permission/authorize.js';
-import { createBillSchema, BillReviewSchema } from './bill/bill.schema.js';
+import { createBillSchema, updateBillSchema } from './bill/create-bill.schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { advanceBill, advanceSoftDelete, advanceUpdate } from './bill/advance-bill.controller.js';
+import { advanceBillSchema } from './bill/advance-bill.schema.js';
 
-export const BillRouter = Router();
+const billRouter = Router();
 
-// BillRouter.get('/', getMyBill);
-// BillRouter.get('/all', getAllBill);
-BillRouter.post(
+// Bill route
+billRouter.post(
   '/create',
-  authorize('write', 'reimbursement'),
+  authorize('write', 'postReimbursement'),
   validate(createBillSchema),
   createBill,
 );
-// BillRouter.put('/review', authorize('update', 'reimbursement'), validate(BillReviewSchema), reviewBill,);
+billRouter.put(
+  '/update/:id',
+  authorize('update', 'postReimbursement'),
+  validate(updateBillSchema),
+  updateBill,
+);
+billRouter.delete('/delete/:id', authorize('delete', 'postReimbursement'), softDeleteBill);
+
+// Advance bill route
+billRouter.post(
+  '/bill/:userId',
+  authorize('write', 'preReimbursement'),
+  validate(advanceBillSchema),
+  advanceBill,
+);
+billRouter.put(
+  '/bill/update/:billId/:userId',
+  authorize('update', 'preReimbursement'),
+  advanceUpdate,
+);
+billRouter.delete(
+  '/bill/delete/:billId',
+  authorize('delete', 'preReimbursement'),
+  advanceSoftDelete,
+);
+
+export default billRouter;

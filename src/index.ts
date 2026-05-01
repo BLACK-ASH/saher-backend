@@ -12,6 +12,7 @@ import attendanceRouter from './attendance/attendance.route.js';
 import uploadRouter from './upload/upload.routes.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import notificationRouter from './notification/notification.routes.js';
+import billRouter from './reimbursement/reimbursement.routes.js';
 import { mailRouter } from './mail/mail.routes.js';
 import userRouter from './user/user.routes.js';
 import { connectRedis } from './libs/redis/redis-client.js';
@@ -40,8 +41,8 @@ app.use(
 );
 
 // Image Upload Routes
-app.use('/api/upload', uploadRouter);
 app.use(express.json());
+app.use('/api/upload', uploadRouter);
 app.use(cookieParser());
 
 // Databse Connection
@@ -49,6 +50,7 @@ await connectDb();
 await connectRedis();
 
 // Routes
+app.use('/api/reimbursement', protectedRoute, billRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);

@@ -9,12 +9,16 @@ const billSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    billImg: {
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    image: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
       required: true,
     },
-    billAmount: {
+    amount: {
       type: Number,
       required: true,
     },
@@ -24,7 +28,7 @@ const billSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      // required: true,
     },
     status: {
       type: String,
@@ -32,6 +36,13 @@ const billSchema = new mongoose.Schema(
       default: 'pending',
     },
     adminNote: {
+      type: String,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    givenBy: {
       type: String,
     },
   },

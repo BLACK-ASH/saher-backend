@@ -9,7 +9,8 @@ export const RESOURCES = [
   'holiday',
   'notification',
   'mail',
-  'reimbursement',
+  'preReimbursement',
+  'postReimbursement',
 ] as const;
 
 export type Action = (typeof ACTIONS)[number];
