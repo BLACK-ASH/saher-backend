@@ -25,4 +25,5 @@ publicRouter.get('/health', async (req, res) => {
     statusCode: 200,
   });
 });
+
 export default publicRouter;
