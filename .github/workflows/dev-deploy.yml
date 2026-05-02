@@ -20,8 +20,9 @@ jobs:
 
       - name: Deploy app
         run: |
-          cd /home/deploy/saher
+          cd /home/deploy/saher/saher-backend
           git pull origin dev
+          cd /home/deploy/saher
           docker compose up -d --build
 
       - name: Verify containers
