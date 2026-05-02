@@ -15,13 +15,13 @@ jobs:
       cancel-in-progress: true
 
     steps:
-
-      - name: Deploy app
+      - name: Dev Deploy app
         run: |
           cd /home/deploy/saher/saher-backend
-          git pull origin dev
+          git fetch origin
+          git reset --hard origin/dev
+
           cd /home/deploy/saher
           docker compose up -d --build
-
       - name: Verify containers
         run: docker ps
