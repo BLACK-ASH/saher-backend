@@ -37,7 +37,11 @@ importers:
         version: 5.12.1(@opentelemetry/api@1.9.0)
       resend:
         specifier: ^6.12.0
+<<<<<<< HEAD
+        version: 6.12.2
+=======
         version: 6.12.0
+>>>>>>> a3d2d566ad5581391abb883937efb728d163974e
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -2502,8 +2506,8 @@ packages:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
 
-  resend@6.12.0:
-    resolution: {integrity: sha512-CaxEvX1z+/MGbgnhsM/bvmkbnZd1v1sEXELAjBNSDBQNMaB7MgqOyrBgI27CYikEgdaDnBrXghAXYWTBs/h5Bw==}
+  resend@6.12.2:
+    resolution: {integrity: sha512-xwgmU4b0OqoabJsIoK/x0Whk0Fcs3bpbK4i/DEWPiE5hYJHyHl0TbB6QbI3gIr+bLdLUJ1GYm/fe41aVFuHXgw==}
     engines: {node: '>=20'}
     peerDependencies:
       '@react-email/render': '*'
@@ -5330,7 +5334,7 @@ snapshots:
 
   require-from-string@2.0.2: {}
 
-  resend@6.12.0:
+  resend@6.12.2:
     dependencies:
       postal-mime: 2.7.4
       svix: 1.90.0

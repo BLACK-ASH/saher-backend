@@ -49,7 +49,7 @@ export const sendMailController = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: `The mail has been sent to ${receiversIDs} `,
-    data: null,
+    data: mails,
     statusCode: 201,
   });
 };
