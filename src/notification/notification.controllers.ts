@@ -1,19 +1,19 @@
 import { Request, Response } from 'express';
 import { ApiError } from '../libs/class/api-error.js';
 import { Notification } from '../database/notification.model.js';
-import { sendNotification } from '../libs/utils/system-notification.js';
+import { sendNotification, SendNotificationSchema } from '../libs/utils/system-notification.js';
 // import { NotificationCreateInputType, notificationResponseSchema } from './notification.schema.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
-import { notificationResponseSchema } from './notification.schema.js';
+import { notificationResponseListSchema, notificationResponseSchema } from './notification.schema.js';
 
 
 //Create a new Notification
 export const createNotificationController = async (req: Request, res: Response) => {
 
-  const { user, type, title, description , scope } = req.body;
+  const parsed = SendNotificationSchema.parse(req.body)
 
-  const data = await sendNotification(req.body);
+  await sendNotification(parsed);
 
   return ApiResponse.success(res, {
     statusCode : 201 ,
@@ -27,22 +27,34 @@ export const createNotificationController = async (req: Request, res: Response) 
 export const getLatestNotificationController = async (req: Request, res: Response) => {
   
   const user = req.user;
+  const role = user?.role 
 
-  const countNotification = await Notification.countDocuments();
-  if (countNotification === 0) {
-    return ApiResponse.success(res, {
-      message: 'There are no notification',
-      data: null,
-      statusCode: 200,
-    });
-  }
+  // const countNotification = await Notification.countDocuments();
+  // if (countNotification === 0) {
+  //   return ApiResponse.success(res, {
+  //     message: 'There are no notification',
+  //     data: null,
+  //     statusCode: 200,
+  //   });
+  // }
 
   const latestNotification = await Notification.findOne({
-    $or: [{ user: user?.id }, { user: null }],
-  }).sort({ createdAt: -1 });
+    $or: [{ user: user?.id }, { scope : role },{scope : "global"}],
+  }).sort({ createdAt: -1 }).lean();
+
+ if (!latestNotification) {
+  return ApiResponse.success(res, {
+    message: 'There are no notifications',
+    data: null,
+    statusCode: 200,
+  });
+}
+
+  const normalized = normalizeDoc(latestNotification)
+  const parsed = notificationResponseSchema.parse(normalized)
   return ApiResponse.success(res, {
     message: 'The most recent notification is ',
-    data: latestNotification,
+    data: parsed ,
     statusCode: 200,
   });
 };
@@ -50,23 +62,35 @@ export const getLatestNotificationController = async (req: Request, res: Respons
 //Get all the Notification
 export const getAlltNotificationController = async (req: Request, res: Response) => {
   const user = req.user;
+  const role = user?.role 
 
-  const countNotification = await Notification.countDocuments();
-  if (countNotification === 0) {
-    return ApiResponse.success(res, {
-      message: 'There are no notification',
-      data: null,
-      statusCode: 200,
-    });
-  }
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
 
-  const allNotification = await Notification.find({ $or: [{ user: user?.id }, { user: null }] })
+  // const countNotification = await Notification.countDocuments();
+  // if (countNotification === 0) {
+  //   return ApiResponse.success(res, {
+  //     message: 'There are no notification',
+  //     data: null,
+  //     statusCode: 200,
+  //   });
+  // }
+
+  const allNotification = await Notification.find({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
     .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
     .lean();
+
+  const count = await Notification.countDocuments({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
+  const normalized = normalizeDoc(allNotification)
+  const parsed = notificationResponseListSchema.parse(normalized)
   return ApiResponse.success(res, {
     message: 'The notifications are  ',
-    data: allNotification,
+    data: parsed ,
     statusCode: 200,
+    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
   });
 };
 
@@ -81,9 +105,13 @@ export const updateNotificationController = async (req: Request, res: Response) 
     throw new ApiError(404, 'Notification not found');
   }
 
+  const normalized = normalizeDoc(updatedNotification)
+  const parsed = notificationResponseSchema.parse(normalized)
+
+
   return ApiResponse.success(res, {
     message: 'The notification has been updated successfully ',
-    data: updatedNotification,
+    data: parsed ,
     statusCode: 200,
   });
 };

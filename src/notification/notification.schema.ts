@@ -12,7 +12,7 @@ export const notificationSchema = z.object({
 });
 
 export const notificationResponseSchema = z.object({ 
-  id : z.string() ,
+  id : z.string()  ,
   // user : z.string().nullable(),
   type: z.enum(notificationTypes),
   title: z.string().min(1, 'Title can not be empty').max(30, 'Title is too long'),
@@ -21,7 +21,7 @@ export const notificationResponseSchema = z.object({
     .min(1, 'Description can not be empty')
     .max(1000, 'The description is too long'),
     scope : z.enum(notificationScope)
-});
+}).strip();
 
 export const notificationResponseListSchema = z.array(notificationResponseSchema)
 

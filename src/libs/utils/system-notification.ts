@@ -12,6 +12,21 @@ export const SendNotificationSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().min(1).max(1000),
   scope:z.enum(notificationScope)
+}).superRefine((schema , obj )=>{
+  if(schema.scope === "specific" && (!schema.user || schema.user.length === 0)){
+    obj.addIssue({
+      code :z.ZodIssueCode.custom,
+      message : "user is required when the scope is choosen as specific",
+      path : ["user"]
+    })
+  }
+  if(schema.scope !== "specific" && schema.user && schema.user.length > 0 ){
+    obj.addIssue({
+      code : z.ZodIssueCode.custom ,
+      message : "There ius no need for user when scope is not specific",
+      path : ["user"]
+    })
+  }
 });
 
 export type SendNotificationT = z.infer<typeof SendNotificationSchema>;
@@ -28,25 +43,5 @@ export const sendNotification = async (input: SendNotificationT) => {
     description,
     scope
   });
-  return true 
+  return notification 
 };
-  // const docs = new Notification(notification)
-  // await docs.save()
-  // console.log(docs)
-  // let users: string[] = [];
-
-  // if (typeof user === 'string') {
-  //   users = [user];
-  // } else if (Array.isArray(user)) {
-  //   users = user;
-  // }
-
- 
-  // docs.toJSON()  
-  // console.log(docs)
-  
-  // console.log("docs: ")
-  // const normalized = normalizeDoc(docs);
-  // console.log("normalized : ")
-  // console.log(normalized)
-  // const response = notificationResponseListSchema.parse(normalized);
