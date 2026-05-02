@@ -15,6 +15,13 @@ import { mailRouter } from './mail/mail.routes.js';
 import userRouter from './user/user.routes.js';
 import { connectRedis } from './libs/redis/redis-client.js';
 import publicRouter from './public/public.routes.js';
+import { requestId } from './libs/middleware/request-id.js';
+import { httpLogger } from './libs/logger/http-logger.js';
+import { requestLogger } from './libs/middleware/request-logger.js';
+import { requestTimer } from './libs/middleware/request-timer.js';
+import { register } from './libs/logger/metrics.js';
+import { logger } from './libs/logger/logger.js';
+import { metricsMiddleware } from './libs/middleware/metrics.js';
 
 // Env Config
 dotenv.config();
@@ -22,12 +29,20 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
-// Route Login
-app.use((req, res, next) => {
-  // eslint-disable-next-line no-console
-  console.log(req.method, req.url);
-  next();
-});
+// 1. request id
+app.use(requestId);
+
+// 2. attach logger
+app.use(httpLogger);
+
+// 3. start timer
+app.use(requestTimer);
+
+// 4. log requests
+app.use(requestLogger);
+
+// 5. Metrics Middleware
+app.use(metricsMiddleware);
 
 // Middlewares
 // CORS
@@ -61,11 +76,14 @@ app.use('/api/mail', protectedRoute, mailRouter);
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
 app.use(express.static(path.join(process.cwd(), 'public')));
+app.get('/metrics', async (_req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 
 // Global Error Handling
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log('Server Started', PORT);
+  logger.info(`server started at http://localhost:${PORT}`);
 });

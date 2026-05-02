@@ -46,9 +46,8 @@ export const checkInController = async (req: Request, res: Response) => {
 
     const normalized = normalizeDoc(cronRecord.toObject());
     const parsed = attendanceResponseSchema.parse(normalized);
-
     const todayKey = createKey('attendance', 'today', 'me', user?.id);
-    deleteCache(todayKey);
+    await deleteCache(todayKey);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
       data: parsed,
@@ -73,7 +72,7 @@ export const checkInController = async (req: Request, res: Response) => {
   const parsed = attendanceResponseSchema.parse(normalized);
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
-  deleteCache(todayKey);
+  await deleteCache(todayKey);
   return ApiResponse.success(res, {
     message: 'You have been marked present',
     data: parsed,
