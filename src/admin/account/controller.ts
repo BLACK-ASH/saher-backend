@@ -64,7 +64,7 @@ export const accountRegisterController = async (
       html,
     });
 
-    const key = createKey('account', 'list');
+    const key = createKey('users', 'list');
     await deleteCache(key);
 
     return ApiResponse.created(res, { message: 'Employee registered.', data: user._id });
@@ -83,7 +83,7 @@ export const accountUpdateController = async (req: Request, res: Response) => {
   if (!update) throw new ApiError(404, 'Employee Not Found.');
 
   const key = createKey('account', id);
-  const key1 = createKey('account', 'list');
+  const key1 = createKey('users', 'list');
 
   await deleteCache(key);
   await deleteCache(key1);
