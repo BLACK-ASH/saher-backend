@@ -22,6 +22,6 @@ jobs:
           git reset --hard origin/dev
 
           cd /home/deploy/saher
-          docker compose up -d --build
+          docker compose up -d --build backend
       - name: Verify containers
         run: docker ps
