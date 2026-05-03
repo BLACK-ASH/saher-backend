@@ -13,7 +13,12 @@ import {
   updateAdvanceBillSchema,
   updateUserSchema,
 } from './bill/advance-bill.schema.js';
-import { getAllBills, getBillById, myBills } from './review-bill/reviewing-bill.controller.js';
+import {
+  getAllBills,
+  getBillById,
+  myBills,
+  recycleBills,
+} from './review-bill/reviewing-bill.controller.js';
 
 const billRouter = Router();
 
@@ -68,4 +73,6 @@ billRouter.get('/mybills', myBills);
 billRouter.get('/getbill/:billId', getBillById);
 billRouter.get('/getallbills', authorize('read', 'preReimbursement'), getAllBills);
 
+// Recycle bills
+billRouter.get('/recyclebills', authorize('read', 'preReimbursement'), recycleBills);
 export default billRouter;

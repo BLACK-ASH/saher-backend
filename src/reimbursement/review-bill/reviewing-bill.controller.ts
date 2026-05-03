@@ -18,12 +18,13 @@ export const myBills = async (req: Request, res: Response) => {
   // Using createdBy because some userId exist even in admin bill so using createdBy to ensure only the bills created by user will fetch
   const bills = await Reimbursement.find({ createdBy: userId });
   if (!bills) throw new ApiError(400, 'Bill not found');
+  const filterBills = bills.filter((bill) => bill.isDeleted !== true);
 
   // const normalized = normalizeDoc(bills)
 
   return ApiResponse.success(res, {
-    message: 'bill of the user',
-    data: bills,
+    message: 'Bills of the user',
+    data: filterBills,
     statusCode: 201,
   });
 };
@@ -44,7 +45,7 @@ export const getBillById = async (req: Request, res: Response) => {
   const role = req.user?.role;
 
   const bill = await Reimbursement.findById(billId);
-  if (!bill) throw new ApiError(400, 'Bill not found');
+  if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
 
   if (role === 'user') {
     if (bill.createdBy !== userId) throw new ApiError(400, 'Unauthorized');
@@ -74,10 +75,26 @@ export const getAllBills = async (req: Request, res: Response) => {
   } else {
     throw new ApiError(400, 'Unauthorized');
   }
+  const filterBills = allBills.filter((bill) => bill.isDeleted !== true);
 
   return ApiResponse.success(res, {
     message: 'All the bills in reimbursement',
-    data: allBills,
+    data: filterBills,
+    statusCode: 201,
+  });
+};
+
+// Get all the soft Deleted bills
+export const recycleBills = async (req: Request, res: Response) => {
+  const role = req.user?.role;
+  if (role === 'user') throw new ApiError(400, 'Unauthorized');
+
+  const recycles = await Reimbursement.find({ isDeleted: true });
+  if (recycles.length === 0) throw new ApiError(200, 'No bills to show');
+
+  return ApiResponse.success(res, {
+    message: 'Deleted bills',
+    data: recycles,
     statusCode: 201,
   });
 };
