@@ -31,14 +31,7 @@ export const getLatestNotificationController = async (req: Request, res: Respons
   const user = req.user;
   const role = user?.role 
 
-  // const countNotification = await Notification.countDocuments();
-  // if (countNotification === 0) {
-  //   return ApiResponse.success(res, {
-  //     message: 'There are no notification',
-  //     data: null,
-  //     statusCode: 200,
-  //   });
-  // }
+
 
   const latestNotification = await Notification.findOne({
     $or: [{ user: user?.id }, { scope : role },{scope : "global"}],
@@ -70,14 +63,7 @@ export const getAlltNotificationController = async (req: Request, res: Response)
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  // const countNotification = await Notification.countDocuments();
-  // if (countNotification === 0) {
-  //   return ApiResponse.success(res, {
-  //     message: 'There are no notification',
-  //     data: null,
-  //     statusCode: 200,
-  //   });
-  // }
+
 
   const allNotification = await Notification.find({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
     .sort({ createdAt: -1 })

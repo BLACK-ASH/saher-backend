@@ -9,7 +9,6 @@ import {
 import { authorize } from '../permission/authorize.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { SendNotificationSchema, updateNotificationSchema} from './notification.schema.js';
-// import { NotificationInputSchema } from '../libs/utils/system-notification.js';
 
 const notificationRouter = Router();
 
