@@ -40,7 +40,7 @@ export const advanceBill = async (req: Request, res: Response) => {
     amount,
     dateOfPayment,
     adminNote,
-    givenBy: adminId,
+    createdBy: adminId,
   });
 
   const normalized = normalizeDoc(bill);

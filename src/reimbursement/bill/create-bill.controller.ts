@@ -27,20 +27,21 @@ export const createBill = async (req: Request, res: Response) => {
   // }
 
   const { amount, description, image, dateOfPayment } = req.body;
-  const user = req.user;
+  const userId = req.user?.id;
   // const user = req.user;
 
-  if (!user?.id) throw new ApiError(401, 'User not found');
+  if (!userId) throw new ApiError(401, 'User not found');
 
   const media = await Media.findById(image);
   if (!media) throw new ApiError(401, 'images not exist');
 
   const bill = await Reimbursement.create({
-    user: user.id,
+    user: userId,
     image,
     amount,
     dateOfPayment,
     description,
+    createdBy: userId,
   });
 
   const normalized = normalizeDoc(bill);

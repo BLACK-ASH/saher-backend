@@ -42,7 +42,7 @@ const billSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    givenBy: {
+    createdBy: {
       type: String,
     },
   },

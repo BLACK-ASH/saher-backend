@@ -13,6 +13,7 @@ import {
   updateAdvanceBillSchema,
   updateUserSchema,
 } from './bill/advance-bill.schema.js';
+import { getAllBills, getBillById, myBills } from './review-bill/reviewing-bill.controller.js';
 
 const billRouter = Router();
 
@@ -61,5 +62,10 @@ billRouter.delete(
   authorize('delete', 'preReimbursement'),
   advanceSoftDelete,
 );
+
+// Reviewing bill
+billRouter.get('/mybills', myBills);
+billRouter.get('/getbill/:billId', getBillById);
+billRouter.get('/getallbills', authorize('read', 'preReimbursement'), getAllBills);
 
 export default billRouter;
