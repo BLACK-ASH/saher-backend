@@ -4,7 +4,16 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { Media } from '../../database/media-upload.model.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { billResponseSchema, updateBillResposeSchema } from './create-bill.schema.js';
+import {
+  billResponseSchema,
+  updateAdminResponseSchema,
+  updateBillResposeSchema,
+} from './create-bill.schema.js';
+import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
+import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+import { sendSystemNotification } from '../../libs/utils/system-notification.js';
+import { User } from '../../database/user.model.js';
+import { promise } from 'zod';
 
 // Create bill
 export const createBill = async (req: Request, res: Response) => {
@@ -18,15 +27,16 @@ export const createBill = async (req: Request, res: Response) => {
   // }
 
   const { amount, description, image, dateOfPayment } = req.body;
-  const userId = req.user?.id;
+  const user = req.user;
+  // const user = req.user;
 
-  if (!userId) throw new ApiError(401, 'Unauthorized');
+  if (!user?.id) throw new ApiError(401, 'User not found');
 
   const media = await Media.findById(image);
   if (!media) throw new ApiError(401, 'images not exist');
 
   const bill = await Reimbursement.create({
-    user: userId,
+    user: user.id,
     image,
     amount,
     dateOfPayment,
@@ -36,6 +46,20 @@ export const createBill = async (req: Request, res: Response) => {
   const normalized = normalizeDoc(bill);
   // @ts-expect-error - _doc will exist
   const parsed = billResponseSchema.parse(normalized._doc);
+
+  const users = await User.find({ role: { $in: ['admin', 'manager'] } }).select('_id');
+
+  // Send notification to admin
+  await Promise.all(
+    users.map((user) =>
+      sendSystemNotification({
+        user: user._id.toString(),
+        type: 'Request',
+        title: 'New bill submited',
+        description: `A new bill of ₹${bill.amount} has been submitted`,
+      }),
+    ),
+  );
 
   return ApiResponse.success(res, {
     message: 'bill created successfully',
@@ -58,6 +82,8 @@ export const updateBill = async (req: Request, res: Response) => {
   // // if the status is not pending then don't proceed further and pass message that bill can't be updated
   // // if the bill proceed then updated only (image,billAmount,description) only this is need to be edited
 
+  type Role = 'admin' | 'manager' | 'user';
+
   const userId = req.user?.id;
   const billId = req.params.id;
 
@@ -66,20 +92,33 @@ export const updateBill = async (req: Request, res: Response) => {
   const bill = await Reimbursement.findById(billId);
   if (!bill) throw new ApiError(400, 'bill not exist');
 
-  if (bill.user.toString() !== userId) throw new ApiError(400, 'Unauthorized');
+  const role = req.user?.role as Role;
+  let update = null,
+    parsed = null;
 
-  if (bill.status !== 'pending') throw new ApiError(400, "You can't delete this bill now");
+  if (role === 'user') {
+    if (bill.user.toString() !== userId) throw new ApiError(400, 'Unauthorized');
+    if (bill.status !== 'pending') throw new ApiError(400, "You can't delete this bill now");
 
-  const { image, amount, description } = req.body;
+    const { image, amount, description } = req.body;
 
-  const media = await Media.findById(image);
-  if (!media) throw new ApiError(401, 'images not exist');
+    const media = await Media.findById(image);
+    if (!media) throw new ApiError(401, 'images not exist');
 
-  const update = await Reimbursement.findByIdAndUpdate(billId, { image, amount, description });
+    update = await Reimbursement.findByIdAndUpdate(billId, { image, amount, description });
+    const normalized = normalizeDoc(update);
+    // @ts-expect-error - _doc will exist
+    parsed = updateBillResposeSchema.parse(normalized._doc);
+  } else if (role === 'admin' || role === 'manager') {
+    const { status, adminNote } = req.body;
 
-  const normalized = normalizeDoc(update);
-  // @ts-expect-error - _doc will exist
-  const parsed = updateBillResposeSchema.parse(normalized._doc);
+    update = await Reimbursement.findByIdAndUpdate(billId, { status, adminNote });
+    const normalized = normalizeDoc(update);
+    // @ts-expect-error - _doc will exist
+    parsed = updateAdminResponseSchema.parse(normalized._doc);
+  }
+
+  if (!update) throw new ApiError(400, 'Update is empty');
 
   return ApiResponse.success(res, {
     message: 'bill updated successfully',

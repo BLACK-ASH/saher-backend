@@ -1,10 +1,18 @@
 import { Router } from 'express';
 import { createBill, updateBill, softDeleteBill } from './bill/create-bill.controller.js';
 import { authorize } from '../permission/authorize.js';
-import { createBillSchema, updateBillSchema } from './bill/create-bill.schema.js';
+import {
+  updateAdminSchema,
+  createBillSchema,
+  updateBillSchema,
+} from './bill/create-bill.schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { advanceBill, advanceSoftDelete, advanceUpdate } from './bill/advance-bill.controller.js';
-import { advanceBillSchema } from './bill/advance-bill.schema.js';
+import {
+  createAdvanceBillSchema,
+  updateAdvanceBillSchema,
+  updateUserSchema,
+} from './bill/advance-bill.schema.js';
 
 const billRouter = Router();
 
@@ -16,23 +24,36 @@ billRouter.post(
   createBill,
 );
 billRouter.put(
-  '/update/:id',
+  '/update-user/:id',
   authorize('update', 'postReimbursement'),
   validate(updateBillSchema),
+  updateBill,
+);
+billRouter.put(
+  '/update-admin/:id',
+  authorize('update', 'preReimbursement'),
+  validate(updateAdminSchema),
   updateBill,
 );
 billRouter.delete('/delete/:id', authorize('delete', 'postReimbursement'), softDeleteBill);
 
 // Advance bill route
 billRouter.post(
-  '/bill/:userId',
+  '/bill/create/:userId',
   authorize('write', 'preReimbursement'),
-  validate(advanceBillSchema),
+  validate(createAdvanceBillSchema),
   advanceBill,
 );
 billRouter.put(
-  '/bill/update/:billId/:userId',
+  '/bill/update-admin/:billId',
   authorize('update', 'preReimbursement'),
+  validate(updateAdvanceBillSchema),
+  advanceUpdate,
+);
+billRouter.put(
+  '/bill/update-user/:billId',
+  authorize('update', 'postReimbursement'),
+  validate(updateUserSchema),
   advanceUpdate,
 );
 billRouter.delete(

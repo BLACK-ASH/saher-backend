@@ -84,6 +84,7 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission('write', 'preReimbursement'),
     createPermission('update', 'preReimbursement'),
     createPermission('delete', 'preReimbursement'),
+    createPermission('update', 'postReimbursement'),
   ]),
 
   user: new Set([
@@ -97,9 +98,9 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission('write', 'mail'),
 
     // Reimbursement
-    createPermission('update', 'preReimbursement'),
     createPermission('write', 'postReimbursement'),
     createPermission('update', 'postReimbursement'),
     createPermission('delete', 'postReimbursement'),
+    createPermission('update', 'preReimbursement'),
   ]),
 };

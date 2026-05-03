@@ -14,6 +14,9 @@ const baseSchema = z.object({
   description: z.string().min(3).max(500),
 });
 
+export const createBillSchema = baseSchema;
+export const updateBillSchema = baseSchema.omit({ dateOfPayment: true }).partial();
+
 export const billResponseSchema = z.object({
   user: z.string(),
   image: z.string(),
@@ -24,10 +27,14 @@ export const billResponseSchema = z.object({
 
 export const updateBillResposeSchema = billResponseSchema.omit({ dateOfPayment: true }).partial();
 
-export const createBillSchema = baseSchema;
+export const updateAdminSchema = z.object({
+  status: z.string(),
+  adminNote: z.string(),
+});
 
-export const updateBillSchema = baseSchema.omit({ dateOfPayment: true }).partial();
+export const updateAdminResponseSchema = updateAdminSchema;
 
 export const BillIdSchema = z.object({ id: objectId });
 export type createBillInputType = z.infer<typeof createBillSchema>;
 export type updateBillInputType = z.infer<typeof updateBillSchema>;
+export type adminBillInputType = z.infer<typeof updateAdminSchema>;

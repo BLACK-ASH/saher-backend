@@ -13,22 +13,27 @@ const baseSchema = z.object({
   dateOfPayment: dateField,
   adminNote: z.string().min(3).max(500),
 });
+export const createAdvanceBillSchema = baseSchema;
+export const updateAdvanceBillSchema = baseSchema.omit({ dateOfPayment: true }).partial();
 
-export const advanceResponseSchema = z.object({
+export const advanceBillResponseSchema = z.object({
   user: z.string(),
   image: z.string(),
   amount: z.number(),
   dateOfPayment: dateField,
   adminNote: z.string(),
 });
-
-export const advanceBillSchema = baseSchema;
-
-export const updateAdvanceSchema = baseSchema.omit({ dateOfPayment: true }).partial();
-
-export const updateAdvanceResposeSchema = advanceResponseSchema
+export const updateAdvanceBillResposeSchema = advanceBillResponseSchema
   .omit({ dateOfPayment: true })
   .partial();
 
-export type createBillInputType = z.infer<typeof advanceBillSchema>;
-export type updateBillInputType = z.infer<typeof updateAdvanceSchema>;
+export const updateUserSchema = z.object({
+  status: z.string(),
+  description: z.string(),
+});
+
+export const updateUserResponseSchema = updateUserSchema;
+
+export type createBillInputType = z.infer<typeof createAdvanceBillSchema>;
+export type updateBillInputType = z.infer<typeof updateAdvanceBillSchema>;
+export type adminBillInputType = z.infer<typeof updateUserSchema>;

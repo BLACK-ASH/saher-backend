@@ -4,7 +4,12 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { Media } from '../../database/media-upload.model.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { advanceResponseSchema, updateAdvanceResposeSchema } from './advance-bill.schema.js';
+import {
+  advanceBillResponseSchema,
+  updateAdvanceBillResposeSchema,
+  updateUserResponseSchema,
+} from './advance-bill.schema.js';
+import { sendSystemNotification } from '../../libs/utils/system-notification.js';
 
 export const advanceBill = async (req: Request, res: Response) => {
   // write a code to give advance to employee
@@ -31,6 +36,7 @@ export const advanceBill = async (req: Request, res: Response) => {
   const bill = await Reimbursement.create({
     user: userId,
     image,
+    adminId,
     amount,
     dateOfPayment,
     adminNote,
@@ -39,7 +45,14 @@ export const advanceBill = async (req: Request, res: Response) => {
 
   const normalized = normalizeDoc(bill);
   // @ts-expect-error - _doc will exist
-  const parsed = advanceResponseSchema.parse(normalized._doc);
+  const parsed = advanceBillResponseSchema.parse(normalized._doc);
+
+  await sendSystemNotification({
+    user: userId,
+    type: 'Request',
+    title: 'New bill submited',
+    description: `A new bill of ₹${bill.amount} has been submitted`,
+  });
 
   return ApiResponse.success(res, {
     message: 'bill created successfully',
@@ -63,33 +76,41 @@ export const advanceUpdate = async (req: Request, res: Response) => {
   // // if the bill proceed then updated only (image,billAmount,description) only this is need to be edited
 
   const adminId = req.user?.id;
-  const billId = req.params;
+  const role = req.user?.role;
+  const { billId } = req.params;
 
   if (!billId) throw new ApiError(400, 'Bill id id required');
-
+  let update = null,
+    parsed = null;
   const bill = await Reimbursement.findById(billId);
   if (!bill) throw new ApiError(400, 'Bill not found');
 
-  if (bill.user.toString() !== adminId) throw new ApiError(400, 'Unauthorized');
+  if (role === 'admin' || role === 'manager') {
+    if (bill.adminId?.toString() !== adminId) throw new ApiError(400, 'Unauthorized');
 
-  if (bill.status !== 'pending') throw new ApiError(400, "you can't update this bill now");
+    if (bill.status !== 'pending') throw new ApiError(400, "you can't update this bill now");
 
-  const { userId } = req.params;
-  const { amount, adminNote, image } = req.body;
+    // const { userId } = req.params;
+    const { amount, adminNote, image } = req.body;
 
-  const media = await Media.findById(image);
-  if (!media) throw new ApiError(400, 'Media not exist');
+    const media = await Media.findById(image);
+    if (!media) throw new ApiError(400, 'Media not exist');
 
-  const update = await Reimbursement.findByIdAndUpdate(billId, {
-    userId,
-    amount,
-    adminNote,
-    image,
-  });
+    update = await Reimbursement.findByIdAndUpdate(billId, { amount, adminNote, image });
 
-  const normalized = normalizeDoc(update);
-  // @ts-expect-error - _doc will exist
-  const parsed = updateAdvanceResposeSchema.parse(normalized._doc);
+    const normalized = normalizeDoc(update);
+    // @ts-expect-error - _doc will exist
+    parsed = updateAdvanceBillResposeSchema.parse(normalized._doc);
+  } else if (role === 'user') {
+    const { status, description } = req.body;
+
+    update = await Reimbursement.findByIdAndUpdate(billId, { status, description });
+
+    const normalized = normalizeDoc(update);
+    // @ts-expect-error - _doc will exist
+    parsed = updateUserResponseSchema.parse(normalized._doc);
+  }
+  if (!update) throw new ApiError(400, 'Update is empty');
 
   return ApiResponse.success(res, {
     message: 'bill created successfully',
@@ -112,13 +133,13 @@ export const advanceSoftDelete = async (req: Request, res: Response) => {
   // // else throw error
 
   const adminId = req.user?.id;
-  const billId = req.params;
+  const { billId } = req.params;
   if (!billId) throw new ApiError(400, 'Bill id is required');
 
   const bill = await Reimbursement.findById(billId);
   if (!bill) throw new ApiError(400, 'bill not found');
 
-  if (bill.user.toString() !== adminId) throw new ApiError(400, 'Unauthorized');
+  if (bill.adminId?.toString() !== adminId) throw new ApiError(400, 'Unauthorized');
 
   if (bill.status !== 'pending') throw new ApiError(400, "you can't delete this bill now");
 
