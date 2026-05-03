@@ -2,10 +2,10 @@ import { Request, Response } from 'express';
 import { ApiError } from '../libs/class/api-error.js';
 import { Notification } from '../database/notification.model.js';
 import { sendNotification} from '../libs/utils/system-notification.js';
-// import { NotificationCreateInputType, notificationResponseSchema } from './notification.schema.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
-import { notificationResponseListSchema, notificationResponseSchema, SendNotificationSchema, SendNotificationT } from './notification.schema.js';
+import { notificationResponseListSchema, notificationResponseListT, notificationResponseSchema, SendNotificationSchema, SendNotificationT } from './notification.schema.js';
+import { createKey, deleteCacheGroup, getCache, setCacheWithGroup } from '../libs/redis/redis-utils.js';
 
 
 //Create a new Notification
@@ -18,6 +18,7 @@ export const createNotificationController = async (req: Request, res: Response) 
 } 
   await sendNotification(input);
 
+  await deleteCacheGroup('notification')
   return ApiResponse.success(res, {
     statusCode : 201 ,
     message: 'Notification created successfully',
@@ -31,11 +32,9 @@ export const getLatestNotificationController = async (req: Request, res: Respons
   const user = req.user;
   const role = user?.role 
 
-
-
   const latestNotification = await Notification.findOne({
     $or: [{ user: user?.id }, { scope : role },{scope : "global"}],
-  }).sort({ createdAt: -1 }).lean();
+  }).lean();
 
  if (!latestNotification) {
   return ApiResponse.success(res, {
@@ -58,28 +57,42 @@ export const getLatestNotificationController = async (req: Request, res: Respons
 export const getAlltNotificationController = async (req: Request, res: Response) => {
   const user = req.user;
   const role = user?.role 
+  const id = user?.id
 
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+  // const page = Number(req.query.page) || 1;
+  // const limit = Number(req.query.limit) || 10;
+  // const skip = (page - 1) * limit;
 
+  if(!id){
+    return new ApiError(400,"Unauthorized")
+  }
+  const key = createKey('notification','list',id )
 
+  const cached = await getCache<{message : string , data : notificationResponseListT[]}>(key)
+
+  if(cached){
+    return ApiResponse.success(res,cached)
+  }
 
   const allNotification = await Notification.find({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
     .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
+    // .skip(skip)
+    // .limit(limit)
     .lean();
 
-  const count = await Notification.countDocuments({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
+  // const count = await Notification.countDocuments({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
   const normalized = normalizeDoc(allNotification)
   const parsed = notificationResponseListSchema.parse(normalized)
-  return ApiResponse.success(res, {
+
+  const body = {
     message: 'The notifications are  ',
     data: parsed ,
     statusCode: 200,
-    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
-  });
+    // meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
+  }
+
+  await setCacheWithGroup(key , body , ['notification'])
+  return ApiResponse.success(res,body );
 };
 
 //Update Notification
@@ -121,7 +134,8 @@ if (final.user) {
   const normalized = normalizeDoc(updatedNotification)
   const parsed = notificationResponseSchema.parse(normalized)
 
-
+  await deleteCacheGroup('notification')
+ 
   return ApiResponse.success(res, {
     message: 'The notification has been updated successfully ',
     data: parsed ,
@@ -138,6 +152,8 @@ export const deleteNotificationController = async (req: Request, res: Response) 
   if (!notification) {
     throw new ApiError(404, 'The notification was not found');
   }
+  
+  await deleteCacheGroup('notification')
 
   return ApiResponse.success(res, {
     message: 'The notification has been deleted successfully',

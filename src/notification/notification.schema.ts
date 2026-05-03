@@ -46,6 +46,7 @@ export const notificationResponseSchema = z.object({
 }).strip();
 
 export const notificationResponseListSchema = z.array(notificationResponseSchema)
+export type  notificationResponseListT = z.infer<typeof notificationResponseListSchema>
 
 
 export type NotificationResponseT = z.infer<typeof notificationResponseSchema>
