@@ -3,6 +3,7 @@ import { Reimbursement } from '../../database/bill.model.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { reviewResponseSchema } from './reviewing-bill.schema.js';
 
 // For employee,admin and manager
 export const myBills = async (req: Request, res: Response) => {
@@ -16,15 +17,16 @@ export const myBills = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
   // Using createdBy because some userId exist even in admin bill so using createdBy to ensure only the bills created by user will fetch
-  const bills = await Reimbursement.find({ createdBy: userId });
+  const bills = await Reimbursement.find({ createdBy: userId }).lean();
   if (!bills) throw new ApiError(400, 'Bill not found');
   const filterBills = bills.filter((bill) => bill.isDeleted !== true);
 
-  // const normalized = normalizeDoc(bills)
+  const normalized = normalizeDoc(filterBills);
+  const parsed = reviewResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Bills of the user',
-    data: filterBills,
+    data: parsed,
     statusCode: 201,
   });
 };
@@ -50,11 +52,13 @@ export const getBillById = async (req: Request, res: Response) => {
   if (role === 'user') {
     if (bill.createdBy !== userId) throw new ApiError(400, 'Unauthorized');
   }
-  // const normalized = normalizeDoc(bill);
+  const normalized = normalizeDoc(bill);
+  // @ts-expect-error - _doc will exist
+  const parsed = reviewResponseSchema.parse(normalized._doc);
 
   return ApiResponse.success(res, {
     message: 'Bill fetch successfully',
-    data: bill,
+    data: parsed,
     statusCode: 201,
   });
 };
@@ -68,7 +72,7 @@ export const getAllBills = async (req: Request, res: Response) => {
   // // if is not pass the error
 
   const role = req.user?.role;
-  const allBills = await Reimbursement.find();
+  const allBills = await Reimbursement.find().lean();
 
   if (role === 'admin' || role === 'manager') {
     if (allBills.length === 0) throw new ApiError(400, 'No bill to show');
@@ -77,9 +81,12 @@ export const getAllBills = async (req: Request, res: Response) => {
   }
   const filterBills = allBills.filter((bill) => bill.isDeleted !== true);
 
+  const normalized = normalizeDoc(filterBills);
+  const parsed = reviewResponseSchema.array().parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'All the bills in reimbursement',
-    data: filterBills,
+    data: parsed,
     statusCode: 201,
   });
 };
