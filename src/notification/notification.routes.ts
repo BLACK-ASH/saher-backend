@@ -8,7 +8,7 @@ import {
 } from './notification.controllers.js';
 import { authorize } from '../permission/authorize.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
-import { notificationSchema} from './notification.schema.js';
+import { SendNotificationSchema, updateNotificationSchema} from './notification.schema.js';
 // import { NotificationInputSchema } from '../libs/utils/system-notification.js';
 
 const notificationRouter = Router();
@@ -18,15 +18,15 @@ notificationRouter.get('/all', getAlltNotificationController);
 notificationRouter.post(
   '/create',
   authorize('write', 'notification'),
-  validate(notificationSchema),
+  validate(SendNotificationSchema),
   createNotificationController,
 );
-// notificationRouter.put(
-//   '/update/:id',
-//   authorize('update', 'notification'),
-//   validate(updateNotificationSchema),
-//   updateNotificationController,
-// );
+notificationRouter.put(
+  '/update/:id',
+  authorize('update', 'notification'),
+  validate(updateNotificationSchema),
+  updateNotificationController,
+);
 notificationRouter.delete(
   '/delete',
   authorize('delete', 'notification'),

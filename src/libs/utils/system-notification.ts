@@ -1,35 +1,8 @@
-// 
 
-import { Notification, notificationScope, notificationTypes } from '../../database/notification.model.js';
+import { Notification} from '../../database/notification.model.js';
 import { z } from 'zod';
-import { normalizeDoc } from './normailize-doc.js';
-import { notificationResponseListSchema, notificationSchema } from '../../notification/notification.schema.js';
-import { ApiResponse } from '../class/api-response.js';
+import { SendNotificationT } from '../../notification/notification.schema.js';
 
-export const SendNotificationSchema = z.object({
-  user: z.array(z.string()).optional(),
-  type: z.enum(notificationTypes),
-  title: z.string().min(1).max(100),
-  description: z.string().min(1).max(1000),
-  scope:z.enum(notificationScope)
-}).superRefine((schema , obj )=>{
-  if(schema.scope === "specific" && (!schema.user || schema.user.length === 0)){
-    obj.addIssue({
-      code :z.ZodIssueCode.custom,
-      message : "user is required when the scope is choosen as specific",
-      path : ["user"]
-    })
-  }
-  if(schema.scope !== "specific" && schema.user && schema.user.length > 0 ){
-    obj.addIssue({
-      code : z.ZodIssueCode.custom ,
-      message : "There ius no need for user when scope is not specific",
-      path : ["user"]
-    })
-  }
-});
-
-export type SendNotificationT = z.infer<typeof SendNotificationSchema>;
 
 export const sendNotification = async (input: SendNotificationT) => {
 

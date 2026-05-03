@@ -1,19 +1,22 @@
 import { Request, Response } from 'express';
 import { ApiError } from '../libs/class/api-error.js';
 import { Notification } from '../database/notification.model.js';
-import { sendNotification, SendNotificationSchema } from '../libs/utils/system-notification.js';
+import { sendNotification} from '../libs/utils/system-notification.js';
 // import { NotificationCreateInputType, notificationResponseSchema } from './notification.schema.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
-import { notificationResponseListSchema, notificationResponseSchema } from './notification.schema.js';
+import { notificationResponseListSchema, notificationResponseSchema, SendNotificationSchema, SendNotificationT } from './notification.schema.js';
 
 
 //Create a new Notification
 export const createNotificationController = async (req: Request, res: Response) => {
 
-  const parsed = SendNotificationSchema.parse(req.body)
+  const input:SendNotificationT = req.body
 
-  await sendNotification(parsed);
+  if (input.scope !== "specific") {
+  input.user = undefined;
+} 
+  await sendNotification(input);
 
   return ApiResponse.success(res, {
     statusCode : 201 ,
@@ -21,7 +24,6 @@ export const createNotificationController = async (req: Request, res: Response) 
     data : null,
   });
 }
-
 
 //Get the most recent Notification
 export const getLatestNotificationController = async (req: Request, res: Response) => {
@@ -98,12 +100,37 @@ export const getAlltNotificationController = async (req: Request, res: Response)
 export const updateNotificationController = async (req: Request, res: Response) => {
   const ID = req.params.id;
 
+  const input = req.body
+  
   //Sabse pehle Db mein existing notification dhundho
-  const updatedNotification = await Notification.findByIdAndUpdate(ID, req.body, { new: true });
+  const previousNotification = await Notification.findById(ID).lean()
 
-  if (!updatedNotification) {
+  if (!previousNotification) {
     throw new ApiError(404, 'Notification not found');
   }
+  
+
+const final = { ...previousNotification, ...input };
+
+if (input.scope && input.scope !== "specific") {
+  final.user = undefined;
+}
+
+if (final.user) {
+  final.user = final.user.map((id: any) => id.toString());
+}
+
+  const validated = SendNotificationSchema.parse(final)
+
+  const updateQuery: any = { ...validated };
+
+  if (validated.scope !== "specific") {
+  updateQuery.$unset = { user: "" };
+  delete updateQuery.user;
+}
+
+
+  const updatedNotification = await Notification.findByIdAndUpdate(ID, updateQuery,{new : true , runValidators : true }).lean()
 
   const normalized = normalizeDoc(updatedNotification)
   const parsed = notificationResponseSchema.parse(normalized)

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 export const notificationTypes = ['Announcement', 'Urgent', 'Reminder', 'Request', 'Task'];
-export const notificationScope = ['user', 'aamnager' , 'admin' , 'specific' , 'global']
+export const notificationScope = ['user', 'manager' , 'admin' , 'specific' , 'global']
 const notificationSchema = new mongoose.Schema(
   {
     user: {
