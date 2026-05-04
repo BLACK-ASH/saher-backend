@@ -1,9 +1,11 @@
 
 import mongoose from 'mongoose';
 import { Notification } from '../../database/notification.model.js';
-import { SendNotificationT } from '../../notification/notification.schema.js';
-import { deleteCacheGroup } from '../redis/redis-utils.js';
+import { notificationResponseListSchema, SendNotificationT } from '../../notification/notification.schema.js';
+import { createKey, deleteCache, deleteCacheGroup, setCache, setCacheWithGroup } from '../redis/redis-utils.js';
 import { ApiError } from '../class/api-error.js';
+import { normalizeDoc } from './normailize-doc.js';
+import { normalize } from 'node:path';
 
 
 // export const sendNotification = async (input: SendNotificationT) => {
@@ -29,8 +31,8 @@ import { ApiError } from '../class/api-error.js';
 
 export class systemNotification{
   static async global(input :SendNotificationT ){
-    const { user, type, title, description, scope } = input;
-
+     const globalNotificationKey = createKey('notification', 'global')
+    const { type, title, description } = input;
     const globalNotification = await Notification.create({
       user : undefined,
       type ,
@@ -39,12 +41,18 @@ export class systemNotification{
       scope : 'global'
     })
 
-    await deleteCacheGroup('notification')
-    return globalNotification
+await deleteCache(globalNotificationKey)   
+ const allNotification = await Notification.find({scope:'global'}).lean()
+
+    const normalized = normalizeDoc(allNotification)
+    const parsed = notificationResponseListSchema.parse(normalized)
+    await setCache(globalNotificationKey,parsed)
+    return true 
   }
 
   static async role(input :SendNotificationT ){
     const { type, title, description, scope } = input;
+    const scopeKey = createKey('notification','scope',scope)
     const roleNotification = await Notification.create({
       user : undefined,
       type ,
@@ -52,7 +60,15 @@ export class systemNotification{
       description,
       scope 
     })
-    await deleteCacheGroup('notification', 'scope' , scope)
+    
+    await deleteCache(scopeKey)
+    const allNotification = await Notification.find({scope : scope}).lean()
+
+    const normalaized = normalizeDoc(allNotification) 
+    const parsed = notificationResponseListSchema.parse(normalaized)
+
+    await setCache(scopeKey, parsed)
+    return true 
   }
 
   static async specific(input :SendNotificationT ){
@@ -64,9 +80,15 @@ export class systemNotification{
       description,
       scope : 'specific'
     })
-    if(!user){throw new ApiError(400,"user is required ")}
+    if(!user){throw Error}
     for (const id of user) {
-      await deleteCacheGroup('notification', 'user', id)
-}
+      const key = createKey('notification','user',id)
+      const specificNotification = await Notification.find({user : id }).lean()
+      const normalaized = normalizeDoc(specificNotification)
+      const parsed = notificationResponseListSchema.parse(normalaized)
+
+      await setCache(key,parsed)
+    }
+    return true 
   }
 }

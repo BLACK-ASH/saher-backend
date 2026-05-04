@@ -79,7 +79,7 @@ export const getAlltNotificationController = async (req: Request, res: Response)
   if (!id) {
     return new ApiError(400, "Unauthorized")
   }
-  
+ 
 
   const allNotification = await Notification.find({ $or: [{ user: user?.id }, { scope: role }, { scope: 'global' }] })
     .sort({ createdAt: -1 })
