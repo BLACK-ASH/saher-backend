@@ -18,18 +18,16 @@ export const SendNotificationSchema = BaseNotificationSchema.superRefine((schema
       path : ["user"]
     })
   }
-  if(schema.scope !== "specific" && schema.user && schema.user.length > 0 ){
-    obj.addIssue({
-      code : z.ZodIssueCode.custom ,
-      message : "There ius no need for user when scope is not specific",
-      path : ["user"]
-    })
-  }
+  // if(schema.scope !== "specific" && schema.user && schema.user.length > 0 ){
+  //   obj.addIssue({
+  //     code : z.ZodIssueCode.custom ,
+  //     message : "There ius no need for user when scope is not specific",
+  //     path : ["user"]
+  //   })
+  // }
 });
 
-export type SendNotificationT = z.infer<typeof SendNotificationSchema>;
-
-
+export type SendNotificationT = z.infer<typeof SendNotificationSchema>; 
 
 export const updateNotificationSchema = BaseNotificationSchema.partial()
 
