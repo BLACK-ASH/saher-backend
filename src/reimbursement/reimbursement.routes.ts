@@ -75,4 +75,5 @@ billRouter.get('/getallbills', authorize('read', 'preReimbursement'), getAllBill
 
 // Recycle bills
 billRouter.get('/recyclebills', authorize('read', 'preReimbursement'), recycleBills);
+
 export default billRouter;

@@ -82,26 +82,29 @@ export const advanceUpdate = async (req: Request, res: Response) => {
   if (!billId) throw new ApiError(400, 'Bill id id required');
   let update = null,
     parsed = null;
+
   const bill = await Reimbursement.findById(billId);
   if (!bill) throw new ApiError(400, 'Bill not found');
 
+  // operation perform when the role is admin/manager
   if (role === 'admin' || role === 'manager') {
     if (bill.adminId?.toString() !== adminId) throw new ApiError(400, 'Unauthorized');
 
     if (bill.status !== 'pending') throw new ApiError(400, "you can't update this bill now");
 
-    // const { userId } = req.params;
-    const { amount, adminNote, image } = req.body;
+    const { user, amount, adminNote, image } = req.body;
 
     const media = await Media.findById(image);
     if (!media) throw new ApiError(400, 'Media not exist');
 
-    update = await Reimbursement.findByIdAndUpdate(billId, { amount, adminNote, image });
+    update = await Reimbursement.findByIdAndUpdate(billId, { user, amount, adminNote, image });
 
     const normalized = normalizeDoc(update);
     // @ts-expect-error - _doc will exist
     parsed = updateAdvanceBillResposeSchema.parse(normalized._doc);
-  } else if (role === 'user') {
+  }
+  // operation perform when the role is user
+  else if (role === 'user') {
     const { status, description } = req.body;
 
     update = await Reimbursement.findByIdAndUpdate(billId, { status, description });

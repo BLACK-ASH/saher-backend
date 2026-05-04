@@ -14,7 +14,10 @@ const baseSchema = z.object({
   adminNote: z.string().min(3).max(500),
 });
 export const createAdvanceBillSchema = baseSchema;
-export const updateAdvanceBillSchema = baseSchema.omit({ dateOfPayment: true }).partial();
+export const updateAdvanceBillSchema = baseSchema
+  .omit({ dateOfPayment: true })
+  .partial()
+  .extend({ user: z.string().optional() });
 
 export const advanceBillResponseSchema = z.object({
   user: z.string(),

@@ -9,11 +9,8 @@ import {
   updateAdminResponseSchema,
   updateBillResposeSchema,
 } from './create-bill.schema.js';
-import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
-import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { sendSystemNotification } from '../../libs/utils/system-notification.js';
 import { User } from '../../database/user.model.js';
-import { promise } from 'zod';
 
 // Create bill
 export const createBill = async (req: Request, res: Response) => {
@@ -32,6 +29,7 @@ export const createBill = async (req: Request, res: Response) => {
 
   if (!userId) throw new ApiError(401, 'User not found');
 
+  // checking if the image is exist in media or not
   const media = await Media.findById(image);
   if (!media) throw new ApiError(401, 'images not exist');
 
@@ -50,7 +48,7 @@ export const createBill = async (req: Request, res: Response) => {
 
   const users = await User.find({ role: { $in: ['admin', 'manager'] } }).select('_id');
 
-  // Send notification to admin
+  // Send notification to all admin/manager
   await Promise.all(
     users.map((user) =>
       sendSystemNotification({
@@ -97,6 +95,7 @@ export const updateBill = async (req: Request, res: Response) => {
   let update = null,
     parsed = null;
 
+  // operation perform when the role is user
   if (role === 'user') {
     if (bill.user.toString() !== userId) throw new ApiError(400, 'Unauthorized');
     if (bill.status !== 'pending') throw new ApiError(400, "You can't delete this bill now");
@@ -110,7 +109,9 @@ export const updateBill = async (req: Request, res: Response) => {
     const normalized = normalizeDoc(update);
     // @ts-expect-error - _doc will exist
     parsed = updateBillResposeSchema.parse(normalized._doc);
-  } else if (role === 'admin' || role === 'manager') {
+  }
+  // operation perform when the role is admin/manager
+  else if (role === 'admin' || role === 'manager') {
     const { status, adminNote } = req.body;
 
     update = await Reimbursement.findByIdAndUpdate(billId, { status, adminNote });

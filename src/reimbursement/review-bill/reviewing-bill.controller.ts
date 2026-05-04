@@ -99,9 +99,12 @@ export const recycleBills = async (req: Request, res: Response) => {
   const recycles = await Reimbursement.find({ isDeleted: true });
   if (recycles.length === 0) throw new ApiError(200, 'No bills to show');
 
+  const normalized = normalizeDoc(recycles);
+  const parsed = reviewResponseSchema.array().parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Deleted bills',
-    data: recycles,
+    data: parsed,
     statusCode: 201,
   });
 };
