@@ -108,16 +108,13 @@ export const getAllNotificationsController = async (req: Request, res: Response)
   const userId = user.id
   const role = user.role;
 
-  // 🔑 1. Create user-based cache key
   const key = createKey('notification', 'user', userId);
 
-  // ⚡ 2. Try cache first
   const cached = await getCache(key);
   if (cached) {
     return ApiResponse.success(res,{message : "Cached" , statusCode : 200 , data : cached})
   }
 
-  // 🧠 3. Fetch from DB (ALL relevant notifications)
   const notifications = await Notification.find({
     $or: [
       { scope: 'global' },
@@ -125,14 +122,12 @@ export const getAllNotificationsController = async (req: Request, res: Response)
       { scope: 'specific', user: userId }
     ]
   })
-    .sort({ createdAt: -1 }) // latest first
+    .sort({ createdAt: -1 }) 
     .lean();
 
-  // 🧹 4. Normalize (your existing util)
   const normalized = normalizeDoc(notifications);
   const parsed = notificationResponseListSchema.parse(normalized)
 
-  // 💾 5. Store in cache WITH GROUPS (VERY IMPORTANT)
     await Promise.all([
     // global group
     setCacheWithGroup(key, parsed, ['notification']),
@@ -144,7 +139,6 @@ export const getAllNotificationsController = async (req: Request, res: Response)
     setCacheWithGroup(key, parsed, ['user', userId])
   ]);
 
-  // 📤 6. Return response
   return ApiResponse.success(res,{message:"normalized Data" , statusCode: 200 , data : parsed})
 };
 

@@ -79,7 +79,6 @@ import { normalize } from 'node:path';
 
 export class systemNotification {
 
-  // GLOBAL → affects ALL users
   static async global(input: SendNotificationT) {
     const { type, title, description } = input;
 
@@ -91,13 +90,11 @@ export class systemNotification {
       scope: 'global'
     });
 
-    // 🔥 invalidate ALL user caches
     await deleteCacheGroup('notification');
 
     return true;
   }
 
-  // ROLE → affects only that role
   static async role(input: SendNotificationT) {
     const { type, title, description, scope } = input;
 
@@ -109,13 +106,11 @@ export class systemNotification {
       scope
     });
 
-    // 🔥 invalidate only that role
     await deleteCacheGroup(`role:${scope}`);
 
     return true;
   }
 
-  // SPECIFIC → affects selected users
   static async specific(input: SendNotificationT) {
     const { user, type, title, description } = input;
     if(!user){throw Error}
@@ -127,7 +122,6 @@ export class systemNotification {
       scope: 'specific'
     });
 
-    // 🔥 invalidate only those users
     for (const userId of user) {
       const key = createKey('notification', 'user', userId);
       await deleteCache(key);
