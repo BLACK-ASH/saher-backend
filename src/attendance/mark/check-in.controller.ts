@@ -1,13 +1,14 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { getAccountByUser } from '../../admin/_services/account.js';
-import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
-import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
+import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not

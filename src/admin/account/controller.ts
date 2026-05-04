@@ -1,15 +1,16 @@
-import { NextFunction, Request, Response } from 'express';
-import { AccountRegisterInput } from './schema.js';
-import { User } from '../../database/user.model.js';
-import { Account } from '../../database/account.model.js';
+import type { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { ApiError } from '../../libs/class/api-error.js';
-import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
-import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+
+import type { AccountRegisterInput } from './schema.js';
+import { Account } from '../../database/account.model.js';
 import { Bank } from '../../database/bank.model.js';
-import { getAccount, getAccountByUser } from '../_services/account.js';
-import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { User } from '../../database/user.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { getAccount, getAccountByUser } from '../_services/account.js';
 
 export const accountRegisterController = async (
   req: Request,

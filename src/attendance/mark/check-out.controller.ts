@@ -1,13 +1,14 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
-import { getAccountByUser } from '../../admin/_services/account.js';
 
 export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user;

@@ -1,4 +1,5 @@
 import { createClient } from 'redis';
+
 import 'dotenv/config';
 import { logger } from '../logger/logger.js';
 

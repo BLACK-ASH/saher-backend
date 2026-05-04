@@ -1,10 +1,12 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import type { AttendanceCorrectionResponse } from './correction.schema.js';
+import { correctionResponsListSchema } from './correction.schema.js';
 import { AttendanceCorrection } from '../../database/attendance-correction.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { AttendanceCorrectionResponse, correctionResponsListSchema } from './correction.schema.js';
 import { createKey, getCache, setCacheWithGroup } from '../../libs/redis/redis-utils.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;

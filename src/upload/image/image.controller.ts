@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { processAndSaveImage } from './image.service.js';
 import { Media } from '../../database/media-upload.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
