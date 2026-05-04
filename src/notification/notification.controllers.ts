@@ -5,7 +5,7 @@ import { systemNotification } from '../libs/utils/system-notification.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 import { notificationResponseListSchema, notificationResponseListT, notificationResponseSchema, SendNotificationSchema, SendNotificationT } from './notification.schema.js';
-import { createKey, deleteCacheGroup, getCache, setCacheWithGroup } from '../libs/redis/redis-utils.js';
+import { createKey, deleteCacheGroup, getCache, setCache, setCacheWithGroup } from '../libs/redis/redis-utils.js';
 
 
 export const createNotificationController = async (req: Request, res: Response) => {
@@ -66,40 +66,88 @@ export const getLatestNotificationController = async (req: Request, res: Respons
   });
 };
 
-//Get all the Notification
-export const getAlltNotificationController = async (req: Request, res: Response) => {
-  const user = req.user;
-  const role = user?.role
-  const id = user?.id
+// //Get all the Notification
+// export const getAlltNotificationController = async (req: Request, res: Response) => {
+//   const user = req.user;
+//   const role = user?.role
+//   const id = user?.id
 
-  // const page = Number(req.query.page) || 1;
-  // const limit = Number(req.query.limit) || 10;
-  // const skip = (page - 1) * limit;
+//   // const page = Number(req.query.page) || 1;
+//   // const limit = Number(req.query.limit) || 10;
+//   // const skip = (page - 1) * limit;
 
-  if (!id) {
-    return new ApiError(400, "Unauthorized")
-  }
+//   if (!id) {
+//     return new ApiError(400, "Unauthorized")
+//   }
  
 
-  const allNotification = await Notification.find({ $or: [{ user: user?.id }, { scope: role }, { scope: 'global' }] })
-    .sort({ createdAt: -1 })
-    // .skip(skip)
-    // .limit(limit)
-    .lean();
+//   const allNotification = await Notification.find({ $or: [{ user: user?.id }, { scope: role }, { scope: 'global' }] })
+//     .sort({ createdAt: -1 })
+//     // .skip(skip)
+//     // .limit(limit)
+//     .lean();
 
-  // const count = await Notification.countDocuments({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
-  const normalized = normalizeDoc(allNotification)
-  const parsed = notificationResponseListSchema.parse(normalized)
+//   // const count = await Notification.countDocuments({ $or: [{ user: user?.id }, { scope : role } , {scope : 'global'}] })
+//   const normalized = normalizeDoc(allNotification)
+//   const parsed = notificationResponseListSchema.parse(normalized)
 
-  const body = {
-    message: 'The notifications are  ',
-    data: parsed,
-    statusCode: 200,
-    // meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
+//   const body = {
+//     message: 'The notifications are  ',
+//     data: parsed,
+//     statusCode: 200,
+//     // meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
+//   }
+
+//   return ApiResponse.success(res, body);
+// };
+
+
+export const getAllNotificationsController = async (req: Request, res: Response) => {
+  const user= req.user
+  if(!user){throw new ApiError(400,"Unauthorized")}
+  const userId = user.id
+  const role = user.role;
+
+  // 🔑 1. Create user-based cache key
+  const key = createKey('notification', 'user', userId);
+
+  // ⚡ 2. Try cache first
+  const cached = await getCache(key);
+  if (cached) {
+    return ApiResponse.success(res,{message : "Cached" , statusCode : 200 , data : cached})
   }
 
-  return ApiResponse.success(res, body);
+  // 🧠 3. Fetch from DB (ALL relevant notifications)
+  const notifications = await Notification.find({
+    $or: [
+      { scope: 'global' },
+      { scope: role },
+      { scope: 'specific', user: userId }
+    ]
+  })
+    .sort({ createdAt: -1 }) // latest first
+    .lean();
+
+  // 🧹 4. Normalize (your existing util)
+  const normalized = normalizeDoc(notifications);
+  const parsed = notificationResponseListSchema.parse(normalized)
+
+  // 💾 5. Store in cache WITH GROUPS (VERY IMPORTANT)
+    await Promise.all([
+    // global group
+    setCacheWithGroup(key, parsed, ['notification']),
+
+    // role group
+    setCacheWithGroup(key, parsed, ['role', role]),
+
+    // user group
+    setCacheWithGroup(key, parsed, ['user', userId])
+  ]);
+
+  // 📤 6. Return response
+  return ApiResponse.success(res,{message:"normalized Data" , statusCode: 200 , data : parsed})
 };
+
 
 //Update Notification
 export const updateNotificationController = async (req: Request, res: Response) => {

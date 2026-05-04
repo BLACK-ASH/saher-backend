@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   createNotificationController,
   deleteNotificationController,
-  getAlltNotificationController,
+  getAllNotificationsController,
   getLatestNotificationController,
   updateNotificationController,
 } from './notification.controllers.js';
@@ -13,7 +13,7 @@ import { SendNotificationSchema, updateNotificationSchema} from './notification.
 const notificationRouter = Router();
 
 notificationRouter.get('/', getLatestNotificationController);
-notificationRouter.get('/all', getAlltNotificationController);
+notificationRouter.get('/all', getAllNotificationsController);
 notificationRouter.post(
   '/create',
   authorize('write', 'notification'),

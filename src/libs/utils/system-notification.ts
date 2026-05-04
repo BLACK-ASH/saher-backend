@@ -29,66 +29,109 @@ import { normalize } from 'node:path';
 //   return notification
 // };
 
-export class systemNotification{
-  static async global(input :SendNotificationT ){
-     const globalNotificationKey = createKey('notification', 'global')
-    const { type, title, description } = input;
-    const globalNotification = await Notification.create({
-      user : undefined,
-      type ,
-      title ,
-      description , 
-      scope : 'global'
-    })
+// export class systemNotification{
+//   static async global(input :SendNotificationT ){
+//      const globalNotificationKey = createKey('notification', 'global')
+//     const { type, title, description } = input;
+//     const globalNotification = await Notification.create({
+//       user : undefined,
+//       type ,
+//       title ,
+//       description , 
+//       scope : 'global'
+//     })
 
-await deleteCache(globalNotificationKey)   
- const allNotification = await Notification.find({scope:'global'}).lean()
+// await deleteCache(globalNotificationKey)   
 
-    const normalized = normalizeDoc(allNotification)
-    const parsed = notificationResponseListSchema.parse(normalized)
-    await setCache(globalNotificationKey,parsed)
-    return true 
-  }
+//     return true 
+//   }
 
-  static async role(input :SendNotificationT ){
-    const { type, title, description, scope } = input;
-    const scopeKey = createKey('notification','scope',scope)
-    const roleNotification = await Notification.create({
-      user : undefined,
-      type ,
-      title ,
-      description,
-      scope 
-    })
+//   static async role(input :SendNotificationT ){
+//     const { type, title, description, scope } = input;
+//     const scopeKey = createKey('notification','scope',scope)
+//     const roleNotification = await Notification.create({
+//       user : undefined,
+//       type ,
+//       title ,
+//       description,
+//       scope 
+//     })
     
-    await deleteCache(scopeKey)
-    const allNotification = await Notification.find({scope : scope}).lean()
+//     await deleteCache(scopeKey)
+  
+//     return true 
+//   }
 
-    const normalaized = normalizeDoc(allNotification) 
-    const parsed = notificationResponseListSchema.parse(normalaized)
+//   static async specific(input :SendNotificationT ){
+//     const { user, type, title, description} = input;
+//     const specificNotification = await Notification.create({
+//       user : user,
+//       type ,
+//       title ,
+//       description,
+//       scope : 'specific'
+//     })
+    
+//     return true 
+//   }
+// }
 
-    await setCache(scopeKey, parsed)
-    return true 
+
+export class systemNotification {
+
+  // GLOBAL → affects ALL users
+  static async global(input: SendNotificationT) {
+    const { type, title, description } = input;
+
+    await Notification.create({
+      user: undefined,
+      type,
+      title,
+      description,
+      scope: 'global'
+    });
+
+    // 🔥 invalidate ALL user caches
+    await deleteCacheGroup('notification');
+
+    return true;
   }
 
-  static async specific(input :SendNotificationT ){
-    const { user, type, title, description} = input;
-    const specificNotification = await Notification.create({
-      user : user,
-      type ,
-      title ,
-      description,
-      scope : 'specific'
-    })
-    if(!user){throw Error}
-    for (const id of user) {
-      const key = createKey('notification','user',id)
-      const specificNotification = await Notification.find({user : id }).lean()
-      const normalaized = normalizeDoc(specificNotification)
-      const parsed = notificationResponseListSchema.parse(normalaized)
+  // ROLE → affects only that role
+  static async role(input: SendNotificationT) {
+    const { type, title, description, scope } = input;
 
-      await setCache(key,parsed)
+    await Notification.create({
+      user: undefined,
+      type,
+      title,
+      description,
+      scope
+    });
+
+    // 🔥 invalidate only that role
+    await deleteCacheGroup(`role:${scope}`);
+
+    return true;
+  }
+
+  // SPECIFIC → affects selected users
+  static async specific(input: SendNotificationT) {
+    const { user, type, title, description } = input;
+    if(!user){throw Error}
+    await Notification.create({
+      user,
+      type,
+      title,
+      description,
+      scope: 'specific'
+    });
+
+    // 🔥 invalidate only those users
+    for (const userId of user) {
+      const key = createKey('notification', 'user', userId);
+      await deleteCache(key);
     }
-    return true 
+    return true;
   }
 }
