@@ -29,6 +29,7 @@ import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { getAttendanceById } from './retrieve/get-attendance.controller.js';
 import { allAttendanceController } from './retrieve/all-attendance.controller.js';
+import { rejectMarkController, rejectMarkSchema } from './mark/reject-mark.controller.js';
 
 const attendanceRouter = Router();
 
@@ -40,6 +41,8 @@ attendanceRouter.post('/check-out', checkOutController);
 attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
 attendanceRouter.get('/retrieve-all', getAllUserController);
 attendanceRouter.get('/user/:id', allAttendanceController);
+
+attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
 
 // Attendance correction
 attendanceRouter.get('/record/:id', getAttendanceById);

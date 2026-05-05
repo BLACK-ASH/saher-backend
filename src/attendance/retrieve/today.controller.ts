@@ -23,20 +23,15 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   const key = attendancetodayKey(page, limit);
 
   type cacheType = {
+    message: string;
     data: AttendanceListT;
+    statusCode: number;
     meta: { page: number; limit: number; count: number; totalPages: number };
   };
 
   const cached = await getCache<cacheType>(key);
   if (cached) {
-    const response = attendanceListSchema.parse(cached.data);
-
-    return ApiResponse.success(res, {
-      message: 'Today record  ',
-      data: response,
-      statusCode: 200,
-      meta: cached.meta,
-    });
+    return ApiResponse.success(res, cached);
   }
 
   const now = new Date();
@@ -55,23 +50,22 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
 
   if (today.length === 0) {
     const emptyResponse = {
+      message: 'Today is not a working day',
       data: defaultResponse,
+      statusCode: 200,
       meta: { page, limit, count: 0, totalPages: 0 },
     };
 
-    return ApiResponse.success(res, {
-      message: 'Today is not a working day',
-      data: emptyResponse,
-      statusCode: 200,
-      meta: emptyResponse.meta,
-    });
+    return ApiResponse.success(res, emptyResponse);
   }
 
   const normalized = normalizeDoc(today);
   const parsed = attendanceListSchema.parse(normalized);
 
   const response: cacheType = {
+    message: 'Today Attendance',
     data: parsed,
+    statusCode: 200,
     meta: {
       page,
       limit,
@@ -82,10 +76,5 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
 
   await setCache(key, response, 86400);
 
-  return ApiResponse.success(res, {
-    message: 'Today Attendance',
-    data: parsed,
-    statusCode: 200,
-    meta: response.meta,
-  });
+  return ApiResponse.success(res, response);
 };
