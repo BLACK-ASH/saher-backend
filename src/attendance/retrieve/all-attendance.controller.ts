@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
-import { Attendance } from '../../database/attendance.model.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
+import type { Request, Response } from 'express';
+
 import { attendanceListSchema } from './attendance.schema.js';
+import { Attendance } from '../../database/attendance.model.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const allAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;

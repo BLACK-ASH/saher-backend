@@ -1,6 +1,8 @@
-import pinoHttp from 'pino-http';
 import { randomUUID } from 'crypto';
+
 import type { Request, Response } from 'express';
+import pinoHttp from 'pino-http';
+
 import { logger } from './logger.js';
 
 type Req = Request & {

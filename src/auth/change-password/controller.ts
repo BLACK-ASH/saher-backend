@@ -1,12 +1,14 @@
-import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { ApiError } from '../../libs/class/api-error.js';
-import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+
+import type { Request, Response } from 'express';
+
 import { User } from '../../database/user.model.js';
-import { sendEmail } from '../../libs/mail/resend-send-mail.js';
-import { hashPassword } from '../../libs/utils/password-hash.js';
-import { changePasswordTemplate } from '../../libs/mail/templates/change-password.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+import { changePasswordTemplate } from '../../libs/mail/templates/change-password.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { hashPassword } from '../../libs/utils/password-hash.js';
 
 export const changePasswordRequestController = async (req: Request, res: Response) => {
   const user = req.user;

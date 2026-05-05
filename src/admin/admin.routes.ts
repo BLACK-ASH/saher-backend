@@ -1,4 +1,11 @@
 import { Router } from 'express';
+
+import {
+  accountGetController,
+  accountRegisterController,
+  accountUpdateController,
+} from './account/controller.js';
+import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
 import {
   createBankDetailController,
   deleteBankDetailController,
@@ -6,12 +13,6 @@ import {
   updateBankDetailController,
 } from './bank/controller.js';
 import { bankSchema, bankUpdateSchema } from './bank/schema.js';
-import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
-import {
-  accountGetController,
-  accountRegisterController,
-  accountUpdateController,
-} from './account/controller.js';
 import {
   getAllUsersController,
   userDeleteController,
@@ -19,8 +20,8 @@ import {
   userUpdateController,
 } from './user/controller.js';
 import { userUpdateSchema } from './user/schema.js';
-import { authorize } from '../permission/authorize.js';
 import { validate, validateAsync } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
 
 const adminRouter = Router();
 

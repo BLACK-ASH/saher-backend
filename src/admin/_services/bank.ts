@@ -1,7 +1,8 @@
 import z from 'zod';
+
+import { Bank } from '../../database/bank.model.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { Bank } from '../../database/bank.model.js';
 import { bankSchema } from '../bank/schema.js';
 
 export const bankSchemaFinal = bankSchema.extend({ id: z.string() }).readonly();

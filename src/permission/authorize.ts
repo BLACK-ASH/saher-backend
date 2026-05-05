@@ -1,6 +1,8 @@
 // middlewares/authorize.ts
-import { Response, NextFunction, Request } from 'express';
-import { Action, createPermission, Resource } from './permission.js';
+import type { Response, NextFunction, Request } from 'express';
+
+import type { Action, Resource } from './permission.js';
+import { createPermission } from './permission.js';
 import { ROLE_PERMISSIONS } from './role-permission.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 

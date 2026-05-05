@@ -1,27 +1,29 @@
+import path from 'path';
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import path from 'path';
+
 import adminRouter from './admin/admin.routes.js';
+import attendanceRouter from './attendance/attendance.route.js';
 import authRouter from './auth/auth.routes.js';
 import connectDb from './database/connection.js';
-import { protectedRoute } from './libs/middleware/protected-route.js';
-import attendanceRouter from './attendance/attendance.route.js';
-import uploadRouter from './upload/upload.routes.js';
-import errorHandler from './libs/middleware/error-handler.js';
-import notificationRouter from './notification/notification.routes.js';
-import { mailRouter } from './mail/mail.routes.js';
-import userRouter from './user/user.routes.js';
-import { connectRedis } from './libs/redis/redis-client.js';
-import publicRouter from './public/public.routes.js';
-import { requestId } from './libs/middleware/request-id.js';
 import { httpLogger } from './libs/logger/http-logger.js';
+import { logger } from './libs/logger/logger.js';
+import { register } from './libs/logger/metrics.js';
+import errorHandler from './libs/middleware/error-handler.js';
+import { metricsMiddleware } from './libs/middleware/metrics.js';
+import { protectedRoute } from './libs/middleware/protected-route.js';
+import { requestId } from './libs/middleware/request-id.js';
 import { requestLogger } from './libs/middleware/request-logger.js';
 import { requestTimer } from './libs/middleware/request-timer.js';
-import { register } from './libs/logger/metrics.js';
-import { logger } from './libs/logger/logger.js';
-import { metricsMiddleware } from './libs/middleware/metrics.js';
+import { connectRedis } from './libs/redis/redis-client.js';
+import { mailRouter } from './mail/mail.routes.js';
+import notificationRouter from './notification/notification.routes.js';
+import publicRouter from './public/public.routes.js';
+import uploadRouter from './upload/upload.routes.js';
+import userRouter from './user/user.routes.js';
 
 // Env Config
 dotenv.config();

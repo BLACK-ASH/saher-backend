@@ -1,12 +1,14 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import type { AttendanceListT } from './attendance.schema.js';
+import { attendanceListSchema } from './attendance.schema.js';
+import { defaultResponse } from './me.controller.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { attendanceListSchema, AttendanceListT } from './attendance.schema.js';
-import { defaultResponse } from './me.controller.js';
+import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const attendancetodayKey = (page: number, limit: number) => {
   return createKey('attendance', 'today', limit, page);
@@ -22,14 +24,14 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
 
   const key = attendancetodayKey(page, limit);
 
-  type cacheType = {
+  type CacheType = {
     message: string;
     data: AttendanceListT;
     statusCode: number;
     meta: { page: number; limit: number; count: number; total: number };
   };
 
-  const cached = await getCache<cacheType>(key);
+  const cached = await getCache<CacheType>(key);
   if (cached) {
     return ApiResponse.success(res, cached);
   }

@@ -1,12 +1,13 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import z from 'zod';
+
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { getAccountByUser } from '../_services/account.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import z from 'zod';
-import { userSchemaFinal } from '../_services/user.js';
-import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { getAccountByUser } from '../_services/account.js';
+import { userSchemaFinal } from '../_services/user.js';
 
 export const userGetController = async (req: Request, res: Response) => {
   const id = req.params.id.toString().trim();

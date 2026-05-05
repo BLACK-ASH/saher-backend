@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { shortUserSchema } from '../../admin/_services/user.js';
 
 // NOTE: Make only one not multiple

@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { Mail } from '../database/mail.model.js';
-import { ApiError } from '../libs/class/api-error.js';
 import { User } from '../database/user.model.js';
+import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 
 export const inboxController = async (req: Request, res: Response) => {
