@@ -9,7 +9,7 @@ import { attendanceListSchema, AttendanceListT } from './attendance.schema.js';
 import { defaultResponse } from './me.controller.js';
 
 export const attendancetodayKey = (page: number, limit: number) => {
-  return createKey('attendance', 'today', `page:${page}`, `limit:${limit}`);
+  return createKey('attendance', 'today', limit, page);
 };
 
 export const todayAttendanceController = async (req: Request, res: Response) => {
@@ -24,7 +24,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
 
   type cacheType = {
     data: AttendanceListT;
-    meta: { page: number; limit: number; count: number; totalPages: number };
+    meta: { page: number; limit: number; count: number; total: number };
   };
 
   const cached = await getCache<cacheType>(key);
@@ -49,14 +49,10 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
 
   const count = await Attendance.countDocuments({ date: standardDateString(now) });
 
-  // if (today.length === 0) {
-  //     const emptyResponse: cacheType = { data: defaultResponse, meta: { page, limit, count: 0, totalPages: 0 } }
-  // }
-
   if (today.length === 0) {
     const emptyResponse = {
       data: defaultResponse,
-      meta: { page, limit, count: 0, totalPages: 0 },
+      meta: { page, limit, count: 0, total: 0 },
     };
 
     return ApiResponse.success(res, {
@@ -76,7 +72,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
       page,
       limit,
       count,
-      totalPages: Math.ceil(count / limit),
+      total: Math.ceil(count / limit),
     },
   };
 

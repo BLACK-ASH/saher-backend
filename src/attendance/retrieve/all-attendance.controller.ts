@@ -34,6 +34,6 @@ export const allAttendanceController = async (req: Request, res: Response) => {
     message: 'All Attendance ',
     data: parsed,
     statusCode: 200,
-    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
+    meta: { page, limit, count, total: Math.ceil(count / limit) },
   });
 };
