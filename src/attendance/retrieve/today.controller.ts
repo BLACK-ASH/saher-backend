@@ -60,7 +60,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   const normalized = normalizeDoc(today);
   const parsed = attendanceListSchema.parse(normalized);
 
-  const response: cacheType = {
+  const response: CacheType = {
     message: 'Today Attendance',
     data: parsed,
     statusCode: 200,
