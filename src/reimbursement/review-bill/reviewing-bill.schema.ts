@@ -11,5 +11,7 @@ export const reviewResponseSchema = z.object({
   description: z.string().default(''),
   status: z.enum(['pending', 'accepted', 'rejected']),
   adminNote: z.string().default(''),
-  createdBy: z.string().default(''),
+  createdBy: z.string(),
 });
+
+export type reviewSchemaInputType = z.infer<typeof reviewResponseSchema>;

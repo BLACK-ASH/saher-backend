@@ -27,14 +27,6 @@ export const billResponseSchema = z.object({
 
 export const updateBillResposeSchema = billResponseSchema.omit({ dateOfPayment: true }).partial();
 
-export const updateAdminSchema = z.object({
-  status: z.string(),
-  adminNote: z.string(),
-});
-
-export const updateAdminResponseSchema = updateAdminSchema;
-
 export const BillIdSchema = z.object({ id: objectId });
 export type createBillInputType = z.infer<typeof createBillSchema>;
 export type updateBillInputType = z.infer<typeof updateBillSchema>;
-export type adminBillInputType = z.infer<typeof updateAdminSchema>;

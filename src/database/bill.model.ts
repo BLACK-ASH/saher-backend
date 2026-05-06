@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 export const BillStatus = ['pending', 'rejected', 'accepted'];
 
-const billSchema = new mongoose.Schema(
+const userBillSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,9 +18,11 @@ const billSchema = new mongoose.Schema(
       ref: 'Media',
       required: true,
     },
+    advance: {
+      type: Number,
+    },
     amount: {
       type: Number,
-      required: true,
     },
     dateOfPayment: {
       type: Date,
@@ -28,7 +30,6 @@ const billSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      // required: true,
     },
     status: {
       type: String,
@@ -49,5 +50,5 @@ const billSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-type ReimbursementType = mongoose.InferSchemaType<typeof billSchema>;
-export const Reimbursement = mongoose.model<ReimbursementType>('Reimbursement', billSchema);
+type ReimbursementType = mongoose.InferSchemaType<typeof userBillSchema>;
+export const Reimbursement = mongoose.model<ReimbursementType>('Reimbursement', userBillSchema);

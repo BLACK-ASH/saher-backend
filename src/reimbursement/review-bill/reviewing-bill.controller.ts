@@ -46,15 +46,14 @@ export const getBillById = async (req: Request, res: Response) => {
   const { billId } = req.params;
   const role = req.user?.role;
 
-  const bill = await Reimbursement.findById(billId);
+  const bill = await Reimbursement.findById(billId).lean();
   if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
 
   if (role === 'user') {
     if (bill.createdBy !== userId) throw new ApiError(400, 'Unauthorized');
   }
   const normalized = normalizeDoc(bill);
-  // @ts-expect-error - _doc will exist
-  const parsed = reviewResponseSchema.parse(normalized._doc);
+  const parsed = reviewResponseSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Bill fetch successfully',
@@ -72,7 +71,7 @@ export const getAllBills = async (req: Request, res: Response) => {
   // // if is not pass the error
 
   const role = req.user?.role;
-  const allBills = await Reimbursement.find().lean();
+  const allBills = await Reimbursement.find({ isDeleted: false }).lean();
 
   if (role === 'admin' || role === 'manager') {
     if (allBills.length === 0) throw new ApiError(400, 'No bill to show');
@@ -96,7 +95,7 @@ export const recycleBills = async (req: Request, res: Response) => {
   const role = req.user?.role;
   if (role === 'user') throw new ApiError(400, 'Unauthorized');
 
-  const recycles = await Reimbursement.find({ isDeleted: true });
+  const recycles = await Reimbursement.find({ isDeleted: true }).lean();
   if (recycles.length === 0) throw new ApiError(200, 'No bills to show');
 
   const normalized = normalizeDoc(recycles);
