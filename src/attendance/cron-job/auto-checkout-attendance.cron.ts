@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import { ApiError } from '../../libs/class/api-error.js';
+import type { Request, Response } from 'express';
+
 import { Attendance } from '../../database/attendance.model.js';
-import { timeDifference } from '../../libs/utils/time-difference.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
+import { timeDifference } from '../../libs/utils/time-difference.js';
 import 'dotenv/config';
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {

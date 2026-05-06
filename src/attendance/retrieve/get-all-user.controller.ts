@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
-import { ApiError } from '../../libs/class/api-error.js';
-import { Attendance } from '../../database/attendance.model.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
+import type { Request, Response } from 'express';
+
 import { attendanceListSchema } from './attendance.schema.js';
+import { Attendance } from '../../database/attendance.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 // const AttendanceAllUserSchema = AttendanceSchemaFinal.readonly()
 
@@ -85,6 +86,6 @@ export const getAllUserController = async (req: Request, res: Response) => {
     message: 'The record you asked for ',
     data: parsed,
     statusCode: 200,
-    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
+    meta: { page, limit, count, total: Math.ceil(count / limit) },
   });
 };

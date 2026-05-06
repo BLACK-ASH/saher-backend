@@ -3,13 +3,13 @@ const imgUrl = process.env.BASE_URL + '/uploads/images/c1821c2a-7a05-414c-a54d-b
 
 const date = new Date().toLocaleString();
 
-type props = {
+type Props = {
   name: string;
   email: string;
   role: string;
 };
 
-export const onboardEmailTemplate = ({ name, email, role }: props): string => `
+export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
 <!DOCTYPE html>
 
 <html>

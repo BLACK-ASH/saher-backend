@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
-import { User } from '../database/user.model.js';
-import { Bank } from '../database/bank.model.js';
+
 import { Account } from '../database/account.model.js';
+import { Bank } from '../database/bank.model.js';
 import { Media } from '../database/media-upload.model.js';
+import { User } from '../database/user.model.js';
 import { hashPassword } from '../libs/utils/password-hash.js';
 
 const firstUser = {

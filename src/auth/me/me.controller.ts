@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { getUser } from '../../admin/_services/user.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 

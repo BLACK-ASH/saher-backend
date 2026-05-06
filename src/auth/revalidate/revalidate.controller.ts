@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const revalidateController = (req: Request, res: Response) => {

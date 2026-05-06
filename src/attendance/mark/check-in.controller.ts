@@ -1,11 +1,13 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { getAccountByUser } from '../../admin/_services/account.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
 
 export const checkInController = async (req: Request, res: Response) => {
@@ -45,6 +47,8 @@ export const checkInController = async (req: Request, res: Response) => {
 
     const normalized = normalizeDoc(cronRecord.toObject());
     const parsed = attendanceResponseSchema.parse(normalized);
+    const todayKey = createKey('attendance', 'today', 'me', user?.id);
+    await deleteCache(todayKey);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
       data: parsed,
@@ -68,6 +72,8 @@ export const checkInController = async (req: Request, res: Response) => {
   const normalized = normalizeDoc(populated.toObject());
   const parsed = attendanceResponseSchema.parse(normalized);
 
+  const todayKey = createKey('attendance', 'today', 'me', user?.id);
+  await deleteCache(todayKey);
   return ApiResponse.success(res, {
     message: 'You have been marked present',
     data: parsed,

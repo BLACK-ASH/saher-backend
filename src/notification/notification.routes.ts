@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import {
   createNotificationController,
   deleteNotificationController,
@@ -6,9 +7,9 @@ import {
   getLatestNotificationController,
   updateNotificationController,
 } from './notification.controllers.js';
-import { authorize } from '../permission/authorize.js';
-import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { createNotificationSchema, updateNotificationSchema } from './notification.schema.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
 
 const notificationRouter = Router();
 

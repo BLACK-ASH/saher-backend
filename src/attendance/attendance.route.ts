@@ -1,6 +1,17 @@
 import { Router } from 'express';
-import { checkInController } from './mark/check-in.controller.js';
-import { checkOutController } from './mark/check-out.controller.js';
+
+import {
+  getAllAttendanceCorrectionController,
+  getAttendanceCorrectionController,
+} from './correction/correction.controller.js';
+import {
+  attendanceCorrectionSchema,
+  attendanceCorrectionHandleSchema,
+} from './correction/correction.schema.js';
+import { createAttendanceCorrectionController } from './correction/create-correction.js';
+import { handleAttendanceCorrectionController } from './correction/handle-correction.js';
+import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
+import { createAttendanceCron } from './cron-job/create-attendance.cron.js';
 import {
   updateHolidayController,
   getAllHolidayController,
@@ -8,27 +19,17 @@ import {
   deleteHolidayController,
   addHolidayController,
 } from './holiday/holiday.controller.js';
+import { checkInController } from './mark/check-in.controller.js';
+import { checkOutController } from './mark/check-out.controller.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
 import { holidaySchema, holidayUpdateSchema } from './holiday/holiday.schema.js';
-import {
-  attendanceCorrectionSchema,
-  attendanceCorrectionHandleSchema,
-} from './correction/correction.schema.js';
-import {
-  getAllAttendanceCorrectionController,
-  getAttendanceCorrectionController,
-} from './correction/correction.controller.js';
-import { createAttendanceCorrectionController } from './correction/create-correction.js';
-import { handleAttendanceCorrectionController } from './correction/handle-correction.js';
-import { todayAttendanceController } from './retrieve/today.controller.js';
-import { meAttendanceController } from './retrieve/me.controller.js';
-import { getAllUserController } from './retrieve/get-all-user.controller.js';
-import { retrieveAttendanceController } from './retrieve/retrieve-attendance.controller.js';
-import { createAttendanceCron } from './cron-job/create-attendance.cron.js';
-import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
-import { validate } from '../libs/middleware/validate-zod-schema.js';
-import { getAttendanceById } from './retrieve/get-attendance.controller.js';
 import { allAttendanceController } from './retrieve/all-attendance.controller.js';
+import { getAllUserController } from './retrieve/get-all-user.controller.js';
+import { getAttendanceById } from './retrieve/get-attendance.controller.js';
+import { meAttendanceController } from './retrieve/me.controller.js';
+import { retrieveAttendanceController } from './retrieve/retrieve-attendance.controller.js';
+import { todayAttendanceController } from './retrieve/today.controller.js';
 
 const attendanceRouter = Router();
 

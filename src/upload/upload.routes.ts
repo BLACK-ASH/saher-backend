@@ -1,4 +1,6 @@
-import { Router, Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+
 import { uploadImageController } from './image/image.controller.js';
 import { uploadImage } from './image/image.middleware.js';
 

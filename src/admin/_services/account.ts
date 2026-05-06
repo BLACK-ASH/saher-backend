@@ -1,11 +1,12 @@
 import z from 'zod';
+
+import { bankSchemaFinal } from './bank.js';
+import { userSchemaFinal } from './user.js';
 import { Account } from '../../database/account.model.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
-import { accountBaseSchema } from '../account/schema.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { userSchemaFinal } from './user.js';
-import { bankSchemaFinal } from './bank.js';
 import { imageType } from '../../libs/utils/zod-object-id.js';
+import { accountBaseSchema } from '../account/schema.js';
 
 const accountSchemaFinal = accountBaseSchema
   .omit({ aadhar: true, pan: true, resume: true })
