@@ -23,7 +23,7 @@ export const checkInController = async (req: Request, res: Response) => {
     user: user?.id,
     date: standardDateString(now),
     inTime: { $ne: null },
-  }).populate('user', 'name role email ');
+  });
   //Step 3 - Agr haa toh oosko dubara attendence mark karne mat do
   if (existingRecord) throw new ApiError(400, 'You Have Already Check In Today.');
 
@@ -38,7 +38,12 @@ export const checkInController = async (req: Request, res: Response) => {
   const cronRecord = await Attendance.findOne({
     user: user?.id,
     date: standardDateString(now),
-  }).populate('user', 'name email role');
+  })
+    .populate('user', 'name email role')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    });
 
   if (cronRecord) {
     cronRecord.inTime = now;
