@@ -4,12 +4,14 @@ import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { createKey, deleteCache, deleteCacheGroup } from '../../libs/redis/redis-utils.js';
+import {
+  createGroupKey,
+  createKey,
+  deleteCache,
+  deleteCacheGroup,
+} from '../../libs/redis/redis-utils.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
-import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
-import { todayGroupKey } from '../retrieve/today.controller.js';
 
 export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -19,12 +21,7 @@ export const checkOutController = async (req: Request, res: Response) => {
     user: user?.id,
     date: standardDateString(now),
     inTime: { $ne: null },
-  })
-    .populate('user', 'name  email role ')
-    .populate({
-      path: 'user',
-      populate: [{ path: 'image', model: 'Media' }],
-    });
+  });
 
   //  If User Is Not Check In
   if (!attendance) throw new ApiError(400, 'You Have Not Checked in Today.');
@@ -58,18 +55,17 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   await attendance.save();
 
-  const normalized = normalizeDoc(attendance.toObject());
-  const parsed = attendanceResponseSchema.parse(normalized);
-
   // const cacheParsed = CheckOutSetCacheSchema.parse(normalized);
   if (!user?.id) throw new ApiError(400, 'Unauthorized');
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
   await deleteCache(todayKey);
-  await deleteCacheGroup(todayGroupKey);
+
+  const gKey = createGroupKey('attendance', 'today', 'list');
+  await deleteCacheGroup(gKey);
 
   return ApiResponse.success(res, {
     message: 'Checked out successfully',
-    data: parsed,
+    data: null,
     statusCode: 200,
   });
 };

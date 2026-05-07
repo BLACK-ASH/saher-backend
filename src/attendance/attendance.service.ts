@@ -24,11 +24,11 @@ export const retrieveCustomAttendace = async (
     .sort({ finalSort })
     .skip(skip)
     .populate('user', 'name email role ')
-    .limit(limit)
     .populate({
       path: 'user',
       populate: [{ path: 'image', model: 'Media' }],
     })
+    .limit(limit)
     .lean();
 
   const normalized = normalizeDoc(record);
@@ -41,6 +41,10 @@ export const retrieveTypeTodayAttendance = async (user: string) => {
 
   const record = await Attendance.findOne({ user: user, date: today })
     .populate('user', 'name email role')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .lean();
 
   const normalized = normalizeDoc(record);
@@ -51,7 +55,7 @@ export const retrieveTypeTodayAttendance = async (user: string) => {
 
 export const retrieveTypeWeekAttendance = async (
   user: string,
-  { page = 1, limit = 10, sort = 'asc' }: { page: number; limit: number; sort: string },
+  { page = 1, limit = 10, sort = 'asc' }: { page?: number; limit?: number; sort?: string },
 ) => {
   const today = new Date();
   const start = new Date();

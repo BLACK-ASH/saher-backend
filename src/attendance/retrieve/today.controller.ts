@@ -15,7 +15,6 @@ import {
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
-export const todayGroupKey = createGroupKey('attendance', 'today');
 export const attendancetodayKey = (page: number, limit: number) => {
   return createKey('attendance', 'today', limit, page);
 };
@@ -82,9 +81,10 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     },
   };
 
-  // await setCache(key, response, 86400);
+  const gKey = createGroupKey('attendance', 'today', 'list');
 
-  await setCacheWithGroup(key, response, [todayGroupKey], 86400);
+  await setCacheWithGroup(key, response, [gKey]);
+  await setCacheWithGroup(key, response, ['attendance', 'today']);
 
   return ApiResponse.success(res, response);
 };
