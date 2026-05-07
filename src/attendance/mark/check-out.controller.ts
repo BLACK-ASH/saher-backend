@@ -18,7 +18,12 @@ export const checkOutController = async (req: Request, res: Response) => {
     user: user?.id,
     date: standardDateString(now),
     inTime: { $ne: null },
-  }).populate('user', 'name  email role ');
+  })
+    .populate('user', 'name  email role ')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    });
 
   //  If User Is Not Check In
   if (!attendance) throw new ApiError(400, 'You Have Not Checked in Today.');

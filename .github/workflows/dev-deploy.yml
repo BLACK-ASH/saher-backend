@@ -3,7 +3,7 @@ name: Deploy Dev
 on:
   push:
     branches:
-      - dev
+      - main
   workflow_dispatch:
 
 jobs:
@@ -17,12 +17,12 @@ jobs:
     steps:
       - name: Dev Deploy app
         run: |
-          cd /home/deploy/saher/saher-backend
+          cd /home/saher/Test/saher-backend
           git fetch origin
-          git reset --hard origin/dev
+          git reset --hard origin/main
 
-          cd /home/deploy/saher
-          docker compose -p saher-dev-local up -d --build --force-recreate frontend
+          cd /home/saher/Test/
+          docker compose -p saher-dev-local up -d --build --force-recreate backend
 
       - name: Cleanup old images
         run: docker image prune -a

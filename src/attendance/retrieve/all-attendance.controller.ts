@@ -21,6 +21,10 @@ export const allAttendanceController = async (req: Request, res: Response) => {
 
   const record = await Attendance.find({ user: id })
     .populate('user', 'name email role ')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
