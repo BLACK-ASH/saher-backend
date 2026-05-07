@@ -12,7 +12,6 @@ import {
   getCache,
   setCacheWithGroup,
 } from '../../libs/redis/redis-utils.js';
-import { calculateWorkHours } from '../../libs/utils/calculate-work-hours.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
