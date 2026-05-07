@@ -8,7 +8,7 @@ export const createKey = (...parts: (string | number)[]) => {
 };
 
 // group key (for tracking)
-const createGroupKey = (...parts: (string | number)[]) => {
+export const createGroupKey = (...parts: (string | number)[]) => {
   return [PREFIX, 'group', ...parts].join(':');
 };
 
