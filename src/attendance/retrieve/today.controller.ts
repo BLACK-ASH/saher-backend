@@ -66,7 +66,17 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     return ApiResponse.success(res, emptyResponse);
   }
 
-  const normalized = normalizeDoc(today);
+  const finalToday = today.map((obj) => {
+    if (obj.inTime) {
+      const now = new Date();
+      obj.workHours = Number(
+        ((now.getTime() - obj.inTime.getTime()) / (1000 * 60 * 60)).toFixed(2),
+      );
+    }
+    return obj;
+  });
+
+  const normalized = normalizeDoc(finalToday);
   const parsed = attendanceListSchema.parse(normalized);
 
   const response: CacheType = {
