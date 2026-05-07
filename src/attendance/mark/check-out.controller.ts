@@ -4,12 +4,7 @@ import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import {
-  createGroupKey,
-  createKey,
-  deleteCache,
-  deleteCacheGroup,
-} from '../../libs/redis/redis-utils.js';
+import { createKey, deleteCache, deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
@@ -60,8 +55,7 @@ export const checkOutController = async (req: Request, res: Response) => {
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
   await deleteCache(todayKey);
 
-  const gKey = createGroupKey('attendance', 'today', 'list');
-  await deleteCacheGroup(gKey);
+  await deleteCacheGroup('attendance', 'today', 'list');
 
   return ApiResponse.success(res, {
     message: 'Checked out successfully',

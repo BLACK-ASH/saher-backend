@@ -6,7 +6,7 @@ import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { createKey, getCache, setCacheWithGroup } from '../../libs/redis/redis-utils.js';
 import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
@@ -55,7 +55,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
       data,
       meta: { reason: 'cron job not created' },
     };
-    await setCache(todayKey, body);
+    await setCacheWithGroup(todayKey, body, ['today']);
     return ApiResponse.success(res, body);
   }
 
@@ -66,7 +66,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
       message: 'today Attendance',
       data,
     };
-    await setCache(todayKey, body);
+    await setCacheWithGroup(todayKey, body, ['today']);
     return ApiResponse.success(res, body);
   }
 
@@ -89,6 +89,6 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     data,
   };
 
-  await setCache(todayKey, body, 14400);
+  await setCacheWithGroup(todayKey, body, ['today'], 14400);
   return ApiResponse.success(res, body);
 };

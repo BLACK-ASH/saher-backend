@@ -6,6 +6,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { timeDifference } from '../../libs/utils/time-difference.js';
 import 'dotenv/config';
+import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
@@ -64,6 +65,8 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
 
   // 🚀 Execute bulk update
   await Attendance.bulkWrite(bulkOps);
+
+  await deleteCacheGroup('today');
 
   return ApiResponse.success(res, {
     message: 'Auto checkout completed successfully.',

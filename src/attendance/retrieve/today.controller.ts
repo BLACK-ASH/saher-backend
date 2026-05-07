@@ -6,12 +6,7 @@ import { defaultResponse } from './me.controller.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import {
-  createGroupKey,
-  createKey,
-  getCache,
-  setCacheWithGroup,
-} from '../../libs/redis/redis-utils.js';
+import { createKey, getCache, setCacheWithGroup } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
@@ -91,9 +86,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     },
   };
 
-  const gKey = createGroupKey('attendance', 'today', 'list');
-
-  await setCacheWithGroup(key, response, [gKey]);
+  await setCacheWithGroup(key, response, ['attendance', 'today', 'list']);
   await setCacheWithGroup(key, response, ['attendance', 'today']);
 
   return ApiResponse.success(res, response);
