@@ -6,10 +6,16 @@ import { defaultResponse } from './me.controller.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import {
+  createGroupKey,
+  createKey,
+  getCache,
+  setCacheWithGroup,
+} from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
+export const todayGroupKey = createGroupKey('attendance', 'today');
 export const attendancetodayKey = (page: number, limit: number) => {
   return createKey('attendance', 'today', limit, page);
 };
@@ -42,6 +48,10 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     .skip(skip)
     .limit(limit)
     .populate('user', 'name email role')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .lean();
 
   const count = await Attendance.countDocuments({ date: standardDateString(now) });
@@ -72,7 +82,9 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     },
   };
 
-  await setCache(key, response, 86400);
+  // await setCache(key, response, 86400);
+
+  await setCacheWithGroup(key, response, [todayGroupKey], 86400);
 
   return ApiResponse.success(res, response);
 };

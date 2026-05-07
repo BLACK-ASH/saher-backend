@@ -67,6 +67,10 @@ export const getAllUserController = async (req: Request, res: Response) => {
     },
   })
     .populate('user', 'name email role ')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .sort({ date: sort })
     .skip(skip)
     .limit(limit)

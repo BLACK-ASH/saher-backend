@@ -4,11 +4,12 @@ import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { createKey, deleteCache, deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
+import { todayGroupKey } from '../retrieve/today.controller.js';
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
@@ -49,6 +50,7 @@ export const checkInController = async (req: Request, res: Response) => {
     const parsed = attendanceResponseSchema.parse(normalized);
     const todayKey = createKey('attendance', 'today', 'me', user?.id);
     await deleteCache(todayKey);
+    await deleteCacheGroup(todayGroupKey);
     return ApiResponse.success(res, {
       message: 'You have been marked present',
       data: parsed,
@@ -68,12 +70,18 @@ export const checkInController = async (req: Request, res: Response) => {
   });
 
   const populated = await newRecord.populate('user', 'name email role');
+  const finalPopulated = await newRecord.populate({
+    path: 'user',
+    populate: [{ path: 'image', model: 'Media' }],
+  });
 
-  const normalized = normalizeDoc(populated.toObject());
+  const normalized = normalizeDoc(finalPopulated.toObject());
   const parsed = attendanceResponseSchema.parse(normalized);
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
   await deleteCache(todayKey);
+  await deleteCacheGroup(todayGroupKey);
+
   return ApiResponse.success(res, {
     message: 'You have been marked present',
     data: parsed,

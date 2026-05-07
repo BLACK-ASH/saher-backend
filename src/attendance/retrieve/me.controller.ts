@@ -40,6 +40,10 @@ export const meAttendanceController = async (req: Request, res: Response) => {
 
   const record = await Attendance.findOne({ user: user.id, date: standardDateString(now) })
     .populate('user', 'name email role')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .lean();
 
   let data;

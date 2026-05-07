@@ -7,9 +7,10 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { logger } from '../../libs/logger/logger.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
+import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
 
 export const rejectMarkSchema = z.object({
-  user: z.string(),
+  id: z.string(),
   status: z.enum(['present', 'absent', 'half-day']),
   isLate: z.boolean(),
   date: z.string(),
@@ -25,7 +26,12 @@ export const rejectMarkController = async (req: Request, res: Response) => {
 
   const date = standardDateString(new Date(input.date));
 
-  const record = await Attendance.findOne({ user: input.user, date: date });
+  const record = await Attendance.findOne({ user: input.id, date: date })
+    .populate('user', ' name role email ')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    });
 
   if (!record) throw new ApiError(400, 'The attendance for  user on the given date not found');
 
@@ -34,7 +40,7 @@ export const rejectMarkController = async (req: Request, res: Response) => {
   await record.save();
 
   const normalized = normalizeDoc(record.toObject());
-  const parsed = rejectMarkSchema.parse(normalized);
+  const parsed = attendanceResponseSchema.parse(normalized);
   const body = {
     message: 'The data has been update',
     data: parsed,
