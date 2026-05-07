@@ -70,7 +70,7 @@ export const exportWeekController = async (req: Request, res: Response) => {
 
   res.setHeader('Content-Type', 'application/pdf');
 
-  const filename = `${req.user?.name}-${data[0].date}-${data[data.length - 1].date}`;
+  const filename = `${req.user?.name}-${data[0].date}-${data[data.length - 1].date}.pdf`;
   res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
 
   res.send(pdf);
