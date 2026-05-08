@@ -4,9 +4,9 @@ import { Attendance } from '../../database/attendance.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import 'dotenv/config';
-import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 
 export const createAttendanceCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
