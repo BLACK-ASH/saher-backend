@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { NotificationResponseListT } from './notification.schema.js';
+import type { NotificationResponseListT, SendNotificationT } from './notification.schema.js';
 import {
   notificationResponseListSchema,
   notificationResponseSchema,
@@ -132,54 +132,54 @@ export const getAllNotificationsController = async (req: Request, res: Response)
   });
 };
 
-//Update Notification
-export const updateNotificationController = async (req: Request, res: Response) => {
-  const ID = req.params.id;
+// //Update Notification
+// export const updateNotificationController = async (req: Request, res: Response) => {
+//   const ID = req.params.id;
 
-  const input = req.body;
+//   const input = req.body;
 
-  //Sabse pehle Db mein existing notification dhundho
-  const previousNotification = await Notification.findById(ID).lean();
+//   //Sabse pehle Db mein existing notification dhundho
+//   const previousNotification = await Notification.findById(ID).lean();
 
-  if (!previousNotification) {
-    throw new ApiError(404, 'Notification not found');
-  }
+//   if (!previousNotification) {
+//     throw new ApiError(404, 'Notification not found');
+//   }
 
-  const final = { ...previousNotification, ...input };
+//   const final = { ...previousNotification, ...input };
 
-  if (input.scope && input.scope !== 'specific') {
-    final.user = undefined;
-  }
+//   if (input.scope && input.scope !== 'specific') {
+//     final.user = undefined;
+//   }
 
-  if (final.user) {
-    final.user = final.user.toString();
-  }
+//   if (final.user) {
+//     final.user = final.user.toString();
+//   }
 
-  const validated = SendNotificationSchema.parse(final);
+//   const validated = SendNotificationSchema.parse(final);
 
-  const updateQuery: any = { ...validated };
+//   const updateQuery: Partial<SendNotificationT> & = { ...validated };
 
-  if (validated.scope !== 'specific') {
-    updateQuery.$unset = { user: '' };
-    delete updateQuery.user;
-  }
+//   if (validated.scope !== 'specific') {
+//     updateQuery.$unset = { user: '' };
+//     delete updateQuery.user;
+//   }
 
-  const updatedNotification = await Notification.findByIdAndUpdate(ID, updateQuery, {
-    new: true,
-    runValidators: true,
-  }).lean();
+//   const updatedNotification = await Notification.findByIdAndUpdate(ID, updateQuery, {
+//     new: true,
+//     runValidators: true,
+//   }).lean();
 
-  const normalized = normalizeDoc(updatedNotification);
-  const parsed = notificationResponseSchema.parse(normalized);
+//   const normalized = normalizeDoc(updatedNotification);
+//   const parsed = notificationResponseSchema.parse(normalized);
 
-  await deleteCacheGroup('notification');
+//   await deleteCacheGroup('notification');
 
-  return ApiResponse.success(res, {
-    message: 'The notification has been updated successfully ',
-    data: parsed,
-    statusCode: 200,
-  });
-};
+//   return ApiResponse.success(res, {
+//     message: 'The notification has been updated successfully ',
+//     data: parsed,
+//     statusCode: 200,
+//   });
+// };
 
 //Delete One Notification
 export const deleteNotificationController = async (req: Request, res: Response) => {

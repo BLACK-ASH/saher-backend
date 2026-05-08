@@ -4,7 +4,6 @@ import {
   createNotificationController,
   deleteNotificationController,
   getAllNotificationsController,
-  updateNotificationController,
 } from './notification.controllers.js';
 import { SendNotificationSchema, updateNotificationSchema } from './notification.schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
@@ -19,12 +18,12 @@ notificationRouter.post(
   validate(SendNotificationSchema),
   createNotificationController,
 );
-notificationRouter.put(
-  '/:id',
-  authorize('update', 'notification'),
-  validate(updateNotificationSchema),
-  updateNotificationController,
-);
+// notificationRouter.put(
+//   '/:id',
+//   authorize('update', 'notification'),
+//   validate(updateNotificationSchema),
+//   updateNotificationController,
+// );
 notificationRouter.delete('/', authorize('delete', 'notification'), deleteNotificationController);
 
 export default notificationRouter;
