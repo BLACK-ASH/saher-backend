@@ -1,21 +1,20 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
+
+import type { AttendanceCorrectionHandleInputType } from './correction.schema.js';
+import { attendanceRecordSchema } from './correction.schema.js';
+import { getAccountByUser } from '../../admin/_services/account.js';
 import { AttendanceCorrection } from '../../database/attendance-correction.model.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-import {
-  AttendanceCorrectionHandleInputType,
-  attendanceRecordSchema,
-} from './correction.schema.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import {
   calculateWorkStatus,
   checkIsLate,
   getShift,
 } from '../../libs/utils/calculate-work-status.js';
-import { getAccountByUser } from '../../admin/_services/account.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
-import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
+import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 
 export const handleAttendanceCorrectionController = async (req: Request, res: Response) => {
   const input: AttendanceCorrectionHandleInputType = req.body;

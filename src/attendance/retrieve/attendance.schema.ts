@@ -1,11 +1,12 @@
 import z from 'zod';
-import { shortUserSchema } from '../../admin/_services/user.js';
+
+import { userSchemaFinal } from '../../admin/_services/user.js';
 
 // NOTE: Make only one not multiple
 export const attendanceResponseSchema = z
   .object({
     id: z.string(),
-    user: shortUserSchema,
+    user: userSchemaFinal,
     inTime: z.string().nullable(),
     outTime: z.string().nullable(),
     workHours: z.number(),

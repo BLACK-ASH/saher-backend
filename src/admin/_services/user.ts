@@ -1,9 +1,10 @@
 import z from 'zod';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
-import { userSchema } from '../account/schema.js';
+
 import { User } from '../../database/user.model.js';
+import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { imageType } from '../../libs/utils/zod-object-id.js';
+import { userSchema } from '../account/schema.js';
 
 export const userSchemaFinal = userSchema
   .extend({

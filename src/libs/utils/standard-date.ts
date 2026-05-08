@@ -1,3 +1,8 @@
 export const standardDateString = (date: Date | string | number) => {
-  return new Date(date).toLocaleDateString('en-CA');
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(date));
 };

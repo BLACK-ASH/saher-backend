@@ -1,13 +1,15 @@
-import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { ApiError } from '../../libs/class/api-error.js';
-import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
-import { User } from '../../database/user.model.js';
-import { sendEmail } from '../../libs/mail/resend-send-mail.js';
-import { hashPassword } from '../../libs/utils/password-hash.js';
+
+import type { Request, Response } from 'express';
 import z from 'zod';
-import { forgotPasswordTemplate } from '../../libs/mail/templates/forgot-password.js';
+
+import { User } from '../../database/user.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+import { forgotPasswordTemplate } from '../../libs/mail/templates/forgot-password.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { hashPassword } from '../../libs/utils/password-hash.js';
 
 export const forgotPasswordRequestController = async (req: Request, res: Response) => {
   const { email } = req.body;

@@ -1,10 +1,9 @@
-import 'express';
-import { UserRole } from '../database/user.model.ts';
-
 declare global {
   namespace Express {
     interface Request {
       fileValidationError?: string;
+      id: string;
+      startTime: number;
       user?: {
         id: string;
         name: string;
@@ -14,3 +13,5 @@ declare global {
     }
   }
 }
+
+export {}; // 👈 IMPORTANT (makes file a module)

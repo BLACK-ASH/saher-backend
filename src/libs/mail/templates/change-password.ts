@@ -1,15 +1,14 @@
 import 'dotenv/config';
-const imgUrl = process.env.BASE_URL + '/uploads/images/c1821c2a-7a05-414c-a54d-b6780e205031.webp';
 
 const date = new Date().toLocaleString();
 
-type props = {
+type Props = {
   name: string;
   url: string;
   expiryTime: string;
 };
 
-export const changePasswordTemplate = ({ name, url, expiryTime }: props): string => `
+export const changePasswordTemplate = ({ name, url, expiryTime }: Props): string => `
 
 <!DOCTYPE html>
 
@@ -38,7 +37,11 @@ export const changePasswordTemplate = ({ name, url, expiryTime }: props): string
         <table width="100%">
           <tr>
             <td align="left">
-              <img src="${imgUrl}" alt="Saher Logo" width="42" height="42" style="display:block;" />
+          <img
+            src="https://${process.env.BASE_URL}/saher-logo.png"
+            alt="SAHER Logo"
+            class="logo"
+          />
             </td>
 
             <td align="left" style="padding-left:10px;">

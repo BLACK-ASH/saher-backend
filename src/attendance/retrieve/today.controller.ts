@@ -1,15 +1,16 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import type { AttendanceListT } from './attendance.schema.js';
+import { attendanceListSchema } from './attendance.schema.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { attendanceListSchema, AttendanceListT } from './attendance.schema.js';
-import { defaultResponse } from './me.controller.js';
+import { createKey, getCache, setCacheWithGroup } from '../../libs/redis/redis-utils.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const attendancetodayKey = (page: number, limit: number) => {
-  return createKey('attendance', 'today', `page:${page}`, `limit:${limit}`);
+  return createKey('attendance', 'today', limit, page);
 };
 
 export const todayAttendanceController = async (req: Request, res: Response) => {
@@ -22,21 +23,16 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
 
   const key = attendancetodayKey(page, limit);
 
-  type cacheType = {
+  type CacheType = {
+    message: string;
     data: AttendanceListT;
-    meta: { page: number; limit: number; count: number; totalPages: number };
+    statusCode: number;
+    meta: { page: number; limit: number; count: number; total: number };
   };
 
-  const cached = await getCache<cacheType>(key);
+  const cached = await getCache<CacheType>(key);
   if (cached) {
-    const response = attendanceListSchema.parse(cached.data);
-
-    return ApiResponse.success(res, {
-      message: 'Today record  ',
-      data: response,
-      statusCode: 200,
-      meta: cached.meta,
-    });
+    return ApiResponse.success(res, cached);
   }
 
   const now = new Date();
@@ -45,47 +41,52 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
     .skip(skip)
     .limit(limit)
     .populate('user', 'name email role')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .lean();
 
   const count = await Attendance.countDocuments({ date: standardDateString(now) });
 
-  // if (today.length === 0) {
-  //     const emptyResponse: cacheType = { data: defaultResponse, meta: { page, limit, count: 0, totalPages: 0 } }
-  // }
-
   if (today.length === 0) {
     const emptyResponse = {
-      data: defaultResponse,
+      message: 'Today is not a working day',
+      data: null,
+      statusCode: 200,
       meta: { page, limit, count: 0, totalPages: 0 },
     };
 
-    return ApiResponse.success(res, {
-      message: 'Today is not a working day',
-      data: emptyResponse,
-      statusCode: 200,
-      meta: emptyResponse.meta,
-    });
+    return ApiResponse.success(res, emptyResponse);
   }
 
-  const normalized = normalizeDoc(today);
+  const finalToday = today.map((obj) => {
+    if (obj.inTime) {
+      const now = new Date();
+      obj.workHours = Number(
+        ((now.getTime() - obj.inTime.getTime()) / (1000 * 60 * 60)).toFixed(2),
+      );
+    }
+    return obj;
+  });
+
+  const normalized = normalizeDoc(finalToday);
   const parsed = attendanceListSchema.parse(normalized);
 
-  const response: cacheType = {
+  const response: CacheType = {
+    message: 'Today Attendance',
     data: parsed,
+    statusCode: 200,
     meta: {
       page,
       limit,
       count,
-      totalPages: Math.ceil(count / limit),
+      total: Math.ceil(count / limit),
     },
   };
 
-  await setCache(key, response, 86400);
+  await setCacheWithGroup(key, response, ['attendance', 'today', 'list']);
+  await setCacheWithGroup(key, response, ['today']);
 
-  return ApiResponse.success(res, {
-    message: 'Today Attendance',
-    data: parsed,
-    statusCode: 200,
-    meta: response.meta,
-  });
+  return ApiResponse.success(res, response);
 };

@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getAccountByUser } from '../admin/_services/account.js';
 import { User } from '../database/user.model.js';
 import { ApiError } from '../libs/class/api-error.js';
-import { getAccountByUser } from '../admin/_services/account.js';
-import { createKey, deleteCache } from '../libs/redis/redis-utils.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import { createKey, deleteCache } from '../libs/redis/redis-utils.js';
 
 export const updateUserController = async (req: Request, res: Response) => {
   const id = req.user?.id as string;

@@ -1,13 +1,12 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { getAccountByUser } from '../../admin/_services/account.js';
+import { createKey, deleteCache, deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
-import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
-import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
@@ -21,7 +20,7 @@ export const checkInController = async (req: Request, res: Response) => {
     user: user?.id,
     date: standardDateString(now),
     inTime: { $ne: null },
-  }).populate('user', 'name role email ');
+  });
   //Step 3 - Agr haa toh oosko dubara attendence mark karne mat do
   if (existingRecord) throw new ApiError(400, 'You Have Already Check In Today.');
 
@@ -36,7 +35,7 @@ export const checkInController = async (req: Request, res: Response) => {
   const cronRecord = await Attendance.findOne({
     user: user?.id,
     date: standardDateString(now),
-  }).populate('user', 'name email role');
+  });
 
   if (cronRecord) {
     cronRecord.inTime = now;
@@ -44,21 +43,21 @@ export const checkInController = async (req: Request, res: Response) => {
     cronRecord.isLate = isLate;
     await cronRecord.save();
 
-    const normalized = normalizeDoc(cronRecord.toObject());
-    const parsed = attendanceResponseSchema.parse(normalized);
-
     const todayKey = createKey('attendance', 'today', 'me', user?.id);
-    deleteCache(todayKey);
+    await deleteCache(todayKey);
+
+    await deleteCacheGroup('attendance', 'today', 'list');
+
     return ApiResponse.success(res, {
       message: 'You have been marked present',
-      data: parsed,
+      data: null,
       statusCode: 200,
     });
   }
 
   // Special case is user is check in before cron job
   //Step 5 - if User exist and have not submitted today's attendence start making new entry
-  //Step6 - Note the current time so that late hai ki nahi ka pata chal     sake
+  //Step 6 - Note the current time so that late hai ki nahi ka pata chal     sake
   const newRecord = await Attendance.create({
     user: user?.id,
     inTime: now,
@@ -67,16 +66,16 @@ export const checkInController = async (req: Request, res: Response) => {
     isLate,
   });
 
-  const populated = await newRecord.populate('user', 'name email role');
-
-  const normalized = normalizeDoc(populated.toObject());
-  const parsed = attendanceResponseSchema.parse(normalized);
+  if (!newRecord) throw new ApiError(400, 'Attendance Creation Failed.');
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
-  deleteCache(todayKey);
+  await deleteCache(todayKey);
+
+  await deleteCacheGroup('attendance', 'today', 'list');
+
   return ApiResponse.success(res, {
     message: 'You have been marked present',
-    data: parsed,
-    statusCode: 200,
+    data: null,
+    statusCode: 201,
   });
 };

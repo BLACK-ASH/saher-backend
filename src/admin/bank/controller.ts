@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { Bank } from '../../database/bank.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { getBank } from '../_services/bank.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { getAccountByUser } from '../_services/account.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
+import { getBank } from '../_services/bank.js';
 
 // Create Bank Controller
 export const createBankDetailController = async (req: Request, res: Response) => {

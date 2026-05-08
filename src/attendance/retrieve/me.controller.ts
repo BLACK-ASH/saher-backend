@@ -1,13 +1,16 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import type { AttendanceResponseT } from './attendance.schema.js';
+import { attendanceResponseSchema } from './attendance.schema.js';
+import { getAccountByUser } from '../../admin/_services/account.js';
+import { getUser } from '../../admin/_services/user.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { attendanceResponseSchema, AttendanceResponseT } from './attendance.schema.js';
-import { getAccountByUser } from '../../admin/_services/account.js';
+import { createKey, getCache, setCacheWithGroup } from '../../libs/redis/redis-utils.js';
+import { calculateWorkStatus, getShift } from '../../libs/utils/calculate-work-status.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const defaultResponse = {
   inTime: null,
@@ -19,8 +22,11 @@ export const defaultResponse = {
 };
 
 export const meAttendanceController = async (req: Request, res: Response) => {
-  const user = req.user;
-  if (!user?.id) throw new ApiError(400, 'Forbidden user');
+  if (!req.user) throw new ApiError(400, 'Forbidden user');
+  const id = req.user.id;
+
+  const user = await getUser(id);
+  if (!user) throw new ApiError(400, 'Forbidden user');
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
 
@@ -37,7 +43,11 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   const now = new Date();
 
   const record = await Attendance.findOne({ user: user.id, date: standardDateString(now) })
-    .populate('user', 'name email role')
+    .populate('user')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .lean();
 
   let data;
@@ -49,7 +59,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
       data,
       meta: { reason: 'cron job not created' },
     };
-    await setCache(todayKey, body);
+    await setCacheWithGroup(todayKey, body, ['today']);
     return ApiResponse.success(res, body);
   }
 
@@ -60,7 +70,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
       message: 'today Attendance',
       data,
     };
-    await setCache(todayKey, body);
+    await setCacheWithGroup(todayKey, body, ['today']);
     return ApiResponse.success(res, body);
   }
 
@@ -83,6 +93,6 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     data,
   };
 
-  await setCache(todayKey, body, 14400);
+  await setCacheWithGroup(todayKey, body, ['today']);
   return ApiResponse.success(res, body);
 };
