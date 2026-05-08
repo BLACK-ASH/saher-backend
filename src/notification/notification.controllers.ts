@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type {
-  NotificationResponseListT} from './notification.schema.js';
+import type { NotificationResponseListT } from './notification.schema.js';
 import {
   notificationResponseListSchema,
   notificationResponseSchema,
@@ -153,7 +152,7 @@ export const updateNotificationController = async (req: Request, res: Response) 
   }
 
   if (final.user) {
-    final.user = final.user.map((id: any) => id.toString());
+    final.user = final.user.toString();
   }
 
   const validated = SendNotificationSchema.parse(final);

@@ -3,13 +3,13 @@ import { Notification as NotificationModel } from '../../database/notification.m
 import type {
   NotificationPayload,
   NotificationResponseT,
-  RoleScope} from '../../notification/notification.schema.js';
+  RoleScope,
+} from '../../notification/notification.schema.js';
 import {
   notificationResponseListSchema,
-  notificationResponseSchema
+  notificationResponseSchema,
 } from '../../notification/notification.schema.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
-
 
 export type NotificationType = 'info' | 'warn' | 'error';
 
@@ -89,7 +89,7 @@ class Notification {
     await setCache(key, updated, 604800);
   }
 
-  private async saveToDB(data: any) {
+  private async saveToDB(data: NotificationPayload) {
     return NotificationModel.create(data);
   }
 }
