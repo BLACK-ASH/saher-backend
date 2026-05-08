@@ -12,6 +12,8 @@ export const checkOutController = async (req: Request, res: Response) => {
   const user = req.user;
   const now = new Date();
 
+  if (!user) throw new ApiError(403, 'Forbidden: Unauthorized');
+
   const attendance = await Attendance.findOne({
     user: user?.id,
     date: standardDateString(now),
@@ -50,8 +52,6 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   await attendance.save();
 
-  // const cacheParsed = CheckOutSetCacheSchema.parse(normalized);
-  if (!user?.id) throw new ApiError(400, 'Unauthorized');
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
   await deleteCache(todayKey);
 

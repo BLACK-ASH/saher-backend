@@ -93,6 +93,6 @@ export const meAttendanceController = async (req: Request, res: Response) => {
     data,
   };
 
-  await setCacheWithGroup(todayKey, body, ['today'], 14400);
+  await setCacheWithGroup(todayKey, body, ['today']);
   return ApiResponse.success(res, body);
 };

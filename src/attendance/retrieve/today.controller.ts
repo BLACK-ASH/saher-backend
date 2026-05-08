@@ -86,7 +86,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   };
 
   await setCacheWithGroup(key, response, ['attendance', 'today', 'list']);
-  await setCacheWithGroup(key, response, ['attendance', 'today']);
+  await setCacheWithGroup(key, response, ['today']);
 
   return ApiResponse.success(res, response);
 };
