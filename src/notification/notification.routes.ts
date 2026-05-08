@@ -5,7 +5,7 @@ import {
   deleteNotificationController,
   getAllNotificationsController,
 } from './notification.controllers.js';
-import { SendNotificationSchema, updateNotificationSchema } from './notification.schema.js';
+import { SendNotificationSchema } from './notification.schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
 

@@ -1,11 +1,7 @@
 import type { Request, Response } from 'express';
 
-import type { NotificationResponseListT, SendNotificationT } from './notification.schema.js';
-import {
-  notificationResponseListSchema,
-  notificationResponseSchema,
-  SendNotificationSchema,
-} from './notification.schema.js';
+import type { NotificationResponseListT } from './notification.schema.js';
+import { notificationResponseListSchema } from './notification.schema.js';
 import { Notification } from '../database/notification.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
