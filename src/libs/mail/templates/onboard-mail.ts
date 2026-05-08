@@ -1,5 +1,4 @@
 import 'dotenv/config';
-const imgUrl = process.env.BASE_URL + '/uploads/images/c1821c2a-7a05-414c-a54d-b6780e205031.webp';
 
 const date = new Date().toLocaleString();
 
@@ -37,9 +36,12 @@ export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
       <td style="padding:16px 24px; background:#faf5ff; border-bottom:1px solid #e5e7eb;">
         <table width="100%">
           <tr>
-            <!-- Logo -->
             <td align="left">
-              <img src="${imgUrl}" alt="Saher Logo" width="42" height="42" style="display:block;" />
+          <img
+            src="https://${process.env.BASE_URL}/saher-logo.png"
+            alt="SAHER Logo"
+            class="logo"
+          />
             </td>
 
             <!-- Organization Name -->
