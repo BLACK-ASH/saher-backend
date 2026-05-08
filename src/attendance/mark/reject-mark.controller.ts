@@ -5,6 +5,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { logger } from '../../libs/logger/logger.js';
+import { createKey, deleteCache, deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import { attendanceResponseSchema } from '../retrieve/attendance.schema.js';
@@ -19,7 +20,10 @@ export const rejectMarkSchema = z.object({
 export type RejectMarkT = z.infer<typeof rejectMarkSchema>;
 
 export const rejectMarkController = async (req: Request, res: Response) => {
-  const role = req.user?.role;
+  const user = req.user;
+  if (!user) throw new ApiError(403, 'Forbidden');
+
+  const role = user.role;
   if (role === 'user') throw new ApiError(400, 'Only Admins and Manager Are Permitted');
 
   const input: RejectMarkT = req.body;
@@ -38,6 +42,14 @@ export const rejectMarkController = async (req: Request, res: Response) => {
   record.status = input.status;
   record.isLate = input.isLate;
   await record.save();
+
+  // if today attendance is updated
+  const today = standardDateString(new Date());
+  if (today === date) {
+    const todayKey = createKey('attendance', 'today', 'me', user.id);
+    await deleteCache(todayKey);
+    await deleteCacheGroup('attendance', 'today', 'list');
+  }
 
   const normalized = normalizeDoc(record.toObject());
   const parsed = attendanceResponseSchema.parse(normalized);
