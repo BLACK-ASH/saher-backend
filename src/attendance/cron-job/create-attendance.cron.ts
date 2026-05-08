@@ -4,6 +4,7 @@ import { Attendance } from '../../database/attendance.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 import 'dotenv/config';
 
@@ -45,6 +46,8 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
   // 📊 Counts
   const create = createAttendance.length;
   const skip = users.length - create;
+
+  await deleteCacheGroup('today');
 
   return ApiResponse.success(res, {
     message: 'Attendance Created Successfully.',

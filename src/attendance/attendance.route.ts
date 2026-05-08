@@ -12,6 +12,7 @@ import { createAttendanceCorrectionController } from './correction/create-correc
 import { handleAttendanceCorrectionController } from './correction/handle-correction.js';
 import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
 import { createAttendanceCron } from './cron-job/create-attendance.cron.js';
+import { exportWeekController } from './export/week.js';
 import {
   updateHolidayController,
   getAllHolidayController,
@@ -21,6 +22,7 @@ import {
 } from './holiday/holiday.controller.js';
 import { checkInController } from './mark/check-in.controller.js';
 import { checkOutController } from './mark/check-out.controller.js';
+import { rejectMarkController, rejectMarkSchema } from './mark/reject-mark.controller.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
 import { holidaySchema, holidayUpdateSchema } from './holiday/holiday.schema.js';
@@ -41,6 +43,10 @@ attendanceRouter.post('/check-out', checkOutController);
 attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
 attendanceRouter.get('/retrieve-all', getAllUserController);
 attendanceRouter.get('/user/:id', allAttendanceController);
+attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
+
+// Export
+attendanceRouter.get('/export/week', exportWeekController);
 
 // Attendance correction
 attendanceRouter.get('/record/:id', getAttendanceById);
