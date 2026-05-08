@@ -69,8 +69,8 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
     }
 
     .logo {
-      width: 40px;
-      height: 40px;
+      width: 60px;
+      height: 60px;
       object-fit: contain;
     }
 
@@ -144,7 +144,7 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
     .summary {
       display: flex;
       gap: 24px;
-      margin-bottom: 20px;
+      margin: 1rem 0;
       font-size: 13px;
       color: #52525b;
     }
@@ -158,6 +158,7 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
       border: 1px solid #e4e4e7;
       border-radius: 10px;
       overflow: hidden;
+      margin: 1rem 0;
     }
 
     table {
@@ -263,17 +264,6 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
 
       </div>
 
-      <div class="title">
-
-        <h1>
-          Attendance Report
-        </h1>
-
-        <p>
-          ${weekStart && weekEnd ? `${formatDate(weekStart)} — ${formatDate(weekEnd)}` : '-'}
-        </p>
-
-      </div>
 
     </div>
 
@@ -315,29 +305,17 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
 
     </div>
 
-    <div class="summary">
+      <div class="title">
 
-      <div>
-        Present:
-        <strong>${totalPresent}</strong>
+        <h1>
+          Attendance Report
+        </h1>
+
+        <p>
+          ${weekStart && weekEnd ? `${formatDate(weekStart)} — ${formatDate(weekEnd)}` : '-'}
+        </p>
+
       </div>
-
-      <div>
-        Half Day:
-        <strong>${totalHalfDay}</strong>
-      </div>
-
-      <div>
-        Absent:
-        <strong>${totalAbsent}</strong>
-      </div>
-
-      <div>
-        Total Hours:
-        <strong>${totalHours.toFixed(1)}</strong>
-      </div>
-
-    </div>
 
     <div class="table-wrapper">
 
@@ -400,6 +378,29 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
 
     </div>
 
+    <div class="summary">
+
+      <div>
+        Present:
+        <strong>${totalPresent}</strong>
+      </div>
+
+      <div>
+        Half Day:
+        <strong>${totalHalfDay}</strong>
+      </div>
+
+      <div>
+        Absent:
+        <strong>${totalAbsent}</strong>
+      </div>
+
+      <div>
+        Total Hours:
+        <strong>${totalHours.toFixed(1)}</strong>
+      </div>
+
+    </div>
   </div>
 
 </body>

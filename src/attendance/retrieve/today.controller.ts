@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 
 import type { AttendanceListT } from './attendance.schema.js';
 import { attendanceListSchema } from './attendance.schema.js';
-import { defaultResponse } from './me.controller.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -53,7 +52,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   if (today.length === 0) {
     const emptyResponse = {
       message: 'Today is not a working day',
-      data: defaultResponse,
+      data: null,
       statusCode: 200,
       meta: { page, limit, count: 0, totalPages: 0 },
     };

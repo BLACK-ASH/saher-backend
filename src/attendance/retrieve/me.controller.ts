@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import type { AttendanceResponseT } from './attendance.schema.js';
 import { attendanceResponseSchema } from './attendance.schema.js';
 import { getAccountByUser } from '../../admin/_services/account.js';
+import { getUser } from '../../admin/_services/user.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -21,8 +22,11 @@ export const defaultResponse = {
 };
 
 export const meAttendanceController = async (req: Request, res: Response) => {
-  const user = req.user;
-  if (!user?.id) throw new ApiError(400, 'Forbidden user');
+  if (!req.user) throw new ApiError(400, 'Forbidden user');
+  const id = req.user.id;
+
+  const user = await getUser(id);
+  if (!user) throw new ApiError(400, 'Forbidden user');
 
   const todayKey = createKey('attendance', 'today', 'me', user?.id);
 
@@ -39,7 +43,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   const now = new Date();
 
   const record = await Attendance.findOne({ user: user.id, date: standardDateString(now) })
-    .populate('user', 'name email role')
+    .populate('user')
     .populate({
       path: 'user',
       populate: [{ path: 'image', model: 'Media' }],
