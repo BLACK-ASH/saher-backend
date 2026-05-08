@@ -3,7 +3,6 @@ import {
   createNotificationController,
   deleteNotificationController,
   getAllNotificationsController,
-  getLatestNotificationController,
   updateNotificationController,
 } from './notification.controllers.js';
 import { authorize } from '../permission/authorize.js';
@@ -12,22 +11,21 @@ import { SendNotificationSchema, updateNotificationSchema} from './notification.
 
 const notificationRouter = Router();
 
-notificationRouter.get('/', getLatestNotificationController);
 notificationRouter.get('/all', getAllNotificationsController);
 notificationRouter.post(
-  '/create',
+  '/',
   authorize('write', 'notification'),
   validate(SendNotificationSchema),
   createNotificationController,
 );
 notificationRouter.put(
-  '/update/:id',
+  '/:id',
   authorize('update', 'notification'),
   validate(updateNotificationSchema),
   updateNotificationController,
 );
 notificationRouter.delete(
-  '/delete',
+  '/',
   authorize('delete', 'notification'),
   deleteNotificationController,
 );

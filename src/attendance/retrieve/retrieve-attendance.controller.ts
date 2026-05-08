@@ -46,6 +46,7 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     }
   } else {
     throw new ApiError(
+      
       400,
       'Either you give the type of retriving or you give both start Date and end Date',
     );

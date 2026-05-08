@@ -2,7 +2,7 @@ import z from 'zod';
 import { notificationScope, notificationTypes } from '../database/notification.model.js';
 
 const BaseNotificationSchema = z.object({
-  user: z.array(z.string()).optional(),
+  user: z.string().optional(),
   type: z.enum(notificationTypes),
   title: z.string().min(1).max(100),
   description: z.string().min(1).max(1000),
@@ -11,7 +11,7 @@ const BaseNotificationSchema = z.object({
 
 
 export const SendNotificationSchema = BaseNotificationSchema.superRefine((schema , obj )=>{
-  if(schema.scope === "specific" && (!schema.user || schema.user.length === 0)){
+  if(schema.scope === "specific" && (!schema.user)){
     obj.addIssue({
       code :z.ZodIssueCode.custom,
       message : "user is required when the scope is choosen as specific",
@@ -33,7 +33,7 @@ export const updateNotificationSchema = BaseNotificationSchema.partial()
 
 export const notificationResponseSchema = z.object({ 
   id : z.string()  ,
-  // user : z.string().nullable(),
+  user : z.string().optional().nullable(),
   type: z.enum(notificationTypes),
   title: z.string().min(1, 'Title can not be empty').max(30, 'Title is too long'),
   description: z
