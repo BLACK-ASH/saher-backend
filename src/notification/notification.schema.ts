@@ -45,6 +45,7 @@ export const notificationResponseSchema = z
     scope: z.enum(notificationScope),
     createdAt: z.string(),
     updatedAt: z.string(),
+    expiresAt: z.string(),
   })
   .strip();
 

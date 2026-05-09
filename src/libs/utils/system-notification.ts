@@ -141,7 +141,13 @@ class Notification {
 
     const existing = notificationResponseListSchema.parse(existingRaw || []);
 
-    const updated = [notification, ...existing].slice(0, 100);
+    const now = new Date();
+
+    const filtered = existing.filter((n) => {
+      return new Date(n.expiresAt) > now;
+    });
+
+    const updated = [notification, ...filtered].slice(0, 100);
 
     await setCache(key, updated, 604800);
   }
