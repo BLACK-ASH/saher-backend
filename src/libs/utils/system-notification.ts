@@ -18,35 +18,92 @@ const ROLE_SCOPES = ['admin', 'manager', 'user', 'intern'];
 class Notification {
   global = {
     info: (title: string, description: string) =>
-      this.create({ scope: 'global', type: 'info', title, description }),
+      this.create({
+        scope: 'global',
+        type: 'info',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      }),
 
     warn: (title: string, description: string) =>
-      this.create({ scope: 'global', type: 'warn', title, description }),
+      this.create({
+        scope: 'global',
+        type: 'warn',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
+      }),
 
     error: (title: string, description: string) =>
-      this.create({ scope: 'global', type: 'error', title, description }),
+      this.create({
+        scope: 'global',
+        type: 'error',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
+      }),
   };
 
   role = {
     info: (role: RoleScope, title: string, description: string) =>
-      this.create({ scope: role, type: 'info', title, description }),
+      this.create({
+        scope: role,
+        type: 'info',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      }),
 
     warn: (role: RoleScope, title: string, description: string) =>
-      this.create({ scope: role, type: 'warn', title, description }),
+      this.create({
+        scope: role,
+        type: 'warn',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
+      }),
 
     error: (role: RoleScope, title: string, description: string) =>
-      this.create({ scope: role, type: 'error', title, description }),
+      this.create({
+        scope: role,
+        type: 'error',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
+      }),
   };
 
   specific = {
     info: (user: string, title: string, description: string) =>
-      this.create({ scope: 'specific', user, type: 'info', title, description }),
+      this.create({
+        scope: 'specific',
+        user,
+        type: 'info',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      }),
 
     warn: (user: string, title: string, description: string) =>
-      this.create({ scope: 'specific', user, type: 'warn', title, description }),
+      this.create({
+        scope: 'specific',
+        user,
+        type: 'warn',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
+      }),
 
     error: (user: string, title: string, description: string) =>
-      this.create({ scope: 'specific', user, type: 'error', title, description }),
+      this.create({
+        scope: 'specific',
+        user,
+        type: 'error',
+        title,
+        description,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
+      }),
   };
 
   private async create(payload: NotificationPayload) {

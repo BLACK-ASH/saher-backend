@@ -95,22 +95,17 @@ export const getAllNotificationsController = async (req: Request, res: Response)
     });
   }
 
-  const notifications = await Notification.find({
-    $or: [{ scope: 'global' }, { scope: role }, { scope: 'specific', user: userId }],
-  })
-    .sort({ createdAt: -1 })
-    .lean();
+  const globalRecord = await Notification.find({ scope: 'global' }).sort({ createdAt: -1 }).lean();
+  const globalNormlaized = normalizeDoc(globalRecord);
+  const globalNotifications = notificationResponseListSchema.parse(globalNormlaized || []);
 
-  const normalized = normalizeDoc(notifications);
+  const roleRecord = await Notification.find({ scope: role }).sort({ createdAt: -1 }).lean();
+  const roleNormalized = normalizeDoc(roleRecord);
+  const roleNotifications = notificationResponseListSchema.parse(roleNormalized || []);
 
-  const parsed = notificationResponseListSchema.parse(normalized);
-
-  // SPLIT DATA FOR CACHES
-  const globalNotifications = parsed.filter((n) => n.scope === 'global');
-
-  const roleNotifications = parsed.filter((n) => n.scope === role);
-
-  const userNotifications = parsed.filter((n) => n.scope === 'specific');
+  const userRecord = await Notification.find({ scope: 'specific', user: userId });
+  const userNormalized = normalizeDoc(userRecord);
+  const userNotifications = notificationResponseListSchema.parse(userNormalized || []);
 
   // SAVE SEPARATE CACHES
   await Promise.all([
@@ -121,10 +116,16 @@ export const getAllNotificationsController = async (req: Request, res: Response)
     setCache(userKey, userNotifications, 604800),
   ]);
 
+  const merged: NotificationResponseListT = [
+    ...globalNotifications,
+    ...roleNotifications,
+    ...userNotifications,
+  ];
+
   return ApiResponse.success(res, {
     message: 'Notifications fetched from database',
     statusCode: 200,
-    data: parsed,
+    data: merged,
   });
 };
 

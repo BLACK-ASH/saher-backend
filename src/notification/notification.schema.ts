@@ -61,6 +61,7 @@ type GlobalPayload = {
   type: NotificationType;
   title: string;
   description: string;
+  expiresAt: Date;
 };
 
 type RolePayload = {
@@ -68,6 +69,7 @@ type RolePayload = {
   type: NotificationType;
   title: string;
   description: string;
+  expiresAt: Date;
 };
 
 type SpecificPayload = {
@@ -76,6 +78,7 @@ type SpecificPayload = {
   type: NotificationType;
   title: string;
   description: string;
+  expiresAt: Date;
 };
 
 export type NotificationPayload = GlobalPayload | RolePayload | SpecificPayload;
