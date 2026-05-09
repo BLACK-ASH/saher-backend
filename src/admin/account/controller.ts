@@ -1,12 +1,16 @@
-import { NextFunction, Request, Response } from 'express';
-import { AccountRegisterInput } from './schema.js';
-import { User } from '../../database/user.model.js';
-import { Account } from '../../database/account.model.js';
+import type { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { ApiError } from '../../libs/class/api-error.js';
-import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
-import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+
+import type { AccountRegisterInput } from './schema.js';
+import { Account } from '../../database/account.model.js';
 import { Bank } from '../../database/bank.model.js';
+import { User } from '../../database/user.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { sendEmail } from '../../libs/mail/resend-send-mail.js';
+import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { getAccount, getAccountByUser } from '../_services/account.js';
 
 export const accountRegisterController = async (
   req: Request,
@@ -22,6 +26,7 @@ export const accountRegisterController = async (
   const existingEmpId = await Account.findOne({
     employeeId: registerInput.account.employeeId,
   });
+
   if (existingEmpId) throw new ApiError(400, 'User With Same Employee Id Exist.');
 
   try {
@@ -49,7 +54,7 @@ export const accountRegisterController = async (
 
     // ✅ Send email AFTER transaction success
     const html = onboardEmailTemplate({
-      name: user.name,
+      name: user.displayName || user.name,
       email: user.email,
       role: user.role,
     });
@@ -60,11 +65,9 @@ export const accountRegisterController = async (
       html,
     });
 
-    return res.status(201).json({
-      success: true,
-      message: 'Employee registered successfully.',
-      data: user._id,
-    });
+    const key = createKey('users', 'list');
+    await deleteCache(key);
+    return ApiResponse.created(res, { message: 'Employee registered.', data: user._id });
   } catch (error) {
     return next(error);
   } finally {
@@ -73,28 +76,44 @@ export const accountRegisterController = async (
 };
 
 export const accountUpdateController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req.params.id as string;
   const updateInput = req.body;
 
   const update = await Account.findByIdAndUpdate(id, updateInput);
   if (!update) throw new ApiError(404, 'Employee Not Found.');
 
-  return res.status(200).json({
-    success: true,
-    message: 'Employee update successfully.',
-    data: null,
-  });
+  const key = createKey('account', id);
+  const key1 = createKey('users', 'list');
+
+  await deleteCache(key);
+  await deleteCache(key1);
+
+  return ApiResponse.success(res, { message: 'Employee registered.' });
 };
 
 export const accountGetController = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const id = req.params.id as string;
 
-  const account = await Account.findById(id);
+  let user;
+  if (id === 'me') {
+    const userId = req.user?.id as string;
+
+    user = await getAccountByUser(userId);
+    if (!user) throw new ApiError(404, 'User Not Found.');
+
+    return ApiResponse.success(res, {
+      message: 'Employee get successfully.',
+      data: user,
+      statusCode: 200,
+    });
+  }
+
+  const account = await getAccount(id);
   if (!account) throw new ApiError(404, 'User Not Found.');
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Employee get successfully.',
     data: account,
+    statusCode: 200,
   });
 };

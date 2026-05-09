@@ -1,18 +1,21 @@
-import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { ApiError } from '../../libs/class/api-error.js';
-import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+
+import type { Request, Response } from 'express';
+
 import { User } from '../../database/user.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
-import { hashPassword } from '../../libs/utils/password-hash.js';
 import { changePasswordTemplate } from '../../libs/mail/templates/change-password.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { hashPassword } from '../../libs/utils/password-hash.js';
 
 export const changePasswordRequestController = async (req: Request, res: Response) => {
   const user = req.user;
   if (!user) throw new ApiError(403, 'Forbidden: Action Not Allowed.');
 
   const token = crypto.randomBytes(32).toString('hex');
-  const url = process.env.BASE_URL + '/auth/change-password?token=' + token;
+  const url = process.env.BASE_URL + '/change-password?token=' + token;
 
   const key = createKey('change-password', token);
 
@@ -26,10 +29,10 @@ export const changePasswordRequestController = async (req: Request, res: Respons
 
   await sendEmail({ to: user.email, subject: 'Change Password Request.', html });
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Mail Is Send To Your Registered Email For Verification.',
     data: null,
+    statusCode: 200,
   });
 };
 
@@ -52,9 +55,9 @@ export const changePasswordController = async (req: Request, res: Response) => {
   await deleteCache(key);
   await deleteCache(userKey);
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Password Change Successful.',
     data: null,
+    statusCode: 200,
   });
 };

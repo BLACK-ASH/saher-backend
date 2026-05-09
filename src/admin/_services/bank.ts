@@ -1,7 +1,8 @@
 import z from 'zod';
+
+import { Bank } from '../../database/bank.model.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { Bank } from '../../database/bank.model.js';
 import { bankSchema } from '../bank/schema.js';
 
 export const bankSchemaFinal = bankSchema.extend({ id: z.string() }).readonly();
@@ -19,7 +20,7 @@ export const getBank = async (id: string): Promise<BankT | null> => {
   const normalize = normalizeDoc(bank);
   const parsed = bankSchemaFinal.parse(normalize);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return parsed;
 };

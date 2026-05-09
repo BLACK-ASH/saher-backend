@@ -1,4 +1,4 @@
-import { ZodSchema } from 'zod';
+import z, { ZodSchema } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../class/api-error.js';
 
@@ -7,11 +7,12 @@ export const validate = (schema: ZodSchema) => {
     const parsed = schema.safeParse(req.body);
 
     if (!parsed.success) {
-      const message = parsed.error.issues.map((i) => i.message).join(', ');
-      throw new ApiError(400, message, parsed);
+      const message = z.prettifyError(parsed.error);
+      const data = z.flattenError(parsed.error);
+      throw new ApiError(400, message, data);
     }
 
-    req.body = parsed.data; // ✅ clean data
+    req.body = parsed.data;
     next();
   };
 };
@@ -20,11 +21,12 @@ export const validateAsync = (schema: ZodSchema) => {
     const parsed = await schema.safeParseAsync(req.body);
 
     if (!parsed.success) {
-      const message = parsed.error.issues.map((i) => i.message).join(', ');
-      throw new ApiError(400, message, parsed);
+      const message = z.prettifyError(parsed.error);
+      const data = z.flattenError(parsed.error);
+      throw new ApiError(400, message, data);
     }
 
-    req.body = parsed.data; // ✅ clean data
+    req.body = parsed.data;
     next();
   };
 };

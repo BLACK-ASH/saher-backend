@@ -1,12 +1,14 @@
+import 'dotenv/config';
+
 const date = new Date().toLocaleString();
 
-type props = {
+type Props = {
   name: string;
   email: string;
   role: string;
 };
 
-export const onboardEmailTemplate = ({ name, email, role }: props): string => `
+export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
 <!DOCTYPE html>
 
 <html>
@@ -34,9 +36,12 @@ export const onboardEmailTemplate = ({ name, email, role }: props): string => `
       <td style="padding:16px 24px; background:#faf5ff; border-bottom:1px solid #e5e7eb;">
         <table width="100%">
           <tr>
-            <!-- Logo -->
             <td align="left">
-              <img src="https://img1.wsimg.com/isteam/ip/39368cc3-acd4-4d6e-8ca7-9c6865d2c833/saher%20logo%20png.png" alt="Saher Logo" width="42" height="42" style="display:block;" />
+          <img
+            src="https://${process.env.BASE_URL}/saher-logo.png"
+            alt="SAHER Logo"
+            class="logo"
+          />
             </td>
 
             <!-- Organization Name -->

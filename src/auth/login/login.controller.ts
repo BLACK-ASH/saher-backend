@@ -1,8 +1,10 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { User } from '../../database/user.model.js';
-import { comparePassword } from '../../libs/utils/password-hash.js';
-import { generateToken } from '../../libs/utils/jwt-token.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { generateToken } from '../../libs/utils/jwt-token.js';
+import { comparePassword } from '../../libs/utils/password-hash.js';
 
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -13,7 +15,11 @@ export const loginController = async (req: Request, res: Response) => {
   };
 
   if (token.accessToken && token.refreshToken) {
-    return res.status(200).json({ success: true, message: 'Already Login.', data: token });
+    return ApiResponse.success(res, {
+      message: 'Already Login.',
+      data: token,
+      statusCode: 200,
+    });
   }
 
   const user = await User.findOne({ email }).lean();
@@ -42,7 +48,9 @@ export const loginController = async (req: Request, res: Response) => {
     sameSite: isProd ? 'none' : 'lax',
   });
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'login succesfully.', data: { accessToken, refreshToken } });
+  return ApiResponse.success(res, {
+    message: 'login succesfully.',
+    data: { accessToken, refreshToken },
+    statusCode: 200,
+  });
 };

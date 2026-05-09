@@ -1,4 +1,11 @@
 import { Router } from 'express';
+
+import {
+  accountGetController,
+  accountRegisterController,
+  accountUpdateController,
+} from './account/controller.js';
+import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
 import {
   createBankDetailController,
   deleteBankDetailController,
@@ -6,21 +13,15 @@ import {
   updateBankDetailController,
 } from './bank/controller.js';
 import { bankSchema, bankUpdateSchema } from './bank/schema.js';
-import { accountRegisterSchema, accountUpdateSchema } from './account/schema.js';
 import {
-  accountGetController,
-  accountRegisterController,
-  accountUpdateController,
-} from './account/controller.js';
-import {
-  getAllUser,
+  getAllUsersController,
   userDeleteController,
   userGetController,
   userUpdateController,
 } from './user/controller.js';
 import { userUpdateSchema } from './user/schema.js';
-import { authorize } from '../permission/authorize.js';
 import { validate, validateAsync } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
 
 const adminRouter = Router();
 
@@ -40,7 +41,6 @@ adminRouter.post(
 );
 
 // Account Routes
-// NOTE:Change Routes
 adminRouter.post(
   '/account',
   authorize('write', 'account'),
@@ -54,8 +54,8 @@ adminRouter
   .get(accountGetController);
 
 // User Routes
-// NOTE:Change Routes
-adminRouter.get('/users', getAllUser);
+adminRouter.get('/users', getAllUsersController);
+
 adminRouter
   .route('/user/:id')
   .get(userGetController)

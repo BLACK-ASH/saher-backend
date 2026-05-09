@@ -1,5 +1,7 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { getUser } from '../../admin/_services/user.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const meController = async (req: Request, res: Response) => {
   const id = req.user?.id;
@@ -11,5 +13,9 @@ export const meController = async (req: Request, res: Response) => {
     res.clearCookie('saher_refresh_token');
   }
 
-  return res.status(200).json({ success: true, message: 'User details', data: user });
+  return ApiResponse.success(res, {
+    message: 'User details',
+    data: user,
+    statusCode: 200,
+  });
 };

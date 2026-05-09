@@ -1,12 +1,14 @@
+import 'dotenv/config';
+
 const date = new Date().toLocaleString();
 
-type props = {
+type Props = {
   name: string;
   url: string;
   expiryTime: string;
 };
 
-export const changePasswordTemplate = ({ name, url, expiryTime }: props): string => `
+export const changePasswordTemplate = ({ name, url, expiryTime }: Props): string => `
 
 <!DOCTYPE html>
 
@@ -35,7 +37,11 @@ export const changePasswordTemplate = ({ name, url, expiryTime }: props): string
         <table width="100%">
           <tr>
             <td align="left">
-              <img src="https://img1.wsimg.com/isteam/ip/39368cc3-acd4-4d6e-8ca7-9c6865d2c833/saher%20logo%20png.png" alt="Saher Logo" width="42" height="42" style="display:block;" />
+          <img
+            src="https://${process.env.BASE_URL}/saher-logo.png"
+            alt="SAHER Logo"
+            class="logo"
+          />
             </td>
 
             <td align="left" style="padding-left:10px;">

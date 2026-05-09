@@ -1,5 +1,5 @@
+import type { Request } from 'express';
 import multer from 'multer';
-import { Request } from 'express';
 
 const storage = multer.memoryStorage();
 

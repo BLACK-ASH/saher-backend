@@ -1,11 +1,12 @@
 import z from 'zod';
+
+import { bankSchemaFinal } from './bank.js';
+import { userSchemaFinal } from './user.js';
 import { Account } from '../../database/account.model.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
-import { accountBaseSchema } from '../account/schema.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { userSchemaFinal } from './user.js';
-import { bankSchemaFinal } from './bank.js';
 import { imageType } from '../../libs/utils/zod-object-id.js';
+import { accountBaseSchema } from '../account/schema.js';
 
 const accountSchemaFinal = accountBaseSchema
   .omit({ aadhar: true, pan: true, resume: true })
@@ -19,7 +20,7 @@ const accountSchemaFinal = accountBaseSchema
   })
   .readonly();
 
-type AccountT = z.infer<typeof accountSchemaFinal>;
+export type AccountT = z.infer<typeof accountSchemaFinal>;
 
 export const getAccount = async (id: string): Promise<AccountT | null> => {
   const key = createKey('account', id);
@@ -40,7 +41,7 @@ export const getAccount = async (id: string): Promise<AccountT | null> => {
   const normalize = normalizeDoc(account);
   const parsed = accountSchemaFinal.parse(normalize);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return parsed;
 };
@@ -64,7 +65,7 @@ export const getAccountByUser = async (id: string): Promise<AccountT | null> => 
   const normalize = normalizeDoc(account);
   const parsed = accountSchemaFinal.parse(normalize);
 
-  await setCache(key, parsed);
+  await setCache(key, parsed, 604800);
 
   return parsed;
 };

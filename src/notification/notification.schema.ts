@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { notificationTypes } from '../database/notification.model.js';
 
 export const createNotificationSchema = z.object({

@@ -1,8 +1,11 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { Bank } from '../../database/bank.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { getBank } from '../_services/bank.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { getAccountByUser } from '../_services/account.js';
+import { getBank } from '../_services/bank.js';
 
 // Create Bank Controller
 export const createBankDetailController = async (req: Request, res: Response) => {
@@ -16,21 +19,34 @@ export const createBankDetailController = async (req: Request, res: Response) =>
     mobileNumber,
   });
 
-  return res
-    .status(201)
-    .json({ success: true, message: 'Bank Details Added Successfull.', data: details });
+  return ApiResponse.success(res, {
+    message: 'Bank Details Added Successfull.',
+    data: details,
+    statusCode: 201,
+  });
 };
 
 // Get Bank Controller
 export const getBankDetailController = async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const details = await getBank(id);
+  let user;
+  if (id === 'me') {
+    const userId = req.user?.id as string;
+    user = await getAccountByUser(userId);
+    if (!user) throw new ApiError(404, 'User Not Found.');
+  }
+
+  const bankId = user?.bank.id || id;
+
+  const details = await getBank(bankId);
   if (!details) throw new ApiError(400, 'Bank Details Not Exist.');
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'Bank Details Retrive Successfull.', data: details });
+  return ApiResponse.success(res, {
+    message: 'Bank Details Retrive Successfull.',
+    data: details,
+    statusCode: 200,
+  });
 };
 
 // Update Bank Controller
@@ -44,9 +60,11 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
   const key = createKey('bank', id);
   await deleteCache(key);
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'Bank Details Updated Successfull.', data: updated });
+  return ApiResponse.success(res, {
+    message: 'Bank Details Updated Successfull.',
+    data: updated,
+    statusCode: 200,
+  });
 };
 
 // Delete Bank Controller
@@ -59,7 +77,9 @@ export const deleteBankDetailController = async (req: Request, res: Response) =>
   const key = createKey('bank', id);
   await deleteCache(key);
 
-  return res
-    .status(200)
-    .json({ success: true, message: 'Bank Details Deleted Succesfully', data: deleted });
+  return ApiResponse.success(res, {
+    message: 'Bank Details Deleted Succesfully',
+    data: deleted,
+    statusCode: 200,
+  });
 };
