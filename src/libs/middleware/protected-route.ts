@@ -18,7 +18,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
         throw new ApiError(401, 'Login Required.');
       }
 
-      const verifyToken = verifyRefreshToken(refresh);
+      const verifyToken = await verifyRefreshToken(refresh);
       if (!verifyToken) {
         throw new ApiError(401, 'Invalid Refresh Token.');
       }
@@ -30,7 +30,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
         email: verifyToken.email,
       };
 
-      const { accessToken, refreshToken } = generateToken(user);
+      const { accessToken, refreshToken } = await generateToken(user);
 
       res.cookie('saher_access_token', accessToken, {
         maxAge: 604800000,
