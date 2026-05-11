@@ -2,10 +2,12 @@ import type { Request, Response } from 'express';
 import type { Types } from 'mongoose';
 import mongoose from 'mongoose';
 
+
 import { Participant } from '../../database/participant.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const markAttendance = async (req: Request, res: Response) => {
   const sessionId = req.params.sessionId as string;

@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import z from 'zod';
 
+import { ApiResponse } from '../../libs/class/api-response.js';
+
 const registerSchema = z
   .object({
     name: z.string().trim().min(2),

@@ -4,6 +4,7 @@ import type { Types } from 'mongoose';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const removeAttendance = async (req: Request, res: Response) => {
   // write a code to delete and participants attendance from the session Attendance

@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {

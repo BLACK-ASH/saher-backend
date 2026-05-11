@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 // Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
