@@ -16,7 +16,6 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start",
-    "prepare": "pnpm exec husky install",
     "spellcheck": "cspell .",
     "seed": "pnpm tsx src/seeds/runner.ts"
   },
@@ -24,7 +23,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.18.2",
+  "packageManager": "pnpm@11.0.9",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
@@ -41,6 +40,7 @@
     "redis": "^5.12.1",
     "resend": "^6.12.0",
     "sharp": "^0.34.5",
+    "ua-parser-js": "^2.0.9",
     "zod": "^4.3.5"
   },
   "devDependencies": {

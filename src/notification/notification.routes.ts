@@ -12,7 +12,7 @@ import { authorize } from '../permission/authorize.js';
 
 const notificationRouter = Router();
 
-notificationRouter.get('/all', getAllNotificationsController);
+notificationRouter.get('/', getAllNotificationsController);
 notificationRouter.post(
   '/',
   authorize('write', 'notification'),
