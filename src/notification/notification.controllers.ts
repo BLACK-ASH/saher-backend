@@ -71,7 +71,32 @@ export const getAllNotificationsController = async (req: Request, res: Response)
 
   const roleCacheRaw = await getCache(roleKey);
 
+  const result = await Notification.updateMany(
+    {
+      scope: 'specific',
+      user: userId,
+      isSeen: false,
+    },
+    {
+      $set: {
+        isSeen: true,
+        seenAt: new Date(),
+      },
+    },
+  );
+  if (result.modifiedCount > 0) {
+    const userSpecificRecord = await Notification.find({
+      scope: 'specific',
+      user: userId,
+      isSeen: true,
+    }).lean();
+    const userSpecificNormalized = normalizeDoc(userSpecificRecord);
+    const userSpecificParsed = notificationResponseListSchema.parse(userSpecificNormalized);
+    await setCache(userKey, userSpecificParsed, 604800);
+  }
   const userCacheRaw = await getCache(userKey);
+  // const userUnseenNormalized = normalizeDoc(userUnseenRecord)
+  // const userUnseenParsed = notificationResponseListSchema.parse(userUnseenNormalized)
 
   const globalCache = notificationResponseListSchema.parse(globalCacheRaw || []);
 
@@ -103,7 +128,7 @@ export const getAllNotificationsController = async (req: Request, res: Response)
   const roleNormalized = normalizeDoc(roleRecord);
   const roleNotifications = notificationResponseListSchema.parse(roleNormalized || []);
 
-  const userRecord = await Notification.find({ scope: 'specific', user: userId });
+  const userRecord = await Notification.find({ scope: 'specific', user: userId }).lean();
   const userNormalized = normalizeDoc(userRecord);
   const userNotifications = notificationResponseListSchema.parse(userNormalized || []);
 
@@ -126,6 +151,29 @@ export const getAllNotificationsController = async (req: Request, res: Response)
     message: 'Notifications fetched from database',
     statusCode: 200,
     data: merged,
+  });
+};
+
+export const getUnseenNotificationCount = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  const unseenNotificationCount = await Notification.countDocuments({
+    scope: 'specific',
+    user: userId,
+    isSeen: false,
+  }).lean();
+
+  if (unseenNotificationCount === 0) {
+    return ApiResponse.success(res, {
+      message: 'you have no  new notification',
+      data: null,
+      meta: { count: 0 },
+    });
+  }
+  return ApiResponse.success(res, {
+    message: 'You have new Notification ',
+    data: null,
+    meta: { count: unseenNotificationCount },
   });
 };
 

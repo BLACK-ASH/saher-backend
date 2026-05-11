@@ -129,10 +129,10 @@ class Notification {
     }
 
     // USER
-    if (payload.scope === 'specific') {
-      const key = createKey('notification', 'user', payload.user);
-      await this.appendToCache(key, parsed);
-    }
+    // if (payload.scope === 'specific') {
+    //   const key = createKey('notification', 'user', payload.user);
+    //   await this.appendToCache(key, parsed);
+    // }
     return parsed;
   }
 
