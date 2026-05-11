@@ -1,17 +1,18 @@
-import { Request, Response } from "express";
-import { Participant } from "../../database/participant.model.js";
-import { ApiError } from "../../libs/class/api-error.js";
-import { participantSchema, updatedParticipantSchema } from "./participant.schema.js";
+import type { Request, Response } from 'express';
+
+import { participantSchema, updatedParticipantSchema } from './participant.schema.js';
+import { Participant } from '../../database/participant.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 
 //Add participant
 export const addParticipant = async (req: Request, res: Response) => {
   req.body = participantSchema.parse(req.body);
   const newParticipant = await Participant.create(req.body);
 
-  return res.status(200).json({
-    success: true,
-    message: "Participant added successfully",
+  return ApiResponse.success(res, {
+    message: 'Participant added successfully',
     data: newParticipant,
+    statusCode: 200,
   });
 };
 
@@ -19,31 +20,32 @@ export const addParticipant = async (req: Request, res: Response) => {
 export const readAllParticipant = async (req: Request, res: Response) => {
   const participants = await Participant.find({ isDeleted: false });
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
+    message: undefined,
     data: participants,
+    statusCode: 200,
   });
 };
 
 //Edit Participant
 export const editParticipant = async (req: Request, res: Response) => {
   req.body = updatedParticipantSchema.parse(req.body);
-    const updatedParticipant = await Participant.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        {
-            new: true,
-            runValidators: true,
-        },
-    );
-    if (!updatedParticipant) {
-        return res.status(404).json({ error: "Participant not found" });
-    }
-    return res.status(200).json({
-        success: true,
-        message: "Participant has been Updated successfully",
-        data: updatedParticipant,
+  const updatedParticipant = await Participant.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!updatedParticipant) {
+    return ApiResponse.success(res, {
+      message: undefined,
+      data: undefined,
+      statusCode: 404,
     });
+  }
+  return ApiResponse.success(res, {
+    message: 'Participant has been Updated successfully',
+    data: updatedParticipant,
+    statusCode: 200,
+  });
 };
 
 //Delete participant
@@ -51,15 +53,15 @@ export const deleteParticipant = async (req: Request, res: Response) => {
   const participant = await Participant.findById(req.params.id);
 
   if (!participant) {
-    throw new ApiError(404, "Participant not found");
+    throw new ApiError(404, 'Participant not found');
   }
 
   participant.isDeleted = true;
   await participant.save();
 
-  return res.status(200).json({
-    success: true,
-    message: "Participant has been soft deleted successfully",
+  return ApiResponse.success(res, {
+    message: 'Participant has been soft deleted successfully',
     data: null,
+    statusCode: 200,
   });
 };

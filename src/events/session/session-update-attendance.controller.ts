@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import { ApiError } from '../../libs/class/api-error.js';
+import type { Request, Response } from 'express';
+import type { Types } from 'mongoose';
+
+import { Participant } from '../../database/participant.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
-import { Types } from 'mongoose';
-import { Participant } from '../../database/participant.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 
 export const updateAttendance = async (req: Request, res: Response) => {
   // write a code to edit an session Attendance
@@ -60,12 +61,12 @@ export const updateAttendance = async (req: Request, res: Response) => {
   );
 
   await Session.updateOne({ _id: session._id }, { $addToSet: { participants: { $each: update } } });
-  return res.status(200).json({
-    sucess: true,
+  return ApiResponse.success(res, {
     message: 'Attendance updated successfully',
     data: {
       update,
       failure,
     },
+    statusCode: 200,
   });
 };

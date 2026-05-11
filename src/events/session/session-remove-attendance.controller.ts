@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
-import { ApiError } from '../../libs/class/api-error.js';
+import type { Request, Response } from 'express';
+import type { Types } from 'mongoose';
+
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
-import { Types } from 'mongoose';
+import { ApiError } from '../../libs/class/api-error.js';
 
 export const removeAttendance = async (req: Request, res: Response) => {
   // write a code to delete and participants attendance from the session Attendance
@@ -40,9 +41,9 @@ export const removeAttendance = async (req: Request, res: Response) => {
 
   await Session.updateOne({ _id: session._id }, { $pull: { participants: { $in: remove } } });
 
-  return res.status(200).json({
-    sucess: true,
+  return ApiResponse.success(res, {
     message: 'Participants remove from attendance Successfully',
     data: null,
+    statusCode: 200,
   });
 };

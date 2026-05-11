@@ -1,6 +1,7 @@
+import type { Request, Response } from 'express';
+
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { Request, Response } from 'express';
 
 //Add participant to workshop
 export const addParticipantToWorkshop = async (req: Request, res: Response) => {
@@ -17,10 +18,10 @@ export const addParticipantToWorkshop = async (req: Request, res: Response) => {
 
   if (!workshop) throw new ApiError(404, 'Workshop not found');
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Participant added successfully',
     data: workshop,
+    statusCode: 200,
   });
 };
 
@@ -38,9 +39,9 @@ export const removeParticipantFromWorkshop = async (req: Request, res: Response)
 
   if (!workshop) throw new ApiError(404, 'Workshop not found');
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Participant removed successfully',
     data: workshop,
+    statusCode: 200,
   });
 };

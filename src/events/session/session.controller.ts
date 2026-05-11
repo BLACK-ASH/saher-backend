@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { Session } from '../../database/session.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
 import { Workshop } from '../../database/workshop.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
@@ -14,10 +15,10 @@ export const addSession = async (req: Request, res: Response) => {
 
   const newSession = await Session.create({ ...req.body, workshopId });
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Session created successfully',
     data: newSession,
+    statusCode: 200,
   });
 };
 
@@ -38,10 +39,10 @@ export const editSession = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Session not found');
   }
 
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Session has been Updated successfully',
     data: updatedSession,
+    statusCode: 200,
   });
 };
 
@@ -51,9 +52,9 @@ export const deleteSession = async (req: Request, res: Response) => {
   if (!session) throw new ApiError(404, 'Session not found');
   session.isDeleted = true;
   await session.save();
-  return res.status(200).json({
-    success: true,
+  return ApiResponse.success(res, {
     message: 'Session has been deleted successfully',
     data: null,
+    statusCode: 200,
   });
 };

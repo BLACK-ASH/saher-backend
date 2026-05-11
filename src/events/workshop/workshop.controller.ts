@@ -1,15 +1,16 @@
-import { Request, Response } from "express";
-import { Workshop } from "../../database/workshop.model.js";
-import { ApiError } from "../../libs/class/api-error.js";
+import type { Request, Response } from 'express';
+
+import { Workshop } from '../../database/workshop.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 
 // Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
   const newWorkshop = await Workshop.create(req.body);
 
-  return res.status(201).json({
-    success: true,
-    message: "Workshop is added successfully.",
+  return ApiResponse.success(res, {
+    message: 'Workshop is added successfully.',
     data: newWorkshop,
+    statusCode: 201,
   });
 };
 
@@ -21,17 +22,17 @@ export const editWorkshop = async (req: Request, res: Response) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   );
 
   if (!updatedWorkshop) {
-    throw new ApiError(404, "Workshop not found");
+    throw new ApiError(404, 'Workshop not found');
   }
 
-  return res.status(200).json({
-    success: true,
-    message: "Workshop has been updated successfully",
+  return ApiResponse.success(res, {
+    message: 'Workshop has been updated successfully',
     data: updatedWorkshop,
+    statusCode: 200,
   });
 };
 
@@ -43,15 +44,15 @@ export const deleteWorkshop = async (req: Request, res: Response) => {
   });
 
   if (!workshop) {
-    throw new ApiError(404, "Workshop not found");
+    throw new ApiError(404, 'Workshop not found');
   }
 
   workshop.isDeleted = true;
   await workshop.save();
 
-  return res.status(200).json({
-    success: true,
-    message: "Workshop has been soft deleted successfully",
+  return ApiResponse.success(res, {
+    message: 'Workshop has been soft deleted successfully',
     data: null,
+    statusCode: 200,
   });
 };

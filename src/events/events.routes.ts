@@ -1,23 +1,24 @@
 import { Router, Request, Response } from 'express';
-import { validate } from '../libs/middleware/validate-zod-schema.js';
-import { addSession, deleteSession, editSession } from './session/session.controller.js';
-import { addWorkshop, deleteWorkshop, editWorkshop } from './workshop/workshop.controller.js';
+
 import {
   addParticipant,
   deleteParticipant,
   editParticipant,
 } from './participant/participant.controller.js';
-import { markAttendance } from './session/session-attendance.controller.js';
-import { createWorkshopSchema, updatedWorkshopSchema } from './workshop/workshop.schema.js';
-import { createSessionSchema, updatedSessionSchema } from './session/session.schema.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
+import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
-import { updateAttendance } from './session/session-update-attendance.controller.js';
 import { removeAttendance } from './session/session-remove-attendance.controller.js';
+import { updateAttendance } from './session/session-update-attendance.controller.js';
+import { addSession, deleteSession, editSession } from './session/session.controller.js';
+import { createSessionSchema, updatedSessionSchema } from './session/session.schema.js';
 import {
   addParticipantToWorkshop,
   removeParticipantFromWorkshop,
 } from './workshop/workshop-participant.controller.js';
+import { addWorkshop, deleteWorkshop, editWorkshop } from './workshop/workshop.controller.js';
+import { createWorkshopSchema, updatedWorkshopSchema } from './workshop/workshop.schema.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
 
 const eventRouter = Router();
 

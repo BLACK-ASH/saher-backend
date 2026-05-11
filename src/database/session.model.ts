@@ -71,11 +71,11 @@ const sessionSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export type sessionType = mongoose.InferSchemaType<typeof sessionSchema>;
-export const Session = mongoose.model<sessionType>('Session', sessionSchema);
+export type SessionType = mongoose.InferSchemaType<typeof sessionSchema>;
+export const Session = mongoose.model<SessionType>('Session', sessionSchema);
 
-export type sessionAttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>;
-export const sessionAttendance = mongoose.model<sessionAttendanceType>(
+export type SessionAttendanceType = mongoose.InferSchemaType<typeof attendanceSchema>;
+export const sessionAttendance = mongoose.model<SessionAttendanceType>(
   'sessionAttendance',
   attendanceSchema,
 );

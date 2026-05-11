@@ -1,25 +1,22 @@
-import { z } from "zod";
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
+import { z } from 'zod';
 
 const objectId = z.string().refine((val) => Types.ObjectId.isValid(val), {
-  message: "Invalid ObjectId",
+  message: 'Invalid ObjectId',
 });
 
 //Base workshop schema
-export const baseWorkshopSchema = z
-  .object({
-    title: z.string().min(5).max(50),
-    description: z.string().min(10).max(500),
-    participants: z.array(objectId).optional(),
-  });
+export const baseWorkshopSchema = z.object({
+  title: z.string().min(5).max(50),
+  description: z.string().min(10).max(500),
+  participants: z.array(objectId).optional(),
+});
 
 //Create a workshop
 export const createWorkshopSchema = baseWorkshopSchema;
 
 //Update a workshop
-export const updatedWorkshopSchema = baseWorkshopSchema
-  .omit({ participants: true })
-  .partial(); 
+export const updatedWorkshopSchema = baseWorkshopSchema.omit({ participants: true }).partial();
 
 export type CreateWorkshopInputType = z.infer<typeof createWorkshopSchema>;
 export type UpdateWorkshopInputType = z.infer<typeof updatedWorkshopSchema>;

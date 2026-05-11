@@ -1,5 +1,6 @@
-import { z } from "zod";
-import { objectId } from "./session.schema.js";
+import { z } from 'zod';
+
+import { objectId } from './session.schema.js';
 
 //attendance
 export const SessionAttendanceSchema = z.object({

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 const workshopSchema = new mongoose.Schema(
   {
@@ -14,19 +14,16 @@ const workshopSchema = new mongoose.Schema(
 
     participants: {
       type: [Schema.Types.ObjectId],
-      ref: "Participant",
+      ref: 'Participant',
       default: [],
     },
     isDeleted: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   { timestamps: true },
 );
 
-export type workshopType = mongoose.InferSchemaType<typeof workshopSchema>;
-export const Workshop = mongoose.model<workshopType>(
-  "Workshop",
-  workshopSchema,
-);
+export type WorkshopType = mongoose.InferSchemaType<typeof workshopSchema>;
+export const Workshop = mongoose.model<WorkshopType>('Workshop', workshopSchema);

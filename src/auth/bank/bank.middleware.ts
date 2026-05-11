@@ -1,5 +1,7 @@
-import { Response, Request, NextFunction } from "express"
-import z from "zod"
+import type { Response, Request, NextFunction } from 'express';
+import z from 'zod';
+
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 // Schemas
 // Register Schema
@@ -9,7 +11,7 @@ const bankRegisterSchema = z.object({
   ifcs: z.string(),
   branch: z.string(),
   mobileNumber: z.string(),
-})
+});
 
 // Update Schema
 const bankUpdateSchema = z.object({
@@ -18,35 +20,47 @@ const bankUpdateSchema = z.object({
   ifcs: z.string().optional(),
   branch: z.string().optional(),
   mobileNumber: z.string().optional(),
-})
+});
 
 // Types
-export type bankRegisterType = z.infer<typeof bankRegisterSchema>
-export type bankUpdateType = z.infer<typeof bankUpdateSchema>
+export type BankRegisterType = z.infer<typeof bankRegisterSchema>;
+export type BankUpdateType = z.infer<typeof bankUpdateSchema>;
 
 // Validate Update Bank Register Schema
-export const validateBankRegisterSchema = async (req: Request, res: Response, next: NextFunction) => {
-  const parsedBankRegisterInput = bankRegisterSchema.safeParse(req.body)
+export const validateBankRegisterSchema = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const parsedBankRegisterInput = bankRegisterSchema.safeParse(req.body);
 
   if (!parsedBankRegisterInput.success) {
-    return res.status(400).json({ success: false, message: parsedBankRegisterInput.error.issues[0] })
+    return ApiResponse.success(res, {
+      message: parsedBankRegisterInput.error.issues[0],
+      data: undefined,
+      statusCode: 400,
+    });
   }
 
-  req.body = parsedBankRegisterInput.data
-  next()
-}
+  req.body = parsedBankRegisterInput.data;
+  next();
+};
 
 // Validate Update Bank Update Schema
 export const validateBankUpdateSchema = async (req: Request, res: Response, next: NextFunction) => {
-  const parsedBankUpdateInput = bankUpdateSchema.safeParse(req.body)
+  const parsedBankUpdateInput = bankUpdateSchema.safeParse(req.body);
 
   if (!parsedBankUpdateInput.success) {
-    return res.status(400).json({ success: false, message: parsedBankUpdateInput.error.issues[0] })
+    return ApiResponse.success(res, {
+      message: parsedBankUpdateInput.error.issues[0],
+      data: undefined,
+      statusCode: 400,
+    });
   }
 
   req.body = {
     id: req.body._id || req.body.id,
-    data: parsedBankUpdateInput.data
-  }
-  next()
-}
+    data: parsedBankUpdateInput.data,
+  };
+  next();
+};

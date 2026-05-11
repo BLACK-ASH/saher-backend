@@ -1,9 +1,7 @@
-import mongoose, { Schema } from "mongoose";
-import { number } from "zod";
+import mongoose, { Schema } from 'mongoose';
 
 const participantSchema = new mongoose.Schema(
   {
-
     name: {
       type: String,
       required: true,
@@ -46,10 +44,10 @@ const participantSchema = new mongoose.Schema(
     isDeleted: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   { timestamps: true },
 );
 
-export type participantType = mongoose.InferSchemaType<typeof participantSchema>;
-export const Participant = mongoose.model<participantType>("Participant", participantSchema,);
+export type ParticipantType = mongoose.InferSchemaType<typeof participantSchema>;
+export const Participant = mongoose.model<ParticipantType>('Participant', participantSchema);
