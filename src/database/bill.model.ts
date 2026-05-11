@@ -1,20 +1,20 @@
 import mongoose from 'mongoose';
 
-export const BillStatus = ['pending', 'rejected', 'accepted'];
+export const billStatus = ['pending', 'rejected', 'accepted'];
 
-const userBillSchema = new mongoose.Schema(
+const billSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    adminId: {
+    manager: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
     image: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: [mongoose.Schema.Types.ObjectId],
       ref: 'Media',
       required: true,
     },
@@ -24,7 +24,7 @@ const userBillSchema = new mongoose.Schema(
     amount: {
       type: Number,
     },
-    dateOfPayment: {
+    date: {
       type: Date,
       required: true,
     },
@@ -33,22 +33,19 @@ const userBillSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: BillStatus,
+      enum: billStatus,
       default: 'pending',
     },
-    adminNote: {
+    reason: {
       type: String,
     },
     isDeleted: {
       type: Boolean,
       default: false,
     },
-    createdBy: {
-      type: String,
-    },
   },
   { timestamps: true },
 );
 
-type ReimbursementType = mongoose.InferSchemaType<typeof userBillSchema>;
-export const Reimbursement = mongoose.model<ReimbursementType>('Reimbursement', userBillSchema);
+type BillType = mongoose.InferSchemaType<typeof billSchema>;
+export const Bill = mongoose.model<BillType>('Bill', billSchema);

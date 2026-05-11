@@ -1,76 +1,56 @@
 import { Router } from 'express';
-import { createBill } from './user/create-user-bill.controller.js';
-import { updateBill } from './user/update-user-bill.controller.js';
-import { softDeleteBill } from './user/delete-user-bill.controller.js';
-import { authorize } from '../permission/authorize.js';
-import { createBillSchema, updateBillSchema } from './user/user-bill.schema.js';
-import { updateAdminSchema } from './request-handler/handle.schema.js';
-import { validate } from '../libs/middleware/validate-zod-schema.js';
-import { advanceBill } from './admin-manager/create-admin-bill.controller.js';
-import { advanceSoftDelete } from './admin-manager/delete-admin-bill.controller.js';
-import { advanceUpdate } from './admin-manager/update-admin-bill.controller.js';
-import {
-  createAdvanceBillSchema,
-  updateAdvanceBillSchema,
-} from './admin-manager/admin-bill.schema.js';
-import { updateUserSchema } from './request-handler/handle.schema.js';
 import {
   getAllBills,
   getBillById,
   myBills,
   recycleBills,
 } from './review-bill/reviewing-bill.controller.js';
-import { adminRequestHandler } from './request-handler/admin-handler.controller.js';
-import { userRequestHandler } from './request-handler/user-handler.controller.js';
+import { authorize } from '../permission/authorize.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
+import { adminBillCreatSchema, userBillCreateSchema, userBillUpdateSchema } from './bill/schema.js';
+import { adminCreateBill } from './bill/admin.controller.js';
+import { createSettleSchema, handleBillSchema, handleSettleSchema } from './settlement/schema.js';
+import { handleBill } from './settlement/handle-bill.controller.js';
+import { handleSettlementRequest } from './settlement/handle-settle.controller.js';
 
 const billRouter = Router();
 
-// User bill route
+// User route
 billRouter.post(
-  '/create',
+  '/bill',
   authorize('write', 'postReimbursement'),
-  validate(createBillSchema),
-  createBill,
+  validate(userBillCreateSchema),
+  userCreateBill,
 );
-billRouter.put(
-  '/update-user/:id',
+billRouter.patch(
+  '/bill/:billId',
   authorize('update', 'postReimbursement'),
-  validate(updateBillSchema),
-  updateBill,
+  validate(userBillUpdateSchema),
+  userUpdateBill,
 );
-billRouter.delete('/delete/:id', authorize('delete', 'postReimbursement'), softDeleteBill);
+billRouter.delete('/bill/:billId', authorize('delete', 'postReimbursement'), userSoftDeleteBill);
 
-// Admin bill route
+// Admin route
 billRouter.post(
-  '/bill/create/:userId',
+  '/bill/admin',
   authorize('write', 'preReimbursement'),
-  validate(createAdvanceBillSchema),
-  advanceBill,
-);
-billRouter.put(
-  '/bill/update-admin/:billId',
-  authorize('update', 'preReimbursement'),
-  validate(updateAdvanceBillSchema),
-  advanceUpdate,
-);
-billRouter.delete(
-  '/bill/delete/:billId',
-  authorize('delete', 'preReimbursement'),
-  advanceSoftDelete,
+  validate(adminBillCreatSchema),
+  adminCreateBill,
 );
 
-// Handle request routes
-billRouter.put(
-  '/admin-handler/:billId',
-  authorize('update', 'preReimbursement'),
-  validate(updateAdminSchema),
-  adminRequestHandler,
+// Settlement route
+billRouter.post(
+  '/bill/handle/:billId',
+  authorize('write', 'preReimbursement'),
+  validate(handleBillSchema),
+  handleBill,
 );
-billRouter.put(
-  '/user-handler/:billId',
-  authorize('update', 'postReimbursement'),
-  validate(updateUserSchema),
-  userRequestHandler,
+billRouter.post(
+  '/bill/settle/:settleId',
+  authorize('write', 'preReimbursement'),
+  validate(handleSettleSchema),
+  handleSettlementRequest,
 );
 
 // Reviewing bill

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Reimbursement } from '../../database/bill.model.js';
+import { Bill } from '../../database/bill.model.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
@@ -16,12 +16,11 @@ export const myBills = async (req: Request, res: Response) => {
 
   const userId = req.user?.id;
 
-  // Using createdBy because some userId exist even in admin bill so using createdBy to ensure only the bills created by user will fetch
-  const bills = await Reimbursement.find({ createdBy: userId }).lean();
+  // Using user because some userId exist even in admin bill so using user to ensure only the bills created by user will fetch
+  const bills = await Bill.find({ user: userId }, { isDeleted: false }).lean();
   if (!bills) throw new ApiError(400, 'Bill not found');
-  const filterBills = bills.filter((bill) => bill.isDeleted !== true);
 
-  const normalized = normalizeDoc(filterBills);
+  const normalized = normalizeDoc(bills);
   const parsed = reviewResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
@@ -46,11 +45,11 @@ export const getBillById = async (req: Request, res: Response) => {
   const { billId } = req.params;
   const role = req.user?.role;
 
-  const bill = await Reimbursement.findById(billId).lean();
+  const bill = await Bill.findById(billId).lean();
   if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
 
   if (role === 'user') {
-    if (bill.createdBy !== userId) throw new ApiError(400, 'Unauthorized');
+    if (bill.user.toString() !== userId) throw new ApiError(400, 'Unauthorized');
   }
   const normalized = normalizeDoc(bill);
   const parsed = reviewResponseSchema.parse(normalized);
@@ -67,24 +66,23 @@ export const getAllBills = async (req: Request, res: Response) => {
   // write a code to get all the bills in the database
   // step 1: take role from req.user
   // step 2: check whether the user role is admin or manager
-  // // if it is then get all the bill from reimbursement
+  // // if it is then get all the bill from Bill
   // // if is not pass the error
 
   const role = req.user?.role;
-  const allBills = await Reimbursement.find({ isDeleted: false }).lean();
+  const allBills = await Bill.find({ isDeleted: false }).lean();
 
   if (role === 'admin' || role === 'manager') {
     if (allBills.length === 0) throw new ApiError(400, 'No bill to show');
   } else {
     throw new ApiError(400, 'Unauthorized');
   }
-  const filterBills = allBills.filter((bill) => bill.isDeleted !== true);
 
-  const normalized = normalizeDoc(filterBills);
+  const normalized = normalizeDoc(allBills);
   const parsed = reviewResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
-    message: 'All the bills in reimbursement',
+    message: 'All the bills in Bill',
     data: parsed,
     statusCode: 201,
   });
@@ -95,7 +93,7 @@ export const recycleBills = async (req: Request, res: Response) => {
   const role = req.user?.role;
   if (role === 'user') throw new ApiError(400, 'Unauthorized');
 
-  const recycles = await Reimbursement.find({ isDeleted: true }).lean();
+  const recycles = await Bill.find({ isDeleted: true }).lean();
   if (recycles.length === 0) throw new ApiError(200, 'No bills to show');
 
   const normalized = normalizeDoc(recycles);
