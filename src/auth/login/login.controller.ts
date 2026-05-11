@@ -4,6 +4,7 @@ import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { comparePassword } from '../../libs/utils/password-hash.js';
+import { getSessionMeta } from '../_utils/session-meta.js';
 import { generateToken } from '../_utils/token.js';
 
 export const loginController = async (req: Request, res: Response) => {
@@ -28,9 +29,11 @@ export const loginController = async (req: Request, res: Response) => {
   const matchPassword = await comparePassword(password, user.password);
   if (!matchPassword) throw new ApiError(403, 'Invalid Credentials.');
 
-  const payload = { id: user._id.toString(), name: user.name!, role: user.role, email: user.email };
+  const payload = { id: user._id.toString(), name: user.name, role: user.role, email: user.email };
 
-  const { accessToken, refreshToken, sessionId } = await generateToken(payload);
+  const meta = await getSessionMeta(req);
+
+  const { accessToken, refreshToken, sessionId } = await generateToken(payload, meta);
 
   const isProd = process.env.NODE_ENV === 'production';
 

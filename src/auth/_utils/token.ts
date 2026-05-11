@@ -2,6 +2,7 @@ import crypto from 'crypto';
 
 import jwt from 'jsonwebtoken';
 
+import type { SessionMeta } from './session-meta.js';
 import { client } from '../../libs/redis/redis-client.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
@@ -20,7 +21,7 @@ const hash = (val: string) => crypto.createHash('sha256').update(val).digest('he
 const generateRefreshToken = () => crypto.randomBytes(128).toString('hex');
 
 // Generate All Token
-export const generateToken = async (data: ReqUser) => {
+export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
   // Generate Session Id
   const sessionId = crypto.randomBytes(64).toString('hex');
 
@@ -32,6 +33,8 @@ export const generateToken = async (data: ReqUser) => {
       user: data,
       refreshTokenHash: hash(refreshToken),
       createdAt: Date.now(),
+      updatedAt: Date.now(),
+      meta,
     },
     60 * 60 * 24 * 60, // 60 days
   );
@@ -46,6 +49,44 @@ export const generateToken = async (data: ReqUser) => {
   });
 
   return { accessToken, refreshToken, sessionId };
+};
+
+// Refresh All Token
+export const renewToken = async (sessionId: string, refreshToken: string) => {
+  const newRefreshToken = generateRefreshToken();
+
+  const session = await getCache<{
+    user: ReqUser;
+    refreshTokenHash: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }>(createKey('session', sessionId));
+
+  if (!session) return null;
+
+  await setCache(
+    createKey('session', sessionId),
+    {
+      ...session,
+      refreshTokenHash: hash(newRefreshToken),
+      updatedAt: Date.now(),
+    },
+    60 * 60 * 24 * 60, // 60 days
+  );
+
+  const isValid = session.refreshTokenHash === hash(refreshToken);
+
+  if (!isValid) {
+    await client.del(createKey('session', sessionId));
+    return null;
+  }
+  // Generate Access Token
+  const accessToken = jwt.sign(session?.user, process.env.JWT_ACCESS_SECRET!, {
+    algorithm: 'HS384',
+    expiresIn: '15m',
+  });
+
+  return { accessToken, refreshToken: newRefreshToken, user: session.user };
 };
 
 // To Verify Access Token
@@ -63,6 +104,7 @@ export const verifyRefreshToken = async (sessionId: string, refreshToken: string
     user: ReqUser;
     refreshTokenHash: string;
     createdAt: Date;
+    updatedAt: Date;
   }>(createKey('session', sessionId));
 
   if (!session) return null;

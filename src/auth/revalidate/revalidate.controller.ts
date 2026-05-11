@@ -9,7 +9,12 @@ export const revalidateController = (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'Token revalidate successfully.',
-    data: null,
+    data: {
+      ip: req.ip,
+      ips: req.ips,
+      xff: req.headers['x-forwarded-for'],
+      remote: req.socket.remoteAddress,
+    },
     statusCode: 200,
   });
 };
