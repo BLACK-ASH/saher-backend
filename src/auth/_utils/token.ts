@@ -14,6 +14,14 @@ export type ReqUser = {
   email: string;
 };
 
+export type SessionT = {
+  user: ReqUser;
+  refreshTokenHash: string;
+  createdAt: Date;
+  updatedAt: Date;
+  meta: SessionMeta;
+};
+
 // Reusable Hash Function
 const hash = (val: string) => crypto.createHash('sha256').update(val).digest('hex');
 
@@ -55,12 +63,7 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
 export const renewToken = async (sessionId: string, refreshToken: string) => {
   const newRefreshToken = generateRefreshToken();
 
-  const session = await getCache<{
-    user: ReqUser;
-    refreshTokenHash: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }>(createKey('session', sessionId));
+  const session = await getCache<SessionT>(createKey('session', sessionId));
 
   if (!session) return null;
 
@@ -100,12 +103,7 @@ export const verifyAccessToken = (accessToken: string) => {
 
 // To Verify Refresh Token
 export const verifyRefreshToken = async (sessionId: string, refreshToken: string) => {
-  const session = await getCache<{
-    user: ReqUser;
-    refreshTokenHash: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }>(createKey('session', sessionId));
+  const session = await getCache<SessionT>(createKey('session', sessionId));
 
   if (!session) return null;
 

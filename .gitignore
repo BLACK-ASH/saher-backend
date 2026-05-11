@@ -10,6 +10,7 @@ node_modules/
 dist/
 build/
 docs/
+docs/index.html
 
 # ===============================
 # Environment files
