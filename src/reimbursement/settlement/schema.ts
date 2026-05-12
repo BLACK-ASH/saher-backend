@@ -9,16 +9,23 @@ export const settleSchema = z.object({
   mode: z.string(),
   manager: objectId(),
   date: z.coerce.date(),
+  settleDate: z.coerce.date(),
   status: z.enum(settleStatus).optional(),
-  expiredAt: z.coerce.date().optional(),
+  expiredAt: z.coerce.date(),
 });
 
-export const createSettleSchema = settleSchema;
+export const createSettleSchema = settleSchema.pick({
+  bill: true,
+  amount: true,
+  mode: true,
+  manager: true,
+  date: true,
+  expiredAt: true,
+});
 export const handleSettleSchema = settleSchema.pick({
   mode: true,
-  date: true,
+  settleDate: true,
   status: true,
-  expiredAt: true,
 });
 
 export const handleBillSchema = z.object({

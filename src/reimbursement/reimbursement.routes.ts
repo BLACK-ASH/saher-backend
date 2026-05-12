@@ -1,17 +1,20 @@
 import { Router } from 'express';
-import {
-  getAllBills,
-  getBillById,
-  myBills,
-  recycleBills,
-} from './review-bill/reviewing-bill.controller.js';
+import { getAllBillsController } from './get-bill/get-all-bills.controller.js';
+import { getBillByIdController } from './get-bill/bill-by-id.controller.js';
+import { myBillsController } from './get-bill/my-bills.controller.js';
+import { recycleBillsController } from './get-bill/recycle-bill.controller.js';
 import { authorize } from '../permission/authorize.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
-import { adminBillCreatSchema, userBillCreateSchema, userBillUpdateSchema } from './bill/schema.js';
-import { adminCreateBill } from './bill/admin.controller.js';
+import {
+  adminBillCreatSchema,
+  adminBillUpdateSchema,
+  userBillCreateSchema,
+  userBillUpdateSchema,
+} from './bill/schema.js';
+import { adminCreateBill, adminSoftDeleteBill, adminUpdateBill } from './bill/admin.controller.js';
 import { createSettleSchema, handleBillSchema, handleSettleSchema } from './settlement/schema.js';
-import { handleBill } from './settlement/handle-bill.controller.js';
+import { handleBillController } from './settlement/handle-bill.controller.js';
 import { handleSettlementRequest } from './settlement/handle-settle.controller.js';
 
 const billRouter = Router();
@@ -33,10 +36,21 @@ billRouter.delete('/bill/:billId', authorize('delete', 'postReimbursement'), use
 
 // Admin route
 billRouter.post(
-  '/bill/admin',
+  '/bill/admin/:user',
   authorize('write', 'preReimbursement'),
   validate(adminBillCreatSchema),
   adminCreateBill,
+);
+billRouter.patch(
+  '/bill/admin/:billId',
+  authorize('update', 'preReimbursement'),
+  validate(adminBillUpdateSchema),
+  adminUpdateBill,
+);
+billRouter.delete(
+  '/bill/admin/:billId',
+  authorize('delete', 'preReimbursement'),
+  adminSoftDeleteBill,
 );
 
 // Settlement route
@@ -44,7 +58,7 @@ billRouter.post(
   '/bill/handle/:billId',
   authorize('write', 'preReimbursement'),
   validate(handleBillSchema),
-  handleBill,
+  handleBillController,
 );
 billRouter.post(
   '/bill/settle/:settleId',
@@ -54,11 +68,11 @@ billRouter.post(
 );
 
 // Reviewing bill
-billRouter.get('/mybills', myBills);
-billRouter.get('/getbill/:billId', getBillById);
-billRouter.get('/getallbills', authorize('read', 'preReimbursement'), getAllBills);
+billRouter.get('/mybills', myBillsController);
+billRouter.get('/getbill/:billId', getBillByIdController);
+billRouter.get('/getallbills', authorize('read', 'preReimbursement'), getAllBillsController);
 
 // Recycle bills
-billRouter.get('/recyclebills', authorize('read', 'preReimbursement'), recycleBills);
+billRouter.get('/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);
 
 export default billRouter;

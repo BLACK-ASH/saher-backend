@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { Bill } from '../../database/bill.model.js';
-import { billSchema } from './schema.js';
+import { billSchema, userBillCreateSchema } from './schema.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { sendSystemNotification } from '../../libs/utils/system-notification.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const userCreateBill = async (req: Request, res: Response) => {
   // write a code to create a user bill
@@ -13,7 +14,7 @@ export const userCreateBill = async (req: Request, res: Response) => {
   // adn pass the response
 
   const user = req.user;
-  const { amount, description, date, image } = req.body;
+  const { amount, description, date, images } = req.body;
 
   const bill = await Bill.create({
     user: user?.id,
@@ -21,15 +22,15 @@ export const userCreateBill = async (req: Request, res: Response) => {
     amount,
     description,
     date,
-    image,
+    images,
   });
 
-  const plainBill = JSON.parse(JSON.stringify(bill));
-  const parsed = billSchema.parse(plainBill);
+  // const normalized = normalizeDoc(bill.toObject())
+  // const parsed = userBillCreateSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',
-    data: parsed,
+    data: null,
     statusCode: 201,
   });
 };
@@ -44,24 +45,37 @@ export const userUpdateBill = async (req: Request, res: Response) => {
 
   const user = req.user;
   const { billId } = req.params;
-  const { amount, description, image } = req.body;
+  const { amount, description, images } = req.body;
 
   if (!billId) throw new ApiError(400, 'BillId is required');
 
   const bill = await Bill.findById(billId);
   if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
   if (bill.user.toString() !== user?.id) throw new ApiError(400, 'Unauthorized');
-  if (bill.status !== 'pending') throw new ApiError(400, 'You can not update this bill now');
 
-  const update = await Bill.findByIdAndUpdate(billId, { amount, description, image }).lean();
-  if (!update) throw new ApiError(400, 'Update failed');
-
-  const plain = JSON.parse(JSON.stringify(update));
-  const parsed = billSchema.parse(plain);
+  // If Bill is on-hold
+  if (bill.status === 'on-hold') {
+    return 'Bill has been put on-hold';
+  }
+  // If Bill is accept
+  if (bill.status === 'accept') {
+    throw new ApiError(400, 'Bill is already accepted');
+  }
+  // If Bill is on-hold
+  if (bill.status === 'reject') {
+    throw new ApiError(400, 'Bill is already rejected');
+  }
+  // If bill is on pending
+  if (bill.status === 'pending') {
+    bill.amount = amount;
+    bill.description = description;
+    bill.images = images;
+    await bill.save();
+  }
 
   return ApiResponse.success(res, {
     message: 'Bill updated successfully',
-    data: parsed,
+    data: null,
     statusCode: 201,
   });
 };
@@ -82,10 +96,11 @@ export const userSoftDeleteBill = async (req: Request, res: Response) => {
   const bill = await Bill.findById(billId);
   if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
   if (bill.user.toString() !== user?.id) throw new ApiError(400, 'Unauthorized');
-  if (bill.status !== 'pending') throw new ApiError(400, 'You can not update this bill now');
 
-  bill.isDeleted = true;
-  bill.save();
+  if (bill.status === 'pending') {
+    bill.isDeleted = true;
+    bill.save();
+  } else throw new ApiError(400, "you can't delete this bill now");
 
   return ApiResponse.success(res, {
     message: 'Move to trash',

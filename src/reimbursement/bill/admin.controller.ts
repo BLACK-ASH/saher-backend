@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Bill } from '../../database/bill.model.js';
-import { billSchema, adminBillCreatSchema } from './schema.js';
+import { billSchema, adminBillCreatSchema, adminBillUpdateSchema } from './schema.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
@@ -12,14 +12,13 @@ export const adminCreateBill = async (req: Request, res: Response) => {
   // after that convert it into normalizedDoc and send notification to admin
   // adn pass the response
 
-  const user = req.params.id as string;
-  const { advance, date, reason } = req.body;
+  const { user, advance, date, description } = req.body;
 
   const bill = await Bill.create({
     user,
     advance,
     amount: 0,
-    reason,
+    description,
     date,
   });
 
@@ -43,19 +42,34 @@ export const adminUpdateBill = async (req: Request, res: Response) => {
 
   const user = req.user;
   const { billId } = req.params;
-  const { amount, description, image } = req.body;
+  const { advance, description } = req.body;
 
   if (!billId) throw new ApiError(400, 'BillId is required');
 
   const bill = await Bill.findById(billId);
   if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
-  if (bill.status !== 'pending') throw new ApiError(400, 'You can not update this bill now');
 
-  const update = await Bill.findByIdAndUpdate(billId, { amount, description, image }).lean();
-  if (!update) throw new ApiError(400, 'Update failed');
+  // If Bill is on-hold
+  if (bill.status === 'on-hold') {
+    return 'Bill has been put on-hold';
+  }
+  // If Bill is accept
+  if (bill.status === 'accept') {
+    throw new ApiError(400, 'Bill is already accepted');
+  }
+  // If Bill is on-hold
+  if (bill.status === 'reject') {
+    throw new ApiError(400, 'Bill is already rejected');
+  }
+  // If bill is on pending
+  if (bill.status === 'pending') {
+    bill.advance = advance;
+    bill.description = description;
+    await bill.save();
+  }
 
-  const plain = JSON.parse(JSON.stringify(update));
-  const parsed = billSchema.parse(plain);
+  const normalized = normalizeDoc(bill.toJSON());
+  const parsed = adminBillUpdateSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Bill updated successfully',
@@ -79,10 +93,11 @@ export const adminSoftDeleteBill = async (req: Request, res: Response) => {
 
   const bill = await Bill.findById(billId);
   if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
-  if (bill.status !== 'pending') throw new ApiError(400, 'You can not update this bill now');
 
-  bill.isDeleted = true;
-  bill.save();
+  if (bill.status === 'pending') {
+    bill.isDeleted = true;
+    bill.save();
+  } else throw new ApiError(400, "you can't delete this bill now");
 
   return ApiResponse.success(res, {
     message: 'Move to trash',

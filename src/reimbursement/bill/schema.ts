@@ -13,7 +13,7 @@ import { billStatus } from '../../database/bill.model.js';
 export const billSchema = z.object({
   // id: objectId(),
   user: objectId(),
-  image: z.array(objectId()).min(1),
+  images: z.array(objectId()).min(1),
   advance: z.coerce.number(),
   amount: z.coerce.number(),
   date: z.coerce.date(),
@@ -34,19 +34,21 @@ export const userBillCreateSchema = billSchema.pick({
   amount: true,
   description: true,
   date: true,
-  image: true,
+  images: true,
 });
 export const userBillUpdateSchema = billSchema
-  .pick({ amount: true, description: true, image: true })
+  .pick({ amount: true, description: true, images: true })
   .partial();
 
 export const adminBillCreatSchema = billSchema.pick({
   user: true,
   advance: true,
   date: true,
-  reason: true,
+  description: true,
 });
-export const adminBillUpdateSchema = billSchema.pick({ advance: true, reason: true }).partial();
+export const adminBillUpdateSchema = billSchema
+  .pick({ advance: true, description: true })
+  .partial();
 
 export type userCreateSchemaType = z.infer<typeof userBillCreateSchema>;
 export type userUpdateSchemaInputType = z.infer<typeof userBillUpdateSchema>;

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 export const settleStatus = ['pending', 'settle', 'expired'];
+export const modes = ['cash', 'upi', 'cheque', '-'];
 
 export const settlementSchema = new mongoose.Schema({
   bill: {
@@ -14,11 +15,15 @@ export const settlementSchema = new mongoose.Schema({
   },
   mode: {
     type: String,
+    enum: modes,
     required: true,
   },
   date: {
     type: Date,
     required: true,
+  },
+  settleDate: {
+    type: Date,
   },
   manager: {
     type: mongoose.Schema.Types.ObjectId,

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const billStatus = ['pending', 'rejected', 'accepted'];
+export const billStatus = ['pending', 'reject', 'accept', 'on-hold'];
 
 const billSchema = new mongoose.Schema(
   {
@@ -13,16 +13,17 @@ const billSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    image: {
+    images: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'Media',
-      required: true,
     },
     advance: {
       type: Number,
+      default: 0,
     },
     amount: {
       type: Number,
+      default: 0,
     },
     date: {
       type: Date,
@@ -30,6 +31,7 @@ const billSchema = new mongoose.Schema(
     },
     description: {
       type: String,
+      required: true,
     },
     status: {
       type: String,
