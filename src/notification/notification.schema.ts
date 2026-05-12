@@ -4,7 +4,7 @@ import { notificationScope, notificationTypes } from '../database/notification.m
 import type { NotificationType } from '../libs/utils/system-notification.js';
 
 const BaseNotificationSchema = z.object({
-  user: z.string().optional(),
+  user: z.array(z.string()).optional(),
   type: z.enum(notificationTypes),
   title: z.string().min(1).max(100),
   description: z.string().min(1).max(1000),
@@ -75,7 +75,7 @@ type RolePayload = {
 
 type SpecificPayload = {
   scope: 'specific';
-  user: string;
+  user: string[];
   type: NotificationType;
   title: string;
   description: string;

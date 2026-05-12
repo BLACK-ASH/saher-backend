@@ -17,8 +17,13 @@ export const createNotificationController = async (req: Request, res: Response) 
     title,
     description,
     user,
-  }: { scope: string; type: NotificationType; title: string; description: string; user?: string } =
-    req.body;
+  }: {
+    scope: string;
+    type: NotificationType;
+    title: string;
+    description: string;
+    user?: string[];
+  } = req.body;
 
   let result;
 
