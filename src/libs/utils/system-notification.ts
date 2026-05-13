@@ -1,7 +1,14 @@
 // import { normalizeDoc } from './normailize-doc.js';
+import { normalizeDoc } from './normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';
-import type { NotificationPayload, RoleScope } from '../../notification/notification.schema.js';
+import type {
+  NotificationResponseT,
+  notificationResponseListSchema,
+  type NotificationPayload,
+  type RoleScope,
+} from '../../notification/notification.schema.js';
+import { createKey, getCache, setCache } from '../redis/redis-utils.js';
 export type NotificationType = 'info' | 'warn' | 'error';
 class Notification {
   global = {
@@ -104,8 +111,37 @@ class Notification {
     await this.saveToDB(data);
   }
 
+  private async updateCaches(notifications: NotificationResponseT[]) {
+    await Promise.all(
+      notifications.map((notification) => {
+        if (!notification.user) return Promise.resolve();
+
+        const key = createKey('notification', 'user', notification.user.toString());
+
+        return this.appendToCache(key, notification);
+      }),
+    );
+  }
+
+  private async appendToCache(key: string, notification: NotificationResponseT) {
+    const existingRaw = await getCache(key);
+
+    const existing = notificationResponseListSchema.parse(existingRaw || []);
+
+    const now = new Date();
+
+    const filtered = existing.filter((n) => {
+      return new Date(n.expiresAt) > now;
+    });
+
+    const updated = [notification, ...filtered].slice(0, 100);
+
+    await setCache(key, updated, 604800);
+  }
+
   private async saveToDB(data: NotificationPayload) {
     if (data.scope === 'global') {
+      // const key = createKey("notification", "global")
       const user = await User.find().select('_id').lean();
 
       const notifications = user.map((obj) => ({
@@ -117,9 +153,14 @@ class Notification {
         scope: 'global',
       }));
 
-      return await NotificationModel.insertMany(notifications);
+      const inserted = await NotificationModel.insertMany(notifications);
+      const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
+      const cleaned = normalized.map((doc: any) => doc._doc);
+      const parsed = notificationResponseListSchema.parse(cleaned);
+      await this.updateCaches(parsed);
+      return parsed;
     } else if (data.scope === 'specific') {
-      const notification = data.user.map((obj) => ({
+      const notifications = data.user.map((obj) => ({
         user: obj,
         title: data.title,
         type: data.type,
@@ -128,14 +169,17 @@ class Notification {
         scope: 'specific',
       }));
 
-      return await NotificationModel.insertMany(notification);
-    }
-
-    // global scope and specific scope handle karne ke baad sirf role scopes bach gaye
-    
+      const inserted = await NotificationModel.insertMany(notifications);
+      const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
+      const cleaned = normalized.map((doc: any) => doc._doc);
+      const parsed = notificationResponseListSchema.parse(cleaned);
+      await this.updateCaches(parsed);
+      return parsed;
+    } 
+      // global scope and specific scope handle karne ke baad sirf role scopes bach gaye
       const users = await User.find({ role: data.scope }).select('_id').lean();
 
-      const notification = users.map((obj) => ({
+      const notifications = users.map((obj) => ({
         user: obj._id,
         title: data.title,
         type: data.type,
@@ -143,13 +187,18 @@ class Notification {
         expiresAt: data.expiresAt,
         scope: data.scope,
       }));
-      return await NotificationModel.insertMany(notification);
-    
 
-    // return NotificationModel.create(data);
+      const inserted = await NotificationModel.insertMany(notifications);
+      const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
+      const cleaned = normalized.map((doc: any) => doc._doc);
+      const parsed = notificationResponseListSchema.parse(cleaned);
+      await this.updateCaches(parsed);
+      return parsed;
+
+      // return NotificationModel.create(data);
+    
   }
 }
-
 export const NotificationService = new Notification();
 
 // const ROLE_SCOPES = ['admin', 'manager', 'user', 'intern'];

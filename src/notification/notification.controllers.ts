@@ -72,6 +72,8 @@ export const getAllNotificationsController = async (req: Request, res: Response)
 
   const userKey = createKey('notification', 'user', userId);
 
+  // const key = createKey('notification')
+
   const globalCacheRaw = await getCache(globalKey);
 
   const roleCacheRaw = await getCache(roleKey);
