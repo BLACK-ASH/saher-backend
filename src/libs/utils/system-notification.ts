@@ -1,12 +1,12 @@
 import { normalizeDoc } from './normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';
+import { notificationResponseListSchema } from '../../notification/notification.schema.js';
 import type {
   NotificationAction,
   NotificationResponseT,
-  notificationResponseListSchema,
-  type NotificationPayload,
-  type RoleScope,
+  NotificationPayload,
+  RoleScope,
 } from '../../notification/notification.schema.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
 export type NotificationType = 'info' | 'warn' | 'error';
