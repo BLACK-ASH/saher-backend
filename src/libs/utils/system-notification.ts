@@ -1,5 +1,3 @@
-// import { normalizeDoc } from './normailize-doc.js';
-import { convertToObjectId } from './convert-object-id.js';
 import { normalizeDoc } from './normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';
@@ -10,7 +8,6 @@ import type {
   type NotificationPayload,
   type RoleScope,
 } from '../../notification/notification.schema.js';
-import { ApiResponse } from '../class/api-response.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
 export type NotificationType = 'info' | 'warn' | 'error';
 class Notification {
