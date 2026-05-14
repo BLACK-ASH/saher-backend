@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import type { SessionMeta } from './session-meta.js';
+import type { UserRole } from '../../database/user.model.js';
 import { client } from '../../libs/redis/redis-client.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
@@ -10,7 +11,7 @@ import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 export type ReqUser = {
   id: string;
   name: string;
-  role: 'user' | 'manager' | 'admin';
+  role: UserRole;
   email: string;
 };
 
