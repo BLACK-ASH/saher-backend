@@ -10,7 +10,7 @@ import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 export type ReqUser = {
   id: string;
   name: string;
-  role: 'user' | 'manager' | 'admin';
+  role: 'user' | 'manager' | 'admin' | 'intern';
   email: string;
 };
 
