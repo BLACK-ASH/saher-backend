@@ -1,102 +1,114 @@
 // import { normalizeDoc } from './normailize-doc.js';
+import { convertToObjectId } from './convert-object-id.js';
 import { normalizeDoc } from './normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';
 import type {
+  NotificationAction,
   NotificationResponseT,
   notificationResponseListSchema,
   type NotificationPayload,
   type RoleScope,
 } from '../../notification/notification.schema.js';
+import { ApiResponse } from '../class/api-response.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
 export type NotificationType = 'info' | 'warn' | 'error';
 class Notification {
   global = {
-    info: (title: string, description: string) =>
+    info: (title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: 'global',
         type: 'info',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       }),
 
-    warn: (title: string, description: string) =>
+    warn: (title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: 'global',
         type: 'warn',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
       }),
 
-    error: (title: string, description: string) =>
+    error: (title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: 'global',
         type: 'error',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
       }),
   };
 
   role = {
-    info: (role: RoleScope, title: string, description: string) =>
+    info: (role: RoleScope, title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: role,
         type: 'info',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       }),
 
-    warn: (role: RoleScope, title: string, description: string) =>
+    warn: (role: RoleScope, title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: role,
         type: 'warn',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
       }),
 
-    error: (role: RoleScope, title: string, description: string) =>
+    error: (role: RoleScope, title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: role,
         type: 'error',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
       }),
   };
 
   specific = {
-    info: (user: string[], title: string, description: string) =>
+    info: (user: string[], title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: 'specific',
         user,
         type: 'info',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       }),
 
-    warn: (user: string[], title: string, description: string) =>
+    warn: (user: string[], title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: 'specific',
         user,
         type: 'warn',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
       }),
 
-    error: (user: string[], title: string, description: string) =>
+    error: (user: string[], title: string, description: string, action?: NotificationAction) =>
       this.create({
         scope: 'specific',
         user,
         type: 'error',
         title,
         description,
+        action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
       }),
   };
@@ -150,6 +162,7 @@ class Notification {
         type: data.type,
         description: data.description,
         expiresAt: data.expiresAt,
+        action: data.action,
         scope: 'global',
       }));
 
@@ -166,6 +179,7 @@ class Notification {
         type: data.type,
         description: data.description,
         expiresAt: data.expiresAt,
+        action: data.action,
         scope: 'specific',
       }));
 
@@ -175,32 +189,64 @@ class Notification {
       const parsed = notificationResponseListSchema.parse(cleaned);
       await this.updateCaches(parsed);
       return parsed;
-    } 
-      // global scope and specific scope handle karne ke baad sirf role scopes bach gaye
-      const users = await User.find({ role: data.scope }).select('_id').lean();
+    }
+    // global scope and specific scope handle karne ke baad sirf role scopes bach gaye
+    const users = await User.find({ role: data.scope }).select('_id').lean();
 
-      const notifications = users.map((obj) => ({
-        user: obj._id,
-        title: data.title,
-        type: data.type,
-        description: data.description,
-        expiresAt: data.expiresAt,
-        scope: data.scope,
-      }));
+    const notifications = users.map((obj) => ({
+      user: obj._id,
+      title: data.title,
+      type: data.type,
+      description: data.description,
+      expiresAt: data.expiresAt,
+      action: data.action,
+      scope: data.scope,
+    }));
 
-      const inserted = await NotificationModel.insertMany(notifications);
-      const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
-      const cleaned = normalized.map((doc: any) => doc._doc);
-      const parsed = notificationResponseListSchema.parse(cleaned);
-      await this.updateCaches(parsed);
-      return parsed;
+    const inserted = await NotificationModel.insertMany(notifications);
+    const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
+    const cleaned = normalized.map((doc: any) => doc._doc);
+    const parsed = notificationResponseListSchema.parse(cleaned);
+    await this.updateCaches(parsed);
+    return parsed;
 
-      // return NotificationModel.create(data);
-    
+    // return NotificationModel.create(data);
   }
 }
 export const NotificationService = new Notification();
 
+export const markSeenNotification = async (notificationId: string, userId: string) => {
+  // mark the Db notification as seen
+
+  const modified = await NotificationModel.findByIdAndUpdate(
+    notificationId,
+    { isSeen: true, seenAt: new Date() },
+    { new: true },
+  );
+  if (!modified)
+    return { message: 'The notification was not found  in DB ', statusCode: 400, data: null };
+
+  const key = createKey('notification', 'user', userId);
+  const cached = await getCache(key);
+
+  const parsedCached = notificationResponseListSchema.parse(cached || []);
+  const changedCached = parsedCached.map((notification) => {
+    if (notification.id == notificationId) {
+      return {
+        ...notification,
+        isSeen: true,
+        seenAt: new Date().toString(),
+      };
+    }
+    return notification;
+  });
+  await setCache(key, changedCached, 604800);
+  return {
+    message: 'Notification marked as seen',
+    statusCode: 200,
+    data: modified,
+  };
+};
 // const ROLE_SCOPES = ['admin', 'manager', 'user', 'intern'];
 
 // class Notification {

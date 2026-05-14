@@ -5,6 +5,7 @@ import {
   deleteNotificationController,
   getAllNotificationsController,
   getUnseenNotificationCount,
+  markSeenNotificationController,
 } from './notification.controllers.js';
 import { SendNotificationSchema } from './notification.schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
@@ -25,6 +26,8 @@ notificationRouter.post(
 //   validate(updateNotificationSchema),
 //   updateNotificationController,
 // );
+
+notificationRouter.patch('/:id', markSeenNotificationController);
 notificationRouter.delete('/', authorize('delete', 'notification'), deleteNotificationController);
 notificationRouter.get('/unSeenCount', getUnseenNotificationCount);
 

@@ -9,6 +9,14 @@ const BaseNotificationSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().min(1).max(1000),
   scope: z.enum(notificationScope),
+  action: z
+    .object({
+      type: z.enum(['download', 'navigate', 'external', 'none']),
+      label: z.string().optional(),
+      url: z.string().optional(),
+      method: z.enum(['GET', 'POST']).optional(),
+    })
+    .optional(),
 });
 
 export const SendNotificationSchema = BaseNotificationSchema.superRefine((schema, obj) => {
@@ -19,18 +27,9 @@ export const SendNotificationSchema = BaseNotificationSchema.superRefine((schema
       path: ['user'],
     });
   }
-  // if(schema.scope !== "specific" && schema.user && schema.user.length > 0 ){
-  //   obj.addIssue({
-  //     code : z.ZodIssueCode.custom ,
-  //     message : "There ius no need for user when scope is not specific",
-  //     path : ["user"]
-  //   })
-  // }
 });
 
 export type SendNotificationT = z.infer<typeof SendNotificationSchema>;
-
-export const updateNotificationSchema = BaseNotificationSchema.partial();
 
 export const notificationResponseSchema = z
   .object({
@@ -42,7 +41,16 @@ export const notificationResponseSchema = z
       .string()
       .min(1, 'Description can not be empty')
       .max(1000, 'The description is too long'),
-    scope: z.enum(notificationScope),
+    action: z
+      .object({
+        type: z.enum(['download', 'navigate', 'external', 'none']),
+        label: z.string().optional(),
+        url: z.string().optional(),
+        method: z.enum(['GET', 'POST']).optional(),
+      })
+      .optional(),
+    isSeen: z.boolean().optional().nullable(),
+    seenAt: z.string().optional().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
     expiresAt: z.string(),
@@ -62,6 +70,7 @@ type GlobalPayload = {
   type: NotificationType;
   title: string;
   description: string;
+  action?: NotificationAction;
   expiresAt: Date;
 };
 
@@ -70,6 +79,7 @@ type RolePayload = {
   type: NotificationType;
   title: string;
   description: string;
+  action?: NotificationAction;
   expiresAt: Date;
 };
 
@@ -79,7 +89,15 @@ type SpecificPayload = {
   type: NotificationType;
   title: string;
   description: string;
+  action?: NotificationAction;
   expiresAt: Date;
+};
+
+export type NotificationAction = {
+  type: 'download' | 'navigate' | 'external' | 'none';
+  label?: string;
+  url?: string;
+  method?: 'GET' | 'POST';
 };
 
 export type NotificationPayload = GlobalPayload | RolePayload | SpecificPayload;
