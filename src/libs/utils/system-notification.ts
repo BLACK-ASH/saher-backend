@@ -1,3 +1,5 @@
+import { success } from 'zod';
+
 import { normalizeDoc } from './normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';
@@ -9,7 +11,7 @@ import type {
   RoleScope,
 } from '../../notification/notification.schema.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
-export type NotificationType = 'info' | 'warn' | 'error';
+export type NotificationType = 'info' | 'warn' | 'error' | 'success';
 class Notification {
   global = {
     info: (title: string, description: string, action?: NotificationAction) =>
@@ -40,6 +42,15 @@ class Notification {
         description,
         action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
+      }),
+    success: (title: string, description: string, action?: NotificationAction) =>
+      this.create({
+        scope: 'global',
+        type: 'success',
+        title,
+        description,
+        action,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
       }),
   };
 
@@ -72,6 +83,16 @@ class Notification {
         description,
         action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
+      }),
+
+    success: (role: RoleScope, title: string, description: string, action?: NotificationAction) =>
+      this.create({
+        scope: role,
+        type: 'success',
+        title,
+        description,
+        action,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
       }),
   };
 
@@ -107,6 +128,16 @@ class Notification {
         description,
         action,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 7),
+      }),
+    success: (user: string[], title: string, description: string, action?: NotificationAction) =>
+      this.create({
+        scope: 'specific',
+        user,
+        type: 'success',
+        title,
+        description,
+        action,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * 5),
       }),
   };
 
