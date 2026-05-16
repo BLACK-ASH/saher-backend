@@ -14,11 +14,18 @@ export const handleBillController = async (req: Request, res: Response) => {
   // // take the status and reason from the bill and pass it
 
   const user = req.user;
-  const billId = req.params.id as string;
+  const billId = req.params.billId as string;
   const { status, reason } = req.body;
+  if (!billId) throw new ApiError(400, 'Bill Id is required');
 
   const bill = await Bill.findById(billId);
-  if (!bill || bill?.isDeleted === true) throw new ApiError(400, 'Bill not found');
+  if (!bill || bill?.isDeleted === true) {
+    return ApiResponse.success(res, {
+      message: 'Bill not found',
+      data: null,
+      statusCode: 201,
+    });
+  }
 
   if (bill) {
     bill.status = status;
@@ -54,7 +61,7 @@ export const handleBillController = async (req: Request, res: Response) => {
       expiredAt,
     });
 
-    const normalized = normalizeDoc(createSettle.toJSON());
+    const normalized = normalizeDoc(createSettle.toObject());
     data = createSettleSchema.parse(normalized);
     message = 'Settlement bill created successfully';
   }

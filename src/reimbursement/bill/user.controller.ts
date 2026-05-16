@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
-import { Bill } from '../../database/bill.model.js';
+import type { Request, Response } from 'express';
+
 import { billSchema, userBillCreateSchema } from './schema.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
+import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { sendSystemNotification } from '../../libs/utils/system-notification.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { sendSystemNotification } from '../../libs/utils/system-notification.js';
 
 export const userCreateBill = async (req: Request, res: Response) => {
   // write a code to create a user bill
@@ -60,10 +61,14 @@ export const userUpdateBill = async (req: Request, res: Response) => {
   if (bill.status === 'reject') {
     throw new ApiError(400, 'Bill is already rejected');
   }
-  // If bill is on pending
+  // If bill is on pending or on-hold
   if (bill.status === 'pending' || bill.status === 'on-hold') {
+    if (bill.amount >= 0) {
+      bill.description = description;
+    } else {
+      bill.description += `\n${description}`;
+    }
     bill.amount = amount;
-    bill.description = description;
     bill.images = images;
     await bill.save();
   }
