@@ -68,11 +68,15 @@ billRouter.post(
 );
 
 // Reviewing bill
-billRouter.get('/mybills', myBillsController);
-billRouter.get('/getbill/:billId', getBillByIdController);
-billRouter.get('/getallbills', authorize('read', 'preReimbursement'), getAllBillsController);
+billRouter.get('/bill/mybills/:trashbills', myBillsController);
+billRouter.get(
+  '/bill/getbill/:billId',
+  authorize('read', 'preReimbursement'),
+  getBillByIdController,
+);
+billRouter.get('/bill/getallbills', authorize('read', 'preReimbursement'), getAllBillsController);
 
 // Recycle bills
-billRouter.get('/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);
+billRouter.get('/bill/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);
 
 export default billRouter;

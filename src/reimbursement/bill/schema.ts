@@ -2,14 +2,6 @@ import z from 'zod';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 import { billStatus } from '../../database/bill.model.js';
 
-// id: bill_1234
-// user: user_1234
-// advance: xx
-// amount: xx
-// date: date
-// status
-// manger: user_0987
-
 export const billSchema = z.object({
   // id: objectId(),
   user: objectId(),

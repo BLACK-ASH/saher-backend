@@ -3,7 +3,8 @@ import { Bill } from '../../database/bill.model.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { reviewResponseSchema } from './get-bill.schema.js';
+import { getBillSchema } from './get-bill.schema.js';
+import { billSchema } from '../bill/schema.js';
 
 // For employee, admin and manager
 export const getBillByIdController = async (req: Request, res: Response) => {
@@ -18,16 +19,17 @@ export const getBillByIdController = async (req: Request, res: Response) => {
 
   const userId = req.user?.id;
   const { billId } = req.params;
-  const role = req.user?.role;
 
   const bill = await Bill.findById(billId).lean();
-  if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
-
-  if (role === 'user') {
-    if (bill.user.toString() !== userId) throw new ApiError(400, 'Unauthorized');
+  if (!bill) {
+    return ApiResponse.success(res, {
+      message: 'Bill not found',
+      data: null,
+      statusCode: 201,
+    });
   }
   const normalized = normalizeDoc(bill);
-  const parsed = reviewResponseSchema.parse(normalized);
+  const parsed = getBillSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Bill fetch successfully',

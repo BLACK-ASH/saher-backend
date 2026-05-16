@@ -17,7 +17,6 @@ export const adminCreateBill = async (req: Request, res: Response) => {
   const bill = await Bill.create({
     user,
     advance,
-    amount: 0,
     description,
     date,
   });
@@ -49,10 +48,6 @@ export const adminUpdateBill = async (req: Request, res: Response) => {
   const bill = await Bill.findById(billId);
   if (!bill || bill.isDeleted === true) throw new ApiError(400, 'Bill not found');
 
-  // If Bill is on-hold
-  if (bill.status === 'on-hold') {
-    return 'Bill has been put on-hold';
-  }
   // If Bill is accept
   if (bill.status === 'accept') {
     throw new ApiError(400, 'Bill is already accepted');
@@ -62,7 +57,7 @@ export const adminUpdateBill = async (req: Request, res: Response) => {
     throw new ApiError(400, 'Bill is already rejected');
   }
   // If bill is on pending
-  if (bill.status === 'pending') {
+  if (bill.status === 'pending' || bill.status === 'on-hold') {
     bill.advance = advance;
     bill.description = description;
     await bill.save();

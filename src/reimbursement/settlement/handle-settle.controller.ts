@@ -21,17 +21,19 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
   if (settleBill.expiredAt === null || settleBill.expiredAt === undefined)
     throw new ApiError(400, 'expired not found');
 
-  if (settleBill.date > settleBill.expiredAt) {
+  if (new Date() > settleBill.expiredAt) {
     settleBill.status = 'expired';
     await settleBill.save();
-    return ApiResponse.success(res, {
-      message: 'Bill settlement date expired',
-      data: null,
-      statusCode: 201,
-    });
   }
 
-  if (settleBill) {
+  // if settlement date is expired
+  if (settleBill.status === 'expired') throw new ApiError(400, 'Bill settlement date expired');
+
+  // if settlement is already completed
+  if (settleBill.status === 'settle') throw new ApiError(400, 'Settlement is Already completed');
+
+  // if settlement is still pending
+  if (settleBill.status === 'pending') {
     settleBill.mode = mode;
     settleBill.status = status;
     settleBill.settleDate = settleDate;
