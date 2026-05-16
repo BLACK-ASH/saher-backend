@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 const dateField = z.union([z.string().datetime(), z.date()]).transform((val) => new Date(val));
@@ -15,4 +16,4 @@ export const getBillSchema = z.object({
   isDeleted: z.boolean(),
 });
 
-export type reviewSchemaInputType = z.infer<typeof getBillSchema>;
+export type GetBillSchemaInputType = z.infer<typeof getBillSchema>;

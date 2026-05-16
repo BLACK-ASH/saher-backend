@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-export type EmployeeType = 'part-time' | 'full-time' | 'volunteer';
+export const employeeTypeList = ['free', 'intern', 'full-time', 'part-time', 'volunteer'] as const;
+export type EmployeeType = (typeof employeeTypeList)[number];
 
 const accountSchema = new mongoose.Schema(
   {
@@ -30,7 +31,7 @@ const accountSchema = new mongoose.Schema(
     },
     employeeType: {
       type: String,
-      enum: ['full-time', 'part-time', 'volunteer'],
+      enum: employeeTypeList,
       default: 'full-time',
     },
     employeeShift: {

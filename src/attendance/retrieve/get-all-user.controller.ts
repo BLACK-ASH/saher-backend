@@ -1,15 +1,22 @@
-import { Request, Response } from 'express';
-import { ApiError } from '../../libs/class/api-error.js';
+import type { Request, Response } from 'express';
+
+import { attendanceListSchema } from './attendance.schema.js';
 import { Attendance } from '../../database/attendance.model.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
+
+// const AttendanceAllUserSchema = AttendanceSchemaFinal.readonly()
 
 export const getAllUserController = async (req: Request, res: Response) => {
-  // Get the user body
-  const user = req.user;
-
   // no matter whether the user want to retrive a custom range or a fixed range(like week/month/year) in every case the retrieve would be done by the startDate and endDate
   let startDate, endDate;
+
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+
+  const skip = (page - 1) * limit;
 
   //Agar user ko ek custom range chahiyetoh oos case mein user ko startDate and endDate dono hii banatani padegi
   if (req.query.startDate && req.query.endDate) {
@@ -58,11 +65,31 @@ export const getAllUserController = async (req: Request, res: Response) => {
       $gte: standardDateString(startDate),
       $lte: standardDateString(endDate),
     },
-  }).sort({ date: sort });
+  })
+    .populate('user', 'name email role ')
+    .populate({
+      path: 'user',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
+    .sort({ date: sort })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const normalize = normalizeDoc(record);
+  const parsed = attendanceListSchema.parse(normalize);
+
+  const count = await Attendance.countDocuments({
+    date: {
+      $gte: standardDateString(startDate),
+      $lte: standardDateString(endDate),
+    },
+  });
 
   return ApiResponse.success(res, {
     message: 'The record you asked for ',
-    data: record,
+    data: parsed,
     statusCode: 200,
+    meta: { page, limit, count, total: Math.ceil(count / limit) },
   });
 };

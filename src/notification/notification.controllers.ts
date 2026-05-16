@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import { ApiError } from '../libs/class/api-error.js';
+import type { Request, Response } from 'express';
+
+import type { NotificationCreateInputType } from './notification.schema.js';
 import { Notification } from '../database/notification.model.js';
-import { sendSystemNotification } from '../libs/utils/system-notification.js';
-import { NotificationCreateInputType } from './notification.schema.js';
+import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import { sendSystemNotification } from '../libs/utils/system-notification.js';
 
 //Create a new Notification
 export const createNotificationController = async (req: Request, res: Response) => {

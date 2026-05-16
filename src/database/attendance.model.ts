@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const attendanceStatus = ['present', 'absent', 'half-day'];
+export const attendanceStatus = ['present', 'absent', 'half-day'] as const;
 
 const attendanceSchema = new mongoose.Schema(
   {

@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
-import { Bill } from '../../database/bill.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
-import { Settlement } from '../../database/settlement.model.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import type { Request, Response } from 'express';
+
 import { createSettleSchema, settleSchema } from './schema.js';
+import { Bill } from '../../database/bill.model.js';
+import { Settlement } from '../../database/settlement.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const handleBillController = async (req: Request, res: Response) => {
   // write a code to handle the bill settlement
@@ -13,7 +14,7 @@ export const handleBillController = async (req: Request, res: Response) => {
   // // take the status and reason from the bill and pass it
 
   const user = req.user;
-  const { billId } = req.params;
+  const billId = req.params.id as string;
   const { status, reason } = req.body;
 
   const bill = await Bill.findById(billId);

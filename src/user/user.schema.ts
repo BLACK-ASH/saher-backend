@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { userSchema } from '../admin/account/schema.js';
 
 export const userUpdateSchema = z

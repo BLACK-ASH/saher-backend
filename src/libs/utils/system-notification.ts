@@ -1,5 +1,6 @@
-import { Notification, notificationTypes } from '../../database/notification.model.js';
 import { z } from 'zod';
+
+import { Notification, notificationTypes } from '../../database/notification.model.js';
 
 export const sendNotificationSchema = z.object({
   user: z.string(),

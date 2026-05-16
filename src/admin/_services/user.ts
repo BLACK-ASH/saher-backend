@@ -1,9 +1,10 @@
 import z from 'zod';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
-import { userSchema } from '../account/schema.js';
+
 import { User } from '../../database/user.model.js';
+import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { imageType } from '../../libs/utils/zod-object-id.js';
+import { userSchema } from '../account/schema.js';
 
 export const userSchemaFinal = userSchema
   .extend({
@@ -20,6 +21,10 @@ export const userSchemaFinal = userSchema
   })
   .omit({ password: true })
   .readonly();
+
+export const shortUserSchema = userSchema
+  .pick({ name: true, email: true, role: true })
+  .extend({ id: z.string() });
 
 export type UserT = z.infer<typeof userSchemaFinal>;
 

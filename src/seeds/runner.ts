@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
+
 import createFirstUser from './create-first-user.js';
 
 const run = async () => {

@@ -1,238 +1,113 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import type { AttendanceCorrectionResponse } from './correction.schema.js';
+import { correctionResponsListSchema } from './correction.schema.js';
 import { AttendanceCorrection } from '../../database/attendance-correction.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { Attendance } from '../../database/attendance.model.js';
-import {
-  AttendanceCorrectionInputType,
-  AttendanceCorrectionHandleInputType,
-  attendanceRecordSchema,
-} from './correction.schema.js';
-import { timeDifference } from '../../libs/utils/time-difference.js';
-import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-import mongoose from 'mongoose';
-import { removeUndefined } from '../../libs/utils/remove-undefined-value.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, getCache, setCacheWithGroup } from '../../libs/redis/redis-utils.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const getAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
+  if (!user) throw new ApiError(403, 'Forbidden: User Not Allowed.');
 
-  const requests = await AttendanceCorrection.find({ user: user?.id })
-    .populate('user', 'name role')
+  const userID = req.params.id as string;
+
+  if (!userID) {
+    throw new ApiError(400, 'User ID param is required');
+  }
+
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const sort = req.query.sort === 'asc' ? 'asc' : 'desc';
+
+  let id: string;
+
+  if (userID === 'me') {
+    id = user.id;
+  } else {
+    if (user.role === 'user') {
+      throw new ApiError(403, 'Forbidden: Action Not Allowed.');
+    }
+    id = userID;
+  }
+
+  const key = createKey('attendance', 'correction', id, limit, page, sort);
+  const cache = await getCache<{
+    message: string;
+    data: AttendanceCorrectionResponse[];
+    meta: { total: number; page: number; count: number; limit: number };
+  }>(key);
+
+  if (cache) return ApiResponse.success(res, cache);
+
+  const requests = await AttendanceCorrection.find({ user: id })
+    .populate({
+      path: 'user manager',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .populate('attendance', 'date')
     .populate('proof', 'src alt')
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: sort === 'asc' ? 1 : -1 })
+    .skip(skip)
+    .limit(limit)
     .lean();
 
-  return ApiResponse.success(res, {
-    message: 'Attendance Correction Retrieve Successful.',
-    data: requests,
-    statusCode: 200,
-  });
-};
+  const normalize = normalizeDoc(requests);
+  const parsed = correctionResponsListSchema.parse(normalize);
+  const count = await AttendanceCorrection.countDocuments({ user: id });
 
-export const getAttendanceCorrectionById = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const request = await AttendanceCorrection.findById(id)
-    .populate('user manager', 'name role')
-    .populate('attendance', 'date')
-    .populate('proof', 'src alt')
-    .lean();
-  if (!request) throw new ApiError(404, 'Attendance Correction Request Not Found.');
-  return ApiResponse.success(res, {
+  const body = {
     message: 'Attendance Correction Retrieve Successful.',
-    data: request,
-    statusCode: 200,
-  });
+    data: parsed,
+    meta: { page, limit, count, total: Math.ceil(count / limit) },
+  };
+
+  await setCacheWithGroup(key, body, ['attendance', 'correction']);
+
+  return ApiResponse.success(res, body);
 };
 
 export const getAllAttendanceCorrectionController = async (req: Request, res: Response) => {
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const sort = req.query.sort === 'asc' ? 'asc' : 'desc';
+  const key = createKey('attendance', 'correction', 'list', limit, page, sort);
+
+  const cache = await getCache<{
+    message: string;
+    data: AttendanceCorrectionResponse[];
+    meta: { total: number; page: number; count: number; limit: number };
+  }>(key);
+
+  if (cache) return ApiResponse.success(res, cache);
+
   const requests = await AttendanceCorrection.find()
-    .populate('user manager', 'name role')
+    .populate({
+      path: 'user manager',
+      populate: [{ path: 'image', model: 'Media' }],
+    })
     .populate('attendance', 'date')
     .populate('proof')
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: sort === 'asc' ? 1 : -1 })
+    .skip(skip)
+    .limit(limit)
     .lean();
 
-  return ApiResponse.success(res, {
+  const normalize = normalizeDoc(requests);
+  const parsed = correctionResponsListSchema.parse(normalize);
+  const count = await AttendanceCorrection.countDocuments();
+
+  const body = {
     message: 'Attendance Correction Retrieve Successful.',
-    data: requests,
-    statusCode: 200,
-  });
-};
+    data: parsed,
+    meta: { page, limit, count, total: Math.ceil(count / limit) },
+  };
 
-export const createAttendanceCorrectionController = async (req: Request, res: Response) => {
-  const user = req.user;
-  const input: AttendanceCorrectionInputType = req.body;
+  await setCacheWithGroup(key, body, ['attendance', 'correction']);
 
-  if (!user?.id) {
-    throw new ApiError(401, 'User not authenticated.');
-  }
-
-  // Check attendance exists
-  const attendance = await Attendance.findById(input.attendanceId).lean();
-  if (!attendance) {
-    throw new ApiError(404, 'User Attendance Not Found.');
-  }
-
-  // Check existing pending request
-  const exist = await AttendanceCorrection.findOne({
-    attendance: input.attendanceId,
-    status: 'pending',
-  });
-
-  if (exist) {
-    throw new ApiError(400, 'A Request Already Exists Of This Date.');
-  }
-
-  // Parse previous (DB data)
-  const previous = attendanceRecordSchema.parse(attendance);
-
-  // Parse changes (input)
-  const changesParsed = attendanceRecordSchema.safeParse({
-    inTime: input.inTime,
-    outTime: input.outTime,
-    status: input.status,
-    isLate: input.isLate,
-  });
-
-  if (!changesParsed.success) {
-    throw new ApiError(400, changesParsed.error.message);
-  }
-
-  // Create request
-  const request = await AttendanceCorrection.create({
-    attendance: input.attendanceId,
-    user: convertToObjectId(user.id),
-    previous,
-    changes: changesParsed.data,
-    message: input.message,
-    proof: input?.proof,
-  });
-
-  return ApiResponse.success(res, {
-    message: 'Attendance Correction Request Successful.',
-    data: request,
-    statusCode: 201,
-  });
-};
-
-export const handleAttendanceCorrectionController = async (req: Request, res: Response) => {
-  const input: AttendanceCorrectionHandleInputType = req.body;
-  const user = req.user;
-  const id = req.params.id as string;
-
-  if (!user?.id) {
-    throw new ApiError(401, 'User not authenticated.');
-  }
-
-  const session = await mongoose.startSession();
-
-  let responsePayload = {};
-
-  try {
-    await session.withTransaction(async () => {
-      const request = await AttendanceCorrection.findById(id).session(session);
-      if (!request) {
-        throw new ApiError(404, 'Attendance Correction Request Not Found.');
-      }
-
-      // If Request Already Approved
-      if (request.status === 'approve')
-        throw new ApiError(400, 'Attendance Correction Already Approved.');
-
-      // If Request Already Reject
-      if (request.status === 'reject')
-        throw new ApiError(400, 'Attendance Correction Is Rejected.');
-
-      // If Attendance Is Reject
-      if (input.status === 'reject') {
-        request.manager = convertToObjectId(user.id);
-        request.status = 'reject';
-
-        if (input.reason?.trim()?.length) {
-          request.reason = input.reason?.trim();
-        } else {
-          request.reason = 'Attendance Correction Has Been Rejected.';
-        }
-
-        await request.save({ session });
-
-        responsePayload = { message: 'Attendance Correction Has Been Rejected.', data: null };
-        return;
-      }
-
-      // If Attendance Is On Hold
-      if (input.status === 'on-hold') {
-        request.manager = convertToObjectId(user.id);
-        request.status = 'on-hold';
-
-        if (input.reason?.trim()?.length) {
-          request.reason = input.reason?.trim();
-        } else {
-          request.reason = 'Attendance Correction Has Been Put On Hold.';
-        }
-
-        await request.save({ session });
-
-        responsePayload = { message: 'Attendance Correction Has Been Put On Hold.', data: null };
-        return;
-      }
-
-      // If Attendance Is Approve
-      const attendance = await Attendance.findById(request.attendance).session(session);
-      if (!attendance) {
-        throw new ApiError(404, 'Attendance Record Not Found.');
-      }
-
-      const changes = input.changes || request.changes;
-
-      // ✅ calculate work hours safely
-      const workHours =
-        changes.inTime && changes.outTime
-          ? timeDifference(changes.inTime, changes.outTime).hours
-          : null;
-
-      if (workHours === null) {
-        throw new ApiError(400, 'Work Hours Is Not Valid.');
-      }
-
-      const status = workHours === 0 ? 'absent' : workHours > 5 ? 'present' : 'half-day';
-
-      // ✅ remove undefined fields
-      const filteredChanges = removeUndefined(input.changes);
-
-      const newRecord = {
-        ...filteredChanges,
-        status,
-        workHours,
-      };
-
-      // ✅ update request
-      request.manager = convertToObjectId(user.id);
-      request.changes = changes;
-      request.status = 'approve';
-
-      if (input.reason?.trim()?.length) {
-        request.reason = input.reason?.trim();
-      } else {
-        request.reason = 'Attendance Correction Approved.';
-      }
-
-      await request.save({ session });
-
-      responsePayload = { message: 'Attendance Correction Approve.', data: null };
-      // ✅ update attendance
-      await Attendance.findByIdAndUpdate(request.attendance, { $set: newRecord }, { session });
-
-      return;
-    });
-
-    return ApiResponse.success(res, {
-      message: undefined,
-      data: undefined,
-      statusCode: 200,
-    });
-  } finally {
-    await session.endSession(); // ✅ always cleanup
-  }
+  return ApiResponse.success(res, body);
 };

@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { objectId } from '../libs/utils/zod-object-id.js';
 
 export const sendMailSchema = z.object({

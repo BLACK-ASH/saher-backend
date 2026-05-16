@@ -1,12 +1,18 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { standardDateString } from '../../libs/utils/standard-date.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache, deleteCacheGroup } from '../../libs/redis/redis-utils.js';
+import { checkIsLate, getShift } from '../../libs/utils/calculate-work-status.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const checkInController = async (req: Request, res: Response) => {
   //Step 1 - Check if the user has token or not
   const user = req.user;
+  if (!user?.id) throw new ApiError(400, 'Unauthorized');
+
   const now = new Date();
 
   //Step 2 - Check karo ki user ne pehle se aaj ki attendence toh nahi mark kari hai
@@ -16,25 +22,14 @@ export const checkInController = async (req: Request, res: Response) => {
     inTime: { $ne: null },
   });
   //Step 3 - Agr haa toh oosko dubara attendence mark karne mat do
-  // Using Custom Api Error Handler To Automatically handle error response
   if (existingRecord) throw new ApiError(400, 'You Have Already Check In Today.');
 
-  // Change Bad Mai Karna Hai
+  const account = await getAccountByUser(user?.id);
+  if (!account) throw new ApiError(400, 'Account not found ');
 
-  // ----------------------------------------Need to uncomment after employeeType in req.user is updated ------
-  // const employeeDetails = { fullTime :{ expectedTimeHours : 10 , expectedTimeMins : 0 } , partTimeShift1 : {expectedTimeHours : 9  , expectedTimeMins : 30 } , partTimeShift2 : {expectedTimeHours : 2  , expectedTimeMins : 30 } }
+  const shift = getShift(account);
 
-  // const hours  = user.employeeType==="full-time" ? employeeDetails.fullTime.expectedTimeHours  : user.employeeType === "part-time-morning" ? employeeDetails.partTimeShift1.expectedTimeHours : employeeDetails.partTimeShift2.expectedTimeHours
-
-  // const mins = req.user?.employeeType === "full-time" ? employeeDetails.fullTime.expectedTimeMins : user.employeeType === "part-time-morning" ? employeeDetails.partTimeShift1.expectedTimeMins : employeeDetails.partTimeShift2.expectedTimeMins
-
-  // const expectedTime = new Date()
-  // expectedTime.setHours(hours , mins , 0 ,0)
-
-  // ------------------------------------------------------
-  const expectedTime = new Date();
-  //Abhi ke liye aise hii hardcore data liya hai
-  expectedTime.setHours(10, 0, 0, 0);
+  const isLate = checkIsLate({ inTime: now, shift });
 
   // Updating Cron Record
   const cronRecord = await Attendance.findOne({
@@ -45,28 +40,42 @@ export const checkInController = async (req: Request, res: Response) => {
   if (cronRecord) {
     cronRecord.inTime = now;
     cronRecord.status = 'present';
-    cronRecord.isLate = now > expectedTime;
+    cronRecord.isLate = isLate;
     await cronRecord.save();
+
+    const todayKey = createKey('attendance', 'today', 'me', user?.id);
+    await deleteCache(todayKey);
+
+    await deleteCacheGroup('attendance', 'today', 'list');
+
     return ApiResponse.success(res, {
       message: 'You have been marked present',
-      data: cronRecord,
+      data: null,
       statusCode: 200,
     });
   }
 
   // Special case is user is check in before cron job
   //Step 5 - if User exist and have not submitted today's attendence start making new entry
-  //Step6 - Note the current time so that late hai ki nahi ka pata chal sake
+  //Step 6 - Note the current time so that late hai ki nahi ka pata chal     sake
   const newRecord = await Attendance.create({
     user: user?.id,
     inTime: now,
     status: 'present',
     date: standardDateString(now),
-    isLate: now > expectedTime,
+    isLate,
   });
+
+  if (!newRecord) throw new ApiError(400, 'Attendance Creation Failed.');
+
+  const todayKey = createKey('attendance', 'today', 'me', user?.id);
+  await deleteCache(todayKey);
+
+  await deleteCacheGroup('attendance', 'today', 'list');
+
   return ApiResponse.success(res, {
     message: 'You have been marked present',
-    data: newRecord,
-    statusCode: 200,
+    data: null,
+    statusCode: 201,
   });
 };

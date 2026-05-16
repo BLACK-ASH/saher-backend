@@ -1,6 +1,7 @@
 import z from 'zod';
-import { objectId } from '../../libs/utils/zod-object-id.js';
+
 import { billStatus } from '../../database/bill.model.js';
+import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const billSchema = z.object({
   // id: objectId(),
@@ -42,10 +43,10 @@ export const adminBillUpdateSchema = billSchema
   .pick({ advance: true, description: true })
   .partial();
 
-export type userCreateSchemaType = z.infer<typeof userBillCreateSchema>;
-export type userUpdateSchemaInputType = z.infer<typeof userBillUpdateSchema>;
-export type adminCreatSchemaInputType = z.infer<typeof adminBillCreatSchema>;
-export type adminUpdateSchemaInputType = z.infer<typeof adminBillUpdateSchema>;
+export type UserCreateSchemaType = z.infer<typeof userBillCreateSchema>;
+export type UserUpdateSchemaInputType = z.infer<typeof userBillUpdateSchema>;
+export type AdminCreatSchemaInputType = z.infer<typeof adminBillCreatSchema>;
+export type AdminUpdateSchemaInputType = z.infer<typeof adminBillUpdateSchema>;
 
 // POST /rem/bill - user create
 // PATCH /rem/bill/bill_id - user bill update
