@@ -36,11 +36,11 @@ export const notificationResponseSchema = z
     id: z.string(),
     user: z.string().optional().nullable(),
     type: z.enum(notificationTypes),
-    title: z.string().min(1, 'Title can not be empty').max(30, 'Title is too long'),
+    title: z.string().min(1, 'Title can not be empty').max(100, 'Title is too long'),
     description: z
       .string()
       .min(1, 'Description can not be empty')
-      .max(1000, 'The description is too long'),
+      .max(500, 'The description is too long'),
     action: z
       .object({
         type: z.enum(['download', 'navigate', 'external', 'none']),

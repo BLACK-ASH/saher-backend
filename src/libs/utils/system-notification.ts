@@ -1,5 +1,3 @@
-import { success } from 'zod';
-
 import { normalizeDoc } from './normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';

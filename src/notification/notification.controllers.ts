@@ -114,3 +114,26 @@ export const markSeenNotificationController = async (req: Request, res: Response
     statusCode: result.statusCode,
   });
 };
+
+export const getUnseenNotificationCount = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  const unseenNotificationCount = await Notification.countDocuments({
+    scope: 'specific',
+    user: userId,
+    isSeen: false,
+  }).lean();
+
+  if (unseenNotificationCount === 0) {
+    return ApiResponse.success(res, {
+      message: 'you have no  new notification',
+      data: null,
+      meta: { count: 0 },
+    });
+  }
+  return ApiResponse.success(res, {
+    message: 'You have new Notification ',
+    data: null,
+    meta: { count: unseenNotificationCount },
+  });
+};

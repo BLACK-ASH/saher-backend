@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   createNotificationController,
   getAllNotificationsController,
+  getUnseenNotificationCount,
   markSeenNotificationController,
 } from './notification.controllers.js';
 import { SendNotificationSchema } from './notification.schema.js';
@@ -26,7 +27,6 @@ notificationRouter.post(
 // );
 
 notificationRouter.patch('/:id', markSeenNotificationController);
-// notificationRouter.delete('/', authorize('delete', 'notification'), deleteNotificationController);
-// notificationRouter.get('/unSeenCount', getUnseenNotificationCount);
+notificationRouter.get('/unSeenCount', getUnseenNotificationCount);
 
 export default notificationRouter;
