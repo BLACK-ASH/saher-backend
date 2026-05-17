@@ -64,7 +64,7 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
   const notificationTitle = 'Receieved New Attendance Correction request';
   const notificationDesc = `A new Attendance Correction Request for the date ${attendance.date} has been submitted `;
   await NotificationService.role.success('admin', notificationTitle, notificationDesc);
-  await NotificationService.role.success('admin', notificationTitle, notificationDesc);
+  await NotificationService.role.success('manager', notificationTitle, notificationDesc);
   return ApiResponse.success(res, {
     message: 'Attendance Correction Request Successful.',
     data: request,
