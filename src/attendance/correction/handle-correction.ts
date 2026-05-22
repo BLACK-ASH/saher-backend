@@ -15,7 +15,7 @@ import {
   getShift,
 } from '../../libs/utils/calculate-work-status.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-import { NotificationService } from '../../libs/utils/system-notification.js';
+import { notificationService } from '../../libs/utils/notification.service.js';
 
 export const handleAttendanceCorrectionController = async (req: Request, res: Response) => {
   const input: AttendanceCorrectionHandleInputType = req.body;
@@ -58,7 +58,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         await request.save({ session });
         const notificationTitle = 'Attendance correction request rejected';
         const notificationDescription = `Your Attendance Correction request of the date ${request.previous.inTime?.getDate()}/${request.previous.inTime?.getMonth()}/${request.previous.inTime?.getFullYear()} has been rejected rejected `;
-        await NotificationService.specific.info(
+        await notificationService.specific.info(
           [request.user.toString()],
           notificationTitle,
           notificationDescription,
@@ -81,7 +81,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         await request.save({ session });
         const notificationTitle = 'Attendance correction request on-hold';
         const notificationDescription = `Your Attendance Correction request of the date ${request.previous.inTime?.getDate()}/${request.previous.inTime?.getMonth()}/${request.previous.inTime?.getFullYear()} has been kept on-hold `;
-        await NotificationService.specific.info(
+        await notificationService.specific.info(
           [request.user.toString()],
           notificationTitle,
           notificationDescription,
@@ -146,7 +146,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       await request.save({ session });
       const notificationTitle = 'Attendance correction request approved';
       const notificationDescription = `Your Attendance Correction request of the date ${request.previous.inTime?.getDate()}/${request.previous.inTime?.getMonth()}/${request.previous.inTime?.getFullYear()} has been approved `;
-      await NotificationService.specific.info(
+      await notificationService.specific.info(
         [request.user.toString()],
         notificationTitle,
         notificationDescription,

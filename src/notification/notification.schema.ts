@@ -1,7 +1,7 @@
 import z from 'zod';
 
 import { notificationScope, notificationTypes } from '../database/notification.model.js';
-import type { NotificationType } from '../libs/utils/system-notification.js';
+import type { NotificationType } from '../libs/class/system-notification.js';
 
 const BaseNotificationSchema = z.object({
   user: z.array(z.string()).optional(),

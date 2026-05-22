@@ -7,8 +7,10 @@ import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { createKey, getCache, setCache } from '../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
-import type { NotificationType } from '../libs/utils/system-notification.js';
-import { markSeenNotification, NotificationService } from '../libs/utils/system-notification.js';
+import type { NotificationType } from '../libs/class/system-notification.js';
+import { notificationService } from '../libs/utils/notification.service.js';
+import { markSeenNotification } from '../libs/utils/mark-seen.js';
+// import { markSeenNotification, NotificationService } from '../libs/class/system-notification.js';
 
 export const createNotificationController = async (req: Request, res: Response) => {
   const {
@@ -31,20 +33,20 @@ export const createNotificationController = async (req: Request, res: Response) 
 
   switch (scope) {
     case 'global':
-      result = await NotificationService.global[type](title, description, action);
+      result = await notificationService.global[type](title, description, action);
       break;
 
     case 'admin':
     case 'manager':
     case 'user':
     case 'intern':
-      result = await NotificationService.role[type](scope, title, description, action);
+      result = await notificationService.role[type](scope, title, description, action);
       break;
 
     case 'specific':
       if (!user) throw new ApiError(400, 'User is required');
 
-      result = await NotificationService.specific[type](user, title, description, action);
+      result = await notificationService.specific[type](user, title, description, action);
       break;
 
     default:
