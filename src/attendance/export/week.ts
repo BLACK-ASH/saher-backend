@@ -17,7 +17,7 @@ export const exportWeekController = async (req: Request, res: Response) => {
   const html = createWeekBody(data);
 
   await page.setContent(html, {
-    waitUntil: 'networkidle0',
+    waitUntil: 'domcontentloaded',
   });
 
   const pdf = await page.pdf({
