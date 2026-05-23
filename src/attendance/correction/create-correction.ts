@@ -35,6 +35,7 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
 
   // Parse previous (DB data)
   const previous = attendancePreviousSchema.parse(attendance);
+  
 
   // Parse changes (input)
   const changesParsed = attendanceChangesSchema.safeParse({
