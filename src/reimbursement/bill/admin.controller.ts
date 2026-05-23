@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
-import { Bill } from '../../database/bill.model.js';
+import type { Request, Response } from 'express';
+
 import { billSchema, adminBillCreatSchema, adminBillUpdateSchema } from './schema.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
+import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { sendSystemNotification } from '../../libs/utils/system-notification.js';
 
 export const adminCreateBill = async (req: Request, res: Response) => {
   // write a code to create a admin bill
@@ -23,6 +25,9 @@ export const adminCreateBill = async (req: Request, res: Response) => {
 
   const normalized = normalizeDoc(bill.toObject());
   const parsed = adminBillCreatSchema.parse(normalized);
+
+  const notificationDesc = 'Advance bill created succesfully';
+  const notificationTitle = 'Advance bill';
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',
