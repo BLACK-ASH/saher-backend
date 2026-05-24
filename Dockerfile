@@ -1,23 +1,24 @@
-FROM node:24-alpine AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+FROM node:24-alpine
+
 RUN apk add --no-cache curl chromium nss freetype harfbuzz ca-certificates ttf-freefont
+
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-RUN corepack enable
+
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm ci
-COPY . /app
 
-FROM base AS prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN corepack enable
 
-FROM base AS build
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run build
+COPY package.json ./
 
-FROM base
-COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY --from=build /app/dist /app/dist
+RUN pnpm install
+
+COPY . .
+
+RUN pnpm build
+
 EXPOSE 4000
-CMD [ "pnpm", "start" ]
+
+CMD ["pnpm","start"]
+
+
+

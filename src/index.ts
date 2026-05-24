@@ -31,7 +31,6 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
-// Middlewares
 // 1. request id
 app.use(requestId);
 
@@ -47,8 +46,7 @@ app.use(requestLogger);
 // 5. Metrics Middleware
 app.use(metricsMiddleware);
 
-app.set('trust proxy', true);
-
+// Middlewares
 // CORS
 app.use(
   cors({

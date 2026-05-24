@@ -3,9 +3,8 @@ import type { Request, Response } from 'express';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { generateToken } from '../../libs/utils/jwt-token.js';
 import { comparePassword } from '../../libs/utils/password-hash.js';
-import { getSessionMeta } from '../_utils/session-meta.js';
-import { generateToken } from '../_utils/token.js';
 
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -26,33 +25,24 @@ export const loginController = async (req: Request, res: Response) => {
   const user = await User.findOne({ email }).lean();
   if (!user) throw new ApiError(404, 'User Not Found.');
 
-  const matchPassword = await comparePassword(password, user.password);
+  const matchPassword = await comparePassword(password, user.password!);
   if (!matchPassword) throw new ApiError(403, 'Invalid Credentials.');
 
-  const payload = { id: user._id.toString(), name: user.name, role: user.role, email: user.email };
+  const payload = { id: user._id.toString(), name: user.name!, role: user.role, email: user.email };
 
-  const meta = await getSessionMeta(req);
-
-  const { accessToken, refreshToken, sessionId } = await generateToken(payload, meta);
+  const { accessToken, refreshToken } = generateToken(payload);
 
   const isProd = process.env.NODE_ENV === 'production';
 
   res.cookie('saher_access_token', accessToken, {
-    maxAge: 15 * 60 * 1000,
+    maxAge: 604800000,
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'none' : 'lax',
   });
 
   res.cookie('saher_refresh_token', refreshToken, {
-    maxAge: 60 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
-  });
-
-  res.cookie('saher_session_id', sessionId, {
-    maxAge: 60 * 24 * 60 * 60 * 1000,
+    maxAge: 604800000,
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'none' : 'lax',
@@ -60,7 +50,7 @@ export const loginController = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'login succesfully.',
-    data: { accessToken, refreshToken, sessionId },
+    data: { accessToken, refreshToken },
     statusCode: 200,
   });
 };

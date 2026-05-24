@@ -8,7 +8,7 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { imageType } from '../../libs/utils/zod-object-id.js';
 import { accountBaseSchema } from '../account/schema.js';
 
-export const accountSchemaFinal = accountBaseSchema
+const accountSchemaFinal = accountBaseSchema
   .omit({ aadhar: true, pan: true, resume: true })
   .safeExtend({
     id: z.string(),

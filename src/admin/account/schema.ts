@@ -1,7 +1,5 @@
 import z from 'zod';
 
-import { employeeTypeList } from '../../database/account.model.js';
-import { userRole } from '../../database/user.model.js';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 import { bankSchema } from '../bank/schema.js';
@@ -22,7 +20,7 @@ export const userSchema = z.object({
     .min(2),
   displayName: z.string().optional(),
   image: objectId('User Profile Image Is Required.'),
-  role: z.enum(userRole).default('user'),
+  role: z.enum(['user', 'manager', 'admin']).default('user'),
   email: z.email('Email Address Is Required.'),
   password: z.string().optional(),
 });
@@ -49,7 +47,7 @@ export const accountBaseSchema = z.object({
   employeeId: z.string('Employee Id Is Required.'),
   department: z.string('Department Is Required.'),
   designation: z.string('Designation Is Required.'),
-  employeeType: z.enum(employeeTypeList, 'Employee Type Is Required.'),
+  employeeType: z.enum(['full-time', 'part-time', 'volunteer'], 'Employee Type Is Required.'),
   employeeShift: z.enum(['shift-1', 'shift-2']).optional(),
   salaryStructure: z.string('Salary Structure Is Required.'),
   address: z.string('Address Is Required.'),
