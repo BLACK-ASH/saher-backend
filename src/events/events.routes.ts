@@ -6,6 +6,7 @@ import {
   editParticipant,
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
+import { baseProgrammeSchema, updatedProgrammeSchema } from './programmes/programmes.schema.js';
 import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
 import { removeAttendance } from './session/session-remove-attendance.controller.js';
@@ -17,7 +18,11 @@ import {
   removeParticipantFromWorkshop,
 } from './workshop/workshop-participant.controller.js';
 import { addWorkshop, deleteWorkshop, editWorkshop } from './workshop/workshop.controller.js';
-import { createWorkshopSchema, updatedWorkshopSchema } from './workshop/workshop.schema.js';
+import {
+  baseWorkshopSchema,
+  createWorkshopSchema,
+  updatedWorkshopSchema,
+} from './workshop/workshop.schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 
 const eventRouter = Router();
@@ -59,6 +64,19 @@ eventRouter.post('/workshops/:workshopId/participants', addParticipantToWorkshop
 eventRouter.delete(
   '/workshops/:workshopId/participants/:participantId',
   removeParticipantFromWorkshop,
+);
+
+//Programme routes ----------------------------------------------------------------------------------------------
+eventRouter.post(
+  'programmes/:programmeId/workshops/:workshopId',
+  validate(baseProgrammeSchema),
+  addWorkshop,
+);
+eventRouter.delete('programmes/:programmeId/workshops/:workshopId', deleteWorkshop);
+eventRouter.put(
+  'programmes/:programmeId/workshops/:workshopId',
+  validate(updatedProgrammeSchema),
+  editWorkshop,
 );
 
 export default eventRouter;
