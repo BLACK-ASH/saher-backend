@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import z from 'zod';
+import { z } from 'zod';
 
 import type { AttendanceCorrectionInputType } from './correction.schema.js';
 import { attendanceChangesSchema, attendancePreviousSchema } from './correction.schema.js';
@@ -35,7 +35,6 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
 
   // Parse previous (DB data)
   const previous = attendancePreviousSchema.parse(attendance);
-  
 
   // Parse changes (input)
   const changesParsed = attendanceChangesSchema.safeParse({
@@ -71,5 +70,4 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
     data: request,
     statusCode: 201,
   });
-
 };

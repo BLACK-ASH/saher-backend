@@ -3,6 +3,8 @@ FROM node:24-alpine
 RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
+ENV CI=true
+
 WORKDIR /app
 RUN corepack enable
 

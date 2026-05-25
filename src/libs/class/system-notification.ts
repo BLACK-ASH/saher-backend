@@ -1,4 +1,3 @@
-import { normalizeDoc } from '../utils/normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';
 import { notificationResponseListSchema } from '../../notification/notification.schema.js';
@@ -9,6 +8,7 @@ import type {
   RoleScope,
 } from '../../notification/notification.schema.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
+import { normalizeDoc } from '../utils/normailize-doc.js';
 export type NotificationType = 'info' | 'warn' | 'error' | 'success';
 export class Notification {
   global = {
@@ -239,8 +239,6 @@ export class Notification {
     // return NotificationModel.create(data);
   }
 }
-
-
 
 // const ROLE_SCOPES = ['admin', 'manager', 'user', 'intern'];
 
