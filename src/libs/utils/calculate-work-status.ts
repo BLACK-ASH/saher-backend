@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { timeDifference } from './time-difference.js';
 import type { AccountT } from '../../admin/_services/account.js';
 
@@ -22,18 +24,20 @@ type OutputType = {
 
 const IST_TIMEZONE = 'Asia/Kolkata';
 
-export const toISTDate = (date: Date | string | number): Date => {
-  return new Date(new Date(date).toLocaleString('en-US', { timeZone: IST_TIMEZONE }));
-};
+// -------------------------
+// export const toISTDate = (date: Date | string | number): Date => {
+// return new Date(new Date(date).toLocaleString('en-US', { timeZone: IST_TIMEZONE }));
+// };
 
-const setISTTime = (date: Date, hours: number): Date => {
-  const d = new Date(date); // already IST
-  const h = Math.floor(hours);
-  const m = Math.round((hours % 1) * 60);
+// const setISTTime = (date: Date, hours: number): Date => {
+//   const d = new Date(date); // already IST
+//   const h = Math.floor(hours);
+//   const m = Math.round((hours % 1) * 60);
 
-  d.setHours(h, m, 0, 0); // SAFE (because date is already IST)
-  return d;
-};
+//   d.setHours(h, m, 0, 0); // SAFE (because date is already IST)
+//   return d;
+// };
+// ------------------------------------
 
 export const workHourData = new Map<string, ShiftData>([
   ['full-time', { in: 9, out: 18, half: 4, full: 8, grace: 1 }],
@@ -51,41 +55,75 @@ export const getShift = (account: AccountT): 'full-time' | 'shift-1' | 'shift-2'
   return 'free';
 };
 
+const toISTZonedDateTime = (date: Date | string) => {
+  const instant = Temporal.Instant.from(new Date(date).toISOString());
+
+  return instant.toZonedDateTimeISO(IST_TIMEZONE);
+};
+
+const setShiftHour = (date: Temporal.ZonedDateTime, hour: number) => {
+  const h = Math.floor(hour);
+
+  const m = Math.round((hour % 1) * 60);
+
+  return date.with({
+    hour: h,
+    minute: m,
+    second: 0,
+    millisecond: 0,
+  });
+};
+
 export const checkIsLate = ({ inTime, shift }: Omit<InputType, 'outTime'>): boolean => {
   if (shift === 'free') return false;
 
-  const inDate = toISTDate(inTime);
+  const inDate = toISTZonedDateTime(inTime);
 
   const shiftData = workHourData.get(shift);
   if (!shiftData) throw new Error(`Invalid shift: ${shift}`);
 
-  const lateTime = setISTTime(inDate, shiftData.in + shiftData.grace);
+  const lateTime = setShiftHour(inDate, shiftData.in + shiftData.grace);
 
-  return inDate > lateTime;
+  return Temporal.ZonedDateTime.compare(inDate, lateTime) > 0;
 };
 
 export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): OutputType => {
-  const inDate = toISTDate(inTime);
-  const outDate = toISTDate(outTime);
+  const inDate = toISTZonedDateTime(inTime);
 
-  const actualWorkHour = Math.max(0, Number(timeDifference(outDate, inDate).hours.toFixed(3)));
+  const outDate = toISTZonedDateTime(outTime);
+
+  const actualWorkHour = outDate
+    .since(inDate, {
+      largestUnit: 'hours',
+    })
+    .total('hours');
 
   if (shift === 'free') {
-    return { workHours: actualWorkHour, status: 'present' };
+    return {
+      workHours: Number(actualWorkHour.toFixed(3)),
+      status: 'present',
+    };
   }
 
   const shiftData = workHourData.get(shift);
   if (!shiftData) throw new Error(`Invalid shift: ${shift}`);
 
   // ✅ Shift boundaries in IST
-  const expectedIn = setISTTime(inDate, shiftData.in);
-  const expectedOut = setISTTime(inDate, shiftData.out);
+  const expectedIn = setShiftHour(inDate, shiftData.in);
+
+  const expectedOut = setShiftHour(inDate, shiftData.out);
 
   // ✅ Clamp within shift window
-  const effectiveIn = new Date(Math.max(inDate.getTime(), expectedIn.getTime()));
-  const effectiveOut = new Date(Math.min(outDate.getTime(), expectedOut.getTime()));
+  const effectiveIn = Temporal.ZonedDateTime.compare(inDate, expectedIn) > 0 ? inDate : expectedIn;
 
-  const workHours = Math.max(0, Number(timeDifference(effectiveIn, effectiveOut).hours.toFixed(3)));
+  const effectiveOut =
+    Temporal.ZonedDateTime.compare(outDate, expectedOut) < 0 ? outDate : expectedOut;
+
+  const workHours = effectiveOut
+    .since(effectiveIn, {
+      largestUnit: 'hours',
+    })
+    .total('hours');
 
   const workHoursAfterGrace = workHours + shiftData.grace;
 
@@ -96,5 +134,8 @@ export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): Outp
         ? 'half-day'
         : 'absent';
 
-  return { workHours, status };
+  return {
+    workHours: Number(workHours.toFixed(3)),
+    status,
+  };
 };
