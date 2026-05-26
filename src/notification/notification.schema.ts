@@ -1,7 +1,7 @@
-import z from 'zod';
+import { z } from 'zod';
 
 import { notificationScope, notificationTypes } from '../database/notification.model.js';
-import type { NotificationType } from '../libs/utils/system-notification.js';
+import type { NotificationType } from '../libs/class/system-notification.js';
 
 const BaseNotificationSchema = z.object({
   user: z.array(z.string()).optional(),
@@ -19,15 +19,17 @@ const BaseNotificationSchema = z.object({
     .optional(),
 });
 
-export const SendNotificationSchema = BaseNotificationSchema.superRefine((schema, obj) => {
-  if (schema.scope === 'specific' && !schema.user) {
-    obj.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'user is required when the scope is choosen as specific',
-      path: ['user'],
-    });
-  }
-});
+export const SendNotificationSchema = BaseNotificationSchema.superRefine(
+  (schema: any, obj: any) => {
+    if (schema.scope === 'specific' && !schema.user) {
+      obj.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'user is required when the scope is choosen as specific',
+        path: ['user'],
+      });
+    }
+  },
+);
 
 export type SendNotificationT = z.infer<typeof SendNotificationSchema>;
 

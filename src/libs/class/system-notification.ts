@@ -1,4 +1,3 @@
-import { normalizeDoc } from './normailize-doc.js';
 import { Notification as NotificationModel } from '../../database/notification.model.js';
 import { User } from '../../database/user.model.js';
 import { notificationResponseListSchema } from '../../notification/notification.schema.js';
@@ -9,8 +8,9 @@ import type {
   RoleScope,
 } from '../../notification/notification.schema.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
+import { normalizeDoc } from '../utils/normailize-doc.js';
 export type NotificationType = 'info' | 'warn' | 'error' | 'success';
-class Notification {
+export class Notification {
   global = {
     info: (title: string, description: string, action?: NotificationAction) =>
       this.create({
@@ -239,40 +239,7 @@ class Notification {
     // return NotificationModel.create(data);
   }
 }
-export const NotificationService = new Notification();
 
-export const markSeenNotification = async (notificationId: string, userId: string) => {
-  // mark the Db notification as seen
-
-  const modified = await NotificationModel.findByIdAndUpdate(
-    notificationId,
-    { isSeen: true, seenAt: new Date() },
-    { new: true },
-  );
-  if (!modified)
-    return { message: 'The notification was not found  in DB ', statusCode: 400, data: null };
-
-  const key = createKey('notification', 'user', userId);
-  const cached = await getCache(key);
-
-  const parsedCached = notificationResponseListSchema.parse(cached || []);
-  const changedCached = parsedCached.map((notification) => {
-    if (notification.id == notificationId) {
-      return {
-        ...notification,
-        isSeen: true,
-        seenAt: new Date().toString(),
-      };
-    }
-    return notification;
-  });
-  await setCache(key, changedCached, 604800);
-  return {
-    message: 'Notification marked as seen',
-    statusCode: 200,
-    data: modified,
-  };
-};
 // const ROLE_SCOPES = ['admin', 'manager', 'user', 'intern'];
 
 // class Notification {
