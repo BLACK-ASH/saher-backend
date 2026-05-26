@@ -6,6 +6,7 @@ import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { NotificationService } from '../../libs/utils/system-notification.js';
 
 export const handleBillController = async (req: Request, res: Response) => {
   // write a code to handle the bill settlement
@@ -65,6 +66,16 @@ export const handleBillController = async (req: Request, res: Response) => {
     data = createSettleSchema.parse(normalized);
     message = 'Settlement bill created successfully';
   }
+
+  const notificationDesc = `bill is of amount ${amount} is created`;
+  const notificationTitle = 'New settlement bill created';
+
+  await NotificationService.specific.success(
+    [bill.user.toString()],
+    notificationTitle,
+    notificationDesc,
+  );
+
   return ApiResponse.success(res, {
     message: message,
     data: data,

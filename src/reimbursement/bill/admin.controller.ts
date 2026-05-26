@@ -5,7 +5,7 @@ import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { sendSystemNotification } from '../../libs/utils/system-notification.js';
+import { NotificationService } from '../../libs/utils/system-notification.js';
 
 export const adminCreateBill = async (req: Request, res: Response) => {
   // write a code to create a admin bill
@@ -26,8 +26,10 @@ export const adminCreateBill = async (req: Request, res: Response) => {
   const normalized = normalizeDoc(bill.toObject());
   const parsed = adminBillCreatSchema.parse(normalized);
 
-  const notificationDesc = 'Advance bill created succesfully';
-  const notificationTitle = 'Advance bill';
+  const notificationDesc = `bill is of amount ${advance} is created`;
+  const notificationTitle = 'New bill created';
+
+  await NotificationService.specific.success(user, notificationTitle, notificationDesc);
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',
