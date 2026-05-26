@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import z from 'zod';
+import { z } from 'zod';
 
 import type { AttendanceCorrectionInputType } from './correction.schema.js';
 import { attendanceChangesSchema, attendancePreviousSchema } from './correction.schema.js';
@@ -9,6 +9,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
+import { notificationService } from '../../libs/utils/notification.service.js';
 
 export const createAttendanceCorrectionController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -60,7 +61,10 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
   });
 
   await deleteCacheGroup('attendance', 'correction');
-
+  const notificationTitle = 'Receieved New Attendance Correction request';
+  const notificationDesc = `A new Attendance Correction Request for the date ${attendance.date} has been submitted `;
+  await notificationService.role.success('admin', notificationTitle, notificationDesc);
+  await notificationService.role.success('manager', notificationTitle, notificationDesc);
   return ApiResponse.success(res, {
     message: 'Attendance Correction Request Successful.',
     data: request,

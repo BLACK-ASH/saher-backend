@@ -61,7 +61,7 @@ const toISTZonedDateTime = (date: Date | string) => {
   return instant.toZonedDateTimeISO(IST_TIMEZONE);
 };
 
-const setShiftHour = (date: Temporal.ZonedDateTime, hour: number) => {
+export const setShiftHour = (date: Temporal.ZonedDateTime, hour: number) => {
   const h = Math.floor(hour);
 
   const m = Math.round((hour % 1) * 60);
@@ -125,6 +125,7 @@ export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): Outp
     })
     .total('hours');
 
+  // ✅ apply grace
   const workHoursAfterGrace = workHours + shiftData.grace;
 
   const status =
