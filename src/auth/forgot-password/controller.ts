@@ -19,6 +19,9 @@ export const forgotPasswordRequestController = async (req: Request, res: Respons
   const parsedEmail = emailInput.safeParse(email);
   if (!parsedEmail.success) throw new ApiError(400, 'Invalid Email Address');
 
+  const user = await User.findOne({ email: parsedEmail.data });
+  if (!user) throw new ApiError(404, 'User Not Found.');
+
   const token = crypto.randomBytes(32).toString('hex');
   const url = process.env.BASE_URL + '/forgot-password?token=' + token;
 
