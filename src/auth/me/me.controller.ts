@@ -1,14 +1,21 @@
-import { Request, Response } from "express";
-import { User } from "../../database/user.model.js";
+import type { Request, Response } from 'express';
 
-export const getUser = async (id: string) => {
-  const user = User.findById(id).populate("image", "src alt").select("-password -__v -updatedAt").lean()
-  return user
-}
+import { getUser } from '../../admin/_services/user.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const meController = async (req: Request, res: Response) => {
-  const id = req.user?.id
+  const id = req.user?.id;
 
-  const user = await getUser(id!)
-  return res.status(200).json({ success: true, message: "User details", data: user })
-}
+  const user = await getUser(id!);
+
+  if (!user) {
+    res.clearCookie('saher_access_token');
+    res.clearCookie('saher_refresh_token');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'User details',
+    data: user,
+    statusCode: 200,
+  });
+};

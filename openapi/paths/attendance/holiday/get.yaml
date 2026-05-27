@@ -9,22 +9,21 @@ get:
       schema:
         type: string
   responses:
-    "200":
+    '200':
       description: Holiday Details Retrive Successfully
       content:
         application/json:
           schema:
             $ref: ../../../components/holiday/response.yaml
-    "400":
+    '400':
       description: Invalid Details
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-    "500":
-      description: Internal Server Error 
+    '500':
+      description: Internal Server Error
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
-

@@ -1,60 +1,84 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const attendanceRecord = new mongoose.Schema({
   inTime: {
     type: Date,
+    default: null,
   },
   outTime: {
     type: Date,
+    default: null,
   },
   status: {
     type: String,
-    enum: ["present", "absent", "half-day"],
+    enum: ['present', 'absent', 'half-day'],
   },
   isLate: {
     type: Boolean,
-  }
-})
+  },
+});
 
-export const attendanceRequestStatus = ["pending", "approve", "reject"]
+const attendanceCorrectionSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    manager: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    attendance: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Attendance',
+    },
+    previous: { type: attendanceRecord, required: true },
+    changes: {
+      type: {
+        inTime: {
+          type: Date,
+          required: true,
+        },
+        outTime: {
+          type: Date,
+          required: true,
+        },
+        status: {
+          type: String,
+          enum: ['present', 'absent', 'half-day'],
+        },
+        isLate: {
+          type: Boolean,
+        },
+      },
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'on-hold', 'approve', 'reject'],
+      default: 'pending',
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+    // By Manager Of Status
+    reason: {
+      type: String,
+      default: 'Request Is Under Processing',
+    },
+    proof: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Media',
+    },
+  },
+  { timestamps: true },
+);
 
-const attendanceCorrectionSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  },
-  manager: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  attendance: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Attendance",
-  },
-  previous: attendanceRecord,
-  changes: attendanceRecord,
-  status: {
-    type: String,
-    enum: attendanceRequestStatus,
-    default: "pending"
-  },
-  message: {
-    type: String,
-    required: true
-  },
-  // By Manager Of Status
-  reason: {
-    type: String,
-    default: "Request Is Under Processing"
-  },
-  proof: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Media",
-  },
-}, { timestamps: true })
-
-attendanceCorrectionSchema.index({ attendance: 1, status: 1 }, { unique: true });
-type AttendanceCorrectionType = mongoose.InferSchemaType<typeof attendanceCorrectionSchema>
-export const AttendanceCorrection = mongoose.model<AttendanceCorrectionType>("AttendenceCorrection", attendanceCorrectionSchema)
-
+attendanceCorrectionSchema.index({ attendance: 1 });
+type AttendanceCorrectionType = mongoose.InferSchemaType<typeof attendanceCorrectionSchema>;
+export const AttendanceCorrection = mongoose.model<AttendanceCorrectionType>(
+  'AttendanceCorrection',
+  attendanceCorrectionSchema,
+);

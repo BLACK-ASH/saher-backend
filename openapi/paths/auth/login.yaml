@@ -10,7 +10,7 @@ post:
         schema:
           $ref: ../../components/auth/login-request.yaml
   responses:
-    "200":
+    '200':
       description: User Login Successfully
       headers:
         Set-Cookie:
@@ -21,19 +21,17 @@ post:
         application/json:
           schema:
             $ref: ../../components/auth/login-response.yaml
-    "401":
+    '401':
       description: Invalid credentials
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-    "404":
+    '404':
       description: User Not Found
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-    "500": 
+    '500':
       $ref: ../../components/common/internal-server-error.yaml
-
-

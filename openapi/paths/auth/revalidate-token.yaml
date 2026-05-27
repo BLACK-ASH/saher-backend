@@ -1,12 +1,11 @@
-
 post:
-  security: 
-    - refreshCookie : []
+  security:
+    - refreshCookie: []
   tags: [Auth]
   summary: Revalidate Token
   operationId: revalidateToken
   responses:
-    "200":
+    '200':
       description: User Login Successfully
       headers:
         Set-Cookie:
@@ -17,7 +16,7 @@ post:
         application/json:
           schema:
             $ref: ../../components/auth/login-response.yaml
-    "404":
+    '404':
       description: Token Not Found
       content:
         application/json:

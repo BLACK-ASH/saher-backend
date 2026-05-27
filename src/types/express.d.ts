@@ -1,17 +1,17 @@
-import "express";
-import { UserRole } from "../database/user.model.ts";
-import { EmployeeType } from "../database/account.model.ts";
-
 declare global {
   namespace Express {
     interface Request {
       fileValidationError?: string;
+      id: string;
+      startTime: number;
       user?: {
-        id: string,
-        name: string,
-        role: UserRole,
-        employeeType: EmployeeType
-      }
+        id: string;
+        name: string;
+        role: UserRole;
+        email: string;
+      };
     }
   }
 }
+
+export {}; // 👈 IMPORTANT (makes file a module)

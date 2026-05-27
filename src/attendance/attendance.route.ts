@@ -1,45 +1,91 @@
-import { Router } from "express"
-import { checkInController } from "./mark/check-in.controller.js"
-import { checkOutController } from "./mark/check-out.controller.js"
-import { updateHolidayController, getAllHolidayController, getHolidayController, deleteHolidayController, addHolidayController } from "./holiday/holiday.controller.js"
-import { authorize } from "../permission/authorize.js"
-import { holidaySchema, holidayUpdateSchema } from "./holiday/holiday.schema.js"
-import { attendanceCorrectionSchema, attendanceCorrectionUpdateSchema } from "./correction/correction.schema.js"
-import { createAttendanceCorrectionController, getAllAttendanceCorrectionController, getAttendanceCorrectionController, updateAttendanceCorrectionController } from "./correction/correction.controller.js"
-import { todayAttendanceController } from "./retrieve/today.controller.js"
-import { meAttendanceController } from "./retrieve/me.controller.js"
-import { getAllUserController} from "./retrieve/get-present-user.controller.js"
-import {  retrieveAttendanceController } from "./retrieve/retrieve-attendance.controller.js"
-import { createAttendanceCron } from "./cron-job/create-attendance.cron.js"
-import { autoCheckoutCron } from "./cron-job/auto-checkout-attendance.cron.js"
-import { validate } from "../libs/middleware/validate-zod-schema.js"
+import { Router } from 'express';
 
-const attendanceRouter = Router()
+import {
+  getAllAttendanceCorrectionController,
+  getAttendanceCorrectionController,
+} from './correction/correction.controller.js';
+import {
+  attendanceCorrectionSchema,
+  attendanceCorrectionHandleSchema,
+} from './correction/correction.schema.js';
+import { createAttendanceCorrectionController } from './correction/create-correction.js';
+import { handleAttendanceCorrectionController } from './correction/handle-correction.js';
+import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
+import { createAttendanceCron } from './cron-job/create-attendance.cron.js';
+import { exportWeekController } from './export/week.js';
+import {
+  updateHolidayController,
+  getAllHolidayController,
+  getHolidayController,
+  deleteHolidayController,
+  addHolidayController,
+} from './holiday/holiday.controller.js';
+import { checkInController } from './mark/check-in.controller.js';
+import { checkOutController } from './mark/check-out.controller.js';
+import { rejectMarkController, rejectMarkSchema } from './mark/reject-mark.controller.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
+import { holidaySchema, holidayUpdateSchema } from './holiday/holiday.schema.js';
+import { allAttendanceController } from './retrieve/all-attendance.controller.js';
+import { getAllUserController } from './retrieve/get-all-user.controller.js';
+import { getAttendanceById } from './retrieve/get-attendance.controller.js';
+import { meAttendanceController } from './retrieve/me.controller.js';
+import { retrieveAttendanceController } from './retrieve/retrieve-attendance.controller.js';
+import { todayAttendanceController } from './retrieve/today.controller.js';
 
-// Attendance Retrieval Route
-attendanceRouter.get("/me", meAttendanceController)
-attendanceRouter.get("/today", todayAttendanceController)
-attendanceRouter.post("/check-in", checkInController)
-attendanceRouter.post("/check-out", checkOutController)
-attendanceRouter.get("/retrive",retrieveAttendanceController)
-attendanceRouter.get("/retrieve/all-present-user" , getAllUserController)
+const attendanceRouter = Router();
 
-// Attendance Correction Route
-attendanceRouter.get("/attendance-correction", getAttendanceCorrectionController)
-attendanceRouter.get("/attendance-correction/all", getAllAttendanceCorrectionController)
-attendanceRouter.post("/attendance-correction", authorize("write", "attendance-correction"), validate(attendanceCorrectionSchema), createAttendanceCorrectionController)
-attendanceRouter.put("/attendance-correction", authorize("update", "attendance-correction"), validate(attendanceCorrectionUpdateSchema), updateAttendanceCorrectionController)
+// Attendance
+attendanceRouter.get('/me', meAttendanceController);
+attendanceRouter.get('/today', todayAttendanceController);
+attendanceRouter.post('/check-in', checkInController);
+attendanceRouter.post('/check-out', checkOutController);
+attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
+attendanceRouter.get('/retrieve-all', getAllUserController);
+attendanceRouter.get('/user/:id', allAttendanceController);
+attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
+
+// Export
+attendanceRouter.get('/export/week', exportWeekController);
+
+// Attendance correction
+attendanceRouter.get('/record/:id', getAttendanceById);
+attendanceRouter.get('/correction/:id', getAttendanceCorrectionController);
+attendanceRouter.get('/admin/correction', getAllAttendanceCorrectionController);
+attendanceRouter.post(
+  '/correction',
+  authorize('write', 'attendance-correction'),
+  validate(attendanceCorrectionSchema),
+  createAttendanceCorrectionController,
+);
+attendanceRouter.put(
+  '/correction/:id',
+  authorize('update', 'attendance-correction'),
+  validate(attendanceCorrectionHandleSchema),
+  handleAttendanceCorrectionController,
+);
+
+attendanceRouter.get('/holiday', getAllHolidayController);
+attendanceRouter.get('/holiday/:id', getHolidayController);
+attendanceRouter.delete('/holiday/:id', authorize('delete', 'holiday'), deleteHolidayController);
 
 // Holiday Routes
-attendanceRouter.post("/holiday/create", authorize("write", "holiday"), validate(holidaySchema), addHolidayController)
-attendanceRouter.put("/holiday/update/:id", authorize("update", "holiday"), validate(holidayUpdateSchema), updateHolidayController)
-attendanceRouter.get("/holiday/get-all", getAllHolidayController)
-attendanceRouter.get("/holiday/get/:id", getHolidayController)
-attendanceRouter.delete("/holiday/delete/:id", authorize("delete", "holiday"), deleteHolidayController)
+attendanceRouter.post(
+  '/holiday',
+  authorize('write', 'holiday'),
+  validate(holidaySchema),
+  addHolidayController,
+);
+attendanceRouter.put(
+  '/holiday/:id',
+  authorize('update', 'holiday'),
+  validate(holidayUpdateSchema),
+  updateHolidayController,
+);
 
+// WARN: Do Not Change This Part
 // Cron Jobs
-// Do Not Change This Part 
-attendanceRouter.post("/cron/create/:pass",createAttendanceCron)
-attendanceRouter.post("/cron/auto-checkout/:pass",autoCheckoutCron)
+attendanceRouter.post('/cron/create/:pass', createAttendanceCron);
+attendanceRouter.post('/cron/auto-checkout/:pass', autoCheckoutCron);
 
-export default attendanceRouter
+export default attendanceRouter;

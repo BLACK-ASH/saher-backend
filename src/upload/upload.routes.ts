@@ -1,14 +1,15 @@
-import { Router, Request, Response } from 'express'
-import { uploadImageController } from './image/image.controller.js'
-import { uploadImage } from './image/image.middleware.js'
+import type { Request, Response } from 'express';
+import { Router } from 'express';
 
-const uploadRouter = Router()
+import { uploadImageController } from './image/image.controller.js';
+import { uploadImage } from './image/image.middleware.js';
 
-uploadRouter.get("/", (req: Request, res: Response) => {
-  res.status(200).json("This Is A Upload Route")
-})
+const uploadRouter = Router();
 
-uploadRouter.post("/image", uploadImage.single("image"), uploadImageController)
+uploadRouter.get('/', (req: Request, res: Response) => {
+  res.status(200).json('This Is A Upload Route');
+});
 
+uploadRouter.post('/image', uploadImage.single('image'), uploadImageController);
 
-export default uploadRouter
+export default uploadRouter;

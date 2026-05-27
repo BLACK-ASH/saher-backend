@@ -3,7 +3,7 @@ properties:
   success:
     type: boolean
     example: true
-  data: 
+  data:
     type: object
     properties:
       _id:
@@ -17,7 +17,7 @@ properties:
         example: Acme Bank
       ifcs:
         type: string
-        example: abcd1234abcd 
+        example: abcd1234abcd
       mobileNumber:
         type: string
         example: 90XXXXXX54
