@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill';
 import type { Request, Response } from 'express';
 import z from 'zod';
 
@@ -16,8 +17,6 @@ import {
 } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
-
-import { Temporal } from '@js-temporal/polyfill';
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
