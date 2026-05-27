@@ -1,11 +1,11 @@
-import { Router } from "express";
-import { validate } from "../libs/middleware/validate-zod-schema.js";
-import { leaveSchema } from "./leave.schema.js";
-import { applyLeaveController } from "./leave.controller.js";
+import { Router } from 'express';
 
-const leaveRouter = Router()
+import { applyLeaveController } from './leave.controller.js';
+import { leaveSchema } from './leave.schema.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
 
-leaveRouter.post("/apply",validate(leaveSchema),applyLeaveController)
+const leaveRouter = Router();
 
-export default leaveRouter
+leaveRouter.post('/apply', validate(leaveSchema), applyLeaveController);
 
+export default leaveRouter;
