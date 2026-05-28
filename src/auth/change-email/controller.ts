@@ -8,6 +8,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { changeEmailTemplate } from '../../libs/mail/templates/change-email-mail.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { notification } from '../../libs/utils/notification.js';
 
 export const changeEmailRequestController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -59,6 +60,12 @@ export const changeEmailController = async (req: Request, res: Response) => {
 
   res.clearCookie('saher_access_token');
   res.clearCookie('saher_refresh_token');
+
+  await notification.specific.info(
+    [user.id],
+    'Change Email ',
+    'change email verification mail is send to your Registered email',
+  );
 
   return ApiResponse.success(res, {
     message: 'Email Change Successful.',

@@ -25,11 +25,6 @@ export const verifyEmailRequestController = async (req: Request, res: Response) 
   const html = verifyEmailTemplate({ name: user?.name, verifyUrl, expiryTime: '15 min' });
 
   await sendEmail({ to: user.email, subject: 'Email Verification Request.', html });
-  await notification.specific.info(
-    [user.id],
-    'User Login',
-    formatMessage('verification mail is send to your account'),
-  );
 
   return ApiResponse.success(res, {
     message: 'Mail Is Send To Your Registered Email For Verification.',
@@ -59,6 +54,12 @@ export const verifyEmailController = async (req: Request, res: Response) => {
   await deleteCache(key1);
   await deleteCache(key2);
   await deleteCache(key3);
+
+  await notification.specific.info(
+    [user.id],
+    'Email Verification',
+    formatMessage('verification mail is send to your Registered Email'),
+  );
 
   return ApiResponse.success(res, {
     message: 'Email Verification Successful.',

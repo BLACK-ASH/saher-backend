@@ -39,6 +39,13 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
         sameSite: isProd ? 'none' : 'lax',
       });
 
+      res.cookie('saher_session_id', sessionId, {
+        maxAge: 60 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+      });
+
       req.user = user;
       return next();
     }

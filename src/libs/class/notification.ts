@@ -8,6 +8,7 @@ import type {
   RoleScope,
 } from '../../notification/notification.schema.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
+import { formatMessage } from '../utils/formatted-message.js';
 import { normalizeDoc } from '../utils/normailize-doc.js';
 
 export type NotificationType = 'info' | 'warn' | 'error' | 'success';
@@ -186,9 +187,9 @@ export class Notification {
 
       const notifications = user.map((obj) => ({
         user: obj._id,
-        title: data.title,
+        title: formatMessage(data.title),
         type: data.type,
-        description: data.description,
+        description: formatMessage(data.description),
         expiresAt: data.expiresAt,
         action: data.action,
         scope: 'global',
@@ -223,10 +224,10 @@ export class Notification {
 
     const notifications = users.map((obj) => ({
       user: obj._id,
-      title: data.title,
+      title: formatMessage(data.title),
       type: data.type,
-      description: data.description,
       expiresAt: data.expiresAt,
+      description: formatMessage(data.description),
       action: data.action,
       scope: data.scope,
     }));
