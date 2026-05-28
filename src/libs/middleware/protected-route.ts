@@ -21,7 +21,7 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
       const newToken = await renewToken(sessionId, refresh);
 
-      if (!newToken) throw new ApiError(401, 'Invalid Session');
+      if (!newToken) throw new ApiError(401, 'Invalid Session : Renew token failed');
 
       const { accessToken, refreshToken, user } = newToken;
 
