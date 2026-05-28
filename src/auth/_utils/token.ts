@@ -18,8 +18,8 @@ export type ReqUser = {
 export type SessionT = {
   user: ReqUser;
   refreshTokenHash: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
   meta: SessionMeta;
 };
 
@@ -62,36 +62,76 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
 
 // Refresh All Token
 export const renewToken = async (sessionId: string, refreshToken: string) => {
-  const newRefreshToken = generateRefreshToken();
+  const key = createKey('session', sessionId);
 
-  const session = await getCache<SessionT>(createKey('session', sessionId));
+  const session = await getCache<SessionT>(key);
 
   if (!session) return null;
 
-  await setCache(
-    createKey('session', sessionId),
-    {
-      ...session,
-      refreshTokenHash: hash(newRefreshToken),
-      updatedAt: Date.now(),
-    },
-    60 * 60 * 24 * 60, // 60 days
-  );
-
+  // ✅ validate FIRST
   const isValid = session.refreshTokenHash === hash(refreshToken);
 
   if (!isValid) {
-    await client.del(createKey('session', sessionId));
+    await client.del(key);
     return null;
   }
-  // Generate Access Token
-  const accessToken = jwt.sign(session?.user, process.env.JWT_ACCESS_SECRET!, {
+
+  // ✅ generate AFTER validation
+  const newRefreshToken = generateRefreshToken();
+
+  const updatedSession: SessionT = {
+    ...session,
+    refreshTokenHash: hash(newRefreshToken),
+    updatedAt: Date.now(),
+  };
+
+  // ✅ save rotated token
+  await setCache(key, updatedSession, 60 * 60 * 24 * 60);
+
+  // ✅ generate access token
+  const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
     algorithm: 'HS384',
     expiresIn: '15m',
   });
 
-  return { accessToken, refreshToken: newRefreshToken, user: session.user };
+  return {
+    accessToken,
+    refreshToken: newRefreshToken,
+    user: session.user,
+  };
 };
+
+// export const renewToken = async (sessionId: string, refreshToken: string) => {
+//   const newRefreshToken = generateRefreshToken();
+//
+//   const session = await getCache<SessionT>(createKey('session', sessionId));
+//
+//   if (!session) return null;
+//
+//   await setCache(
+//     createKey('session', sessionId),
+//     {
+//       ...session,
+//       refreshTokenHash: hash(newRefreshToken),
+//       updatedAt: Date.now(),
+//     },
+//     60 * 60 * 24 * 60, // 60 days
+//   );
+//
+//   const isValid = session.refreshTokenHash === hash(refreshToken);
+//
+//   if (!isValid) {
+//     await client.del(createKey('session', sessionId));
+//     return null;
+//   }
+//   // Generate Access Token
+//   const accessToken = jwt.sign(session?.user, process.env.JWT_ACCESS_SECRET!, {
+//     algorithm: 'HS384',
+//     expiresIn: '15m',
+//   });
+//
+//   return { accessToken, refreshToken: newRefreshToken, user: session.user };
+// };
 
 // To Verify Access Token
 export const verifyAccessToken = (accessToken: string) => {

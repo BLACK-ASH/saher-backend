@@ -70,9 +70,14 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
     return next();
   } catch (error) {
-    res.clearCookie('saher_access_token');
-    res.clearCookie('saher_refresh_token');
-    res.clearCookie('saher_session_id');
+    if (
+      error instanceof ApiError &&
+      (error.message === 'Session expired' || error.message === 'Invalid Session')
+    ) {
+      res.clearCookie('saher_access_token');
+      res.clearCookie('saher_refresh_token');
+      res.clearCookie('saher_session_id');
+    }
 
     return next(error instanceof ApiError ? error : new ApiError(401, 'Invalid Tokens'));
   }
