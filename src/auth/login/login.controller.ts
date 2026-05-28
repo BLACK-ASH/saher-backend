@@ -3,6 +3,8 @@ import type { Request, Response } from 'express';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { formatMessage } from '../../libs/utils/formatted-message.js';
+import { notification } from '../../libs/utils/notification.js';
 import { comparePassword } from '../../libs/utils/password-hash.js';
 import { getSessionMeta } from '../_utils/session-meta.js';
 import { generateToken } from '../_utils/token.js';
@@ -57,6 +59,9 @@ export const loginController = async (req: Request, res: Response) => {
     secure: isProd,
     sameSite: isProd ? 'none' : 'lax',
   });
+
+  const desc = `user login from ${meta.device} using ${meta.browser}`;
+  await notification.specific.info([user._id.toString()], 'User Login', formatMessage(desc));
 
   return ApiResponse.success(res, {
     message: 'login succesfully.',
