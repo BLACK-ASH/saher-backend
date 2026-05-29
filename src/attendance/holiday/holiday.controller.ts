@@ -1,8 +1,11 @@
 import type { Request, Response } from 'express';
+import z from 'zod';
 
+import { holidaySchema } from './holiday.schema.js';
 import { Holiday } from '../../database/holiday.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const addHolidayController = async (req: Request, res: Response) => {
   const { date, title, type } = req.body;
@@ -16,21 +19,23 @@ export const addHolidayController = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'The holiday record has been added successful',
-    data: holiday.toJSON(),
+    data: null,
     statusCode: 201,
   });
 };
 
 export const updateHolidayController = async (req: Request, res: Response) => {
-  const id = req.params;
+  const id = req.params.id;
   const updateData = req.body;
 
   const update = await Holiday.findByIdAndUpdate(id, updateData);
   if (!update) throw new ApiError(400, 'Holiday Not Updated.');
 
+  const normalized = normalizeDoc(update);
+  const parsed = holidaySchema.parse(normalized);
   return ApiResponse.success(res, {
     message: 'Holiday Record Updated Successful',
-    data: updateData.toJSON(),
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -41,9 +46,12 @@ export const getHolidayController = async (req: Request, res: Response) => {
   const record = await Holiday.findById(id).lean();
   if (!record) throw new ApiError(404, 'Holiday Record Not Found.');
 
+  const normalized = normalizeDoc(record);
+  const parsed = holidaySchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Holiday Retrive Successful',
-    data: record,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -52,9 +60,11 @@ export const getAllHolidayController = async (req: Request, res: Response) => {
   const holidays = await Holiday.find().lean();
   if (!holidays) throw new ApiError(404, 'No Holiday Records Found.');
 
+  const normalized = normalizeDoc(holidays);
+  const parsed = z.array(holidaySchema).parse(normalized);
   return ApiResponse.success(res, {
     message: 'All Holidays Retrive Successful.',
-    data: holidays,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -67,7 +77,7 @@ export const deleteHolidayController = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'The Holiday has been deleted successful.',
-    data: undefined,
+    data: null,
     statusCode: 200,
   });
 };
