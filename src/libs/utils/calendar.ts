@@ -1,5 +1,8 @@
 import z from 'zod';
 
+import { normalizeDoc } from './normailize-doc.js';
+import { standardDateString } from './standard-date.js';
+import type { CalendarObjectT} from '../../calendar/calendar.schema.js';
 import { event } from '../../calendar/calendar.schema.js';
 import { Holiday } from '../../database/holiday.model.js';
 
@@ -9,25 +12,29 @@ export const calculateNumberOfDays = (year: number, monthIndex: number) => {
 };
 // const numberOfDays = calculateNumberOfDays(2026,4)
 
-export const makeArray = (numberofDays: number) => {
-  const dates = Array.from({ length: numberofDays }, (_, index) => index + 1);
-  return dates;
-};
-// console.log(makeArray(numberOfDays));
+// export const makeArray = (numberofDays: number) => {
+//   const dates = Array.from({ length: numberofDays }, (_, index) => index + 1);
+//   return dates;
+// }
 
 export const getCalendarHoliday = async (year: number, month: number) => {
   const numberOfDays = calculateNumberOfDays(year, month);
-  const days = makeArray(numberOfDays);
 
-  const result = new Map();
+  const calendar: CalendarObjectT[] = Array.from({ length: numberOfDays }, (_, index) => {
+    const date = new Date(year, month, index + 1);
+    // const stringDate = standardDateString(date)
 
-  days.map((date) => {
-    result.set(date, []);
+    return {
+      date: standardDateString(date),
+      day: date.toLocaleDateString('en-US', {
+        weekday: 'long',
+      }),
+      events: [],
+    };
   });
 
   const startOfMonth = new Date(year, month, 1);
-
-  const endOfMonth = new Date(year, month, numberOfDays);
+  const endOfMonth = new Date(year, month, numberOfDays + 1);
 
   const data = await Holiday.aggregate([
     {
@@ -39,10 +46,18 @@ export const getCalendarHoliday = async (year: number, month: number) => {
       },
     },
     {
-      $sort: { date: 1 },
+      $set: {
+        meta: {
+          date: '$date',
+          type: '$type',
+          title: '$title',
+        },
+      },
     },
     {
-      $set: { type: 'holiday' },
+      $set: {
+        type: 'holiday',
+      },
     },
     {
       $set: {
@@ -51,50 +66,50 @@ export const getCalendarHoliday = async (year: number, month: number) => {
             year: { $year: '$date' },
             month: { $month: '$date' },
             day: { $dayOfMonth: '$date' },
-            hour: 0, // Set your specific hour here (0-23)
-            minute: 0, // Optional: sets minutes to 0
-            second: 0, // Optional: sets seconds to 0
+            hour: 0,
+            minute: 0,
+            second: 0,
           },
         },
-      },
-    },
-    {
-      $set: {
         endDate: {
           $dateFromParts: {
             year: { $year: '$date' },
             month: { $month: '$date' },
             day: { $dayOfMonth: '$date' },
-            hour: 23, // Set your specific hour here (0-23)
-            minute: 59, // Optional: sets minutes to 0
-            second: 59, // Optional: sets seconds to 0
+            hour: 23,
+            minute: 59,
+            second: 59,
           },
         },
       },
     },
     {
+      $sort: {
+        date: 1,
+      },
+    },
+    {
       $project: {
-        _id: 0,
+        _id: 1,
         title: 1,
         type: 1,
         date: 1,
         startDate: 1,
         endDate: 1,
+        meta: 1,
       },
     },
   ]);
+  const normalized = normalizeDoc(data);
+  // console.log(normalized);
 
-  // console.log(data);
+  const dataParsed = z.array(event).parse(normalized);
 
-  const dataParsed = z.array(event).parse(data);
-  // console.log('parsed value ', dataParsed);
+  dataParsed.forEach((event) => {
+    const dayIndex = event.startDate.getDate() - 1;
 
-  data.map((event) => {
-    const date = event.date.getDate();
-    const previous = result.get(date);
-    result.set(date, [...previous, event]);
+    calendar[dayIndex].events.push(event);
   });
-  // console.log(result);
-  const finalResult = Object.fromEntries(result);
-  return finalResult;
+
+  return calendar;
 };
