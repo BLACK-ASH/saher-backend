@@ -1,0 +1,9 @@
+import '../database/account.model.js';
+import '../database/attendance-correction.model.js';
+import '../database/attendance.model.js';
+import '../database/bank.model.js';
+import '../database/holiday.model.js';
+import '../database/mail.model.js';
+import '../database/notification.model.js';
+import '../database/media-upload.model.js';
+import '../database/user.model.js';
