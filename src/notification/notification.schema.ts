@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type {
+  notificationActionTypes} from '../database/notification.model.js';
 import {
   notificationMethod,
   notificationScope,
@@ -109,10 +111,10 @@ type SpecificPayload = {
 };
 
 export type NotificationAction = {
-  type: 'download' | 'navigate' | 'external' | 'none';
+  type: (typeof notificationActionTypes)[number];
   label: string;
   url: string;
-  method: typeof notificationMethod;
+  method: (typeof notificationMethod)[number];
 };
 
 export type NotificationPayload = GlobalPayload | RolePayload | SpecificPayload;

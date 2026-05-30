@@ -12,7 +12,8 @@ import { createAttendanceCorrectionController } from './correction/create-correc
 import { handleAttendanceCorrectionController } from './correction/handle-correction.js';
 import { autoCheckoutCron } from './cron-job/auto-checkout-attendance.cron.js';
 import { createAttendanceCron } from './cron-job/create-attendance.cron.js';
-import { exportWeekController } from './export/week.js';
+import { downloadReportController } from './export/report-download.js';
+import { exportReportController } from './export/report.js';
 import {
   updateHolidayController,
   getAllHolidayController,
@@ -46,7 +47,8 @@ attendanceRouter.get('/user/:id', allAttendanceController);
 attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
 
 // Export
-attendanceRouter.get('/export/week', exportWeekController);
+attendanceRouter.get('/export/report', exportReportController);
+attendanceRouter.get('/download/:fileName', downloadReportController);
 
 // Attendance correction
 attendanceRouter.get('/record/:id', getAttendanceById);

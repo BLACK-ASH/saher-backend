@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:worker": "tsx watch src/worker/index.ts",
     "build": "pnpm docs:build && tsc",
     "start": "node dist/index.js",
+    "start:worker": "node dist/worker/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -27,6 +29,7 @@
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.77.6",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 export const notificationTypes = ['info', 'warn', 'success', 'error'] as const;
+export const notificationActionTypes = ['download', 'navigate', 'external', 'none'] as const;
 export const notificationMethod = ['GET', 'POST', 'PATCH', 'DELETE'] as const;
 
 export const notificationScope = [
@@ -67,7 +68,7 @@ const notificationSchema = new mongoose.Schema(
     action: {
       type: {
         type: String,
-        enum: ['download', 'navigate', 'external', 'none'],
+        enum: notificationActionTypes,
         default: 'none',
       },
 
