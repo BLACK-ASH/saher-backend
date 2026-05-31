@@ -2,7 +2,7 @@ import z from 'zod';
 
 import { normalizeDoc } from './normailize-doc.js';
 import { standardDateString } from './standard-date.js';
-import type { CalendarObjectT} from '../../calendar/calendar.schema.js';
+import type { CalendarObjectT } from '../../calendar/calendar.schema.js';
 import { event } from '../../calendar/calendar.schema.js';
 import { Holiday } from '../../database/holiday.model.js';
 
@@ -10,12 +10,6 @@ export const calculateNumberOfDays = (year: number, monthIndex: number) => {
   const numberOfDays = new Date(year, monthIndex + 1, 0).getDate();
   return numberOfDays;
 };
-// const numberOfDays = calculateNumberOfDays(2026,4)
-
-// export const makeArray = (numberofDays: number) => {
-//   const dates = Array.from({ length: numberofDays }, (_, index) => index + 1);
-//   return dates;
-// }
 
 export const getCalendarHoliday = async (year: number, month: number) => {
   const numberOfDays = calculateNumberOfDays(year, month);
@@ -26,7 +20,7 @@ export const getCalendarHoliday = async (year: number, month: number) => {
 
     return {
       date: standardDateString(date),
-      day: date.toLocaleDateString('en-US', {
+      day: date.toLocaleDateString('en-CA', {
         weekday: 'long',
       }),
       events: [],
@@ -47,7 +41,7 @@ export const getCalendarHoliday = async (year: number, month: number) => {
     },
     {
       $set: {
-        meta: {
+        details: {
           date: '$date',
           type: '$type',
           title: '$title',
@@ -96,7 +90,7 @@ export const getCalendarHoliday = async (year: number, month: number) => {
         date: 1,
         startDate: 1,
         endDate: 1,
-        meta: 1,
+        details: 1,
       },
     },
   ]);
@@ -111,5 +105,32 @@ export const getCalendarHoliday = async (year: number, month: number) => {
     calendar[dayIndex].events.push(event);
   });
 
-  return calendar;
+  const emptyRecordsMenu = new Map([
+    ['Sunday', 0],
+    ['Monday', 1],
+    ['Tuesday', 2],
+    ['Wednesday', 3],
+    ['Thursday', 4],
+    ['Friday', 5],
+    ['Saturday', 6],
+  ]);
+  const firstDayOfTheMonth = calendar[0].day;
+
+  if (!firstDayOfTheMonth) {
+    throw new Error('Invalid first day');
+  }
+  const numberOfEmptyRecords = emptyRecordsMenu.get(firstDayOfTheMonth);
+
+  const emptyRecords = Array.from({ length: numberOfEmptyRecords ?? 0 }, () => ({
+    date: null,
+    day: null,
+    events: [],
+  }));
+
+  // console.log("empty " ,emptyRecords);
+
+  const finalCalendar = [...emptyRecords, ...calendar];
+  // console.log("final " , finalCalendar);
+
+  return finalCalendar;
 };

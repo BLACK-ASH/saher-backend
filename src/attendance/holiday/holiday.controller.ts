@@ -5,6 +5,7 @@ import { holidaySchema } from './holiday.schema.js';
 import { Holiday } from '../../database/holiday.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const addHolidayController = async (req: Request, res: Response) => {
@@ -16,6 +17,13 @@ export const addHolidayController = async (req: Request, res: Response) => {
     type: type,
   });
   if (!holiday) throw new ApiError(400, 'Holiday record Creation Failed.');
+
+  const month = new Date(date).getMonth() + 1;
+  const year = new Date(date).getFullYear();
+  const key = createKey('calendar', year, month);
+  // console.log("Holiday key " , key);
+
+  await deleteCache(key);
 
   return ApiResponse.success(res, {
     message: 'The holiday record has been added successful',
@@ -30,6 +38,11 @@ export const updateHolidayController = async (req: Request, res: Response) => {
 
   const update = await Holiday.findByIdAndUpdate(id, updateData);
   if (!update) throw new ApiError(400, 'Holiday Not Updated.');
+
+  const month = new Date(update.date).getMonth() + 1;
+  const year = new Date(update.date).getFullYear();
+  const key = createKey('calendar', year, month);
+  await deleteCache(key);
 
   const normalized = normalizeDoc(update);
   const parsed = holidaySchema.parse(normalized);
@@ -74,6 +87,11 @@ export const deleteHolidayController = async (req: Request, res: Response) => {
 
   const record = await Holiday.findByIdAndDelete(id);
   if (!record) throw new ApiError(404, 'Holiday Record Not Found.');
+
+  const month = new Date(record.date).getMonth() + 1;
+  const year = new Date(record.date).getFullYear();
+  const key = createKey('calendar', year, month);
+  await deleteCache(key);
 
   return ApiResponse.success(res, {
     message: 'The Holiday has been deleted successful.',
