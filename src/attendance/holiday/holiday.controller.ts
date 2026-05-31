@@ -11,6 +11,13 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 export const addHolidayController = async (req: Request, res: Response) => {
   const { date, title, type } = req.body;
 
+  const existingRecord = await Holiday.find({ date: date, type: type });
+  if (existingRecord)
+    throw new ApiError(
+      400,
+      'A holiday for the same date with the same type has already been created ',
+    );
+
   const holiday = await Holiday.create({
     date: date,
     title: title,
@@ -83,7 +90,7 @@ export const getAllHolidayController = async (req: Request, res: Response) => {
 };
 
 export const deleteHolidayController = async (req: Request, res: Response) => {
-  const id = req.params;
+  const id = req.params.id;
 
   const record = await Holiday.findByIdAndDelete(id);
   if (!record) throw new ApiError(404, 'Holiday Record Not Found.');
