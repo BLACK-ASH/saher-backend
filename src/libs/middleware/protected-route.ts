@@ -94,23 +94,18 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
     const isProd = process.env.NODE_ENV === 'production';
 
-    // =========================
-    // SESSION REQUIRED
-    // =========================
-
     if (!sessionId) {
       throw new ApiError(401, 'Invalid Session');
     }
 
     // =========================
-    // ACCESS TOKEN FLOW
+    // ACCESS TOKEN
     // =========================
 
     if (access) {
       try {
         const verifyToken = verifyAccessToken(access);
 
-        // verify session still exists
         const session = await getCache<SessionT>(createKey('session', sessionId));
 
         if (!session) {
@@ -126,7 +121,6 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
         return next();
       } catch (error) {
-        // only continue if access expired
         if (!(error instanceof jwt.TokenExpiredError)) {
           throw error;
         }
@@ -141,21 +135,24 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
       throw new ApiError(401, 'Login Required');
     }
 
-    const newToken = await renewToken(sessionId, refresh);
+    let newToken;
 
-    // invalid session/token
-    if (!newToken) {
-      throw new ApiError(401, 'Invalid Session');
+    try {
+      newToken = await renewToken(sessionId, refresh);
+    } catch (error) {
+      throw error;
     }
 
-    // another request already refreshing
-    if (newToken.type === 'LOCKED') {
-      throw new ApiError(401, 'Session Refresh In Progress');
+    // another request is already refreshing
+    if (newToken && newToken.type === 'LOCKED') {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      newToken = await renewToken(sessionId, refresh);
     }
 
-    // =========================
-    // SET NEW TOKENS
-    // =========================
+    if (!newToken || newToken.type === 'LOCKED') {
+      throw new ApiError(401, 'Refresh Failed');
+    }
 
     const { accessToken, refreshToken, user } = newToken;
 
@@ -184,15 +181,12 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
 
     return next();
   } catch (error) {
-    // clear ONLY hard invalid session
     if (
       error instanceof ApiError &&
-      ['Invalid Session', 'Session expired'].includes(error.message)
+      ['Invalid Session', 'Session expired', 'Invalid Refresh Token'].includes(error.message)
     ) {
       res.clearCookie('saher_access_token');
-
       res.clearCookie('saher_refresh_token');
-
       res.clearCookie('saher_session_id');
     }
 

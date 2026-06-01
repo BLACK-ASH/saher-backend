@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import type { SessionMeta } from './session-meta.js';
 import type { UserRole } from '../../database/user.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { client } from '../../libs/redis/redis-client.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
@@ -21,6 +22,9 @@ export type SessionT = {
   createdAt: number;
   updatedAt: number;
   meta: SessionMeta;
+
+  previousRefreshTokenHash?: string;
+  previousRefreshTokenExpiresAt?: number;
 };
 
 // Reusable Hash Function
@@ -95,16 +99,13 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
 
 export const renewToken = async (sessionId: string, refreshToken: string) => {
   const sessionKey = createKey('session', sessionId);
-
   const lockKey = createKey('refresh_lock', sessionId);
 
-  // acquire lock
   const lock = await client.set(lockKey, '1', {
     NX: true,
     EX: 5,
   });
 
-  // another request refreshing
   if (!lock) {
     return {
       type: 'LOCKED',
@@ -118,26 +119,38 @@ export const renewToken = async (sessionId: string, refreshToken: string) => {
       return null;
     }
 
-    const isValid = session.refreshTokenHash === hash(refreshToken);
+    const incomingHash = hash(refreshToken);
+
+    const isCurrent = incomingHash === session.refreshTokenHash;
+
+    const isPrevious =
+      incomingHash === session.previousRefreshTokenHash &&
+      Date.now() < (session.previousRefreshTokenExpiresAt ?? 0);
+
+    const isValid = isCurrent || isPrevious;
 
     if (!isValid) {
       await deleteCache(sessionKey);
       await client.sRem(createKey('user_session', session.user.id), sessionId);
-      return null;
+
+      throw new ApiError(401, 'Invalid Refresh Token');
     }
 
-    // rotate refresh token
     const newRefreshToken = generateRefreshToken();
 
-    await setCache(
-      sessionKey,
-      {
-        ...session,
-        refreshTokenHash: hash(newRefreshToken),
-        updatedAt: Date.now(),
-      },
-      60 * 60 * 24 * 60,
-    );
+    const updatedSession: SessionT = {
+      ...session,
+
+      previousRefreshTokenHash: session.refreshTokenHash,
+
+      previousRefreshTokenExpiresAt: Date.now() + 15_000,
+
+      refreshTokenHash: hash(newRefreshToken),
+
+      updatedAt: Date.now(),
+    };
+
+    await setCache(sessionKey, updatedSession, 60 * 60 * 24 * 60);
 
     const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
       algorithm: 'HS384',
