@@ -6,6 +6,11 @@ import {
   editParticipant,
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
+import {
+  addProgramme,
+  editProgramme,
+  deleteProgramme,
+} from './programmes/programmes.controller.js';
 import { baseProgrammeSchema, updatedProgrammeSchema } from './programmes/programmes.schema.js';
 import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
@@ -67,8 +72,8 @@ eventRouter.delete(
 );
 
 //Programme routes ----------------------------------------------------------------------------------------------
-eventRouter.post('/programmes', validate(baseProgrammeSchema), addWorkshop);
-eventRouter.delete('/programmes/:id', deleteWorkshop);
-eventRouter.put('/programmes/:id', validate(updatedProgrammeSchema), editWorkshop);
+eventRouter.post('/programmes', validate(baseProgrammeSchema), addProgramme);
+eventRouter.delete('/programmes/:id', deleteProgramme);
+eventRouter.put('/programmes/:id', validate(updatedProgrammeSchema), editProgramme);
 
 export default eventRouter;

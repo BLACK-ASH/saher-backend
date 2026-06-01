@@ -38,7 +38,7 @@ export const editProgramme = async (req: Request, res: Response) => {
 };
 
 //Soft delete a programme
-export const deleteProgram = async (req: Request, res: Response) => {
+export const deleteProgramme = async (req: Request, res: Response) => {
   const programme = await Programme.findOne({
     _id: req.params.id,
     isDeleted: false,
