@@ -33,12 +33,16 @@ import { validate } from '../libs/middleware/validate-zod-schema.js';
 const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
-eventRouter.post('/workshops', validate(createWorkshopSchema), addWorkshop);
-eventRouter.delete('/workshops/:id', deleteWorkshop);
-eventRouter.put('/workshops/:id', validate(updatedWorkshopSchema), editWorkshop);
+eventRouter.post('/programmes/:programmeId/workshops', validate(createWorkshopSchema), addWorkshop);
+eventRouter.delete('/programmes/:programmeId/workshops/:id', deleteWorkshop);
+eventRouter.put(
+  '/programmes/:programmeId/workshops/:id',
+  validate(updatedWorkshopSchema),
+  editWorkshop,
+);
 
 // Session route ----------------------------------------------------------------------
-eventRouter.post('/:workshopId/sessions', validate(createSessionSchema), addSession);
+eventRouter.post('/workshops/:workshopId/sessions', validate(createSessionSchema), addSession);
 eventRouter.delete('/sessions/:id', deleteSession);
 eventRouter.put('/sessions/:id', validate(updatedSessionSchema), editSession);
 

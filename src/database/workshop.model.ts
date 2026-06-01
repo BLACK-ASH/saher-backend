@@ -12,6 +12,12 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
+    programmeId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Programme',
+      required: true,
+    },
+
     participants: {
       type: [Schema.Types.ObjectId],
       ref: 'Participant',
