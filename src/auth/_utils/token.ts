@@ -3,22 +3,23 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import type { SessionMeta } from './session-meta.js';
+import type { UserRole } from '../../database/user.model.js';
 import { client } from '../../libs/redis/redis-client.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
 // Request User Type
 export type ReqUser = {
   id: string;
   name: string;
-  role: 'user' | 'manager' | 'admin';
+  role: UserRole;
   email: string;
 };
 
 export type SessionT = {
   user: ReqUser;
   refreshTokenHash: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
   meta: SessionMeta;
 };
 
@@ -60,36 +61,98 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
 };
 
 // Refresh All Token
+// export const renewToken = async (sessionId: string, refreshToken: string) => {
+//   const newRefreshToken = generateRefreshToken();
+//
+//   const session = await getCache<SessionT>(createKey('session', sessionId));
+//
+//   if (!session) return null;
+//
+//   await setCache(
+//     createKey('session', sessionId),
+//     {
+//       ...session,
+//       refreshTokenHash: hash(newRefreshToken),
+//       updatedAt: Date.now(),
+//     },
+//     60 * 60 * 24 * 60, // 60 days
+//   );
+//
+//   const isValid = session.refreshTokenHash === hash(refreshToken);
+//
+//   if (!isValid) {
+//     await client.del(createKey('session', sessionId));
+//     return null;
+//   }
+//   // Generate Access Token
+//   const accessToken = jwt.sign(session?.user, process.env.JWT_ACCESS_SECRET!, {
+//     algorithm: 'HS384',
+//     expiresIn: '15m',
+//   });
+//
+//   return { accessToken, refreshToken: newRefreshToken, user: session.user };
+// };
+
 export const renewToken = async (sessionId: string, refreshToken: string) => {
-  const newRefreshToken = generateRefreshToken();
+  const sessionKey = createKey('session', sessionId);
 
-  const session = await getCache<SessionT>(createKey('session', sessionId));
+  const lockKey = createKey('refresh_lock', sessionId);
 
-  if (!session) return null;
-
-  await setCache(
-    createKey('session', sessionId),
-    {
-      ...session,
-      refreshTokenHash: hash(newRefreshToken),
-      updatedAt: Date.now(),
-    },
-    60 * 60 * 24 * 60, // 60 days
-  );
-
-  const isValid = session.refreshTokenHash === hash(refreshToken);
-
-  if (!isValid) {
-    await client.del(createKey('session', sessionId));
-    return null;
-  }
-  // Generate Access Token
-  const accessToken = jwt.sign(session?.user, process.env.JWT_ACCESS_SECRET!, {
-    algorithm: 'HS384',
-    expiresIn: '15m',
+  // acquire lock
+  const lock = await client.set(lockKey, '1', {
+    NX: true,
+    EX: 5,
   });
 
-  return { accessToken, refreshToken: newRefreshToken, user: session.user };
+  // another request refreshing
+  if (!lock) {
+    return {
+      type: 'LOCKED',
+    } as const;
+  }
+
+  try {
+    const session = await getCache<SessionT>(sessionKey);
+
+    if (!session) {
+      return null;
+    }
+
+    const isValid = session.refreshTokenHash === hash(refreshToken);
+
+    if (!isValid) {
+      await deleteCache(sessionKey);
+      await client.sRem(createKey('user_session', session.user.id), sessionId);
+      return null;
+    }
+
+    // rotate refresh token
+    const newRefreshToken = generateRefreshToken();
+
+    await setCache(
+      sessionKey,
+      {
+        ...session,
+        refreshTokenHash: hash(newRefreshToken),
+        updatedAt: Date.now(),
+      },
+      60 * 60 * 24 * 60,
+    );
+
+    const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
+      algorithm: 'HS384',
+      expiresIn: '15m',
+    });
+
+    return {
+      type: 'SUCCESS',
+      accessToken,
+      refreshToken: newRefreshToken,
+      user: session.user,
+    } as const;
+  } finally {
+    await deleteCache(lockKey);
+  }
 };
 
 // To Verify Access Token
@@ -110,7 +173,7 @@ export const verifyRefreshToken = async (sessionId: string, refreshToken: string
   const isValid = session.refreshTokenHash === hash(refreshToken);
 
   if (!isValid) {
-    await client.del(createKey('session', sessionId));
+    await deleteCache(createKey('session', sessionId));
     return null;
   }
 
