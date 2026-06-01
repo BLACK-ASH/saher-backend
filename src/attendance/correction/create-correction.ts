@@ -61,10 +61,10 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
   });
 
   await deleteCacheGroup('attendance', 'correction');
-  const notificationTitle = 'Receieved New Attendance Correction request';
-  const notificationDesc = `A new Attendance Correction Request for the date ${attendance.date} has been submitted `;
-  await notificationService.role.success('admin', notificationTitle, notificationDesc);
-  await notificationService.role.success('manager', notificationTitle, notificationDesc);
+  // const notificationTitle = 'Receieved New Attendance Correction request';
+  // const notificationDesc = `A new Attendance Correction Request for the date ${attendance.date} has been submitted `;
+  // await notificationService.role.success('admin', notificationTitle, notificationDesc);
+  // await notificationService.role.success('manager', notificationTitle, notificationDesc);
   return ApiResponse.success(res, {
     message: 'Attendance Correction Request Successful.',
     data: request,
