@@ -67,16 +67,8 @@ eventRouter.delete(
 );
 
 //Programme routes ----------------------------------------------------------------------------------------------
-eventRouter.post(
-  '/programmes/:programmeId/workshops/:workshopId',
-  validate(baseProgrammeSchema),
-  addWorkshop,
-);
-eventRouter.delete('/programmes/:programmeId/workshops/:workshopId', deleteWorkshop);
-eventRouter.put(
-  '/programmes/:programmeId/workshops/:workshopId',
-  validate(updatedProgrammeSchema),
-  editWorkshop,
-);
+eventRouter.post('/programmes', validate(baseProgrammeSchema), addWorkshop);
+eventRouter.delete('/programmes/:id', deleteWorkshop);
+eventRouter.put('/programmes/:id', validate(updatedProgrammeSchema), editWorkshop);
 
 export default eventRouter;
