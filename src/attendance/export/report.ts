@@ -7,6 +7,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { DateRange } from '../../libs/class/date-range.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { notification } from '../../libs/utils/notification.js';
 
 export const attendanceReportQueue = new Queue('pdf-attendance-report', {
   connection: {
@@ -99,6 +100,26 @@ export const exportReportController = async (req: Request, res: Response) => {
     if (!data.state || data.state !== 'completed') {
       return ApiResponse.success(res, {
         message: 'request is processing',
+      });
+    }
+
+    if (job) {
+      const action = {
+        type: 'download' as const,
+        label: 'Report',
+        url: data.result.downloadPath,
+        method: 'GET' as const,
+      };
+
+      await notification.specific.info(
+        [job.data.user],
+        `attendance report generated, type - ${job.data.type} `,
+        `attendance report from ${dateRange.startDateString} - ${dateRange.endDateString}`,
+        action,
+      );
+
+      return ApiResponse.success(res, {
+        message: 'request is already process, please check notifications',
       });
     }
 
