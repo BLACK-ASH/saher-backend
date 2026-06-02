@@ -12,6 +12,7 @@ export const userSchemaFinal = userSchema
     image: imageType,
     displayName: z.string(),
     emailVerified: z.boolean(),
+    pushNotificationsEnabled: z.boolean().default(false),
     isActive: z.boolean(),
     isBanned: z.boolean(),
     deletedAt: z.date().optional(),
