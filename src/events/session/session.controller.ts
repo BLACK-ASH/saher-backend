@@ -59,3 +59,45 @@ export const deleteSession = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+
+//Undo delete (only works if the session is soft-deleted)
+export const undoDeleteSession = async (req: Request, res: Response) => {
+  const session = await Session.findOne({
+    _id: req.params.id,
+    isDeleted: true,
+  });
+
+  if (!session) {
+    throw new ApiError(404, 'Deleted Session not found');
+  }
+
+  session.isDeleted = false;
+
+  await session.save();
+
+  return ApiResponse.success(res, {
+    message: 'Session has been restored successfully',
+    data: session,
+    statusCode: 200,
+  });
+};
+
+//Permanent Deletion of programme
+export const permanentDeleteSession = async (req: Request, res: Response) => {
+  const session = await Session.findOne({
+    _id: req.params.id,
+    isDeleted: true,
+  });
+
+  if (!session) {
+    throw new ApiError(404, 'Session must be soft deleted before permanent deletion');
+  }
+
+  await Session.findByIdAndDelete(req.params.id);
+
+  return ApiResponse.success(res, {
+    message: 'Session has been permanently deleted',
+    data: null,
+    statusCode: 200,
+  });
+};

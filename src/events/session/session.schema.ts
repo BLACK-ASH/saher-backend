@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import z, { date } from 'zod';
 
+import DOMPurify from '../../libs/dompurify/dompurify.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 
 export const objectId = z
@@ -21,7 +22,13 @@ const dateField = z
 
 export const baseSchema = z.object({
   title: z.string().min(3),
-  description: z.string().min(5).max(500),
+
+  description: z
+    .string()
+    .min(5)
+    .max(500)
+    .transform((value) => DOMPurify.sanitize(value)),
+
   date: z.string(),
   startTime: dateField,
   endTime: dateField,

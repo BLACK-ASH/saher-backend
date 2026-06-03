@@ -18,7 +18,13 @@ import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
 import { removeAttendance } from './session/session-remove-attendance.controller.js';
 import { updateAttendance } from './session/session-update-attendance.controller.js';
-import { addSession, deleteSession, editSession } from './session/session.controller.js';
+import {
+  addSession,
+  deleteSession,
+  editSession,
+  permanentDeleteSession,
+  undoDeleteSession,
+} from './session/session.controller.js';
 import { createSessionSchema, updatedSessionSchema } from './session/session.schema.js';
 import {
   addParticipantToWorkshop,
@@ -54,7 +60,9 @@ eventRouter.patch('/programmes/:programmeId/workshops/:id/restore', undoDeleteWo
 // Session route ----------------------------------------------------------------------
 eventRouter.post('/workshops/:workshopId/sessions', validate(createSessionSchema), addSession);
 eventRouter.delete('/sessions/:id', deleteSession);
+eventRouter.delete('/sessions/:id/permanent', permanentDeleteSession);
 eventRouter.put('/sessions/:id', validate(updatedSessionSchema), editSession);
+eventRouter.patch('/sessions/:id/restore', undoDeleteSession);
 
 // Particiapnt route ------------------------------------------------------------------------
 eventRouter.post('/participants', validate(participantSchema), addParticipant);

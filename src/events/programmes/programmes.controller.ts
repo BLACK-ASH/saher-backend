@@ -57,7 +57,7 @@ export const deleteProgramme = async (req: Request, res: Response) => {
   });
 };
 
-//Undo delete (only works if the programme is softdeleted)
+//Undo delete (only works if the programme is soft-deleted)
 export const undoDeleteProgramme = async (req: Request, res: Response) => {
   const programme = await Programme.findOne({
     _id: req.params.id,
