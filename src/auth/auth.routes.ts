@@ -13,7 +13,7 @@ import { loginController } from './login/login.controller.js';
 import { LoginInputSchema } from './login/login.schema.js';
 import { logoutController } from './logout/logout.controller.js';
 import { meController } from './me/me.controller.js';
-import { revalidateController } from './revalidate/revalidate.controller.js';
+import { refreshController } from './refresh/refresh.controller.js';
 import {
   getAllSessionController,
   logoutAllSessionsController,
@@ -27,7 +27,7 @@ const authRouter = Router();
 
 authRouter.post('/login', validate(LoginInputSchema), loginController);
 authRouter.post('/logout', protectedRoute, logoutController);
-authRouter.post('/revalidate-token', protectedRoute, revalidateController);
+authRouter.post('/refresh-token', refreshController);
 authRouter.get('/me', protectedRoute, meController);
 
 // Session
