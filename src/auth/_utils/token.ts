@@ -21,6 +21,9 @@ export type SessionT = {
   createdAt: number;
   updatedAt: number;
   meta: SessionMeta;
+
+  previousRefreshTokenHash?: string;
+  previousRefreshTokenExpiresAt?: number;
 };
 
 // Reusable Hash Function
@@ -96,63 +99,50 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
 export const renewToken = async (sessionId: string, refreshToken: string) => {
   const sessionKey = createKey('session', sessionId);
 
-  const lockKey = createKey('refresh_lock', sessionId);
+  const session = await getCache<SessionT>(sessionKey);
 
-  // acquire lock
-  const lock = await client.set(lockKey, '1', {
-    NX: true,
-    EX: 5,
+  if (!session) return null;
+
+  const incomingHash = hash(refreshToken);
+
+  const isValid =
+    incomingHash === session.refreshTokenHash ||
+    (incomingHash === session.previousRefreshTokenHash &&
+      Date.now() < (session.previousRefreshTokenExpiresAt ?? 0));
+
+  if (!isValid) {
+    await deleteCache(sessionKey);
+    await client.sRem(createKey('user_session', session.user.id), sessionId);
+
+    return null;
+  }
+
+  const newRefreshToken = generateRefreshToken();
+
+  const updatedSession: SessionT = {
+    ...session,
+
+    previousRefreshTokenHash: session.refreshTokenHash,
+    previousRefreshTokenExpiresAt: Date.now() + 15000,
+
+    refreshTokenHash: hash(newRefreshToken),
+
+    updatedAt: Date.now(),
+  };
+
+  await setCache(sessionKey, updatedSession, 60 * 60 * 24 * 60);
+
+  const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
+    algorithm: 'HS384',
+    expiresIn: '15m',
   });
 
-  // another request refreshing
-  if (!lock) {
-    return {
-      type: 'LOCKED',
-    } as const;
-  }
-
-  try {
-    const session = await getCache<SessionT>(sessionKey);
-
-    if (!session) {
-      return null;
-    }
-
-    const isValid = session.refreshTokenHash === hash(refreshToken);
-
-    if (!isValid) {
-      await deleteCache(sessionKey);
-      await client.sRem(createKey('user_session', session.user.id), sessionId);
-      return null;
-    }
-
-    // rotate refresh token
-    const newRefreshToken = generateRefreshToken();
-
-    await setCache(
-      sessionKey,
-      {
-        ...session,
-        refreshTokenHash: hash(newRefreshToken),
-        updatedAt: Date.now(),
-      },
-      60 * 60 * 24 * 60,
-    );
-
-    const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
-      algorithm: 'HS384',
-      expiresIn: '15m',
-    });
-
-    return {
-      type: 'SUCCESS',
-      accessToken,
-      refreshToken: newRefreshToken,
-      user: session.user,
-    } as const;
-  } finally {
-    await deleteCache(lockKey);
-  }
+  return {
+    type: 'SUCCESS',
+    accessToken,
+    refreshToken: newRefreshToken,
+    user: session.user,
+  } as const;
 };
 
 // To Verify Access Token
