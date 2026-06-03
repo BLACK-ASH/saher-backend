@@ -73,3 +73,45 @@ export const deleteWorkshop = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+
+//Undo delete (only works if the workshop is softdeleted)
+export const undoDeleteWorkshop = async (req: Request, res: Response) => {
+  const workshop = await Workshop.findOne({
+    _id: req.params.id,
+    isDeleted: true,
+  });
+
+  if (!workshop) {
+    throw new ApiError(404, 'Deleted Workshop not found');
+  }
+
+  workshop.isDeleted = false;
+
+  await workshop.save();
+
+  return ApiResponse.success(res, {
+    message: 'Workshop has been restored successfully',
+    data: workshop,
+    statusCode: 200,
+  });
+};
+
+//Permanent Deletion of workshop
+export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
+  const workshop = await Workshop.findOne({
+    _id: req.params.id,
+    isDeleted: true,
+  });
+
+  if (!workshop) {
+    throw new ApiError(404, 'Workshop must be soft deleted before permanent deletion');
+  }
+
+  await Workshop.findByIdAndDelete(req.params.id);
+
+  return ApiResponse.success(res, {
+    message: 'Workshop has been permanently deleted',
+    data: null,
+    statusCode: 200,
+  });
+};

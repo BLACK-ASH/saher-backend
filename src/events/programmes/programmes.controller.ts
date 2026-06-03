@@ -73,7 +73,7 @@ export const undoDeleteProgramme = async (req: Request, res: Response) => {
   await programme.save();
 
   return ApiResponse.success(res, {
-    message: 'Programme restored successfully',
+    message: 'Programme has been restored successfully',
     data: programme,
     statusCode: 200,
   });
@@ -93,7 +93,7 @@ export const permanentDeleteProgramme = async (req: Request, res: Response) => {
   await Programme.findByIdAndDelete(req.params.id);
 
   return ApiResponse.success(res, {
-    message: 'Programme permanently deleted',
+    message: 'Programme has been permanently deleted',
     data: null,
     statusCode: 200,
   });

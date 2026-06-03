@@ -24,7 +24,13 @@ import {
   addParticipantToWorkshop,
   removeParticipantFromWorkshop,
 } from './workshop/workshop-participant.controller.js';
-import { addWorkshop, deleteWorkshop, editWorkshop } from './workshop/workshop.controller.js';
+import {
+  addWorkshop,
+  deleteWorkshop,
+  editWorkshop,
+  permanentDeleteWorkshop,
+  undoDeleteWorkshop,
+} from './workshop/workshop.controller.js';
 import {
   baseWorkshopSchema,
   createWorkshopSchema,
@@ -37,11 +43,13 @@ const eventRouter = Router();
 // Workshop route ---------------------------------------------------------------------
 eventRouter.post('/programmes/:programmeId/workshops', validate(createWorkshopSchema), addWorkshop);
 eventRouter.delete('/programmes/:programmeId/workshops/:id', deleteWorkshop);
+eventRouter.delete('/programmes/:programmeId/workshops/:id/permanent', permanentDeleteWorkshop);
 eventRouter.put(
   '/programmes/:programmeId/workshops/:id',
   validate(updatedWorkshopSchema),
   editWorkshop,
 );
+eventRouter.patch('/programmes/:programmeId/workshops/:id/restore', undoDeleteWorkshop);
 
 // Session route ----------------------------------------------------------------------
 eventRouter.post('/workshops/:workshopId/sessions', validate(createSessionSchema), addSession);
