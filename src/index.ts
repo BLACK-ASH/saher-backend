@@ -2,7 +2,7 @@ import path from 'path';
 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import express from 'express';
 
 import adminRouter from './admin/admin.routes.js';
@@ -27,7 +27,7 @@ import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
 
 // Env Config
-dotenv.config();
+// dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;

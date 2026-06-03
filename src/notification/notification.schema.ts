@@ -1,27 +1,32 @@
-import z from 'zod';
+import { z } from 'zod';
 
-import { notificationScope, notificationTypes } from '../database/notification.model.js';
-import type { NotificationType } from '../libs/utils/system-notification.js';
+import type { notificationActionTypes } from '../database/notification.model.js';
+import {
+  notificationMethod,
+  notificationScope,
+  notificationTypes,
+} from '../database/notification.model.js';
+import type { NotificationType } from '../libs/class/notification.js';
 
-const BaseNotificationSchema = z.object({
+const baseNotificationSchema = z.object({
   user: z.array(z.string()).optional(),
   type: z.enum(notificationTypes),
   title: z.string().min(1).max(100),
-  description: z.string().min(1).max(1000),
+  description: z.string().min(1).max(500),
   scope: z.enum(notificationScope),
   action: z
     .object({
       type: z.enum(['download', 'navigate', 'external', 'none']),
-      label: z.string().optional(),
-      url: z.string().optional(),
-      method: z.enum(['GET', 'POST']).optional(),
+      label: z.string(),
+      url: z.string(),
+      method: z.enum(notificationMethod).default('GET'),
     })
     .optional(),
 });
 
-export const SendNotificationSchema = BaseNotificationSchema.superRefine((schema, obj) => {
-  if (schema.scope === 'specific' && !schema.user) {
-    obj.addIssue({
+export const sendNotificationSchema = baseNotificationSchema.superRefine((data, ctx) => {
+  if (data.scope === 'specific' && !data.user) {
+    ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: 'user is required when the scope is choosen as specific',
       path: ['user'],
@@ -29,9 +34,9 @@ export const SendNotificationSchema = BaseNotificationSchema.superRefine((schema
   }
 });
 
-export type SendNotificationT = z.infer<typeof SendNotificationSchema>;
+export type SendNotificationT = z.infer<typeof sendNotificationSchema>;
 
-export const notificationResponseSchema = z
+export const _notificationResponseSchema = z
   .object({
     id: z.string(),
     user: z.string().optional().nullable(),
@@ -44,9 +49,9 @@ export const notificationResponseSchema = z
     action: z
       .object({
         type: z.enum(['download', 'navigate', 'external', 'none']),
-        label: z.string().optional(),
-        url: z.string().optional(),
-        method: z.enum(['GET', 'POST']).optional(),
+        label: z.string().default('none'),
+        url: z.string().default('none'),
+        method: z.enum(notificationMethod).default('GET'),
       })
       .optional(),
     isSeen: z.boolean().optional().nullable(),
@@ -57,11 +62,22 @@ export const notificationResponseSchema = z
   })
   .strip();
 
+export const notificationResponseSchema = baseNotificationSchema
+  .omit({ scope: true, user: true })
+  .extend({
+    id: z.string(),
+    user: z.string(),
+    isSeen: z.boolean(),
+    seenAt: z.string().optional().nullable(),
+    createdAt: z.string(),
+    expiresAt: z.string(),
+  })
+  .readonly();
+
 export const notificationResponseListSchema = z.array(notificationResponseSchema);
 
-export type NotificationResponseListT = z.infer<typeof notificationResponseListSchema>;
-
 export type NotificationResponseT = z.infer<typeof notificationResponseSchema>;
+export type NotificationResponseListT = NotificationResponseT[];
 
 export type RoleScope = 'admin' | 'manager' | 'user' | 'intern';
 
@@ -94,10 +110,10 @@ type SpecificPayload = {
 };
 
 export type NotificationAction = {
-  type: 'download' | 'navigate' | 'external' | 'none';
-  label?: string;
-  url?: string;
-  method?: 'GET' | 'POST';
+  type: (typeof notificationActionTypes)[number];
+  label: string;
+  url: string;
+  method: (typeof notificationMethod)[number];
 };
 
 export type NotificationPayload = GlobalPayload | RolePayload | SpecificPayload;

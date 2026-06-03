@@ -8,6 +8,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { changePasswordTemplate } from '../../libs/mail/templates/change-password.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { notification } from '../../libs/utils/notification.js';
 import { hashPassword } from '../../libs/utils/password-hash.js';
 
 export const changePasswordRequestController = async (req: Request, res: Response) => {
@@ -54,6 +55,12 @@ export const changePasswordController = async (req: Request, res: Response) => {
 
   await deleteCache(key);
   await deleteCache(userKey);
+
+  await notification.specific.info(
+    [user.id],
+    'password change',
+    'password change verification mail is send to your Registered email',
+  );
 
   return ApiResponse.success(res, {
     message: 'Password Change Successful.',

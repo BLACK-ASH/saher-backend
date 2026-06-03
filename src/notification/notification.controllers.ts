@@ -5,10 +5,11 @@ import { notificationResponseListSchema } from './notification.schema.js';
 import { Notification } from '../database/notification.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import type { NotificationType } from '../libs/class/notification.js';
 import { createKey, getCache, setCache } from '../libs/redis/redis-utils.js';
+import { markSeenNotification } from '../libs/utils/mark-seen.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
-import type { NotificationType } from '../libs/utils/system-notification.js';
-import { markSeenNotification, NotificationService } from '../libs/utils/system-notification.js';
+import { notification } from '../libs/utils/notification.js';
 
 export const createNotificationController = async (req: Request, res: Response) => {
   const {
@@ -27,24 +28,30 @@ export const createNotificationController = async (req: Request, res: Response) 
     action: NotificationAction;
   } = req.body;
 
-  let result;
-
   switch (scope) {
     case 'global':
-      result = await NotificationService.global[type](title, description, action);
+      await notification.global[type](title, description, action);
       break;
 
     case 'admin':
+      await notification.role[type](scope, title, description, action);
+      break;
+
     case 'manager':
+      await notification.role[type](scope, title, description, action);
+      break;
+
     case 'user':
+      await notification.role[type](scope, title, description, action);
+      break;
+
     case 'intern':
-      result = await NotificationService.role[type](scope, title, description, action);
+      await notification.role[type](scope, title, description, action);
       break;
 
     case 'specific':
       if (!user) throw new ApiError(400, 'User is required');
-
-      result = await NotificationService.specific[type](user, title, description, action);
+      await notification.specific[type](user, title, description, action);
       break;
 
     default:
@@ -82,7 +89,7 @@ export const getAllNotificationsController = async (req: Request, res: Response)
   if (notifications.length === 0) {
     return ApiResponse.success(res, {
       message: 'You have no notification',
-      data: null,
+      data: [],
       statusCode: 200,
     });
   }
@@ -115,25 +122,17 @@ export const markSeenNotificationController = async (req: Request, res: Response
   });
 };
 
-export const getUnseenNotificationCount = async (req: Request, res: Response) => {
+export const getUnseenNotification = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
-  const unseenNotificationCount = await Notification.countDocuments({
-    scope: 'specific',
+  const unseenNotification = await Notification.find({
     user: userId,
     isSeen: false,
-  }).lean();
+  });
 
-  if (unseenNotificationCount === 0) {
-    return ApiResponse.success(res, {
-      message: 'you have no  new notification',
-      data: null,
-      meta: { count: 0 },
-    });
-  }
   return ApiResponse.success(res, {
     message: 'You have new Notification ',
-    data: null,
-    meta: { count: unseenNotificationCount },
+    data: unseenNotification,
+    meta: { count: unseenNotification.length },
   });
 };
