@@ -10,6 +10,8 @@ import {
   addProgramme,
   editProgramme,
   deleteProgramme,
+  permanentDeleteProgramme,
+  undoDeleteProgramme,
 } from './programmes/programmes.controller.js';
 import { baseProgrammeSchema, updatedProgrammeSchema } from './programmes/programmes.schema.js';
 import { markAttendance } from './session/session-attendance.controller.js';
@@ -78,6 +80,7 @@ eventRouter.delete(
 //Programme routes ----------------------------------------------------------------------------------------------
 eventRouter.post('/programmes', validate(baseProgrammeSchema), addProgramme);
 eventRouter.delete('/programmes/:id', deleteProgramme);
+eventRouter.delete('/programmes/:id/permanent', permanentDeleteProgramme);
 eventRouter.put('/programmes/:id', validate(updatedProgrammeSchema), editProgramme);
-
+eventRouter.patch('/programmes/:id/restore', undoDeleteProgramme);
 export default eventRouter;
