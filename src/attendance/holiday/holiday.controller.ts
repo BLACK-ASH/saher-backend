@@ -12,7 +12,7 @@ export const addHolidayController = async (req: Request, res: Response) => {
   const { date, title, type } = req.body;
 
   const existingRecord = await Holiday.find({ date: date, type: type });
-  if (existingRecord)
+  if (existingRecord.length > 0)
     throw new ApiError(
       400,
       'A holiday for the same date with the same type has already been created ',
@@ -25,7 +25,7 @@ export const addHolidayController = async (req: Request, res: Response) => {
   });
   if (!holiday) throw new ApiError(400, 'Holiday record Creation Failed.');
 
-  const month = new Date(date).getMonth() + 1;
+  const month = new Date(date).getMonth();
   const year = new Date(date).getFullYear();
   const key = createKey('calendar', year, month);
   // console.log("Holiday key " , key);

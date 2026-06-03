@@ -1,3 +1,5 @@
+import { google } from 'googleapis';
+
 import { normalizeDoc } from './normailize-doc.js';
 import { Holiday } from '../../database/holiday.model.js';
 
@@ -25,7 +27,9 @@ export const getCalendarHoliday = async (year: number, month: number) => {
       $set: {
         details: {
           date: '$date',
-          type: '$type',
+          type: {
+            $cond: [{ $eq: ['$type', 'google'] }, 'public-holiday', '$type'],
+          },
           title: '$title',
         },
       },
@@ -94,6 +98,23 @@ export const getCalendarHoliday = async (year: number, month: number) => {
   return normalized;
 };
 
+const calendarClient = google.calendar({
+  version: 'v3',
+  auth: process.env.GOOGLE_API_KEY,
+});
+
+export const fetchGoogleHolidays = async (year: number) => {
+  const response = await calendarClient.events.list({
+    calendarId: 'en.indian#holiday@group.v.calendar.google.com',
+    timeMin: `${year}-01-01T00:00:00Z`,
+    timeMax: `${year}-12-31T23:59:59Z`,
+    singleEvents: true,
+    orderBy: 'startTime',
+    maxResults: 200,
+  });
+
+  return response.data.items ?? [];
+};
 // ---------------------Logic to calculate isFullDay in Events
 // {
 //     $set: {

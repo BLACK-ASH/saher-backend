@@ -16,6 +16,7 @@ export const event = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string().optional(),
+  date: z.string(),
   type: z.enum(eventType),
   start: z.coerce.date(),
   end: z.coerce.date(),
