@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 
-import { calendarObject } from './calendar.schema.js';
+import { event } from './calendar.schema.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { createKey, getCache, setCache } from '../libs/redis/redis-utils.js';
 import { getCalendarHoliday } from '../libs/utils/calendar.js';
@@ -13,7 +13,7 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
   const key = createKey('calendar', year, month + 1);
   const cachedData = await getCache(key);
   if (cachedData) {
-    const parsed = z.array(calendarObject).parse(cachedData);
+    const parsed = z.array(event).parse(cachedData);
 
     return ApiResponse.success(res, {
       message: 'the data from Cache  ',

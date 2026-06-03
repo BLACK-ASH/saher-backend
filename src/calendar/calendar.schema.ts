@@ -1,4 +1,4 @@
-import z from 'zod';
+import z, { any } from 'zod';
 
 import { holidayTypes } from '../database/holiday.model.js';
 
@@ -17,16 +17,16 @@ export const event = z.object({
   title: z.string(),
   description: z.string().optional(),
   type: z.enum(eventType),
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date(),
+  start: z.coerce.date(),
+  end: z.coerce.date(),
   details: z.object({ date: z.coerce.date(), title: z.string(), type: z.enum(holidayTypes) }),
+  allDay: z.boolean(),
+  extendedProps: z.any().nullable().optional(),
 });
 
-export const calendarObject = z.object({
-  date: z.string().nullable(),
-  day: z.enum(daysOfTheWeek).nullable(),
-  events: z.array(event),
-});
+// export const calendarObject = z.object({
+//   events: z.array(event),
+// });
 
 export type CalendarObjectT = {
   date: string | null;

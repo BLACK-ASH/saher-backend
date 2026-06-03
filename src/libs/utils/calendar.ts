@@ -1,9 +1,4 @@
-import z from 'zod';
-
 import { normalizeDoc } from './normailize-doc.js';
-import { standardDateString } from './standard-date.js';
-import type { CalendarObjectT } from '../../calendar/calendar.schema.js';
-import { event } from '../../calendar/calendar.schema.js';
 import { Holiday } from '../../database/holiday.model.js';
 
 export const calculateNumberOfDays = (year: number, monthIndex: number) => {
@@ -13,19 +8,6 @@ export const calculateNumberOfDays = (year: number, monthIndex: number) => {
 
 export const getCalendarHoliday = async (year: number, month: number) => {
   const numberOfDays = calculateNumberOfDays(year, month);
-
-  const calendar: CalendarObjectT[] = Array.from({ length: numberOfDays }, (_, index) => {
-    const date = new Date(year, month, index + 1);
-    // const stringDate = standardDateString(date)
-
-    return {
-      date: standardDateString(date),
-      day: date.toLocaleDateString('en-CA', {
-        weekday: 'long',
-      }),
-      events: [],
-    };
-  });
 
   const startOfMonth = new Date(year, month, 1);
   const endOfMonth = new Date(year, month, numberOfDays + 1);
@@ -55,7 +37,7 @@ export const getCalendarHoliday = async (year: number, month: number) => {
     },
     {
       $set: {
-        startDate: {
+        start: {
           $dateFromParts: {
             year: { $year: '$date' },
             month: { $month: '$date' },
@@ -65,7 +47,7 @@ export const getCalendarHoliday = async (year: number, month: number) => {
             second: 0,
           },
         },
-        endDate: {
+        end: {
           $dateFromParts: {
             year: { $year: '$date' },
             month: { $month: '$date' },
@@ -83,54 +65,46 @@ export const getCalendarHoliday = async (year: number, month: number) => {
       },
     },
     {
+      $set: {
+        allDay: true,
+      },
+    },
+    {
+      $set: {
+        extendedProps: null,
+      },
+    },
+    {
       $project: {
         _id: 1,
         title: 1,
         type: 1,
         date: 1,
-        startDate: 1,
-        endDate: 1,
+        allDay: 1,
+        start: 1,
+        end: 1,
         details: 1,
+        extendedProps: 1,
       },
     },
   ]);
+
   const normalized = normalizeDoc(data);
-  // console.log(normalized);
 
-  const dataParsed = z.array(event).parse(normalized);
-
-  dataParsed.forEach((event) => {
-    const dayIndex = event.startDate.getDate() - 1;
-
-    calendar[dayIndex].events.push(event);
-  });
-
-  const emptyRecordsMenu = new Map([
-    ['Sunday', 0],
-    ['Monday', 1],
-    ['Tuesday', 2],
-    ['Wednesday', 3],
-    ['Thursday', 4],
-    ['Friday', 5],
-    ['Saturday', 6],
-  ]);
-  const firstDayOfTheMonth = calendar[0].day;
-
-  if (!firstDayOfTheMonth) {
-    throw new Error('Invalid first day');
-  }
-  const numberOfEmptyRecords = emptyRecordsMenu.get(firstDayOfTheMonth);
-
-  const emptyRecords = Array.from({ length: numberOfEmptyRecords ?? 0 }, () => ({
-    date: null,
-    day: null,
-    events: [],
-  }));
-
-  // console.log("empty " ,emptyRecords);
-
-  const finalCalendar = [...emptyRecords, ...calendar];
-  // console.log("final " , finalCalendar);
-
-  return finalCalendar;
+  return normalized;
 };
+
+// ---------------------Logic to calculate isFullDay in Events
+// {
+//     $set: {
+//       isFullDay: {
+//         $cond: {
+//           if: {
+//             $gt: [{$divide: [{ $subtract: ["$endDate", "$startDate"] },3600000]},8]
+//           },
+//           then: true,
+//           else: false
+//         }
+//       }
+//     }
+//   }
