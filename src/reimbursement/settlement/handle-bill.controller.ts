@@ -6,7 +6,8 @@ import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { NotificationService } from '../../libs/utils/system-notification.js';
+import { notificationService } from '../../libs/utils/notification.service.js';
+import { auditLogController } from '../audit-log/create-audit-log.controller.js';
 
 export const handleBillController = async (req: Request, res: Response) => {
   // write a code to handle the bill settlement
@@ -62,6 +63,8 @@ export const handleBillController = async (req: Request, res: Response) => {
       expiredAt,
     });
 
+    await auditLogController(createSettle.id.toString());
+
     const normalized = normalizeDoc(createSettle.toObject());
     data = createSettleSchema.parse(normalized);
     message = 'Settlement bill created successfully';
@@ -70,7 +73,7 @@ export const handleBillController = async (req: Request, res: Response) => {
   const notificationDesc = `bill is of amount ${amount} is created`;
   const notificationTitle = 'New settlement bill created';
 
-  await NotificationService.specific.success(
+  await notificationService.specific.success(
     [bill.user.toString()],
     notificationTitle,
     notificationDesc,

@@ -4,7 +4,7 @@ import { billSchema, userBillCreateSchema } from './schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { NotificationService } from '../../libs/utils/system-notification.js';
+import { notificationService } from '../../libs/utils/notification.service.js';
 
 export const userCreateBill = async (req: Request, res: Response) => {
   // write a code to create a user bill
@@ -30,8 +30,8 @@ export const userCreateBill = async (req: Request, res: Response) => {
   const notificationDesc = `bill is of amount ${amount} is created`;
   const notificationTitle = 'New bill created';
 
-  await NotificationService.role.success('admin', notificationTitle, notificationDesc);
-  await NotificationService.role.success('manager', notificationTitle, notificationDesc);
+  await notificationService.role.success('admin', notificationTitle, notificationDesc);
+  await notificationService.role.success('manager', notificationTitle, notificationDesc);
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',

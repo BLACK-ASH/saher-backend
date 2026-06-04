@@ -2,10 +2,11 @@ import type { Request, Response } from 'express';
 
 import { billSchema, adminBillCreatSchema, adminBillUpdateSchema } from './schema.js';
 import { Bill } from '../../database/bill.model.js';
+import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { NotificationService } from '../../libs/utils/system-notification.js';
+import { notificationService } from '../../libs/utils/notification.service.js';
 
 export const adminCreateBill = async (req: Request, res: Response) => {
   // write a code to create a admin bill
@@ -15,6 +16,9 @@ export const adminCreateBill = async (req: Request, res: Response) => {
   // adn pass the response
 
   const { user, advance, date, description } = req.body;
+
+  const userExist = await User.findById(user);
+  if (!userExist) throw new ApiError(400, 'user not found');
 
   const bill = await Bill.create({
     user,
@@ -29,7 +33,7 @@ export const adminCreateBill = async (req: Request, res: Response) => {
   const notificationDesc = `bill is of amount ${advance} is created`;
   const notificationTitle = 'New bill created';
 
-  await NotificationService.specific.success(user, notificationTitle, notificationDesc);
+  await notificationService.specific.success([user], notificationTitle, notificationDesc);
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',

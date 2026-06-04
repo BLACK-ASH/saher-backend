@@ -1,21 +1,24 @@
 import { Router } from 'express';
-import { getAllBillsController } from './get-bill/get-all-bills.controller.js';
-import { getBillByIdController } from './get-bill/bill-by-id.controller.js';
-import { myBillsController } from './get-bill/my-bills.controller.js';
-import { recycleBillsController } from './get-bill/recycle-bill.controller.js';
-import { authorize } from '../permission/authorize.js';
-import { validate } from '../libs/middleware/validate-zod-schema.js';
-import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
+
+import { createLogSchema } from './audit-log/audit-log.schema.js';
+import { getAuditLogController } from './audit-log/get-audit-log.controller.js';
+import { adminCreateBill, adminSoftDeleteBill, adminUpdateBill } from './bill/admin.controller.js';
 import {
   adminBillCreatSchema,
   adminBillUpdateSchema,
   userBillCreateSchema,
   userBillUpdateSchema,
 } from './bill/schema.js';
-import { adminCreateBill, adminSoftDeleteBill, adminUpdateBill } from './bill/admin.controller.js';
-import { createSettleSchema, handleBillSchema, handleSettleSchema } from './settlement/schema.js';
+import { getBillByIdController } from './get-bill/bill-by-id.controller.js';
+import { getAllBillsController } from './get-bill/get-all-bills.controller.js';
+import { myBillsController } from './get-bill/my-bills.controller.js';
+import { recycleBillsController } from './get-bill/recycle-bill.controller.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
+import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
 import { handleBillController } from './settlement/handle-bill.controller.js';
 import { handleSettlementRequest } from './settlement/handle-settle.controller.js';
+import { createSettleSchema, handleBillSchema, handleSettleSchema } from './settlement/schema.js';
 
 const billRouter = Router();
 
@@ -78,5 +81,8 @@ billRouter.get('/bill/getallbills', authorize('read', 'preReimbursement'), getAl
 
 // Recycle bills
 billRouter.get('/bill/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);
+
+// Audit Log
+billRouter.get('/bill/audit-log', authorize('read', 'preReimbursement'), getAuditLogController);
 
 export default billRouter;
