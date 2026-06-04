@@ -95,8 +95,6 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
     },
   ]);
 
-  const normalized = normalizeDoc(data);
-
   return normalizeDoc(data) as EventT[];
 };
 
@@ -143,9 +141,19 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
     {
       $set: {
         extendedProps: {
-          speaker: '$speaker',
+          speaker: {
+            $map: {
+              input: '$speaker',
+              as: 'sp',
+              in: {
+                $toString: '$$sp',
+              },
+            },
+          },
           participants: '$participants',
-          sessionId: '$_id',
+          sessionId: {
+            $toString: '$_id',
+          },
         },
       },
     },
@@ -154,6 +162,7 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
         _id: 1,
         title: 1,
         type: 1,
+        date: 1,
         start: 1,
         end: 1,
         allDay: 1,

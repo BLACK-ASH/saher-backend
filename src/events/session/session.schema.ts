@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import z, { date } from 'zod';
+import z from 'zod';
 
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 
@@ -12,12 +12,12 @@ export const objectId = z
     return convertToObjectId(e);
   });
 
-const dateField = z
-  .union([z.string().datetime(), z.date()])
-  .transform((val) => new Date(val))
-  .refine((date) => !isNaN(date.getTime()), {
-    message: 'Invalid date',
-  });
+// const dateField = z
+//   .union([z.string().datetime(), z.date()])
+//   .transform((val) => new Date(val))
+//   .refine((date) => !isNaN(date.getTime()), {
+//     message: 'Invalid date',
+//   });
 
 export const baseSchema = z.object({
   title: z.string().min(3),

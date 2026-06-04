@@ -20,7 +20,14 @@ export const event = z.object({
   type: z.enum(eventType),
   start: z.coerce.date(),
   end: z.coerce.date(),
-  details: z.object({ date: z.coerce.date(), title: z.string(), type: z.enum(holidayTypes) }),
+  details: z.object({
+    date: z.coerce.date().optional(),
+    title: z.string().optional(),
+    type: z.enum(holidayTypes).optional(),
+    speaker: z.array(z.string()).optional(),
+    participants: z.array(z.string()).optional(),
+    sessionId: z.string().optional(),
+  }),
   allDay: z.boolean(),
   extendedProps: z.any().nullable().optional(),
 });
