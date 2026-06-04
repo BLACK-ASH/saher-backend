@@ -23,8 +23,8 @@ export const baseSchema = z.object({
   title: z.string().min(3),
   description: z.string().min(5).max(500),
   date: z.string(),
-  startTime: dateField,
-  endTime: dateField,
+  startTime: z.coerce.date(),
+  endTime: z.coerce.date(),
   speaker: z.array(objectId),
 });
 

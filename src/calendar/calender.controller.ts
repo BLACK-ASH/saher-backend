@@ -33,6 +33,7 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
   }
   const holidays = await getCalendarHoliday(year, month);
   const sessions = await getCalendarEvents(year, month);
+
   const result = [...holidays, ...sessions];
   await setCacheWithGroup(key, result, ['calendar'], 7776000);
   // console.log('before resp', result);
