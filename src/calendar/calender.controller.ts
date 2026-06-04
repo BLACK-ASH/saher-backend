@@ -10,7 +10,11 @@ import {
   getCache,
   setCacheWithGroup,
 } from '../libs/redis/redis-utils.js';
-import { fetchGoogleHolidays, getCalendarHoliday } from '../libs/utils/calendar.js';
+import {
+  fetchGoogleHolidays,
+  getCalendarEvents,
+  getCalendarHoliday,
+} from '../libs/utils/calendar.js';
 
 export const getCalendarEventByMonth = async (req: Request, res: Response) => {
   const year = Number(req.params.year);
@@ -27,7 +31,9 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
       statusCode: 200,
     });
   }
-  const result = await getCalendarHoliday(year, month);
+  const holidays = await getCalendarHoliday(year, month);
+  const sessions = await getCalendarEvents(year, month);
+  const result = [...holidays, ...sessions];
   await setCacheWithGroup(key, result, ['calendar'], 7776000);
   // console.log('before resp', result);
   return ApiResponse.success(res, {
