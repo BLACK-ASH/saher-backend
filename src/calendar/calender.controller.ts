@@ -36,10 +36,12 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
 
   const result = [...holidays, ...sessions];
   await setCacheWithGroup(key, result, ['calendar'], 7776000);
+
+  const parsed = z.array(event).parse(result);
   // console.log('before resp', result);
   return ApiResponse.success(res, {
     message: 'the data from DB ',
-    data: result,
+    data: parsed,
     statusCode: 200,
   });
 };

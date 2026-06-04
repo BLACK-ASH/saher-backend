@@ -25,14 +25,22 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
         },
       },
     },
+    // {
+    //   $set: {
+    //     details: {
+    //       date: '$date',
+    //       type: {
+    //         $cond: [{ $eq: ['$type', 'google'] }, 'public-holiday', '$type'],
+    //       },
+    //     },
+    //   },
+    // },
     {
       $set: {
-        details: {
-          date: '$date',
+        extendedProps: {
           type: {
             $cond: [{ $eq: ['$type', 'google'] }, 'public-holiday', '$type'],
           },
-          title: '$title',
         },
       },
     },
@@ -66,18 +74,14 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
       },
     },
     {
-      $sort: {
-        date: 1,
-      },
-    },
-    {
       $set: {
         allDay: true,
       },
     },
+
     {
-      $set: {
-        extendedProps: null,
+      $sort: {
+        start: 1,
       },
     },
     {
@@ -115,6 +119,23 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
     },
     {
       $set: {
+        extendedProps: {
+          speaker: {
+            $map: {
+              input: '$speaker',
+              as: 'sp',
+              in: {
+                $toString: '$$sp',
+              },
+            },
+          },
+          description: '$description',
+          participants: '$participants',
+        },
+      },
+    },
+    {
+      $set: {
         type: 'session',
       },
     },
@@ -129,34 +150,15 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
         allDay: false,
       },
     },
-    {
-      $set: {
-        details: {
-          date: '$date',
-          title: '$title',
-          description: '$description',
-        },
-      },
-    },
-    {
-      $set: {
-        extendedProps: {
-          speaker: {
-            $map: {
-              input: '$speaker',
-              as: 'sp',
-              in: {
-                $toString: '$$sp',
-              },
-            },
-          },
-          participants: '$participants',
-          sessionId: {
-            $toString: '$_id',
-          },
-        },
-      },
-    },
+    // {
+    //   $set: {
+    //     details: {
+
+    //       title: '$title',
+
+    //     },
+    //   },
+    // },
     {
       $project: {
         _id: 1,

@@ -16,20 +16,27 @@ export const event = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string().optional(),
-  date: z.string(),
   type: z.enum(eventType),
   start: z.coerce.date(),
   end: z.coerce.date(),
-  details: z.object({
+  // details: z.object({
+  //   date: z.coerce.date().optional(),
+  //   title: z.string().optional(),
+  //   type: z.enum(holidayTypes).optional(),
+  //   speaker: z.array(z.string()).optional(),
+  //   participants: z.array(z.string()).optional(),
+  //   sessionId: z.string().optional(),
+  // }),
+  allDay: z.boolean(),
+  extendedProps: z.object({
     date: z.coerce.date().optional(),
     title: z.string().optional(),
     type: z.enum(holidayTypes).optional(),
     speaker: z.array(z.string()).optional(),
     participants: z.array(z.string()).optional(),
+    description: z.string().optional(),
     sessionId: z.string().optional(),
   }),
-  allDay: z.boolean(),
-  extendedProps: z.any().nullable().optional(),
 });
 
 // export const calendarObject = z.object({
