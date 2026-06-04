@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 
 import type { SessionMeta } from './session-meta.js';
 import type { UserRole } from '../../database/user.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
 import { client } from '../../libs/redis/redis-client.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
@@ -99,73 +98,51 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
 
 export const renewToken = async (sessionId: string, refreshToken: string) => {
   const sessionKey = createKey('session', sessionId);
-  const lockKey = createKey('refresh_lock', sessionId);
 
-  const lock = await client.set(lockKey, '1', {
-    NX: true,
-    EX: 5,
+  const session = await getCache<SessionT>(sessionKey);
+
+  if (!session) return null;
+
+  const incomingHash = hash(refreshToken);
+
+  const isValid =
+    incomingHash === session.refreshTokenHash ||
+    (incomingHash === session.previousRefreshTokenHash &&
+      Date.now() < (session.previousRefreshTokenExpiresAt ?? 0));
+
+  if (!isValid) {
+    await deleteCache(sessionKey);
+    await client.sRem(createKey('user_session', session.user.id), sessionId);
+
+    return null;
+  }
+
+  const newRefreshToken = generateRefreshToken();
+
+  const updatedSession: SessionT = {
+    ...session,
+
+    previousRefreshTokenHash: session.refreshTokenHash,
+    previousRefreshTokenExpiresAt: Date.now() + 15000,
+
+    refreshTokenHash: hash(newRefreshToken),
+
+    updatedAt: Date.now(),
+  };
+
+  await setCache(sessionKey, updatedSession, 60 * 60 * 24 * 60);
+
+  const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
+    algorithm: 'HS384',
+    expiresIn: '15m',
   });
 
-  if (!lock) {
-    return {
-      type: 'LOCKED',
-    } as const;
-  }
-
-  try {
-    const session = await getCache<SessionT>(sessionKey);
-
-    if (!session) {
-      return null;
-    }
-
-    const incomingHash = hash(refreshToken);
-
-    const isCurrent = incomingHash === session.refreshTokenHash;
-
-    const isPrevious =
-      incomingHash === session.previousRefreshTokenHash &&
-      Date.now() < (session.previousRefreshTokenExpiresAt ?? 0);
-
-    const isValid = isCurrent || isPrevious;
-
-    if (!isValid) {
-      await deleteCache(sessionKey);
-      await client.sRem(createKey('user_session', session.user.id), sessionId);
-
-      throw new ApiError(401, 'Invalid Refresh Token');
-    }
-
-    const newRefreshToken = generateRefreshToken();
-
-    const updatedSession: SessionT = {
-      ...session,
-
-      previousRefreshTokenHash: session.refreshTokenHash,
-
-      previousRefreshTokenExpiresAt: Date.now() + 15_000,
-
-      refreshTokenHash: hash(newRefreshToken),
-
-      updatedAt: Date.now(),
-    };
-
-    await setCache(sessionKey, updatedSession, 60 * 60 * 24 * 60);
-
-    const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
-      algorithm: 'HS384',
-      expiresIn: '15m',
-    });
-
-    return {
-      type: 'SUCCESS',
-      accessToken,
-      refreshToken: newRefreshToken,
-      user: session.user,
-    } as const;
-  } finally {
-    await deleteCache(lockKey);
-  }
+  return {
+    type: 'SUCCESS',
+    accessToken,
+    refreshToken: newRefreshToken,
+    user: session.user,
+  } as const;
 };
 
 // To Verify Access Token
