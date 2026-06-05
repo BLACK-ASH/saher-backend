@@ -9,7 +9,7 @@ import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const addHolidayController = async (req: Request, res: Response) => {
-  const { date, title, type } = req.body;
+  const { date, title, type, description } = req.body;
 
   const existingRecord = await Holiday.find({ date: date, type: type });
   if (existingRecord.length > 0)
@@ -22,6 +22,7 @@ export const addHolidayController = async (req: Request, res: Response) => {
     date: date,
     title: title,
     type: type,
+    description: description,
   });
   if (!holiday) throw new ApiError(400, 'Holiday record Creation Failed.');
 

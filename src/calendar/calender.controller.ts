@@ -71,6 +71,7 @@ export const syncGoogleHolidaysController = async (req: Request, res: Response) 
             title: holiday.summary,
             date: new Date(holiday.start?.date as string),
             type: 'google',
+            description: null,
           },
         },
         upsert: true,

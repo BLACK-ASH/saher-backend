@@ -25,22 +25,16 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
         },
       },
     },
-    // {
-    //   $set: {
-    //     details: {
-    //       date: '$date',
-    //       type: {
-    //         $cond: [{ $eq: ['$type', 'google'] }, 'public-holiday', '$type'],
-    //       },
-    //     },
-    //   },
-    // },
+
     {
       $set: {
-        extendedProps: {
+        details: {
+          id: '$_id',
+          title: '$title',
           type: {
             $cond: [{ $eq: ['$type', 'google'] }, 'public-holiday', '$type'],
           },
+          description: '$description',
         },
       },
     },
@@ -86,15 +80,13 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
     },
     {
       $project: {
-        _id: 1,
-        title: 1,
+        // title: 1,
         type: 1,
         date: 1,
         allDay: 1,
         start: 1,
         end: 1,
         details: 1,
-        extendedProps: 1,
       },
     },
   ]);
@@ -119,18 +111,11 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
     },
     {
       $set: {
-        extendedProps: {
-          speaker: {
-            $map: {
-              input: '$speaker',
-              as: 'sp',
-              in: {
-                $toString: '$$sp',
-              },
-            },
-          },
+        details: {
+          id: '$_id',
+          title: '$title',
+          type: null,
           description: '$description',
-          participants: '$participants',
         },
       },
     },
@@ -150,26 +135,14 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
         allDay: false,
       },
     },
-    // {
-    //   $set: {
-    //     details: {
-
-    //       title: '$title',
-
-    //     },
-    //   },
-    // },
     {
       $project: {
-        _id: 1,
-        title: 1,
         type: 1,
         date: 1,
         start: 1,
         end: 1,
         allDay: 1,
         details: 1,
-        extendedProps: 1,
       },
     },
     {
