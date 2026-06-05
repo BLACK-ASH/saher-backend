@@ -3773,16 +3773,14 @@ packages:
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
 
-<<<<<<< HEAD
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
-=======
+
   web-push@3.6.7:
     resolution: {integrity: sha512-OpiIUe8cuGjrj3mMBFWY+e4MMIkW3SVT+7vEIjvD9kejGUypv8GPDf84JdPWskK8zMRIJ6xYGm+Kxr8YkPyA0A==}
     engines: {node: '>= 16'}
     hasBin: true
->>>>>>> 4c00af4cd6c2cafaa8b0381f0e91a6f7d411165e
 
   webdriver-bidi-protocol@0.4.1:
     resolution: {integrity: sha512-ARrjNjtWRRs2w4Tk7nqrf2gBI0QXWuOmMCx2hU+1jUt6d00MjMxURrhxhGbrsoiZKJrhTSTzbIrc554iKI10qw==}
@@ -7875,11 +7873,10 @@ snapshots:
 
   vscode-uri@3.1.0: {}
 
-<<<<<<< HEAD
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
-=======
+
   web-push@3.6.7:
     dependencies:
       asn1.js: 5.4.1
@@ -7889,7 +7886,6 @@ snapshots:
       minimist: 1.2.8
     transitivePeerDependencies:
       - supports-color
->>>>>>> 4c00af4cd6c2cafaa8b0381f0e91a6f7d411165e
 
   webdriver-bidi-protocol@0.4.1: {}
 
