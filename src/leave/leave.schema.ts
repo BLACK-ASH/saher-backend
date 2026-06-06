@@ -51,4 +51,6 @@ export const leaveTypeSchema = z
     path: ['maxCarryForwardDays'],
     message: 'Max carry forward days cannot exceed allocated days',
   });
+
+export const updateLeaveTypeSchema = leaveTypeSchema.partial();
 export type LeaveSchemaType = z.infer<typeof leaveSchema>;

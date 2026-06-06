@@ -1,10 +1,11 @@
 import type { Request, Response } from 'express';
 
-import type { LeaveSchemaType } from './leave.schema.js';
+import { updateLeaveTypeSchema, type LeaveSchemaType } from './leave.schema.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 
 export const createLeaveTypeController = async (req: Request, res: Response) => {
   if (req.user?.role !== 'admin') {
@@ -49,25 +50,66 @@ export const createLeaveTypeController = async (req: Request, res: Response) => 
   });
 };
 
-export const applyLeaveController = async (req: Request, res: Response) => {
-  const parsedInput = req.body as LeaveSchemaType;
+export const updateLeaveTypeController = async (req: Request, res: Response) => {
+  if (req.user?.role !== 'admin') {
+    throw new ApiError(403, 'Unauthorized');
+  }
 
-  const user = req.user;
+  const { id } = req.params;
 
-  if (new Date(parsedInput.date) < new Date())
-    throw new ApiError(400, 'Cannot Appy For Past Date.');
+  const payload = updateLeaveTypeSchema.parse(req.body);
 
-  const leave = await Leave.create({ user: user?.id, ...parsedInput });
+  const existingLeaveType = await LeaveType.findById(id);
 
-  // return res.status(200).json({
-  //   success: true,
-  //   message: 'Leave applied successfully',
-  //   data: leave,
-  // });
+  if (!existingLeaveType) {
+    throw new ApiError(404, 'Leave Type not found');
+  }
+
+  const updatedLeaveType = await LeaveType.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
 
   return ApiResponse.success(res, {
     statusCode: 200,
-    message: 'Leave applied successfully',
-    data: null,
+    message: `${updatedLeaveType?.name} leave type updated successfully`,
+    data: updatedLeaveType,
   });
 };
+
+export const getAllActiveLeaveTypesController = async (req: Request, res: Response) => {
+  const leaveTypes = await LeaveType.find({
+    isActive: true,
+  }).sort({ createdAt: -1 });
+
+  const normalzied = normalizeDoc(leaveTypes);
+
+  return ApiResponse.success(res, {
+    statusCode: 200,
+    message: 'Leave types fetched successfully',
+    data: normalzied,
+  });
+};
+
+// export const applyLeaveController = async (req: Request, res: Response) => {
+//   const parsedInput = req.body as LeaveSchemaType;
+
+//   const user = req.user;
+
+//   if (new Date(parsedInput.date) < new Date())
+//     throw new ApiError(400, 'Cannot Appy For Past Date.');
+
+//   const leave = await Leave.create({ user: user?.id, ...parsedInput });
+
+//   // return res.status(200).json({
+//   //   success: true,
+//   //   message: 'Leave applied successfully',
+//   //   data: leave,
+//   // });
+
+//   return ApiResponse.success(res, {
+//     statusCode: 200,
+//     message: 'Leave applied successfully',
+//     data: null,
+//   });
+// };
