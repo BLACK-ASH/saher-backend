@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 
-export const holidayTypes = ['national', 'organizational', 'optional', 'other'];
+export const holidayTypes = [
+  'national',
+  'organizational',
+  'optional',
+  'other',
+  'google',
+  'public-holiday',
+];
 
 const holidaySchema = new mongoose.Schema(
   {
@@ -16,6 +23,10 @@ const holidaySchema = new mongoose.Schema(
       type: String,
       enum: holidayTypes,
       default: 'other',
+    },
+    description: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true },

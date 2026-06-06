@@ -8,7 +8,9 @@ import express from 'express';
 import adminRouter from './admin/admin.routes.js';
 import attendanceRouter from './attendance/attendance.route.js';
 import authRouter from './auth/auth.routes.js';
+import { calendarRouter } from './calendar/calendar.routes.js';
 import connectDb from './database/connection.js';
+import eventRouter from './events/events.routes.js';
 import { httpLogger } from './libs/logger/http-logger.js';
 import { logger } from './libs/logger/logger.js';
 import { register } from './libs/logger/metrics.js';
@@ -74,8 +76,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
+app.use('/api/events', protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 app.use('/api/mail', protectedRoute, mailRouter);
+app.use('/api/calendar', protectedRoute, calendarRouter);
 
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));

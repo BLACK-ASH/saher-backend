@@ -9,6 +9,7 @@ export const RESOURCES = [
   'holiday',
   'notification',
   'mail',
+  'event',
 ] as const;
 
 export type Action = (typeof ACTIONS)[number];

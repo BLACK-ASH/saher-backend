@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import type { Job} from 'bullmq';
+import type { Job } from 'bullmq';
 import { Worker } from 'bullmq';
 
 import { retrieveCustomAttendace } from '../attendance/attendance.service.js';

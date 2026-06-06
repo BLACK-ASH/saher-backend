@@ -9,13 +9,10 @@ export const meController = async (req: Request, res: Response) => {
   const user = await getUser(id!);
 
   if (!user) {
-    res.clearCookie('saher_access_token');
-    res.clearCookie('saher_refresh_token');
+    return ApiResponse.success(res, {
+      message: 'User details',
+      data: user,
+      statusCode: 200,
+    });
   }
-
-  return ApiResponse.success(res, {
-    message: 'User details',
-    data: user,
-    statusCode: 200,
-  });
 };
