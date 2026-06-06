@@ -1,5 +1,5 @@
+import type { AttendanceResponseT } from '../../../attendance/retrieve/attendance.schema.js';
 import { formatTime } from '../../../libs/utils/format-time.js';
-import type { AttendanceResponseT } from '../../retrieve/attendance.schema.js';
 import 'dotenv/config';
 
 const formatDate = (date: string) => {
@@ -10,7 +10,7 @@ const formatDate = (date: string) => {
   }).format(new Date(date));
 };
 
-export const createWeekBody = (data: AttendanceResponseT[]) => {
+export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
   const totalPresent = data.filter((d) => d.status === 'present').length;
 
   const totalAbsent = data.filter((d) => d.status === 'absent').length;
@@ -22,8 +22,8 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
   const user = data[0]?.user;
 
   // Since data is sorted
-  const weekStart = data[0]?.date;
-  const weekEnd = data[data.length - 1]?.date;
+  const start = data[0]?.date;
+  const end = data[data.length - 1]?.date;
 
   return `
 <!DOCTYPE html>
@@ -312,7 +312,7 @@ export const createWeekBody = (data: AttendanceResponseT[]) => {
         </h1>
 
         <p>
-          ${weekStart && weekEnd ? `${formatDate(weekStart)} — ${formatDate(weekEnd)}` : '-'}
+          ${start && end ? `${formatDate(start)} — ${formatDate(end)}` : '-'}
         </p>
 
       </div>

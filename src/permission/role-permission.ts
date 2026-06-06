@@ -39,6 +39,10 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     //Mail
     createPermission('write', 'mail'),
+
+    // LeaveType
+    createPermission('write', 'leaveType'),
+    createPermission('update', 'leaveType'),
   ]),
 
   manager: new Set([
