@@ -1,10 +1,15 @@
 import type { Request, Response } from 'express';
 
-import { updateLeaveTypeSchema, type LeaveSchemaType } from './leave.schema.js';
+import {
+  createLeaveApplicationSchema,
+  reviewLeaveApplicationSchema,
+  updateLeaveTypeSchema,
+} from './leave.schema.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import { calculateLeaveDays, validateLeaveApplication } from '../libs/utils/leave.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 
 export const createLeaveTypeController = async (req: Request, res: Response) => {
@@ -78,38 +83,122 @@ export const updateLeaveTypeController = async (req: Request, res: Response) => 
 };
 
 export const getAllActiveLeaveTypesController = async (req: Request, res: Response) => {
-  const leaveTypes = await LeaveType.find({
-    isActive: true,
-  }).sort({ createdAt: -1 });
-
-  const normalzied = normalizeDoc(leaveTypes);
+  const leaveTypes = await LeaveType.aggregate([
+    {
+      $match: {
+        isActive: true,
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        id: '$_id',
+        name: 1,
+        description: 1,
+        code: 1,
+        allocatedDays: 1,
+        maxCarryForwardDays: 1,
+        requiresProof: 1,
+        minDaysNotice: 1,
+        isActive: 1,
+        createdBy: 1,
+      },
+    },
+  ]);
 
   return ApiResponse.success(res, {
     statusCode: 200,
     message: 'Leave types fetched successfully',
-    data: normalzied,
+    data: leaveTypes,
   });
 };
 
-// export const applyLeaveController = async (req: Request, res: Response) => {
-//   const parsedInput = req.body as LeaveSchemaType;
+// ------------------Leave Application-------------
+export const applyLeaveController = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
 
-//   const user = req.user;
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized');
+  }
 
-//   if (new Date(parsedInput.date) < new Date())
-//     throw new ApiError(400, 'Cannot Appy For Past Date.');
+  const payload = createLeaveApplicationSchema.parse(req.body);
 
-//   const leave = await Leave.create({ user: user?.id, ...parsedInput });
+  const leaveType = await LeaveType.findOne({
+    code: payload.leaveTypeCode.toUpperCase(),
+    isActive: true,
+  });
 
-//   // return res.status(200).json({
-//   //   success: true,
-//   //   message: 'Leave applied successfully',
-//   //   data: leave,
-//   // });
+  if (!leaveType) {
+    throw new ApiError(404, 'Leave type not found');
+  }
 
-//   return ApiResponse.success(res, {
-//     statusCode: 200,
-//     message: 'Leave applied successfully',
-//     data: null,
-//   });
-// };
+  await validateLeaveApplication({
+    userId,
+    leaveType,
+    startDate: payload.startDate,
+    endDate: payload.endDate,
+    proof: payload.proof,
+  });
+
+  const totalDays = calculateLeaveDays(payload.startDate, payload.endDate);
+
+  const leave = await Leave.create({
+    user: userId,
+    leaveTypeCode: leaveType.code,
+    startDate: payload.startDate,
+    endDate: payload.endDate,
+    totalDays,
+    reason: payload.reason,
+    proof: payload.proof ?? null,
+    status: 'pending',
+  });
+
+  return ApiResponse.success(res, {
+    statusCode: 201,
+    message: 'Leave request submitted successfully',
+    data: null,
+  });
+};
+
+export const reviewLeaveApplicationController = async (req: Request, res: Response) => {
+  const reviewerId = req.user?.id;
+
+  if (!reviewerId) {
+    throw new ApiError(401, 'Unauthorized');
+  }
+
+  if (!['admin', 'manager'].includes(req.user?.role ?? '')) {
+    throw new ApiError(403, 'You are not authorized to review leave applications');
+  }
+
+  const { id } = req.params;
+
+  const payload = reviewLeaveApplicationSchema.parse(req.body);
+
+  const leave = await Leave.findById(id);
+
+  if (!leave) {
+    throw new ApiError(404, 'Leave application not found');
+  }
+
+  if (leave.status !== 'pending') {
+    throw new ApiError(400, `Leave application has already been ${leave.status}`);
+  }
+
+  leave.status = payload.status;
+  leave.managerComment = payload.managerComment ?? '';
+  leave.approvedBy = reviewerId;
+
+  await leave.save();
+
+  return ApiResponse.success(res, {
+    statusCode: 200,
+    message: `Leave application ${payload.status} successfully`,
+    data: leave,
+  });
+};

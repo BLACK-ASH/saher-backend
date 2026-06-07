@@ -10,6 +10,7 @@ export const RESOURCES = [
   'notification',
   'mail',
   'leaveType',
+  'leave',
 ] as const;
 
 export type Action = (typeof ACTIONS)[number];
