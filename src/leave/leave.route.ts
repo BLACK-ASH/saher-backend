@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import {
+  createLeaveApplicationController,
   createLeaveTypeController,
   getAllActiveLeaveTypesController,
   reviewLeaveApplicationController,
@@ -38,7 +39,7 @@ leaveRouter.post(
   '/application/apply',
   authorize('write', 'leave'),
   validate(createLeaveApplicationSchema),
-  createLeaveTypeController,
+  createLeaveApplicationController,
 );
 
 leaveRouter.put(

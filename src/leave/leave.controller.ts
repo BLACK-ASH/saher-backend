@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { createLeaveApplicationSchema, updateLeaveTypeSchema } from './leave.schema.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
 import { ApiError } from '../libs/class/api-error.js';

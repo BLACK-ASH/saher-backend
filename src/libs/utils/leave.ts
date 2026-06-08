@@ -1,5 +1,5 @@
+import type { LeaveTypeType } from '../../database/leave-type.model.js';
 import { Leave } from '../../database/leave.model.js';
-import type { leaveTypeT } from '../../leave/leave.schema.js';
 import { ApiError } from '../class/api-error.js';
 
 export const validateLeaveApplication = async ({
@@ -10,7 +10,7 @@ export const validateLeaveApplication = async ({
   proof,
 }: {
   userId: string;
-  leaveType: leaveTypeT;
+  leaveType: LeaveTypeType;
   startDate: Date;
   endDate: Date;
   proof?: string;

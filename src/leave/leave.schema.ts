@@ -3,8 +3,8 @@ import z from 'zod';
 const leaveApplicationSchemaBase = z.object({
   leaveTypeCode: z
     .string()
-    .trim()
     .toUpperCase()
+    .trim()
     .min(2, 'Code must be at least 2 characters')
     .max(10, 'Code cannot exceed 10 characters')
     .regex(/^[A-Z0-9_]+$/, 'Code can only contain uppercase letters, numbers, and underscores'),
