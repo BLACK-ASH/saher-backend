@@ -1,16 +1,11 @@
 import type { Request, Response } from 'express';
 
-import {
-  createLeaveApplicationSchema,
-  reviewLeaveApplicationSchema,
-  updateLeaveTypeSchema,
-} from './leave.schema.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import { convertToObjectId } from '../libs/utils/convert-object-id.js';
 import { calculateLeaveDays, validateLeaveApplication } from '../libs/utils/leave.js';
-import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 
 export const createLeaveTypeController = async (req: Request, res: Response) => {
   if (req.user?.role !== 'admin') {
@@ -62,7 +57,7 @@ export const updateLeaveTypeController = async (req: Request, res: Response) => 
 
   const { id } = req.params;
 
-  const payload = updateLeaveTypeSchema.parse(req.body);
+  const payload = req.body;
 
   const existingLeaveType = await LeaveType.findById(id);
 
@@ -119,14 +114,14 @@ export const getAllActiveLeaveTypesController = async (req: Request, res: Respon
 };
 
 // ------------------Leave Application-------------
-export const applyLeaveController = async (req: Request, res: Response) => {
+export const createLeaveApplicationController = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
   if (!userId) {
     throw new ApiError(401, 'Unauthorized');
   }
 
-  const payload = createLeaveApplicationSchema.parse(req.body);
+  const payload = req.body;
 
   const leaveType = await LeaveType.findOne({
     code: payload.leaveTypeCode.toUpperCase(),
@@ -165,6 +160,74 @@ export const applyLeaveController = async (req: Request, res: Response) => {
   });
 };
 
+export const updateLeaveApplicationController = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  const { id } = req.params;
+
+  const payload = req.body;
+
+  if (Object.keys(payload).length === 0) {
+    throw new ApiError(400, 'At least one field is required for update');
+  }
+
+  const leave = await Leave.findById(id);
+
+  if (!leave) {
+    throw new ApiError(404, 'Leave application not found');
+  }
+
+  if (leave.user.toString() !== userId) {
+    throw new ApiError(403, 'You are not allowed to update this leave application');
+  }
+
+  if (leave.status !== 'pending') {
+    throw new ApiError(400, `Cannot update a ${leave.status} leave application`);
+  }
+
+  const updatedStartDate = payload.startDate ?? leave.startDate;
+  const updatedEndDate = payload.endDate ?? leave.endDate;
+  const updatedLeaveTypeCode = payload.leaveTypeCode ?? leave.leaveTypeCode;
+  const leaveType = await LeaveType.findOne({
+    code: updatedLeaveTypeCode,
+    isActive: true,
+  });
+
+  if (!leaveType) {
+    throw new ApiError(404, 'Leave type not found');
+  }
+
+  await validateLeaveApplication({
+    userId,
+    leaveType,
+    startDate: updatedStartDate,
+    endDate: updatedEndDate,
+    proof: payload.proof,
+  });
+
+  const totalDays = calculateLeaveDays(updatedStartDate, updatedEndDate);
+
+  const updatedLeave = await Leave.findByIdAndUpdate(
+    id,
+    {
+      $set: {
+        ...payload,
+        totalDays,
+      },
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  return ApiResponse.success(res, {
+    statusCode: 200,
+    message: 'Leave application updated successfully',
+    data: updatedLeave,
+  });
+};
+
 export const reviewLeaveApplicationController = async (req: Request, res: Response) => {
   const reviewerId = req.user?.id;
 
@@ -178,7 +241,7 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
 
   const { id } = req.params;
 
-  const payload = reviewLeaveApplicationSchema.parse(req.body);
+  const payload = req.body;
 
   const leave = await Leave.findById(id);
 
@@ -192,7 +255,7 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
 
   leave.status = payload.status;
   leave.managerComment = payload.managerComment ?? '';
-  leave.approvedBy = reviewerId;
+  leave.approvedBy = convertToObjectId(reviewerId);
 
   await leave.save();
 
