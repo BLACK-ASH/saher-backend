@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { User } from "./user.model.js";
 
 const mailSchema = new mongoose.Schema({
     from:{
@@ -8,9 +7,19 @@ const mailSchema = new mongoose.Schema({
         required : true  
     }, 
     to : {
-        type : [mongoose.Schema.Types.ObjectId] , 
+        type : mongoose.Schema.Types.ObjectId , 
         ref : "User",
         required : true 
+    }, 
+    cc: {
+        type : [mongoose.Schema.Types.ObjectId] , 
+        ref : "User"
+        
+    }, 
+    bcc : {
+        type : [mongoose.Schema.Types.ObjectId] , 
+        ref : "User",
+         
     },
     subject : {
         type : String ,

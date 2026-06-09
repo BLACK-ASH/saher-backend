@@ -1,6 +1,5 @@
 import { Request , Response } from "express";
 import { Mail } from "../database/mail.model.js";
-import { success } from "zod";
 import { ApiError } from "../libs/class/api-error.js";
 import { User } from "../database/user.model.js";
 
