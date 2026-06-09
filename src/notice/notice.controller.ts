@@ -20,7 +20,6 @@ export const editNotice = async (req: Request, res: Response) => {
   const updatedNotice = await Notice.findOneAndUpdate(
     {
       _id: req.params.id,
-      isDeleted: false,
     },
     req.body,
     {

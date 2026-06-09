@@ -10,7 +10,7 @@ const noticeRouter = Router();
 //Notice Routes ---------------------------------------------------------------
 noticeRouter.post('/notice', validate(baseNoticeSchema), addNotice);
 noticeRouter.put('/notice/:id', validate(updateNoticeSchema), editNotice);
-noticeRouter.delete('notice/:id/permanent', permanentDeleteNotice);
+noticeRouter.delete('/notice/:id/permanent', permanentDeleteNotice);
 
 //Router exporting
 export default noticeRouter;
