@@ -20,6 +20,7 @@ import { requestLogger } from './libs/middleware/request-logger.js';
 import { requestTimer } from './libs/middleware/request-timer.js';
 import { connectRedis } from './libs/redis/redis-client.js';
 import { mailRouter } from './mail/mail.routes.js';
+import noticeRouter from './notice/notice.routes.js';
 import notificationRouter from './notification/notification.routes.js';
 import publicRouter from './public/public.routes.js';
 import uploadRouter from './upload/upload.routes.js';
@@ -76,6 +77,7 @@ app.use('/api/user', protectedRoute, userRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 app.use('/api/mail', protectedRoute, mailRouter);
+app.use('/api/notice', protectedRoute, noticeRouter);
 
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
