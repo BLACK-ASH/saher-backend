@@ -103,6 +103,10 @@ export const permanentDeleteProgramme = async (req: Request, res: Response) => {
 export const getProgrammes = async (req: Request, res: Response) => {
   const programme = await Programme.find({ isDeleted: false });
 
+  if (!programme) {
+    throw new ApiError(404, 'Programs not found');
+  }
+
   return ApiResponse.success(res, {
     message: 'Programmes fetched successfully',
     data: programme,
@@ -118,11 +122,7 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
   });
 
   if (!programme) {
-    return ApiResponse.success(res, {
-      message: 'Programme not found',
-      data: null,
-      statusCode: 404,
-    });
+    throw new ApiError(404, 'Programme not found');
   }
 
   return ApiResponse.success(res, {

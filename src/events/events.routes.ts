@@ -6,7 +6,9 @@ import {
   editParticipant,
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
-import { getProgrammes, getSingleProgramme ,
+import {
+  getProgrammes,
+  getSingleProgramme,
   addProgramme,
   editProgramme,
   deleteProgramme,
@@ -22,6 +24,8 @@ import {
   addSession,
   deleteSession,
   editSession,
+  getSessions,
+  getSingleSession,
   permanentDeleteSession,
   undoDeleteSession,
 } from './session/session.controller.js';
@@ -34,6 +38,8 @@ import {
   addWorkshop,
   deleteWorkshop,
   editWorkshop,
+  getSingleWorkshop,
+  getWorkshops,
   permanentDeleteWorkshop,
   undoDeleteWorkshop,
 } from './workshop/workshop.controller.js';
@@ -48,6 +54,12 @@ import { validate } from '../libs/middleware/validate-zod-schema.js';
 const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
+eventRouter.get('/programmes/:programmeId/workshops', underDevelopment, getWorkshops);
+eventRouter.get(
+  '/programmes/:programmeId/workshops/:workshopId',
+  underDevelopment,
+  getSingleWorkshop,
+);
 eventRouter.post(
   '/programmes/:programmeId/workshops',
   underDevelopment,
@@ -73,6 +85,8 @@ eventRouter.patch(
 );
 
 // Session route ----------------------------------------------------------------------
+eventRouter.get('/workshops/:workshopId/sessions', underDevelopment, getSessions);
+eventRouter.get('/workshops/:workshopId/sessions/:sessionId', underDevelopment, getSingleSession);
 eventRouter.post(
   '/workshops/:workshopId/sessions',
   underDevelopment,

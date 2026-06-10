@@ -109,3 +109,40 @@ export const permanentDeleteSession = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+
+//Get all sessions
+export const getSessions = async (req: Request, res: Response) => {
+  const session = await Session.find({
+    workshopId: req.params.workshopId,
+    isDeleted: false,
+  });
+
+  if (session.length === 0) {
+    throw new ApiError(404, 'Sessions not found');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'Sessions fetched successfully',
+    data: session,
+    statusCode: 200,
+  });
+};
+
+//Get a single Session
+export const getSingleSession = async (req: Request, res: Response) => {
+  const session = await Session.findOne({
+    _id: req.params.sessionId,
+    workshopId: req.params.workshopId,
+    isDeleted: false,
+  });
+
+  if (!session) {
+    throw new ApiError(404, 'Session not found');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'Session fetched successfully',
+    data: session,
+    statusCode: 200,
+  });
+};

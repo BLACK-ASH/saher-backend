@@ -115,3 +115,37 @@ export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+
+//Get all Workshops
+export const getWorkshops = async (req: Request, res: Response) => {
+  const workshop = await Workshop.find({ programmeId: req.params.programmeId, isDeleted: false });
+
+  if (!workshop) {
+    throw new ApiError(404, 'Workshops not found');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'Workshops fetched successfully',
+    data: workshop,
+    statusCode: 200,
+  });
+};
+
+//Get a single Workshop
+export const getSingleWorkshop = async (req: Request, res: Response) => {
+  const workshop = await Workshop.findOne({
+    _id: req.params.workshopId,
+    programmeId: req.params.programmeId,
+    isDeleted: false,
+  });
+
+  if (!workshop) {
+    throw new ApiError(404, 'Workshop not found');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'Workshop fetched successfully',
+    data: workshop,
+    statusCode: 200,
+  });
+};
