@@ -88,7 +88,7 @@ eventRouter.patch(
 eventRouter.get('/workshops/:workshopId/sessions', underDevelopment, getSessions);
 eventRouter.get('/workshops/:workshopId/sessions/:sessionId', underDevelopment, getSingleSession);
 eventRouter.post(
-  '/workshops/:workshopId/sessions',
+  '/programmes/:programmeId/sessions',
   underDevelopment,
   validate(createSessionSchema),
   addSession,

@@ -1,25 +1,57 @@
 import type { Request, Response } from 'express';
 
+import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
-  const { workshopId } = req.params;
+  let workshopId = req.body.workshopId;
 
-  const workshop = await Workshop.findById(workshopId);
-  if (!workshop) {
-    throw new ApiError(404, 'Workshop not found');
+  //Checking for programme existence
+  const programme = await Programme.findById(req.params.programmeId);
+
+  if (!programme) {
+    throw new ApiError(404, 'Programme not found');
   }
 
-  const newSession = await Session.create({ ...req.body, workshopId });
+  //Checking for workshop existence
+  if (workshopId) {
+    const workshop = await Workshop.findOne({
+      _id: workshopId,
+      programmeId: req.params.programmeId,
+      isDeleted: false,
+    });
+
+    if (!workshop) {
+      throw new ApiError(404, 'Workshop not found');
+    }
+  }
+
+  // If no workshop is provided
+  if (!workshopId) {
+    const workshop = await Workshop.create({
+      title: req.body.title,
+      description: req.body.description,
+      programmeId: convertToObjectId(req.params.programmeId as string),
+    });
+
+    workshopId = workshop._id;
+  }
+
+  const newSession = await Session.create({
+    ...req.body,
+    workshopId,
+  });
 
   const date = req.body.date;
   const month = new Date(date).getMonth();
   const year = new Date(date).getFullYear();
+
   const key = createKey('calendar', year, month);
 
   await deleteCache(key);
