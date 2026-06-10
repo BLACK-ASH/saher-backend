@@ -80,7 +80,7 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
     },
     {
       $project: {
-        // title: 1,
+        title: 1,
         type: 1,
         date: 1,
         allDay: 1,
@@ -137,6 +137,7 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
     },
     {
       $project: {
+        title: 1,
         type: 1,
         date: 1,
         start: 1,
