@@ -1,8 +1,6 @@
 import z from 'zod';
 
-import { holidayTypes } from '../database/holiday.model.js';
-
-export const eventType = ['holiday', 'session', 'task', 'meeting'];
+export const eventType = ['holiday', 'session', 'task', 'meeting', 'calendar-event'];
 
 export const event = z.object({
   title: z.string(),
@@ -13,9 +11,17 @@ export const event = z.object({
   details: z.object({
     id: z.string(),
     title: z.string(),
-    type: z.enum(holidayTypes).nullable(),
+    type: z.string().nullable(),
     description: z.string().nullable(),
   }),
+});
+
+export const createMeetingSchema = z.object({
+  title: z.string(),
+  type: z.string(),
+  start: z.coerce.date(),
+  end: z.coerce.date(),
+  description: z.string(),
 });
 
 export type CalendarObjectT = {
