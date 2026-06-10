@@ -2,10 +2,9 @@
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
+import { objectId } from '../../libs/utils/zod-object-id.js';
+
 //const DOMPurify = createDOMPurify.default || createDOMPurify;
-const objectId = z.string().refine((val) => Types.ObjectId.isValid(val), {
-  message: 'Invalid ObjectId',
-});
 
 //Base programme schema
 export const baseProgrammeSchema = z.object({
@@ -14,13 +13,16 @@ export const baseProgrammeSchema = z.object({
   description: z.string().min(10).max(500),
   //.transform((value) => DOMPurify.sanitize(value)),
 
-  workshops: z.array(objectId).optional(),
+  workshops: z.array(objectId()).optional(),
 });
 //Create a programme
 export const createProgrammeSchema = baseProgrammeSchema;
 
 //Update a programme
 export const updatedProgrammeSchema = baseProgrammeSchema.omit({ workshops: true }).partial();
+
+export const createProgrammeResponseSchema = baseProgrammeSchema;
+export const updateProgrammeResponseSchema = baseProgrammeSchema;
 
 export type CreateProgrammeInputType = z.infer<typeof createProgrammeSchema>;
 export type UpdateProgrammeInputType = z.infer<typeof updatedProgrammeSchema>;

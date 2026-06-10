@@ -1,18 +1,27 @@
 import type { Request, Response } from 'express';
 
-import { participantSchema, updatedParticipantSchema } from './participant.schema.js';
+import {
+  createParticipantsResponseScema,
+  participantSchema,
+  updatedParticipantSchema,
+  updateParticipantsResponseScema,
+} from './participant.schema.js';
 import { Participant } from '../../database/participant.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 //Add participant
 export const addParticipant = async (req: Request, res: Response) => {
   req.body = participantSchema.parse(req.body);
   const newParticipant = await Participant.create(req.body);
 
+  const normalized = normalizeDoc(newParticipant.toObject());
+  const parsed = createParticipantsResponseScema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Participant added successfully',
-    data: newParticipant,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -31,10 +40,7 @@ export const readAllParticipant = async (req: Request, res: Response) => {
 //Edit Participant
 export const editParticipant = async (req: Request, res: Response) => {
   req.body = updatedParticipantSchema.parse(req.body);
-  const updatedParticipant = await Participant.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const updatedParticipant = await Participant.findByIdAndUpdate(req.params.id, req.body).lean();
   if (!updatedParticipant) {
     return ApiResponse.success(res, {
       message: undefined,
@@ -42,6 +48,10 @@ export const editParticipant = async (req: Request, res: Response) => {
       statusCode: 404,
     });
   }
+
+  const normalized = normalizeDoc(updatedParticipant);
+  const parsed = updateParticipantsResponseScema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Participant has been Updated successfully',
     data: updatedParticipant,

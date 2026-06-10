@@ -3,35 +3,18 @@ import { Types } from 'mongoose';
 import z from 'zod';
 
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-
-export const objectId = z
-  .string()
-  .refine((val) => Types.ObjectId.isValid(val), {
-    message: 'Invalid ID',
-  })
-  .transform((e) => {
-    return convertToObjectId(e);
-  });
-
-// const dateField = z
-//   .union([z.string().datetime(), z.date()])
-//   .transform((val) => new Date(val))
-//   .refine((date) => !isNaN(date.getTime()), {
-//     message: 'Invalid date',
-//   });
+import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
-  workshopId: objectId.optional(),
-
+  workshopId: objectId().optional(),
   title: z.string().min(3),
-
   description: z.string().min(5).max(500),
   //.transform((value) => DOMPurify.sanitize(value)),
 
   date: z.string(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
-  speaker: z.array(objectId),
+  speaker: z.array(objectId()),
 });
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {
@@ -52,5 +35,7 @@ export const updatedSessionSchema = baseSchema.partial().refine(
   },
 );
 
+export const createSessionResponseSchema = baseSchema;
+export const UpdatesSessionResponseSchema = baseSchema;
 export type CreateSessionInputType = z.infer<typeof createSessionSchema>;
 export type UpdatedSessionInputType = z.infer<typeof updatedSessionSchema>;

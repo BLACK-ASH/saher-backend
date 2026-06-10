@@ -62,6 +62,8 @@ export const markAttendance = async (req: Request, res: Response) => {
   session.participants = success;
   await session.save();
 
+  // const normalized = normalizeDoc()
+
   return ApiResponse.success(res, {
     message: 'Attendance marked successfully',
     data: {

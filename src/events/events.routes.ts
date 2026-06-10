@@ -51,6 +51,8 @@ import {
 } from './workshop/workshop.schema.js';
 import { underDevelopment } from '../libs/middleware/development.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
+import { reminderNotificationController } from './session/reminder.controller.js';
 
 const eventRouter = Router();
 
@@ -156,4 +158,11 @@ eventRouter.put(
   editProgramme,
 );
 eventRouter.patch('/programmes/:id/restore', underDevelopment, undoDeleteProgramme);
+
+// Reminder session notification
+eventRouter.get(
+  '/programmes/workshops/sessions/:sessionId',
+  authorize('write', 'event'),
+  reminderNotificationController,
+);
 export default eventRouter;
