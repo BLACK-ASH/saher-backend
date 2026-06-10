@@ -1,7 +1,6 @@
+import DOMPurify from 'dompurify';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-
-import DOMPurify from '../../libs/dompurify/dompurify.js';
 
 const objectId = z.string().refine((val) => Types.ObjectId.isValid(val), {
   message: 'Invalid ObjectId',

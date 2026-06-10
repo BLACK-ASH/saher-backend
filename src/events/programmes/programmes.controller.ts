@@ -98,3 +98,36 @@ export const permanentDeleteProgramme = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+
+//Get all Programmes
+export const getProgrammes = async (req: Request, res: Response) => {
+  const programme = await Programme.find({ isDeleted: false });
+
+  return ApiResponse.success(res, {
+    message: 'Programmes fetched successfully',
+    data: programme,
+    statusCode: 200,
+  });
+};
+
+//Get a single Programme
+export const getSingleProgramme = async (req: Request, res: Response) => {
+  const programme = await Programme.findOne({
+    _id: req.params.id,
+    isDeleted: false,
+  });
+
+  if (!programme) {
+    return ApiResponse.success(res, {
+      message: 'Programme not found',
+      data: null,
+      statusCode: 404,
+    });
+  }
+
+  return ApiResponse.success(res, {
+    message: 'Programme fetched successfully',
+    data: programme,
+    statusCode: 200,
+  });
+};

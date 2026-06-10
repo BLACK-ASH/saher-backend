@@ -6,7 +6,7 @@ import {
   editParticipant,
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
-import {
+import { getProgrammes, getSingleProgramme ,
   addProgramme,
   editProgramme,
   deleteProgramme,
@@ -123,6 +123,8 @@ eventRouter.delete(
 );
 
 //Programme routes ----------------------------------------------------------------------------------------------
+eventRouter.get('/programmes', underDevelopment, getProgrammes);
+eventRouter.get('/programmes/:id', underDevelopment, getSingleProgramme);
 eventRouter.post('/programmes', underDevelopment, validate(baseProgrammeSchema), addProgramme);
 eventRouter.delete('/programmes/:id', underDevelopment, deleteProgramme);
 eventRouter.delete('/programmes/:id/permanent', underDevelopment, permanentDeleteProgramme);

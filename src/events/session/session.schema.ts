@@ -1,7 +1,8 @@
+import DOMPurify from 'dompurify';
 import { Types } from 'mongoose';
 import z from 'zod';
 
-import DOMPurify from '../../libs/dompurify/dompurify.js';
+
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 
 export const objectId = z
