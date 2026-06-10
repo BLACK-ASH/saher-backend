@@ -4,6 +4,7 @@ import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
@@ -15,6 +16,13 @@ export const addSession = async (req: Request, res: Response) => {
   }
 
   const newSession = await Session.create({ ...req.body, workshopId });
+
+  const date = req.body.date;
+  const month = new Date(date).getMonth();
+  const year = new Date(date).getFullYear();
+  const key = createKey('calendar', year, month);
+
+  await deleteCache(key);
 
   return ApiResponse.success(res, {
     message: 'Session created successfully',

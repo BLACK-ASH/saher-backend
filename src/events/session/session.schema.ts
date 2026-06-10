@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import z, { date } from 'zod';
+import z from 'zod';
 
 import DOMPurify from '../../libs/dompurify/dompurify.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
@@ -13,12 +13,12 @@ export const objectId = z
     return convertToObjectId(e);
   });
 
-const dateField = z
-  .union([z.string().datetime(), z.date()])
-  .transform((val) => new Date(val))
-  .refine((date) => !isNaN(date.getTime()), {
-    message: 'Invalid date',
-  });
+// const dateField = z
+//   .union([z.string().datetime(), z.date()])
+//   .transform((val) => new Date(val))
+//   .refine((date) => !isNaN(date.getTime()), {
+//     message: 'Invalid date',
+//   });
 
 export const baseSchema = z.object({
   title: z.string().min(3),
@@ -30,8 +30,8 @@ export const baseSchema = z.object({
     .transform((value) => DOMPurify.sanitize(value)),
 
   date: z.string(),
-  startTime: dateField,
-  endTime: dateField,
+  startTime: z.coerce.date(),
+  endTime: z.coerce.date(),
   speaker: z.array(objectId),
 });
 
@@ -54,5 +54,4 @@ export const updatedSessionSchema = baseSchema.partial().refine(
 );
 
 export type CreateSessionInputType = z.infer<typeof createSessionSchema>;
-
 export type UpdatedSessionInputType = z.infer<typeof updatedSessionSchema>;
