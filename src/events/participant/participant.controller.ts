@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-
 import { participantSchema, updatedParticipantSchema } from './participant.schema.js';
 import { Participant } from '../../database/participant.model.js';
 import { ApiError } from '../../libs/class/api-error.js';

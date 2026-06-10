@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import type { Types } from 'mongoose';
-import mongoose from 'mongoose';
 
 import { Participant } from '../../database/participant.model.js';
 import { Session } from '../../database/session.model.js';
