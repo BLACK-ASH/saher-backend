@@ -42,61 +42,95 @@ import {
   createWorkshopSchema,
   updatedWorkshopSchema,
 } from './workshop/workshop.schema.js';
+import { underDevelopment } from '../libs/middleware/development.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 
 const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
-eventRouter.post('/programmes/:programmeId/workshops', validate(createWorkshopSchema), addWorkshop);
-eventRouter.delete('/programmes/:programmeId/workshops/:id', deleteWorkshop);
-eventRouter.delete('/programmes/:programmeId/workshops/:id/permanent', permanentDeleteWorkshop);
+eventRouter.post(
+  '/programmes/:programmeId/workshops',
+  underDevelopment,
+  validate(createWorkshopSchema),
+  addWorkshop,
+);
+eventRouter.delete('/programmes/:programmeId/workshops/:id', underDevelopment, deleteWorkshop);
+eventRouter.delete(
+  '/programmes/:programmeId/workshops/:id/permanent',
+  underDevelopment,
+  permanentDeleteWorkshop,
+);
 eventRouter.put(
   '/programmes/:programmeId/workshops/:id',
+  underDevelopment,
   validate(updatedWorkshopSchema),
   editWorkshop,
 );
-eventRouter.patch('/programmes/:programmeId/workshops/:id/restore', undoDeleteWorkshop);
+eventRouter.patch(
+  '/programmes/:programmeId/workshops/:id/restore',
+  underDevelopment,
+  undoDeleteWorkshop,
+);
 
 // Session route ----------------------------------------------------------------------
-eventRouter.post('/workshops/:workshopId/sessions', validate(createSessionSchema), addSession);
-eventRouter.delete('/sessions/:id', deleteSession);
-eventRouter.delete('/sessions/:id/permanent', permanentDeleteSession);
-eventRouter.put('/sessions/:id', validate(updatedSessionSchema), editSession);
-eventRouter.patch('/sessions/:id/restore', undoDeleteSession);
+eventRouter.post(
+  '/workshops/:workshopId/sessions',
+  underDevelopment,
+  validate(createSessionSchema),
+  addSession,
+);
+eventRouter.delete('/sessions/:id', underDevelopment, deleteSession);
+eventRouter.delete('/sessions/:id/permanent', underDevelopment, permanentDeleteSession);
+eventRouter.put('/sessions/:id', underDevelopment, validate(updatedSessionSchema), editSession);
+eventRouter.patch('/sessions/:id/restore', underDevelopment, undoDeleteSession);
 
 // Particiapnt route ------------------------------------------------------------------------
-eventRouter.post('/participants', validate(participantSchema), addParticipant);
-eventRouter.delete('/participants/:id', deleteParticipant);
-eventRouter.put('/participants/:id', validate(updatedParticipantSchema), editParticipant);
+eventRouter.post('/participants', underDevelopment, validate(participantSchema), addParticipant);
+eventRouter.delete('/participants/:id', underDevelopment, deleteParticipant);
+eventRouter.put(
+  '/participants/:id',
+  underDevelopment,
+  validate(updatedParticipantSchema),
+  editParticipant,
+);
 
 // Session Attendance route ------------------------------------------------------------------------------
 eventRouter.post(
   '/sessions/:sessionId/attendance',
+  underDevelopment,
   validate(SessionAttendanceSchema),
   markAttendance,
 );
 eventRouter.put(
   '/sessions/:sessionId/attendance',
+  underDevelopment,
   validate(SessionAttendanceSchema),
   updateAttendance,
 );
 eventRouter.delete(
   '/sessions/:sessionId/attendance',
+  underDevelopment,
   validate(SessionAttendanceSchema),
   removeAttendance,
 );
 
 //Workshop-Participant route ------------------------------------------------------------------------------
-eventRouter.post('/workshops/:workshopId/participants', addParticipantToWorkshop);
+eventRouter.post('/workshops/:workshopId/participants', underDevelopment, addParticipantToWorkshop);
 eventRouter.delete(
   '/workshops/:workshopId/participants/:participantId',
+  underDevelopment,
   removeParticipantFromWorkshop,
 );
 
 //Programme routes ----------------------------------------------------------------------------------------------
-eventRouter.post('/programmes', validate(baseProgrammeSchema), addProgramme);
-eventRouter.delete('/programmes/:id', deleteProgramme);
-eventRouter.delete('/programmes/:id/permanent', permanentDeleteProgramme);
-eventRouter.put('/programmes/:id', validate(updatedProgrammeSchema), editProgramme);
-eventRouter.patch('/programmes/:id/restore', undoDeleteProgramme);
+eventRouter.post('/programmes', underDevelopment, validate(baseProgrammeSchema), addProgramme);
+eventRouter.delete('/programmes/:id', underDevelopment, deleteProgramme);
+eventRouter.delete('/programmes/:id/permanent', underDevelopment, permanentDeleteProgramme);
+eventRouter.put(
+  '/programmes/:id',
+  underDevelopment,
+  validate(updatedProgrammeSchema),
+  editProgramme,
+);
+eventRouter.patch('/programmes/:id/restore', underDevelopment, undoDeleteProgramme);
 export default eventRouter;
