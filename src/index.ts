@@ -2,16 +2,19 @@ import path from 'path';
 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import express from 'express';
 
 import adminRouter from './admin/admin.routes.js';
 import attendanceRouter from './attendance/attendance.route.js';
 import authRouter from './auth/auth.routes.js';
+import { calendarRouter } from './calendar/calendar.routes.js';
 import connectDb from './database/connection.js';
+import eventRouter from './events/events.routes.js';
 import { httpLogger } from './libs/logger/http-logger.js';
 import { logger } from './libs/logger/logger.js';
 import { register } from './libs/logger/metrics.js';
+import { underDevelopment } from './libs/middleware/development.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import { metricsMiddleware } from './libs/middleware/metrics.js';
 import { protectedRoute } from './libs/middleware/protected-route.js';
@@ -26,11 +29,12 @@ import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
 
 // Env Config
-dotenv.config();
+// dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
+// Middlewares
 // 1. request id
 app.use(requestId);
 
@@ -46,7 +50,8 @@ app.use(requestLogger);
 // 5. Metrics Middleware
 app.use(metricsMiddleware);
 
-// Middlewares
+app.set('trust proxy', true);
+
 // CORS
 app.use(
   cors({
@@ -72,8 +77,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
+app.use('/api/events', underDevelopment, protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
-app.use('/api/mail', protectedRoute, mailRouter);
+app.use('/api/mail', underDevelopment, protectedRoute, mailRouter);
+app.use('/api/calendar', protectedRoute, calendarRouter);
 
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));

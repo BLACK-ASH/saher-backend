@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-export type UserRole = 'user' | 'manager' | 'admin';
+export const userRole = ['intern', 'user', 'manager', 'admin'] as const;
+export type UserRole = (typeof userRole)[number];
 
 const userSchema = new mongoose.Schema(
   {
@@ -26,8 +27,12 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'manager', 'admin'],
+      enum: userRole,
       default: 'user',
+    },
+    pushNotificationsEnabled: {
+      type: Boolean,
+      default: false,
     },
     image: {
       type: mongoose.Schema.Types.ObjectId,
@@ -41,7 +46,7 @@ const userSchema = new mongoose.Schema(
     deletedAt: {
       type: Date,
     },
-    deleteBy: {
+    deletedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },

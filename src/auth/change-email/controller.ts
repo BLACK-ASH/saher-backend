@@ -8,6 +8,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { changeEmailTemplate } from '../../libs/mail/templates/change-email-mail.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { notification } from '../../libs/utils/notification.js';
 
 export const changeEmailRequestController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -39,25 +40,32 @@ export const changeEmailController = async (req: Request, res: Response) => {
 
   const key = createKey('change-email', token);
 
-  const userId = await getCache(key);
+  const userId = await getCache<string>(key);
   if (!userId) throw new ApiError(400, 'Invalid Token Or Token Is Expired.');
 
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, 'User Not Found.');
 
-  const userKey = createKey('user', user._id.toString());
-  const userKey2 = createKey('account', 'userId', user._id.toString());
-
   user.email = email;
   user.emailVerified = false;
   await user.save();
 
-  await deleteCache(key);
-  await deleteCache(userKey);
-  await deleteCache(userKey2);
+  const key1 = createKey('users', 'list');
+  const key2 = createKey('user', userId);
+  const key3 = createKey('account', 'userId', userId);
+
+  await deleteCache(key1);
+  await deleteCache(key2);
+  await deleteCache(key3);
 
   res.clearCookie('saher_access_token');
   res.clearCookie('saher_refresh_token');
+
+  await notification.specific.info(
+    [user.id],
+    'Change Email ',
+    'change email verification mail is send to your Registered email',
+  );
 
   return ApiResponse.success(res, {
     message: 'Email Change Successful.',

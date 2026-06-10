@@ -2,35 +2,40 @@ import { Router } from 'express';
 
 import {
   createNotificationController,
-  deleteNotificationController,
-  getAlltNotificationController,
-  getLatestNotificationController,
-  updateNotificationController,
+  getAllNotificationsController,
+  getUnseenNotification,
+  markSeenNotificationController,
 } from './notification.controllers.js';
-import { createNotificationSchema, updateNotificationSchema } from './notification.schema.js';
+import { sendNotificationSchema } from './notification.schema.js';
+import {
+  disableNotificationController,
+  enableNotificationController,
+  subscribePushController,
+} from './webpush.controller.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
+// import { sendPushToUser } from '../libs/utils/push-notification.js';
 import { authorize } from '../permission/authorize.js';
 
 const notificationRouter = Router();
 
-notificationRouter.get('/', getLatestNotificationController);
-notificationRouter.get('/all', getAlltNotificationController);
+notificationRouter.get('/', getAllNotificationsController);
+notificationRouter.get('/un-seen', getUnseenNotification);
 notificationRouter.post(
-  '/create/:id',
+  '/',
   authorize('write', 'notification'),
-  validate(createNotificationSchema),
+  validate(sendNotificationSchema),
   createNotificationController,
 );
-notificationRouter.put(
-  '/update/:id',
-  authorize('update', 'notification'),
-  validate(updateNotificationSchema),
-  updateNotificationController,
-);
-notificationRouter.delete(
-  '/delete',
-  authorize('delete', 'notification'),
-  deleteNotificationController,
-);
+notificationRouter.patch('/:id', markSeenNotificationController);
+
+// Web Push Notification
+// save push subscription
+notificationRouter.post('/subscribe', subscribePushController);
+
+// mark enabled (optional sync endpoint)
+notificationRouter.post('/enable', enableNotificationController);
+
+// disable notifications
+notificationRouter.post('/disable', disableNotificationController);
 
 export default notificationRouter;
