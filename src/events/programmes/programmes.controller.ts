@@ -1,16 +1,24 @@
 import type { Request, Response } from 'express';
 
+import {
+  createProgrammeResponseSchema,
+  updateProgrammeResponseSchema,
+} from './programmes.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 // Add a programme
 export const addProgramme = async (req: Request, res: Response) => {
   const newProgramme = await Programme.create(req.body);
 
+  const normalized = normalizeDoc(newProgramme.toObject());
+  const parsed = createProgrammeResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programme has been added successfully.',
-    data: newProgramme,
+    data: parsed,
     statusCode: 201,
   });
 };
@@ -24,15 +32,18 @@ export const editProgramme = async (req: Request, res: Response) => {
     },
     req.body,
     { new: false, runValidators: false },
-  );
+  ).lean();
 
   if (!updatedProgramme) {
     throw new ApiError(404, 'Programme not found');
   }
 
+  const normalized = normalizeDoc(updatedProgramme);
+  const parsed = updateProgrammeResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programme has been updated successfully',
-    data: updatedProgramme,
+    data: parsed,
   });
 };
 

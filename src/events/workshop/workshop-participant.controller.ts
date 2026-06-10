@@ -9,13 +9,9 @@ export const addParticipantToWorkshop = async (req: Request, res: Response) => {
   const { participantId } = req.body;
   const { workshopId } = req.params;
 
-  const workshop = await Workshop.findByIdAndUpdate(
-    workshopId,
-    {
-      $addToSet: { participants: participantId },
-    },
-    { new: true },
-  );
+  const workshop = await Workshop.findByIdAndUpdate(workshopId, {
+    $addToSet: { participants: participantId },
+  });
 
   if (!workshop) throw new ApiError(404, 'Workshop not found');
 

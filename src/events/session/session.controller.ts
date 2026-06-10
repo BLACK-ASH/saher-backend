@@ -1,14 +1,19 @@
 import type { Request, Response } from 'express';
 
+import { createSessionResponseSchema } from './session.schema.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { notification } from '../../libs/utils/notification.js';
+import { sendPushToUser } from '../../libs/utils/push-notification.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
   const { workshopId } = req.params;
+  if (!workshopId) throw new ApiError(400, 'Id is required in params');
 
   const workshop = await Workshop.findById(workshopId);
   if (!workshop) {
@@ -16,6 +21,25 @@ export const addSession = async (req: Request, res: Response) => {
   }
 
   const newSession = await Session.create({ ...req.body, workshopId });
+
+  const notificationTitle = 'Receieved New Session';
+  const notificationDesc = `A new Session has been created`;
+  await notification.specific.success(
+    [newSession.speaker.toString()],
+    notificationTitle,
+    notificationDesc,
+  );
+  await Promise.all(
+    newSession.speaker.map((speakerId) =>
+      sendPushToUser(speakerId.toString(), {
+        title: 'New Session Created',
+        body: `${newSession.title} has been scheduled`,
+      }),
+    ),
+  );
+
+  const normalized = normalizeDoc(newSession.toObject());
+  const parsed = createSessionResponseSchema.parse(normalized);
 
   const date = req.body.date;
   const month = new Date(date).getMonth();
@@ -26,31 +50,45 @@ export const addSession = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'Session created successfully',
-    data: newSession,
+    data: null,
     statusCode: 200,
   });
 };
 
 //Edit a session
 export const editSession = async (req: Request, res: Response) => {
-  const updates = req.body; // ✅ already validated
+  const updates = req.body;
+  const { sessionId } = req.params;
+  if (!sessionId) throw new ApiError(400, 'Id is required in params');
 
-  const updatedSession = await Session.findByIdAndUpdate(
-    { _id: req.params.id, workshopId: req.params.workshopId },
-    updates,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const updatedSession = await Session.findByIdAndUpdate(sessionId, updates).lean();
 
   if (!updatedSession) {
     throw new ApiError(404, 'Session not found');
   }
 
+  const notificationTitle = 'Receieved Updated Session';
+  const notificationDesc = `A Session has been Updated`;
+  await notification.specific.success(
+    [updatedSession.speaker.toString()],
+    notificationTitle,
+    notificationDesc,
+  );
+  await Promise.all(
+    updatedSession.speaker.map((speakerId) =>
+      sendPushToUser(speakerId.toString(), {
+        title: 'New Session Created',
+        body: `${updatedSession.title} has been scheduled`,
+      }),
+    ),
+  );
+
+  const normalized = normalizeDoc(updatedSession);
+  const parsed = createSessionResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Session has been Updated successfully',
-    data: updatedSession,
+    data: null,
     statusCode: 200,
   });
 };

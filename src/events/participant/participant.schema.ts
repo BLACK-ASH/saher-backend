@@ -22,6 +22,9 @@ export const participantSchema = baseSchema.refine(
   },
 );
 
+export const createParticipantsResponseScema = baseSchema;
+export const updateParticipantsResponseScema = baseSchema;
+
 export const updatedParticipantSchema = baseSchema.partial();
 
 export type CreateParticipantInputType = z.infer<typeof participantSchema>;

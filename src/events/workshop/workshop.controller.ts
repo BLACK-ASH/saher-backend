@@ -1,13 +1,17 @@
 import type { Request, Response } from 'express';
 
+import { createWorkshopResponseSchema, updateWorkshopResponseSchema } from './workshop.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 // Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
   const { programmeId } = req.params;
+  if (!programmeId) throw new ApiError(400, 'Id is required in params');
+
   const newWorkshop = await Workshop.create({
     ...req.body,
     programmeId,
@@ -17,9 +21,12 @@ export const addWorkshop = async (req: Request, res: Response) => {
     $push: { workshops: newWorkshop._id },
   });
 
+  const normalized = await normalizeDoc(newWorkshop.toObject());
+  const parsed = createWorkshopResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Workshop is added successfully.',
-    data: newWorkshop,
+    data: parsed,
     statusCode: 201,
   });
 };
@@ -38,15 +45,18 @@ export const editWorkshop = async (req: Request, res: Response) => {
       new: true,
       runValidators: true,
     },
-  );
+  ).lean();
 
   if (!updatedWorkshop) {
     throw new ApiError(404, 'Workshop not found');
   }
 
+  const normalized = normalizeDoc(updatedWorkshop);
+  const parsed = updateWorkshopResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Workshop has been updated successfully',
-    data: updatedWorkshop,
+    data: parsed,
     statusCode: 200,
   });
 };

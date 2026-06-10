@@ -43,6 +43,8 @@ import {
   updatedWorkshopSchema,
 } from './workshop/workshop.schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
+import { reminderNotificationController } from './session/reminder.controller.js';
 
 const eventRouter = Router();
 
@@ -61,7 +63,7 @@ eventRouter.patch('/programmes/:programmeId/workshops/:id/restore', undoDeleteWo
 eventRouter.post('/workshops/:workshopId/sessions', validate(createSessionSchema), addSession);
 eventRouter.delete('/sessions/:id', deleteSession);
 eventRouter.delete('/sessions/:id/permanent', permanentDeleteSession);
-eventRouter.put('/sessions/:id', validate(updatedSessionSchema), editSession);
+eventRouter.put('/sessions/:sessionId', validate(updatedSessionSchema), editSession);
 eventRouter.patch('/sessions/:id/restore', undoDeleteSession);
 
 // Particiapnt route ------------------------------------------------------------------------
@@ -99,4 +101,11 @@ eventRouter.delete('/programmes/:id', deleteProgramme);
 eventRouter.delete('/programmes/:id/permanent', permanentDeleteProgramme);
 eventRouter.put('/programmes/:id', validate(updatedProgrammeSchema), editProgramme);
 eventRouter.patch('/programmes/:id/restore', undoDeleteProgramme);
+
+// Reminder session notification
+eventRouter.get(
+  '/programmes/workshops/sessions/:sessionId',
+  authorize('write', 'event'),
+  reminderNotificationController,
+);
 export default eventRouter;
