@@ -31,14 +31,15 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
       statusCode: 200,
     });
   }
+
   const holidays = await getCalendarHoliday(year, month);
   const sessions = await getCalendarEvents(year, month);
 
   const result = [...holidays, ...sessions];
-  await setCacheWithGroup(key, result, ['calendar'], 7776000);
 
   const parsed = z.array(event).parse(result);
-  // console.log('before resp', result);
+  await setCacheWithGroup(key, result, ['calendar'], 7776000);
+
   return ApiResponse.success(res, {
     message: 'the data from DB ',
     data: parsed,
