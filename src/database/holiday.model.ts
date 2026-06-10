@@ -1,22 +1,36 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-export const holidayTypes = ["national", "organizational", "optional", "other"]
+export const holidayTypes = [
+  'national',
+  'organizational',
+  'optional',
+  'other',
+  'google',
+  'public-holiday',
+];
 
-const holidaySchema = new mongoose.Schema({
-  date: {
-    type: Date,
-    required: true
+const holidaySchema = new mongoose.Schema(
+  {
+    date: {
+      type: Date,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: holidayTypes,
+      default: 'other',
+    },
+    description: {
+      type: String,
+      default: null,
+    },
   },
-  title: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    enum: holidayTypes,
-    default: "other",
-  }
-}, { timestamps: true })
+  { timestamps: true },
+);
 
-type HolidayType = mongoose.InferSchemaType<typeof holidaySchema>
-export const Holiday = mongoose.model<HolidayType>("Holiday", holidaySchema)
+type HolidayType = mongoose.InferSchemaType<typeof holidaySchema>;
+export const Holiday = mongoose.model<HolidayType>('Holiday', holidaySchema);

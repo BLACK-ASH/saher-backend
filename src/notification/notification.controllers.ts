@@ -1,105 +1,138 @@
-import { Request , response, Response } from "express";
-import { ApiError } from "../libs/class/api-error.js";
-import { Notification } from "../database/notification.model.js";
-import { sendSystemNotification } from "../libs/utils/system-notification.js";
+import type { Request, Response } from 'express';
 
-//Create a new Notification
+import type { NotificationAction } from './notification.schema.js';
+import { notificationResponseListSchema } from './notification.schema.js';
+import { Notification } from '../database/notification.model.js';
+import { ApiError } from '../libs/class/api-error.js';
+import { ApiResponse } from '../libs/class/api-response.js';
+import type { NotificationType } from '../libs/class/notification.js';
+import { createKey, getCache, setCache } from '../libs/redis/redis-utils.js';
+import { markSeenNotification } from '../libs/utils/mark-seen.js';
+import { normalizeDoc } from '../libs/utils/normailize-doc.js';
+import { notification } from '../libs/utils/notification.js';
+
 export const createNotificationController = async (req: Request, res: Response) => {
+  const {
+    scope,
+    type,
+    title,
+    description,
+    user,
+    action,
+  }: {
+    scope: string;
+    type: NotificationType;
+    title: string;
+    description: string;
+    user?: string[];
+    action: NotificationAction;
+  } = req.body;
 
-    const userID = req.params.id
+  switch (scope) {
+    case 'global':
+      await notification.global[type](title, description, action);
+      break;
 
-  const {  type, title, description } = req.body;
+    case 'admin':
+      await notification.role[type](scope, title, description, action);
+      break;
 
-  let notification;
+    case 'manager':
+      await notification.role[type](scope, title, description, action);
+      break;
 
-  // Individual Notification
-  if (userID) {
-    notification = await sendSystemNotification({
-        type : type ,
-        title : title ,
-        description : description ,
-        userID:userID , 
-    });
+    case 'user':
+      await notification.role[type](scope, title, description, action);
+      break;
 
-    return res.status(201).json({success: true,message: "Notification sent to user successfully",data: notification,count :1 });
+    case 'intern':
+      await notification.role[type](scope, title, description, action);
+      break;
+
+    case 'specific':
+      if (!user) throw new ApiError(400, 'User is required');
+      await notification.specific[type](user, title, description, action);
+      break;
+
+    default:
+      throw new ApiError(400, 'Invalid scope');
   }
-
-  //  Global Notification
-  else {
-    notification = await Notification.create({
-        type : type ,
-        title : title ,
-        description : description ,
-        user: null, 
-    });
-
-    return res.status(201).json({success: true,message:"Global notification created successfully",data: notification, count : 1 });
-  }
-
+  return ApiResponse.success(res, {
+    statusCode: 201,
+    data: null,
+    message: 'Notification created successfully',
+  });
 };
 
+export const getAllNotificationsController = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) throw new ApiError(401, 'Unauthorized');
 
+  const userId = user.id;
+  const key = createKey('notification', 'user', userId.toString());
+  const cacheRaw = await getCache(key);
+  if (cacheRaw) {
+    const parsedCache = notificationResponseListSchema.parse(cacheRaw);
+    return ApiResponse.success(res, {
+      message: 'Notifications fetched from cache',
+      statusCode: 200,
+      data: parsedCache,
+    });
+  }
 
+  // Agr cache faiL huwa toh DB CAll
+  const role = req.user?.role;
+  const notifications = await Notification.find({
+    $or: [{ user: user?.id, scope: 'specific' }, { scope: role }, { scope: 'global' }],
+  }).lean();
 
+  if (notifications.length === 0) {
+    return ApiResponse.success(res, {
+      message: 'You have no notification',
+      data: [],
+      statusCode: 200,
+    });
+  }
 
-//Get the most recent Notification 
-export const getLatestNotificationController = async(req:Request , res:Response)=>{
-    
-    const user = req.user
+  const normalized = normalizeDoc(notifications);
+  const parsed = notificationResponseListSchema.parse(normalized);
+  await setCache(key, parsed, 604800);
 
-    const countNotification = await Notification.countDocuments()
-    if(countNotification === 0){
-        return res.status(200).json({message:"There are no notification" , count : 0 , data : null , success : true })
-    }
+  return ApiResponse.success(res, {
+    message: 'Notifications fetched from cache',
+    statusCode: 200,
+    data: parsed,
+  });
+};
 
-    const latestNotification = await Notification.findOne({ $or : [{user : user?.id} ,{user : null}]}).sort({createdAt : -1})
-    return res.status(200).json({message:"The most recent notification is " , data : latestNotification  , success : true , count : 1   })
+export const markSeenNotificationController = async (req: Request, res: Response) => {
+  const notificationId = req.params.id as string;
+  const userId = req.user?.id as string;
 
-}
+  if (!notificationId) {
+    throw new ApiError(400, 'Notification id is required');
+  }
 
-//Get all the Notification 
-export const getAlltNotificationController = async(req:Request , res:Response)=>{
-    
-    const user = req.user 
+  const result = await markSeenNotification(notificationId, userId);
 
-    const countNotification = await Notification.countDocuments()
-    if(countNotification === 0){
-        return res.status(200).json({message:"There are no notification" , count : 0 , data : null , success : true })
-    }
+  return ApiResponse.success(res, {
+    message: result.message,
+    data: result.data,
+    statusCode: result.statusCode,
+  });
+};
 
-    const allNotification = await Notification.find({$or:[{user:user?.id} , { user : null}]}).sort({createdAt : -1}).lean()
-    return res.status(200).json({message:"The notifications are  " , data : allNotification , count : allNotification.length  , success : true  })
+export const getUnseenNotification = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
 
-}
+  const unseenNotification = await Notification.find({
+    user: userId,
+    isSeen: false,
+  });
 
-
-//Update Notification 
-export const updateNotificationController = async(req:Request , res:Response )=>{
-    const ID = req.params.id
-
-    const {type , title , description } = req.body 
-    //Sabse pehle Db mein existing notification dhundho 
-    const updatedNotification = await Notification.findByIdAndUpdate(ID , req.body , { new : true } )
-
-    if(!updatedNotification){
-        throw new ApiError(404 , "Notification not found")
-    }
-
-    return res.status(200).json({message:"The notification has been updated successfully " , data : updatedNotification , success : true })
-}
-
-//Delete One Notification 
-export const deleteNotificationController = async(req:Request , res:Response)=>{
-    
-    const ID = req.params.id 
-
-    const notification = await Notification.findByIdAndDelete(ID)
-
-    if(!notification){
-        throw new ApiError(404, "The notification was not found")
-    }
-
-    return res.status(200).json({message:"The notification has been deleted successfully" , success : true , data : null  })
-}
-
-
+  return ApiResponse.success(res, {
+    message: 'You have new Notification ',
+    data: unseenNotification,
+    meta: { count: unseenNotification.length },
+  });
+};
