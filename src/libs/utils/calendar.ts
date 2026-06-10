@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 
 import { normalizeDoc } from './normailize-doc.js';
 import type { EventT } from '../../calendar/calendar.schema.js';
+import { CalendarEvent } from '../../database/calendar-event.model.js';
 import { Holiday } from '../../database/holiday.model.js';
 import { Session } from '../../database/session.model.js';
 
@@ -94,7 +95,7 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
   return normalizeDoc(data) as EventT[];
 };
 
-export const getCalendarEvents = async (year: number, month: number): Promise<EventT[]> => {
+export const getCalendarSession = async (year: number, month: number): Promise<EventT[]> => {
   const numberOfDays = calculateNumberOfDays(year, month);
 
   const startOfMonth = new Date(year, month, 1);
@@ -140,6 +141,62 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
         title: 1,
         type: 1,
         date: 1,
+        start: 1,
+        end: 1,
+        allDay: 1,
+        details: 1,
+      },
+    },
+    {
+      $sort: {
+        start: 1,
+      },
+    },
+  ]);
+
+  return normalizeDoc(data) as EventT[];
+};
+
+export const getCalendarEvents = async (year: number, month: number): Promise<EventT[]> => {
+  const numberOfDays = calculateNumberOfDays(year, month);
+
+  const startOfMonth = new Date(year, month, 1);
+  const endOfMonth = new Date(year, month, numberOfDays + 1);
+
+  const data = await CalendarEvent.aggregate([
+    {
+      $match: {
+        start: {
+          $gte: startOfMonth,
+          $lt: endOfMonth,
+        },
+      },
+    },
+    {
+      $set: {
+        details: {
+          id: '$_id',
+          title: '$title',
+          type: '$type',
+          description: '$description',
+        },
+      },
+    },
+    {
+      $set: {
+        type: 'calendar-event',
+      },
+    },
+
+    {
+      $set: {
+        allDay: false,
+      },
+    },
+    {
+      $project: {
+        title: 1,
+        type: 1,
         start: 1,
         end: 1,
         allDay: 1,

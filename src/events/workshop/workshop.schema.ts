@@ -1,17 +1,15 @@
+//import DOMPurify from 'dompurify';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
-import DOMPurify from '../../libs/dompurify/dompurify.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 //Base workshop schema
 export const baseWorkshopSchema = z.object({
   title: z.string().min(5).max(50),
-  description: z
-    .string()
-    .min(10)
-    .max(500)
-    .transform((value) => DOMPurify.sanitize(value)),
+
+  description: z.string().min(10).max(500),
+  // .transform((value) => DOMPurify.sanitize(value)),
 
   programmeId: objectId(),
   participants: z.array(objectId()).optional(),

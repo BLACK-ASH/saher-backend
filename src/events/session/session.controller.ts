@@ -1,11 +1,13 @@
 import type { Request, Response } from 'express';
 
 import { createSessionResponseSchema } from './session.schema.js';
+import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notification } from '../../libs/utils/notification.js';
 import { sendPushToUser } from '../../libs/utils/push-notification.js';
@@ -15,12 +17,43 @@ export const addSession = async (req: Request, res: Response) => {
   const { workshopId } = req.params;
   if (!workshopId) throw new ApiError(400, 'Id is required in params');
 
-  const workshop = await Workshop.findById(workshopId);
-  if (!workshop) {
-    throw new ApiError(404, 'Workshop not found');
+  //Checking for programme existence
+  const programme = await Programme.findById(req.params.programmeId);
+
+  if (!programme) {
+    throw new ApiError(404, 'Programme not found');
   }
 
-  const newSession = await Session.create({ ...req.body, workshopId });
+  //Checking for workshop existence
+  if (workshopId) {
+    const workshop = await Workshop.findOne({
+      _id: workshopId,
+      programmeId: req.params.programmeId,
+      isDeleted: false,
+    });
+
+    if (!workshop) {
+      throw new ApiError(404, 'Workshop not found');
+    }
+  }
+
+  let newWorkshopId;
+
+  // If no workshop is provided
+  if (!workshopId) {
+    const workshop = await Workshop.create({
+      title: req.body.title,
+      description: req.body.description,
+      programmeId: convertToObjectId(req.params.programmeId as string),
+    });
+
+    newWorkshopId = workshop._id;
+  }
+
+  const newSession = await Session.create({
+    ...req.body,
+    newWorkshopId,
+  });
 
   const notificationTitle = 'Receieved New Session';
   const notificationDesc = `A new Session has been created`;
@@ -44,6 +77,7 @@ export const addSession = async (req: Request, res: Response) => {
   const date = req.body.date;
   const month = new Date(date).getMonth();
   const year = new Date(date).getFullYear();
+
   const key = createKey('calendar', year, month);
 
   await deleteCache(key);
@@ -144,6 +178,43 @@ export const permanentDeleteSession = async (req: Request, res: Response) => {
   return ApiResponse.success(res, {
     message: 'Session has been permanently deleted',
     data: null,
+    statusCode: 200,
+  });
+};
+
+//Get all sessions
+export const getSessions = async (req: Request, res: Response) => {
+  const session = await Session.find({
+    workshopId: req.params.workshopId,
+    isDeleted: false,
+  });
+
+  if (session.length === 0) {
+    throw new ApiError(404, 'Sessions not found');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'Sessions fetched successfully',
+    data: session,
+    statusCode: 200,
+  });
+};
+
+//Get a single Session
+export const getSingleSession = async (req: Request, res: Response) => {
+  const session = await Session.findOne({
+    _id: req.params.sessionId,
+    workshopId: req.params.workshopId,
+    isDeleted: false,
+  });
+
+  if (!session) {
+    throw new ApiError(404, 'Session not found');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'Session fetched successfully',
+    data: session,
     statusCode: 200,
   });
 };
