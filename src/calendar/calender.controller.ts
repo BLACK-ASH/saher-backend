@@ -2,10 +2,13 @@ import type { Request, Response } from 'express';
 import z from 'zod';
 
 import { event } from './calendar.schema.js';
+import { CalendarEvent } from '../database/calendar-event.model.js';
 import { Holiday } from '../database/holiday.model.js';
+import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import {
   createKey,
+  deleteCache,
   deleteCacheGroup,
   getCache,
   setCacheWithGroup,
@@ -14,6 +17,7 @@ import {
   fetchGoogleHolidays,
   getCalendarEvents,
   getCalendarHoliday,
+  getCalendarSession,
 } from '../libs/utils/calendar.js';
 
 export const getCalendarEventByMonth = async (req: Request, res: Response) => {
@@ -32,9 +36,9 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
     });
   }
   const holidays = await getCalendarHoliday(year, month);
-  const sessions = await getCalendarEvents(year, month);
-
-  const result = [...holidays, ...sessions];
+  const sessions = await getCalendarSession(year, month);
+  const events = await getCalendarEvents(year, month);
+  const result = [...holidays, ...sessions, ...events];
   await setCacheWithGroup(key, result, ['calendar'], 7776000);
 
   const parsed = z.array(event).parse(result);
@@ -43,6 +47,44 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
     message: 'the data from DB ',
     data: parsed,
     statusCode: 200,
+  });
+};
+
+export const deleteCalendarEventController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await CalendarEvent.findByIdAndDelete(id);
+
+  return ApiResponse.success(res, {
+    message: 'Calendar Event Deleted SuccessFully',
+    data: null,
+    statusCode: 204,
+  });
+};
+
+export const createCalendarEventController = async (req: Request, res: Response) => {
+  const { title, type, description, start, end } = req.body;
+
+  const existingRecord = await CalendarEvent.findOne({ type: type, start: start, end: end });
+  if (existingRecord) throw new ApiError(400, 'there is already an event added');
+
+  const newRecord = await CalendarEvent.create({
+    title,
+    description,
+    start,
+    end,
+    type,
+  });
+
+  const month = new Date(start).getMonth();
+  const year = new Date(start).getFullYear();
+  const key = createKey('calendar', year, month);
+
+  await deleteCache(key);
+
+  return ApiResponse.success(res, {
+    message: 'The Event has been added successfully',
+    data: null,
+    statusCode: 201,
   });
 };
 
