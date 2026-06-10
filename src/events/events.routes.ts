@@ -4,8 +4,13 @@ import {
   addParticipant,
   deleteParticipant,
   editParticipant,
+  readAllParticipant,
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
+import {
+  addParticipantToProgramme,
+  removeParticipantFromProgramme,
+} from './programmes/programme-participant.controller.js';
 import {
   getProgrammes,
   getSingleProgramme,
@@ -30,10 +35,6 @@ import {
   undoDeleteSession,
 } from './session/session.controller.js';
 import { createSessionSchema, updatedSessionSchema } from './session/session.schema.js';
-import {
-  addParticipantToWorkshop,
-  removeParticipantFromWorkshop,
-} from './workshop/workshop-participant.controller.js';
 import {
   addWorkshop,
   deleteWorkshop,
@@ -99,6 +100,7 @@ eventRouter.put('/sessions/:id', underDevelopment, validate(updatedSessionSchema
 eventRouter.patch('/sessions/:id/restore', underDevelopment, undoDeleteSession);
 
 // Particiapnt route ------------------------------------------------------------------------
+eventRouter.get('/participants', underDevelopment, readAllParticipant);
 eventRouter.post('/participants', underDevelopment, validate(participantSchema), addParticipant);
 eventRouter.delete('/participants/:id', underDevelopment, deleteParticipant);
 eventRouter.put(
@@ -129,11 +131,16 @@ eventRouter.delete(
 );
 
 //Workshop-Participant route ------------------------------------------------------------------------------
-eventRouter.post('/workshops/:workshopId/participants', underDevelopment, addParticipantToWorkshop);
-eventRouter.delete(
-  '/workshops/:workshopId/participants/:participantId',
+eventRouter.post(
+  '/programmes/:programmeId/participants',
   underDevelopment,
-  removeParticipantFromWorkshop,
+  addParticipantToProgramme,
+);
+
+eventRouter.delete(
+  '/programmes/:programmeId/participants/:participantId',
+  underDevelopment,
+  removeParticipantFromProgramme,
 );
 
 //Programme routes ----------------------------------------------------------------------------------------------

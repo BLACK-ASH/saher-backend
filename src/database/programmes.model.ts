@@ -12,11 +12,18 @@ const programmeSchema = new mongoose.Schema(
       required: true,
     },
 
+    participants: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Participant',
+      default: [],
+    },
+
     workshops: {
       type: [Schema.Types.ObjectId],
       ref: 'Workshop',
       default: [],
     },
+
     isDeleted: {
       type: Boolean,
       default: false,
