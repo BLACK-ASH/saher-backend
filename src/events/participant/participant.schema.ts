@@ -8,7 +8,7 @@ export const baseSchema = z.object({
   photo: z.string(),
   address: z.string().min(20).max(50),
   affiliation: z.string().min(20).max(50),
-  parentDetails: z.string(),
+  parentDetails: z.string().optional(),
   document: z.string(),
 });
 
@@ -22,10 +22,21 @@ export const participantSchema = baseSchema.refine(
   },
 );
 
-export const createParticipantsResponseScema = baseSchema;
-export const updateParticipantsResponseScema = baseSchema;
-
 export const updatedParticipantSchema = baseSchema.partial();
+
+export const participantsResponsiveSchema = z.array(
+  z.object({
+    name: z.string(),
+    age: z.number(),
+    gender: z.string(),
+    phoneNumber: z.string(),
+    photo: z.string(),
+    address: z.string(),
+    affiliation: z.string(),
+    parentDetails: z.string(),
+    document: z.string(),
+  }),
+);
 
 export type CreateParticipantInputType = z.infer<typeof participantSchema>;
 export type UpdateParticipantInputType = z.infer<typeof updatedParticipantSchema>;

@@ -24,7 +24,7 @@ const sessionSchema = new mongoose.Schema(
     workshopId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Workshop',
-      required: true,
+      // required: true,
     },
 
     title: {
