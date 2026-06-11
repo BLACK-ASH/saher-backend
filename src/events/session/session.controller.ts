@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { createSessionResponseSchema } from './session.schema.js';
+import { getSessionById, getSessionSchema } from './session.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -14,11 +14,11 @@ import { sendPushToUser } from '../../libs/utils/push-notification.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
-  const { workshopId } = req.params;
-  if (!workshopId) throw new ApiError(400, 'Id is required in params');
+  const { programmeId } = req.params;
+  const { workshopId } = req.body;
 
   //Checking for programme existence
-  const programme = await Programme.findById(req.params.programmeId);
+  const programme = await Programme.findById(programmeId);
 
   if (!programme) {
     throw new ApiError(404, 'Programme not found');
@@ -28,7 +28,7 @@ export const addSession = async (req: Request, res: Response) => {
   if (workshopId) {
     const workshop = await Workshop.findOne({
       _id: workshopId,
-      programmeId: req.params.programmeId,
+      programmeId,
       isDeleted: false,
     });
 
@@ -62,17 +62,11 @@ export const addSession = async (req: Request, res: Response) => {
     notificationTitle,
     notificationDesc,
   );
-  await Promise.all(
-    newSession.speaker.map((speakerId) =>
-      sendPushToUser(speakerId.toString(), {
-        title: 'New Session Created',
-        body: `${newSession.title} has been scheduled`,
-      }),
-    ),
-  );
 
-  const normalized = normalizeDoc(newSession.toObject());
-  const parsed = createSessionResponseSchema.parse(normalized);
+  // await sendPushToUser(newSession.speaker.toString(), {
+  //   title: 'New Session Created',
+  //   body: `${newSession.title} has been scheduled`,
+  // });
 
   const date = req.body.date;
   const month = new Date(date).getMonth();
@@ -92,10 +86,11 @@ export const addSession = async (req: Request, res: Response) => {
 //Edit a session
 export const editSession = async (req: Request, res: Response) => {
   const updates = req.body;
-  const { sessionId } = req.params;
-  if (!sessionId) throw new ApiError(400, 'Id is required in params');
 
-  const updatedSession = await Session.findByIdAndUpdate(sessionId, updates).lean();
+  const updatedSession = await Session.findByIdAndUpdate(
+    { _id: req.params, isDeleted: false },
+    updates,
+  ).lean();
 
   if (!updatedSession) {
     throw new ApiError(404, 'Session not found');
@@ -108,17 +103,10 @@ export const editSession = async (req: Request, res: Response) => {
     notificationTitle,
     notificationDesc,
   );
-  await Promise.all(
-    updatedSession.speaker.map((speakerId) =>
-      sendPushToUser(speakerId.toString(), {
-        title: 'New Session Created',
-        body: `${updatedSession.title} has been scheduled`,
-      }),
-    ),
-  );
-
-  const normalized = normalizeDoc(updatedSession);
-  const parsed = createSessionResponseSchema.parse(normalized);
+  awaitsendPushToUser(updatedSession.speaker.toString(), {
+    title: 'New Session Created',
+    body: `${updatedSession.title} has been scheduled`,
+  });
 
   return ApiResponse.success(res, {
     message: 'Session has been Updated successfully',
@@ -157,7 +145,7 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'Session has been restored successfully',
-    data: session,
+    data: null,
     statusCode: 200,
   });
 };
@@ -187,15 +175,20 @@ export const getSessions = async (req: Request, res: Response) => {
   const session = await Session.find({
     workshopId: req.params.workshopId,
     isDeleted: false,
-  });
+  })
+    .populate('speaker')
+    .lean();
 
   if (session.length === 0) {
     throw new ApiError(404, 'Sessions not found');
   }
 
+  const normalized = normalizeDoc(session);
+  const parsed = getSessionSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Sessions fetched successfully',
-    data: session,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -206,15 +199,20 @@ export const getSingleSession = async (req: Request, res: Response) => {
     _id: req.params.sessionId,
     workshopId: req.params.workshopId,
     isDeleted: false,
-  });
+  })
+    .populate('speaker')
+    .lean();
 
   if (!session) {
     throw new ApiError(404, 'Session not found');
   }
 
+  const normalized = normalizeDoc(session);
+  const parsed = getSessionById.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',
-    data: session,
+    data: parsed,
     statusCode: 200,
   });
 };

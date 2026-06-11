@@ -2,7 +2,6 @@
 import { Types } from 'mongoose';
 import z from 'zod';
 
-import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
@@ -34,6 +33,23 @@ export const updatedSessionSchema = baseSchema.partial().refine(
     path: ['endTime'],
   },
 );
+
+export const getSessionResponsiveSchema = z.object({
+  workshopId: z.string(),
+  title: z.string(),
+  description: z.string(),
+  date: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  speaker: z.array(
+    z.object({
+      id: z.string(),
+    }),
+  ),
+});
+
+export const getSessionSchema = z.array(getSessionResponsiveSchema);
+export const getSessionById = getSessionResponsiveSchema;
 
 export const createSessionResponseSchema = baseSchema;
 export const UpdatesSessionResponseSchema = baseSchema;

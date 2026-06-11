@@ -21,12 +21,9 @@ export const addWorkshop = async (req: Request, res: Response) => {
     $push: { workshops: newWorkshop._id },
   });
 
-  const normalized = await normalizeDoc(newWorkshop.toObject());
-  const parsed = createWorkshopResponseSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Workshop is added successfully.',
-    data: parsed,
+    data: null,
     statusCode: 201,
   });
 };
@@ -51,12 +48,9 @@ export const editWorkshop = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Workshop not found');
   }
 
-  const normalized = normalizeDoc(updatedWorkshop);
-  const parsed = updateWorkshopResponseSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Workshop has been updated successfully',
-    data: parsed,
+    data: null,
     statusCode: 200,
   });
 };
