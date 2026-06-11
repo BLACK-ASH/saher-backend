@@ -103,7 +103,7 @@ export const editSession = async (req: Request, res: Response) => {
     notificationTitle,
     notificationDesc,
   );
-  awaitsendPushToUser(updatedSession.speaker.toString(), {
+  await sendPushToUser(updatedSession.speaker.toString(), {
     title: 'New Session Created',
     body: `${updatedSession.title} has been scheduled`,
   });
