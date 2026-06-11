@@ -20,7 +20,11 @@ import {
   permanentDeleteProgramme,
   undoDeleteProgramme,
 } from './programmes/programmes.controller.js';
-import { baseProgrammeSchema, updatedProgrammeSchema } from './programmes/programmes.schema.js';
+import {
+  baseProgrammeSchema,
+  createProgrammeSchema,
+  updatedProgrammeSchema,
+} from './programmes/programmes.schema.js';
 import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
 import { removeAttendance } from './session/session-remove-attendance.controller.js';
@@ -217,7 +221,7 @@ eventRouter.post(
   '/programmes',
   underDevelopment,
   authorize('write', 'event'),
-  validate(baseProgrammeSchema),
+  validate(createProgrammeSchema),
   addProgramme,
 );
 eventRouter.delete(

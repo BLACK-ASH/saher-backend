@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { programmeResponseListSchema, programmeResponseSchema } from './programmes.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -9,9 +10,12 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 export const addProgramme = async (req: Request, res: Response) => {
   const newProgramme = await Programme.create(req.body);
 
+  const normalized = normalizeDoc(newProgramme);
+  const parsed = programmeResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programme has been added successfully.',
-    data: null,
+    data: parsed,
     statusCode: 201,
   });
 };
@@ -34,9 +38,12 @@ export const editProgramme = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Programme not found');
   }
 
+  const normalized = normalizeDoc(updatedProgramme);
+  const parsed = programmeResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programme has been updated successfully',
-    data: updatedProgramme,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -77,9 +84,12 @@ export const undoDeleteProgramme = async (req: Request, res: Response) => {
 
   await programme.save();
 
+  const normalized = normalizeDoc(programme.toObject());
+  const parsed = programmeResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programme has been restored successfully',
-    data: programme,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -108,15 +118,22 @@ export const permanentDeleteProgramme = async (req: Request, res: Response) => {
 export const getProgrammes = async (req: Request, res: Response) => {
   const programme = await Programme.find({
     isDeleted: false,
-  });
+  }).lean();
 
   if (programme.length === 0) {
-    throw new ApiError(404, 'Programs not found');
+    return ApiResponse.success(res, {
+      message: 'Programs not found',
+      data: [],
+      statusCode: 200,
+    });
   }
+
+  const normalized = normalizeDoc(programme);
+  const parsed = programmeResponseListSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Programmes fetched successfully',
-    data: programme,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -126,15 +143,18 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
   const programme = await Programme.findOne({
     _id: req.params.id,
     isDeleted: false,
-  });
+  }).lean();
 
   if (!programme) {
     throw new ApiError(404, 'Programme not found');
   }
 
+  const normalized = normalizeDoc(programme);
+  const parsed = programmeResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programme fetched successfully',
-    data: programme,
+    data: parsed,
     statusCode: 200,
   });
 };

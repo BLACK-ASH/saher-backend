@@ -13,14 +13,25 @@ export const baseProgrammeSchema = z.object({
   participants: z.array(objectId()).optional(),
   workshops: z.array(objectId()).optional(),
 });
-//Create a programme
-export const createProgrammeSchema = baseProgrammeSchema;
 
-//Update a programme
+//Request Schema
+export const createProgrammeSchema = baseProgrammeSchema;
 export const updatedProgrammeSchema = baseProgrammeSchema.omit({ workshops: true }).partial();
 
-export const createProgrammeResponseSchema = baseProgrammeSchema;
-export const updateProgrammeResponseSchema = baseProgrammeSchema;
+//Response Schema
+export const programmeResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+
+  participants: z.array(z.string()).default([]),
+  workshops: z.array(z.string()).default([]),
+
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const programmeResponseListSchema = z.array(programmeResponseSchema);
 
 export const createProgrammeParticipantsResponseSchema = baseProgrammeSchema
   .pick({ participants: true })
