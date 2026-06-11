@@ -117,6 +117,10 @@ export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Workshop must be soft deleted before permanent deletion');
   }
 
+  await Programme.findByIdAndUpdate(workshop.programmeId, {
+    $pull: { workshops: workshop._id },
+  });
+
   await Workshop.findByIdAndDelete(req.params.id);
 
   return ApiResponse.success(res, {
@@ -127,10 +131,13 @@ export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
 };
 
 //Get all Workshops
-export const getWorkshops = async (req: Request, res: Response) => {
-  const workshop = await Workshop.find({ programmeId: req.params.programmeId, isDeleted: false });
+export const getWorkshopsFromProgramme = async (req: Request, res: Response) => {
+  const workshop = await Workshop.find({
+    programmeId: req.params.programmeId,
+    isDeleted: false,
+  });
 
-  if (!workshop) {
+  if (workshop.length === 0) {
     throw new ApiError(404, 'Workshops not found');
   }
 
@@ -145,7 +152,6 @@ export const getWorkshops = async (req: Request, res: Response) => {
 export const getSingleWorkshop = async (req: Request, res: Response) => {
   const workshop = await Workshop.findOne({
     _id: req.params.workshopId,
-    programmeId: req.params.programmeId,
     isDeleted: false,
   });
 

@@ -31,7 +31,10 @@ export const editProgramme = async (req: Request, res: Response) => {
       isDeleted: false,
     },
     req.body,
-    { new: false, runValidators: false },
+    {
+      new: true,
+      runValidators: true,
+    },
   ).lean();
 
   if (!updatedProgramme) {
@@ -44,6 +47,7 @@ export const editProgramme = async (req: Request, res: Response) => {
   return ApiResponse.success(res, {
     message: 'Programme has been updated successfully',
     data: parsed,
+    statusCode: 200,
   });
 };
 
@@ -112,9 +116,11 @@ export const permanentDeleteProgramme = async (req: Request, res: Response) => {
 
 //Get all Programmes
 export const getProgrammes = async (req: Request, res: Response) => {
-  const programme = await Programme.find({ isDeleted: false });
+  const programme = await Programme.find({
+    isDeleted: false,
+  });
 
-  if (!programme) {
+  if (programme.length === 0) {
     throw new ApiError(404, 'Programs not found');
   }
 

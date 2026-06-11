@@ -10,8 +10,6 @@ export const baseWorkshopSchema = z.object({
 
   description: z.string().min(10).max(500),
   // .transform((value) => DOMPurify.sanitize(value)),
-
-  programmeId: objectId(),
   participants: z.array(objectId()).optional(),
 });
 

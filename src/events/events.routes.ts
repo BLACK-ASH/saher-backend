@@ -40,7 +40,7 @@ import {
   deleteWorkshop,
   editWorkshop,
   getSingleWorkshop,
-  getWorkshops,
+  getWorkshopsFromProgramme,
   permanentDeleteWorkshop,
   undoDeleteWorkshop,
 } from './workshop/workshop.controller.js';
@@ -57,12 +57,8 @@ import { reminderNotificationController } from './session/reminder.controller.js
 const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
-eventRouter.get('/programmes/:programmeId/workshops', underDevelopment, getWorkshops);
-eventRouter.get(
-  '/programmes/:programmeId/workshops/:workshopId',
-  underDevelopment,
-  getSingleWorkshop,
-);
+eventRouter.get('/programmes/:programmeId/workshops', underDevelopment, getWorkshopsFromProgramme);
+eventRouter.get('/programmes/workshops/:workshopId', underDevelopment, getSingleWorkshop);
 eventRouter.post(
   '/programmes/:programmeId/workshops',
   underDevelopment,
@@ -132,7 +128,7 @@ eventRouter.delete(
   removeAttendance,
 );
 
-//Workshop-Participant route ------------------------------------------------------------------------------
+//Programme-Participant route ------------------------------------------------------------------------------
 eventRouter.post(
   '/programmes/:programmeId/participants',
   underDevelopment,
