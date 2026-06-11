@@ -38,15 +38,4 @@ notificationRouter.post('/enable', enableNotificationController);
 // disable notifications
 notificationRouter.post('/disable', disableNotificationController);
 
-// notificationRouter.get('/push-test', async (req, res) => {
-//   console.log('Web Push Hit');
-//   await sendPushToUser(req.user?.id!, {
-//     title: 'Test Push',
-//     body: 'If you see this, push is working 🎉',
-//     url: '/',
-//   });
-
-//   res.json({ success: true });
-// });
-//
 export default notificationRouter;
