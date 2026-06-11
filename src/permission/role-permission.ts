@@ -19,13 +19,27 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission('update', 'holiday'),
     createPermission('delete', 'holiday'),
 
+    // Bank
+    createPermission('write', 'bank'),
+    createPermission('update', 'bank'),
+
+    // Attendance
+    createPermission('write', 'attendance'),
+    createPermission('update', 'attendance'),
+
+    // Attendance Correction
+    createPermission('write', 'attendance-correction'),
+    createPermission('update', 'attendance-correction'),
+
     // Event
     createPermission('write', 'event'),
     createPermission('update', 'event'),
     createPermission('delete', 'event'),
 
-    //Mail
-    createPermission('write', 'mail'),
+    //Notification
+    createPermission('write', 'notification'),
+    createPermission('update', 'notification'),
+    createPermission('delete', 'notification'),
 
     //Mail
     createPermission('write', 'mail'),
