@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema(
     deletedAt: {
       type: Date,
     },
-    deleteBy: {
+    deletedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
