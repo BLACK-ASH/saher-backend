@@ -17,6 +17,7 @@ import {
   getAllUsersController,
   userDeleteController,
   userGetController,
+  userRestoreController,
   userUpdateController,
 } from './user/controller.js';
 import { userUpdateSchema } from './user/schema.js';
@@ -61,5 +62,7 @@ adminRouter
   .get(userGetController)
   .put(authorize('update', 'user'), validate(userUpdateSchema), userUpdateController)
   .delete(authorize('delete', 'user'), userDeleteController);
+
+adminRouter.patch('/user/:id/restore', userRestoreController);
 
 export default adminRouter;

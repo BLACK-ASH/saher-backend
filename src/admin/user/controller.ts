@@ -5,6 +5,7 @@ import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { getAccountByUser } from '../_services/account.js';
 import { userSchemaFinal } from '../_services/user.js';
@@ -76,23 +77,78 @@ export const userUpdateController = async (req: Request, res: Response) => {
 export const userDeleteController = async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const deleteData = {
-    isActive: false,
-    deletedAt: new Date(),
-    deletedBy: req.user?.id,
-  };
+  const admin = req.user;
+  if (!admin) throw new ApiError(403, 'Forbidden');
 
-  const deleted = await User.findByIdAndUpdate(id, deleteData);
-  if (!deleted) throw new ApiError(404, 'User Not Found.');
+  if (String(id) === String(admin.id)) {
+    throw new ApiError(400, 'You Cannot Delete Yourself');
+  }
 
-  const key1 = createKey('user', 'list');
+  const user = await User.findById(id);
+  if (!user) throw new ApiError(404, 'User Not Found.');
+
+  const key1 = createKey('users', 'list');
   const key2 = createKey('user', id);
+
+  if (!user.isActive) {
+    await User.findByIdAndDelete(id);
+
+    await deleteCache(key1);
+    await deleteCache(key2);
+
+    return ApiResponse.success(res, {
+      message: 'User Deleted Successfully.',
+      data: null,
+      statusCode: 200,
+    });
+  }
+
+  user.isActive = false;
+  user.deletedAt = new Date();
+  user.deletedBy = convertToObjectId(admin.id);
+  await user.save();
 
   await deleteCache(key1);
   await deleteCache(key2);
 
   return ApiResponse.success(res, {
     message: 'User Deleted Successfully.',
+    data: null,
+    statusCode: 200,
+  });
+};
+
+export const userRestoreController = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+
+  const admin = req.user;
+  if (!admin) {
+    throw new ApiError(403, 'Forbidden');
+  }
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new ApiError(404, 'User Not Found.');
+  }
+
+  if (!user.deletedAt) {
+    throw new ApiError(400, 'User is not deleted.');
+  }
+
+  user.isActive = true;
+  user.deletedAt = null;
+  user.deletedBy = null;
+
+  await user.save();
+
+  const listKey = createKey('users', 'list');
+  const userKey = createKey('user', id);
+
+  await Promise.all([deleteCache(listKey), deleteCache(userKey)]);
+
+  return ApiResponse.success(res, {
+    message: 'User Restored Successfully.',
     data: null,
     statusCode: 200,
   });

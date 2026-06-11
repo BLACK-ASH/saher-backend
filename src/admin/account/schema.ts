@@ -7,19 +7,7 @@ import { objectId } from '../../libs/utils/zod-object-id.js';
 import { bankSchema } from '../bank/schema.js';
 
 export const userSchema = z.object({
-  name: z
-    .string('Username Is Required.')
-    .trim()
-    .regex(/^[a-zA-Z0-9_-]+$/, {
-      message: 'Only alphanumeric, underscore and hyphen allowed',
-    })
-    .refine((val) => !/^[0-9_-]/.test(val), {
-      message: 'Cannot start with _ and - or Number',
-    })
-    .refine((val) => !/[_-]$/.test(val), {
-      message: 'Cannot end with _ or -',
-    })
-    .min(2),
+  name: z.string('Username Is Required.').trim().min(2, 'Name Is Required'),
   displayName: z.string().optional(),
   image: objectId('User Profile Image Is Required.'),
   role: z.enum(userRole).default('user'),
