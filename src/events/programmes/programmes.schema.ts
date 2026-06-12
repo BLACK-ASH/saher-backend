@@ -36,15 +36,15 @@ export const programmeResponseSchema = z.object({
       }),
     )
     .optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
 });
 
-export const programmeResponseListSchema = z.array(programmeResponseSchema);
+export const getProgrammesSchema = z.array(programmeResponseSchema);
+export const getSingleProgrammeSchema = programmeResponseSchema;
 
 export const createProgrammeParticipantsResponseSchema = baseProgrammeSchema
   .pick({ participants: true })
   .required();
 
+//Types
 export type CreateProgrammeInputType = z.infer<typeof createProgrammeSchema>;
 export type UpdateProgrammeInputType = z.infer<typeof updatedProgrammeSchema>;

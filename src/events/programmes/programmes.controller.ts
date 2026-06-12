@@ -1,6 +1,10 @@
 import type { Request, Response } from 'express';
 
-import { programmeResponseListSchema, programmeResponseSchema } from './programmes.schema.js';
+import {
+  programmeResponseSchema,
+  getProgrammesSchema,
+  getSingleProgrammeSchema,
+} from './programmes.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -23,15 +27,8 @@ export const addProgramme = async (req: Request, res: Response) => {
 //Edit a programme
 export const editProgramme = async (req: Request, res: Response) => {
   const updatedProgramme = await Programme.findOneAndUpdate(
-    {
-      _id: req.params.id,
-      isDeleted: false,
-    },
+    { _id: req.params.id, isDeleted: false },
     req.body,
-    {
-      new: true,
-      runValidators: true,
-    },
   ).lean();
 
   if (!updatedProgramme) {
@@ -81,7 +78,6 @@ export const undoDeleteProgramme = async (req: Request, res: Response) => {
   }
 
   programme.isDeleted = false;
-
   await programme.save();
 
   const normalized = normalizeDoc(programme.toObject());
@@ -118,7 +114,10 @@ export const permanentDeleteProgramme = async (req: Request, res: Response) => {
 export const getProgrammes = async (req: Request, res: Response) => {
   const programme = await Programme.find({
     isDeleted: false,
-  }).lean();
+  })
+    .populate('participants')
+    .populate('workshops')
+    .lean();
 
   if (programme.length === 0) {
     return ApiResponse.success(res, {
@@ -129,7 +128,7 @@ export const getProgrammes = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(programme);
-  const parsed = programmeResponseListSchema.parse(normalized);
+  const parsed = getProgrammesSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Programmes fetched successfully',
@@ -143,14 +142,17 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
   const programme = await Programme.findOne({
     _id: req.params.id,
     isDeleted: false,
-  }).lean();
+  })
+    .populate('participants')
+    .populate('workshops')
+    .lean();
 
   if (!programme) {
     throw new ApiError(404, 'Programme not found');
   }
 
   const normalized = normalizeDoc(programme);
-  const parsed = programmeResponseSchema.parse(normalized);
+  const parsed = getSingleProgrammeSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Programme fetched successfully',

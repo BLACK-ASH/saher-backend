@@ -49,7 +49,7 @@ export const getSessionResponsiveSchema = z.object({
 });
 
 export const getSessionSchema = z.array(getSessionResponsiveSchema);
-export const getSessionById = getSessionResponsiveSchema;
+export const getSessionByIdSchema = getSessionResponsiveSchema;
 
 export const createSessionResponseSchema = baseSchema;
 export const UpdatesSessionResponseSchema = baseSchema;

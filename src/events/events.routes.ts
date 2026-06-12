@@ -1,10 +1,13 @@
 import { Router } from 'express';
 
 import {
-  addParticipant,
-  deleteParticipant,
-  editParticipant,
-  getAllParticipant,
+  addParticipantController,
+  deleteParticipantController,
+  editParticipantController,
+  getAllParticipantController,
+  getParticipantByIdController,
+  permanentDeleteParticipantController,
+  undoDeleteParticipantController,
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
 import {
@@ -68,7 +71,7 @@ eventRouter.get(
   getWorkshopsFromProgramme,
 );
 eventRouter.get(
-  '/programmes/:programmeId/workshops/:workshopId',
+  '/programmes/workshops/:workshopId',
   underDevelopment,
   authorize('read', 'event'),
   getSingleWorkshop,
@@ -149,26 +152,39 @@ eventRouter.patch(
 );
 
 // Particiapnt route ------------------------------------------------------------------------
-eventRouter.get('/participants', underDevelopment, authorize('read', 'event'), getAllParticipant);
+eventRouter.get('/participants', underDevelopment, getAllParticipantController);
+eventRouter.get('/participants/:id', underDevelopment, getParticipantByIdController);
 eventRouter.post(
   '/participants',
   underDevelopment,
   authorize('write', 'event'),
   validate(participantSchema),
-  addParticipant,
+  addParticipantController,
 );
 eventRouter.delete(
   '/participants/:id',
   underDevelopment,
   authorize('delete', 'event'),
-  deleteParticipant,
+  deleteParticipantController,
+);
+eventRouter.delete(
+  '/participants/:id/permanent',
+  underDevelopment,
+  authorize('delete', 'event'),
+  permanentDeleteParticipantController,
 );
 eventRouter.put(
   '/participants/:id',
   underDevelopment,
   authorize('update', 'event'),
   validate(updatedParticipantSchema),
-  editParticipant,
+  editParticipantController,
+);
+eventRouter.patch(
+  '/participants/:id/restore',
+  underDevelopment,
+  authorize('update', 'event'),
+  undoDeleteParticipantController,
 );
 
 // Session Attendance route ------------------------------------------------------------------------------

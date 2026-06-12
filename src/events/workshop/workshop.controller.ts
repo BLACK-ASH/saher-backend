@@ -1,6 +1,10 @@
 import type { Request, Response } from 'express';
 
-import { createWorkshopResponseSchema, updateWorkshopResponseSchema } from './workshop.schema.js';
+import {
+  getSingleWorkshopSchema,
+  getWorkshopsFromProgrammeResponseSchema,
+  workshopResponseSchema,
+} from './workshop.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -21,9 +25,12 @@ export const addWorkshop = async (req: Request, res: Response) => {
     $push: { workshops: newWorkshop._id },
   });
 
+  const normalized = normalizeDoc(newWorkshop);
+  const parsed = workshopResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Workshop is added successfully.',
-    data: null,
+    data: parsed,
     statusCode: 201,
   });
 };
@@ -48,9 +55,12 @@ export const editWorkshop = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Workshop not found');
   }
 
+  const normalized = normalizeDoc(updatedWorkshop);
+  const parsed = workshopResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Workshop has been updated successfully',
-    data: null,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -93,9 +103,12 @@ export const undoDeleteWorkshop = async (req: Request, res: Response) => {
 
   await workshop.save();
 
+  const normalized = normalizeDoc(workshop.toObject());
+  const parsed = workshopResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Workshop has been restored successfully',
-    data: workshop,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -129,15 +142,18 @@ export const getWorkshopsFromProgramme = async (req: Request, res: Response) => 
   const workshop = await Workshop.find({
     programmeId: req.params.programmeId,
     isDeleted: false,
-  });
+  }).lean();
 
   if (workshop.length === 0) {
     throw new ApiError(404, 'Workshops not found');
   }
 
+  const normalized = normalizeDoc(workshop);
+  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Workshops fetched successfully',
-    data: workshop,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -147,15 +163,18 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
   const workshop = await Workshop.findOne({
     _id: req.params.workshopId,
     isDeleted: false,
-  });
+  }).lean();
 
   if (!workshop) {
     throw new ApiError(404, 'Workshop not found');
   }
 
+  const normalized = normalizeDoc(workshop);
+  const parsed = getSingleWorkshopSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Workshop fetched successfully',
-    data: workshop,
+    data: parsed,
     statusCode: 200,
   });
 };
