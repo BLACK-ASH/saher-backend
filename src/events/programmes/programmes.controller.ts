@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { getProgrammesSchema, getSingleProgrammeSchema } from './programmes.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -19,15 +20,8 @@ export const addProgramme = async (req: Request, res: Response) => {
 //Edit a programme
 export const editProgramme = async (req: Request, res: Response) => {
   const updatedProgramme = await Programme.findOneAndUpdate(
-    {
-      _id: req.params.id,
-      isDeleted: false,
-    },
+    { _id: req.params.id, isDeleted: false },
     req.body,
-    {
-      new: true,
-      runValidators: true,
-    },
   ).lean();
 
   if (!updatedProgramme) {
@@ -36,7 +30,7 @@ export const editProgramme = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'Programme has been updated successfully',
-    data: updatedProgramme,
+    data: null,
     statusCode: 200,
   });
 };
@@ -74,12 +68,11 @@ export const undoDeleteProgramme = async (req: Request, res: Response) => {
   }
 
   programme.isDeleted = false;
-
   await programme.save();
 
   return ApiResponse.success(res, {
     message: 'Programme has been restored successfully',
-    data: programme,
+    data: null,
     statusCode: 200,
   });
 };
@@ -108,15 +101,21 @@ export const permanentDeleteProgramme = async (req: Request, res: Response) => {
 export const getProgrammes = async (req: Request, res: Response) => {
   const programme = await Programme.find({
     isDeleted: false,
-  });
+  })
+    .populate('participants')
+    .populate('workshops')
+    .lean();
 
   if (programme.length === 0) {
     throw new ApiError(404, 'Programs not found');
   }
 
+  const normalized = normalizeDoc(programme);
+  const parsed = getProgrammesSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programmes fetched successfully',
-    data: programme,
+    data: parsed,
     statusCode: 200,
   });
 };
@@ -126,15 +125,21 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
   const programme = await Programme.findOne({
     _id: req.params.id,
     isDeleted: false,
-  });
+  })
+    .populate('participants')
+    .populate('workshops')
+    .lean();
 
   if (!programme) {
     throw new ApiError(404, 'Programme not found');
   }
 
+  const normalized = normalizeDoc(programme);
+  const parsed = getSingleProgrammeSchema.parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'Programme fetched successfully',
-    data: programme,
+    data: parsed,
     statusCode: 200,
   });
 };

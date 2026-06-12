@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { getSessionById, getSessionSchema } from './session.schema.js';
+import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -208,7 +208,7 @@ export const getSingleSession = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(session);
-  const parsed = getSessionById.parse(normalized);
+  const parsed = getSessionByIdSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',
