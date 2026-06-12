@@ -1,6 +1,6 @@
 import z from 'zod';
 
-const leaveApplicationSchemaBase = z.object({
+export const leaveApplicationSchemaBase = z.object({
   leaveTypeCode: z
     .string()
     .toUpperCase()
@@ -52,6 +52,18 @@ export const reviewLeaveApplicationSchema = z.object({
   managerComment: z.string().trim().max(400, 'Comment cannot exceed 400 characters').optional(),
 });
 
+export const getLeaveApplicationSchema = z.object({
+  id: z.string(),
+  user: z.string(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  totalDays: z.number(),
+  reason: z.string(),
+  proof: z.string().nullable(),
+  status: z.enum(['pending', 'approved', 'rejected', 'cancelled']),
+  approvedBy: z.string().nullable(),
+  managerComment: z.string().nullable(),
+});
 // ----------------LeaveType--------------
 
 const leaveTypeSchemaBase = z.object({

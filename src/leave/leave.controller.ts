@@ -1,12 +1,14 @@
 import type { Request, Response } from 'express';
+import z from 'zod';
 
-import { createLeaveApplicationSchema, updateLeaveTypeSchema } from './leave.schema.js';
+import { getLeaveApplicationSchema, leaveApplicationSchemaBase } from './leave.schema.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { convertToObjectId } from '../libs/utils/convert-object-id.js';
 import { calculateLeaveDays, validateLeaveApplication } from '../libs/utils/leave.js';
+import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 
 export const createLeaveTypeController = async (req: Request, res: Response) => {
   if (req.user?.role !== 'admin') {
@@ -264,5 +266,44 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
     statusCode: 200,
     message: `Leave application ${payload.status} successfully`,
     data: leave,
+  });
+};
+
+export const getLeaveApplicationController = async (req: Request, res: Response) => {
+  const record = await Leave.find({ user: req.user?.id }).lean();
+
+  if (record.length === 0) {
+    return ApiResponse.success(res, {
+      message: 'You have no Leave Application',
+      statusCode: 200,
+      data: null,
+    });
+  }
+
+  const normalized = normalizeDoc(record);
+
+  const parsed = z.array(getLeaveApplicationSchema).parse(normalized);
+
+  return ApiResponse.success(res, {
+    message: "User 's leave applications fetchded successfully",
+    data: parsed,
+    statusCode: 200,
+  });
+};
+
+export const getAllLeaveApplicationController = async (req: Request, res: Response) => {
+  const role = req.user?.role;
+  if (role === 'user' || role === 'intern') {
+    throw new ApiError(400, 'Only Admins and managers are allowed to access this end point ');
+  }
+  const record = await Leave.find().lean();
+
+  const normalized = normalizeDoc(record);
+  const parsed = z.array(getLeaveApplicationSchema).parse(normalized);
+
+  return ApiResponse.success(res, {
+    message: 'All leave applications fetchded successfully',
+    data: parsed,
+    statusCode: 200,
   });
 };

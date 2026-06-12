@@ -4,6 +4,8 @@ import {
   createLeaveApplicationController,
   createLeaveTypeController,
   getAllActiveLeaveTypesController,
+  getAllLeaveApplicationController,
+  getLeaveApplicationController,
   reviewLeaveApplicationController,
   updateLeaveApplicationController,
   updateLeaveTypeController,
@@ -55,4 +57,7 @@ leaveRouter.put(
   validate(updateLeaveApplicationSchema),
   updateLeaveApplicationController,
 );
+
+leaveRouter.get('/application', getLeaveApplicationController);
+leaveRouter.get('/application/all', getAllLeaveApplicationController);
 export default leaveRouter;
