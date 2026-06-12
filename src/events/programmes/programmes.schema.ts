@@ -20,13 +20,22 @@ export const updatedProgrammeSchema = baseProgrammeSchema.omit({ workshops: true
 
 //Response Schema
 export const programmeResponseSchema = z.object({
-  id: z.string(),
   title: z.string(),
   description: z.string(),
-
-  participants: z.array(z.string()).default([]),
-  workshops: z.array(z.string()).default([]),
-
+  participants: z
+    .array(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .optional(),
+  workshops: z
+    .array(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
