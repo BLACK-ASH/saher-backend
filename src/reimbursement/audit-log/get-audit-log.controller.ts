@@ -7,6 +7,7 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const getAuditLogController = async (req: Request, res: Response) => {
   const getAllAuditLog = await AuditLog.find().lean();
+
   const normalized = normalizeDoc(getAllAuditLog);
   const parsed = createLogResponsiveSchema.array().parse(normalized);
 

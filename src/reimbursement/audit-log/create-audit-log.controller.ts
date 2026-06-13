@@ -8,7 +8,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
-export const auditLogController = async (settlementId: string) => {
+export const auditLog = async (settlementId: string, from: string, to: string) => {
   const existBill = await Settlement.findById(settlementId);
   if (!existBill) throw new ApiError(400, 'Bill not found');
 
@@ -20,8 +20,8 @@ export const auditLogController = async (settlementId: string) => {
     date: existBill.date,
     description: billId?.description,
     amount: existBill.amount,
-    from: 'saher',
-    to: 'user',
+    from,
+    to,
     status: existBill.status,
   });
 

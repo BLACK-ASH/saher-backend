@@ -3,11 +3,12 @@ import type { Request, Response } from 'express';
 import { createSettleSchema, settleSchema } from './schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
+import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notificationService } from '../../libs/utils/notification.service.js';
-import { auditLogController } from '../audit-log/create-audit-log.controller.js';
+import { auditLog } from '../audit-log/create-audit-log.controller.js';
 
 export const handleBillController = async (req: Request, res: Response) => {
   // write a code to handle the bill settlement
@@ -63,7 +64,16 @@ export const handleBillController = async (req: Request, res: Response) => {
       expiredAt,
     });
 
-    await auditLogController(createSettle.id.toString());
+    const employee = await User.findById(bill.user);
+    if (bill.advance === 0) {
+      const from = employee?.displayName;
+      if (!from) throw new ApiError(400, 'user not found');
+      await auditLog(createSettle.id.toString(), from, 'saher');
+    } else {
+      const to = employee?.displayName;
+      if (!to) throw new ApiError(400, 'user not found');
+      await auditLog(createSettle.id.toString(), 'saher', to);
+    }
 
     const normalized = normalizeDoc(createSettle.toObject());
     data = createSettleSchema.parse(normalized);
