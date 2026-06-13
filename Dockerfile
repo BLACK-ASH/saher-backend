@@ -1,23 +1,75 @@
+# =========================
+# Base image (tooling only)
+# =========================
 FROM node:24-alpine AS base
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN apk add --no-cache curl chromium nss freetype harfbuzz ca-certificates ttf-freefont
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+RUN apk add --no-cache \
+  curl \
+  chromium \
+  nss \
+  freetype \
+  harfbuzz \
+  ca-certificates \
+  ttf-freefont
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
 RUN corepack enable
+
 WORKDIR /app
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm ci
-COPY . /app
 
+# =========================
+# Install production deps
+# =========================
 FROM base AS prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+  pnpm install --prod --frozen-lockfile
+
+# =========================
+# Build stage
+# =========================
 FROM base AS build
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+  pnpm install --frozen-lockfile
+
+COPY . .
+
 RUN pnpm run build
 
-FROM base
-COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY --from=build /app/dist /app/dist
+# =========================
+# Final runtime image
+# =========================
+FROM node:24-alpine AS runner
+
+WORKDIR /app
+
+RUN apk add --no-cache \
+  chromium \
+  nss \
+  freetype \
+  harfbuzz \
+  ca-certificates \
+  ttf-freefont \
+  curl
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# production dependencies only
+COPY --from=prod-deps /app/node_modules ./node_modules
+
+# compiled output
+COPY --from=build /app/dist ./dist
+
+# optional
+COPY package.json ./
+
 EXPOSE 4000
-CMD [ "pnpm", "start" ]
+
+CMD ["node", "dist/index.js"]
