@@ -71,7 +71,7 @@ billRouter.post(
   handleSettlementRequest,
 );
 
-// Reviewing bill
+// gets bill
 billRouter.get('/bill/mybills/:trashbills', myBillsController);
 billRouter.get(
   '/bill/getbill/:billId',
