@@ -150,7 +150,7 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
   });
 };
 
-//Permanent Deletion of programme
+/*Permanent Deletion of programme
 export const permanentDeleteSession = async (req: Request, res: Response) => {
   const session = await Session.findOne({
     _id: req.params.id,
@@ -169,6 +169,7 @@ export const permanentDeleteSession = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+*/
 
 //Get all sessions
 export const getSessions = async (req: Request, res: Response) => {

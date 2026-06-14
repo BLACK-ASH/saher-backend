@@ -87,7 +87,7 @@ export const undoDeleteParticipantController = async (req: Request, res: Respons
   });
 };
 
-// Permanent delete participant
+/* Permanent delete participant
 export const permanentDeleteParticipantController = async (req: Request, res: Response) => {
   const participants = await Participant.findById(req.params);
 
@@ -110,7 +110,7 @@ export const permanentDeleteParticipantController = async (req: Request, res: Re
     data: null,
     statusCode: 201,
   });
-};
+};*/
 
 //Get all participant
 export const getAllParticipantController = async (req: Request, res: Response) => {

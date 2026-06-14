@@ -6,7 +6,6 @@ import {
   editParticipantController,
   getAllParticipantController,
   getParticipantByIdController,
-  permanentDeleteParticipantController,
   undoDeleteParticipantController,
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
@@ -20,7 +19,6 @@ import {
   addProgramme,
   editProgramme,
   deleteProgramme,
-  permanentDeleteProgramme,
   undoDeleteProgramme,
 } from './programmes/programmes.controller.js';
 import {
@@ -38,7 +36,6 @@ import {
   editSession,
   getSessions,
   getSingleSession,
-  permanentDeleteSession,
   undoDeleteSession,
 } from './session/session.controller.js';
 import { createSessionSchema, updatedSessionSchema } from './session/session.schema.js';
@@ -48,7 +45,6 @@ import {
   editWorkshop,
   getSingleWorkshop,
   getWorkshopsFromProgramme,
-  permanentDeleteWorkshop,
   undoDeleteWorkshop,
 } from './workshop/workshop.controller.js';
 import {
@@ -89,6 +85,7 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteWorkshop,
 );
+/*
 eventRouter.delete(
   '/programmes/:programmeId/workshops/:id/permanent',
   underDevelopment,
@@ -96,6 +93,8 @@ eventRouter.delete(
 
   permanentDeleteWorkshop,
 );
+*/
+
 eventRouter.put(
   '/programmes/:programmeId/workshops/:id',
   underDevelopment,
@@ -131,12 +130,14 @@ eventRouter.post(
   addSession,
 );
 eventRouter.delete('/sessions/:id', underDevelopment, authorize('delete', 'event'), deleteSession);
-eventRouter.delete(
+
+/*eventRouter.delete(
   '/sessions/:id/permanent',
   underDevelopment,
   authorize('delete', 'event'),
   permanentDeleteSession,
-);
+);*/
+
 eventRouter.put(
   '/sessions/:id',
   underDevelopment,
@@ -167,12 +168,14 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteParticipantController,
 );
+/*
 eventRouter.delete(
   '/participants/:id/permanent',
   underDevelopment,
   authorize('delete', 'event'),
   permanentDeleteParticipantController,
-);
+);*/
+
 eventRouter.put(
   '/participants/:id',
   underDevelopment,
@@ -246,12 +249,13 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteProgramme,
 );
+/*
 eventRouter.delete(
   '/programmes/:id/permanent',
   underDevelopment,
   authorize('delete', 'event'),
   permanentDeleteProgramme,
-);
+);*/
 eventRouter.put(
   '/programmes/:id',
   underDevelopment,

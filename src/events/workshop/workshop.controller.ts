@@ -113,7 +113,7 @@ export const undoDeleteWorkshop = async (req: Request, res: Response) => {
   });
 };
 
-//Permanent Deletion of workshop
+/*Permanent Deletion of workshop
 export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
   const workshop = await Workshop.findOne({
     _id: req.params.id,
@@ -135,7 +135,7 @@ export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
     data: null,
     statusCode: 200,
   });
-};
+};*/
 
 //Get all Workshops
 export const getWorkshopsFromProgramme = async (req: Request, res: Response) => {
