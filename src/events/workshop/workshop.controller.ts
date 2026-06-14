@@ -16,6 +16,12 @@ export const addWorkshop = async (req: Request, res: Response) => {
   const { programmeId } = req.params;
   if (!programmeId) throw new ApiError(400, 'Id is required in params');
 
+  const programme = await Programme.findById(programmeId);
+
+  if (!programme) {
+    throw new ApiError(404, 'Programme not found');
+  }
+
   const newWorkshop = await Workshop.create({
     ...req.body,
     programmeId,
@@ -25,12 +31,9 @@ export const addWorkshop = async (req: Request, res: Response) => {
     $push: { workshops: newWorkshop._id },
   });
 
-  const normalized = normalizeDoc(newWorkshop);
-  const parsed = workshopResponseSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Workshop is added successfully.',
-    data: parsed,
+    data: null,
     statusCode: 201,
   });
 };
@@ -55,12 +58,9 @@ export const editWorkshop = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Workshop not found');
   }
 
-  const normalized = normalizeDoc(updatedWorkshop);
-  const parsed = workshopResponseSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Workshop has been updated successfully',
-    data: parsed,
+    data: null,
     statusCode: 200,
   });
 };
@@ -80,6 +80,10 @@ export const deleteWorkshop = async (req: Request, res: Response) => {
 
   workshop.isDeleted = true;
   await workshop.save();
+
+  await Programme.findByIdAndUpdate(programmeId, {
+    $pull: { workshops: workshop._id },
+  });
 
   return ApiResponse.success(res, {
     message: 'Workshop has been soft deleted successfully',
@@ -103,12 +107,9 @@ export const undoDeleteWorkshop = async (req: Request, res: Response) => {
 
   await workshop.save();
 
-  const normalized = normalizeDoc(workshop.toObject());
-  const parsed = workshopResponseSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Workshop has been restored successfully',
-    data: parsed,
+    data: null,
     statusCode: 200,
   });
 };

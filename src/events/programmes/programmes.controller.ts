@@ -5,27 +5,69 @@ import {
   getProgrammesSchema,
   getSingleProgrammeSchema,
 } from './programmes.schema.js';
+import { Participant } from '../../database/participant.model.js';
 import { Programme } from '../../database/programmes.model.js';
+import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 // Add a programme
 export const addProgramme = async (req: Request, res: Response) => {
-  const newProgramme = await Programme.create(req.body);
+  if (req.body.participants?.length) {
+    const participants = await Participant.find({
+      _id: { $in: req.body.participants ?? [] },
+      isDeleted: false,
+    }).select('_id');
 
-  const normalized = normalizeDoc(newProgramme);
-  const parsed = programmeResponseSchema.parse(normalized);
+    if (participants.length !== (req.body.participants?.length ?? 0)) {
+      throw new ApiError(400, 'One or more participant IDs are invalid');
+    }
+  }
+
+  if (req.body.workshops?.length) {
+    const workshops = await Workshop.find({
+      _id: { $in: req.body.workshops ?? [] },
+      isDeleted: false,
+    }).select('_id');
+
+    if (workshops.length !== (req.body.workshops?.length ?? 0)) {
+      throw new ApiError(400, 'One or more workshop IDs are invalid');
+    }
+  }
+
+  const newProgramme = await Programme.create(req.body);
 
   return ApiResponse.success(res, {
     message: 'Programme has been added successfully.',
-    data: parsed,
+    data: null,
     statusCode: 201,
   });
 };
 
 //Edit a programme
 export const editProgramme = async (req: Request, res: Response) => {
+  if (req.body.participants) {
+    const participantCount = await Participant.countDocuments({
+      _id: { $in: req.body.participants },
+      isDeleted: false,
+    });
+
+    if (participantCount !== req.body.participants.length) {
+      throw new ApiError(400, 'One or more participant IDs are invalid');
+    }
+  }
+
+  if (req.body.workshops) {
+    const workshopCount = await Workshop.countDocuments({
+      _id: { $in: req.body.workshops },
+      isDeleted: false,
+    });
+
+    if (workshopCount !== req.body.workshops.length) {
+      throw new ApiError(400, 'One or more workshop IDs are invalid');
+    }
+  }
   const updatedProgramme = await Programme.findOneAndUpdate(
     { _id: req.params.id, isDeleted: false },
     req.body,
@@ -35,12 +77,9 @@ export const editProgramme = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Programme not found');
   }
 
-  const normalized = normalizeDoc(updatedProgramme);
-  const parsed = programmeResponseSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Programme has been updated successfully',
-    data: parsed,
+    data: null,
     statusCode: 200,
   });
 };
@@ -80,12 +119,9 @@ export const undoDeleteProgramme = async (req: Request, res: Response) => {
   programme.isDeleted = false;
   await programme.save();
 
-  const normalized = normalizeDoc(programme.toObject());
-  const parsed = programmeResponseSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Programme has been restored successfully',
-    data: parsed,
+    data: null,
     statusCode: 200,
   });
 };
@@ -116,8 +152,14 @@ export const getProgrammes = async (req: Request, res: Response) => {
   const programme = await Programme.find({
     isDeleted: false,
   })
-    .populate('participants')
-    .populate('workshops')
+    .populate({
+      path: 'participants',
+      match: { isDeleted: false },
+    })
+    .populate({
+      path: 'workshops',
+      match: { isDeleted: false },
+    })
     .lean();
 
   if (programme.length === 0) {
@@ -144,8 +186,14 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
     _id: req.params.id,
     isDeleted: false,
   })
-    .populate('participants')
-    .populate('workshops')
+    .populate({
+      path: 'participants',
+      match: { isDeleted: false },
+    })
+    .populate({
+      path: 'workshops',
+      match: { isDeleted: false },
+    })
     .lean();
 
   if (!programme) {
