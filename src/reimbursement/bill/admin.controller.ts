@@ -5,7 +5,6 @@ import { Bill } from '../../database/bill.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notificationService } from '../../libs/utils/notification.service.js';
 
 export const adminCreateBill = async (req: Request, res: Response) => {
@@ -27,9 +26,6 @@ export const adminCreateBill = async (req: Request, res: Response) => {
     date,
   });
 
-  const normalized = normalizeDoc(bill.toObject());
-  const parsed = adminBillCreatSchema.parse(normalized);
-
   const notificationDesc = `bill is of amount ${advance} is created`;
   const notificationTitle = 'New bill created';
 
@@ -37,7 +33,7 @@ export const adminCreateBill = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',
-    data: parsed,
+    data: null,
     statusCode: 201,
   });
 };
@@ -74,12 +70,9 @@ export const adminUpdateBill = async (req: Request, res: Response) => {
     await bill.save();
   }
 
-  const normalized = normalizeDoc(bill.toJSON());
-  const parsed = adminBillUpdateSchema.parse(normalized);
-
   return ApiResponse.success(res, {
     message: 'Bill updated successfully',
-    data: parsed,
+    data: null,
     statusCode: 201,
   });
 };

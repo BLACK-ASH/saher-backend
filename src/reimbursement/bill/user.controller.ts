@@ -24,9 +24,6 @@ export const userCreateBill = async (req: Request, res: Response) => {
     images,
   });
 
-  // const normalized = normalizeDoc(bill.toObject())
-  // const parsed = userBillCreateSchema.parse(normalized);
-
   const notificationDesc = `bill is of amount ${amount} is created`;
   const notificationTitle = 'New bill created';
 

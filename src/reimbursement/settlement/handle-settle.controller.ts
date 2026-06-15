@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { handleSettleSchema } from './schema.js';
 import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { handleSettleSchema } from './schema.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const handleSettlementRequest = async (req: Request, res: Response) => {
   // Write a code to handle settlement request (complete settlement)
@@ -27,10 +28,20 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
   }
 
   // if settlement date is expired
-  if (settleBill.status === 'expired') throw new ApiError(400, 'Bill settlement date expired');
+  if (settleBill.status === 'expired')
+    return ApiResponse.success(res, {
+      message: 'Bill settlement date expired',
+      data: null,
+      statusCode: 201,
+    });
 
   // if settlement is already completed
-  if (settleBill.status === 'settle') throw new ApiError(400, 'Settlement is Already completed');
+  if (settleBill.status === 'settle')
+    return ApiResponse.success(res, {
+      message: 'Settlement is Already completed',
+      data: null,
+      statusCode: 201,
+    });
 
   // if settlement is still pending
   if (settleBill.status === 'pending') {

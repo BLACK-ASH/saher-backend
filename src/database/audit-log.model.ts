@@ -1,11 +1,6 @@
 import mongoose from 'mongoose';
 
 const auditLogSchema = new mongoose.Schema({
-  bill: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Settlement',
-    required: true,
-  },
   date: {
     type: Date,
     required: true,

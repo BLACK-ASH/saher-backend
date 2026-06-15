@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { createLogSchema } from './audit-log/audit-log.schema.js';
+import { createAuditLogController } from './audit-log/create-audit-log.controller.js';
 import { getAuditLogController } from './audit-log/get-audit-log.controller.js';
 import { userBalanceEnquiryController } from './balance-enquiry/user-balance-enquiry.controller.js';
 import { adminCreateBill, adminSoftDeleteBill, adminUpdateBill } from './bill/admin.controller.js';
@@ -85,6 +86,12 @@ billRouter.get('/bill/recyclebills', authorize('read', 'preReimbursement'), recy
 
 // Audit Log
 billRouter.get('/bill/audit-log', authorize('read', 'preReimbursement'), getAuditLogController);
+billRouter.post(
+  '/bill/create-log',
+  authorize('write', 'preReimbursement'),
+  validate(createLogSchema),
+  createAuditLogController,
+);
 
 // User Balance Enquiry
 billRouter.get('/balance-enquiry', userBalanceEnquiryController);

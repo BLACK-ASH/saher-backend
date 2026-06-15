@@ -1,29 +1,17 @@
-import { ObjectId } from 'mongoose';
+import type { Request, Response } from 'express';
 
-import { createLogResponsiveSchema } from './audit-log.schema.js';
-import { AuditLog } from '../../database/audit-log.model.js';
-import { Bill } from '../../database/bill.model.js';
-import { Settlement } from '../../database/settlement.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
+import { auditLog } from './audit-log.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
-export const auditLog = async (settlementId: string, from: string, to: string) => {
-  const existBill = await Settlement.findById(settlementId);
-  if (!existBill) throw new ApiError(400, 'Bill not found');
+export const createAuditLogController = async (req: Request, res: Response) => {
+  const { date, description, amount, from, to } = req.body;
+  const status = 'pending';
 
-  const billId = await Bill.findById(existBill.bill);
-  if (!billId || billId?.isDeleted === true) throw new ApiError(400, 'Bill not found');
+  await auditLog(date, description, amount, from, to, status);
 
-  const createLog = await AuditLog.create({
-    bill: settlementId,
-    date: existBill.date,
-    description: billId?.description,
-    amount: existBill.amount,
-    from,
-    to,
-    status: existBill.status,
+  return ApiResponse.success(res, {
+    message: 'audit log created successfully',
+    data: null,
+    statusCode: 200,
   });
-
-  return createLog;
 };
