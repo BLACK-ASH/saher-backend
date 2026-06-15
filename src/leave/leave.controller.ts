@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 
-import { getLeaveApplicationSchema } from './leave.schema.js';
+import { getLeaveApplicationSchema, getLeaveBalanceSchema } from './leave.schema.js';
 import { LeaveBalance } from '../database/leave-balance.model.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
@@ -389,20 +389,22 @@ export const getLeaveBalance = async (req: Request, res: Response) => {
   // const { userId, year } = req.params;
   const userId = req.user?.id;
 
-  // const year = new Date().getFullYear().toLocaleString();
-  const year = '2027';
+  const year = new Date().getFullYear().toLocaleString();
+  // const year = '2027';
   const leaveBalance = await LeaveBalance.findOne({
     user: userId,
     year,
-  });
+  }).lean();
 
   if (!leaveBalance) {
     throw new ApiError(404, 'Leave balance not found');
   }
 
+  const normalized = normalizeDoc(leaveBalance);
+  const parsed = getLeaveBalanceSchema.parse(normalized);
   return ApiResponse.success(res, {
     message: 'your leave Balance',
-    data: leaveBalance,
+    data: parsed,
     statusCode: 200,
   });
 };
