@@ -11,6 +11,7 @@ export const RESOURCES = [
   'mail',
   'preReimbursement',
   'postReimbursement',
+  'event',
 ] as const;
 
 export type Action = (typeof ACTIONS)[number];

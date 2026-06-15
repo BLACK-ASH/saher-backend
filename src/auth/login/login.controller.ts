@@ -3,9 +3,12 @@ import type { Request, Response } from 'express';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { formatMessage } from '../../libs/utils/formatted-message.js';
+import { notification } from '../../libs/utils/notification.js';
 import { comparePassword } from '../../libs/utils/password-hash.js';
 import { getSessionMeta } from '../_utils/session-meta.js';
 import { generateToken } from '../_utils/token.js';
+import { COOKIE_OPTIONS } from '../refresh/refresh.controller.js';
 
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -35,28 +38,22 @@ export const loginController = async (req: Request, res: Response) => {
 
   const { accessToken, refreshToken, sessionId } = await generateToken(payload, meta);
 
-  const isProd = process.env.NODE_ENV === 'production';
-
   res.cookie('saher_access_token', accessToken, {
+    ...COOKIE_OPTIONS,
     maxAge: 15 * 60 * 1000,
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
   });
 
   res.cookie('saher_refresh_token', refreshToken, {
+    ...COOKIE_OPTIONS,
     maxAge: 60 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
   });
 
   res.cookie('saher_session_id', sessionId, {
+    ...COOKIE_OPTIONS,
     maxAge: 60 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
   });
+  const desc = `user login from ${meta.device} using ${meta.browser}`;
+  await notification.specific.info([user._id.toString()], 'User Login', formatMessage(desc));
 
   return ApiResponse.success(res, {
     message: 'login succesfully.',

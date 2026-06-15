@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       enum: userRole,
       default: 'user',
     },
+    pushNotificationsEnabled: {
+      type: Boolean,
+      default: false,
+    },
     image: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
@@ -42,7 +46,7 @@ const userSchema = new mongoose.Schema(
     deletedAt: {
       type: Date,
     },
-    deleteBy: {
+    deletedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },

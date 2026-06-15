@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import type { SessionMeta } from './session-meta.js';
 import type { UserRole } from '../../database/user.model.js';
 import { client } from '../../libs/redis/redis-client.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
 // Request User Type
 export type ReqUser = {
@@ -18,9 +18,12 @@ export type ReqUser = {
 export type SessionT = {
   user: ReqUser;
   refreshTokenHash: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
   meta: SessionMeta;
+
+  previousRefreshTokenHash?: string;
+  previousRefreshTokenExpiresAt?: number;
 };
 
 // Reusable Hash Function
@@ -61,36 +64,85 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
 };
 
 // Refresh All Token
-export const renewToken = async (sessionId: string, refreshToken: string) => {
-  const newRefreshToken = generateRefreshToken();
+// export const renewToken = async (sessionId: string, refreshToken: string) => {
+//   const newRefreshToken = generateRefreshToken();
+//
+//   const session = await getCache<SessionT>(createKey('session', sessionId));
+//
+//   if (!session) return null;
+//
+//   await setCache(
+//     createKey('session', sessionId),
+//     {
+//       ...session,
+//       refreshTokenHash: hash(newRefreshToken),
+//       updatedAt: Date.now(),
+//     },
+//     60 * 60 * 24 * 60, // 60 days
+//   );
+//
+//   const isValid = session.refreshTokenHash === hash(refreshToken);
+//
+//   if (!isValid) {
+//     await client.del(createKey('session', sessionId));
+//     return null;
+//   }
+//   // Generate Access Token
+//   const accessToken = jwt.sign(session?.user, process.env.JWT_ACCESS_SECRET!, {
+//     algorithm: 'HS384',
+//     expiresIn: '15m',
+//   });
+//
+//   return { accessToken, refreshToken: newRefreshToken, user: session.user };
+// };
 
-  const session = await getCache<SessionT>(createKey('session', sessionId));
+export const renewToken = async (sessionId: string, refreshToken: string) => {
+  const sessionKey = createKey('session', sessionId);
+
+  const session = await getCache<SessionT>(sessionKey);
 
   if (!session) return null;
 
-  await setCache(
-    createKey('session', sessionId),
-    {
-      ...session,
-      refreshTokenHash: hash(newRefreshToken),
-      updatedAt: Date.now(),
-    },
-    60 * 60 * 24 * 60, // 60 days
-  );
+  const incomingHash = hash(refreshToken);
 
-  const isValid = session.refreshTokenHash === hash(refreshToken);
+  const isValid =
+    incomingHash === session.refreshTokenHash ||
+    (incomingHash === session.previousRefreshTokenHash &&
+      Date.now() < (session.previousRefreshTokenExpiresAt ?? 0));
 
   if (!isValid) {
-    await client.del(createKey('session', sessionId));
+    await deleteCache(sessionKey);
+    await client.sRem(createKey('user_session', session.user.id), sessionId);
+
     return null;
   }
-  // Generate Access Token
-  const accessToken = jwt.sign(session?.user, process.env.JWT_ACCESS_SECRET!, {
+
+  const newRefreshToken = generateRefreshToken();
+
+  const updatedSession: SessionT = {
+    ...session,
+
+    previousRefreshTokenHash: session.refreshTokenHash,
+    previousRefreshTokenExpiresAt: Date.now() + 15000,
+
+    refreshTokenHash: hash(newRefreshToken),
+
+    updatedAt: Date.now(),
+  };
+
+  await setCache(sessionKey, updatedSession, 60 * 60 * 24 * 60);
+
+  const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
     algorithm: 'HS384',
     expiresIn: '15m',
   });
 
-  return { accessToken, refreshToken: newRefreshToken, user: session.user };
+  return {
+    type: 'SUCCESS',
+    accessToken,
+    refreshToken: newRefreshToken,
+    user: session.user,
+  } as const;
 };
 
 // To Verify Access Token
@@ -111,7 +163,7 @@ export const verifyRefreshToken = async (sessionId: string, refreshToken: string
   const isValid = session.refreshTokenHash === hash(refreshToken);
 
   if (!isValid) {
-    await client.del(createKey('session', sessionId));
+    await deleteCache(createKey('session', sessionId));
     return null;
   }
 
