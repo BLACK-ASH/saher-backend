@@ -1,3 +1,3 @@
-import { Notification } from '../class/system-notification.js';
+import { Notification } from '../class/notification.js';
 
 export const notificationService = new Notification();
