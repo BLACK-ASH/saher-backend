@@ -127,7 +127,7 @@ export const undoDeleteProgramme = async (req: Request, res: Response) => {
 };
 
 /*Permanent Deletion of programme
-export const permanentDeleteProgramme = async (req: Request, res: Response) => {
+export const permanentDeleteProgramme = async (req: Request, res: Respo  nse) => {
   const programme = await Programme.findOne({
     _id: req.params.id,
     isDeleted: true,
