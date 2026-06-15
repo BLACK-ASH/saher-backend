@@ -6,6 +6,7 @@ import {
   getAllActiveLeaveTypesController,
   getAllLeaveApplicationController,
   getLeaveApplicationController,
+  getLeaveBalance,
   reviewLeaveApplicationController,
   updateLeaveApplicationController,
   updateLeaveTypeController,
@@ -60,4 +61,7 @@ leaveRouter.put(
 
 leaveRouter.get('/application', getLeaveApplicationController);
 leaveRouter.get('/application/all', getAllLeaveApplicationController);
+
+// ---------------------Leave Balance --------------------
+leaveRouter.get('/balance', getLeaveBalance);
 export default leaveRouter;

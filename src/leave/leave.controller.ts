@@ -1,12 +1,14 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 
-import { getLeaveApplicationSchema, leaveApplicationSchemaBase } from './leave.schema.js';
+import { getLeaveApplicationSchema } from './leave.schema.js';
+import { LeaveBalance } from '../database/leave-balance.model.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { convertToObjectId } from '../libs/utils/convert-object-id.js';
+import { recordLeaveUsage } from '../libs/utils/leave-logs.js';
 import { calculateLeaveDays, validateLeaveApplication } from '../libs/utils/leave.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 
@@ -256,11 +258,28 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
     throw new ApiError(400, `Leave application has already been ${leave.status}`);
   }
 
+  // leave.status = payload.status;
+  // leave.managerComment = payload.managerComment ?? '';
+  // leave.approvedBy = convertToObjectId(reviewerId);
+
+  // await leave.save();
+
   leave.status = payload.status;
   leave.managerComment = payload.managerComment ?? '';
   leave.approvedBy = convertToObjectId(reviewerId);
 
   await leave.save();
+
+  if (payload.status === 'approved') {
+    await recordLeaveUsage({
+      userId: leave.user.toString(),
+      leaveTypeCode: leave.leaveTypeCode,
+      year: leave.startDate.getFullYear().toString(),
+      days: leave.totalDays,
+      performedBy: reviewerId,
+      leaveId: leave._id.toString(),
+    });
+  }
 
   return ApiResponse.success(res, {
     statusCode: 200,
@@ -304,6 +323,86 @@ export const getAllLeaveApplicationController = async (req: Request, res: Respon
   return ApiResponse.success(res, {
     message: 'All leave applications fetchded successfully',
     data: parsed,
+    statusCode: 200,
+  });
+};
+
+// ---------------------Leave Balance ---------------
+
+// export const createLeaveBalance = async (
+//   req: Request,
+//   res: Response,
+// ) => {
+
+//     const { user, year } = req.body;
+
+//     const existing = await LeaveBalance.findOne({
+//       user,
+//       year,
+//     });
+
+//     if (existing) throw new ApiError(409, 'Leave balance already exists',);
+
+//     const leaveBalance =
+//       await LeaveBalance.create({
+//         user,
+//         year,
+//       });
+
+//       return ApiResponse.success(res,{message : " Leave Balance created " , statusCode : 201})
+//   }
+
+// export const consumeLeave = async (
+//   req: Request,
+//   res: Response,
+// ) => {
+
+//   const {
+//     userId,
+//     year,
+//     leaveTypeCode,
+//     days,
+//   } = req.body;
+
+//   const leaveBalance =
+//   await LeaveBalance.findOneAndUpdate(
+//     {
+//         user: userId,
+//         year,
+//       },
+//       {
+//         $inc: {
+//           [`used.${leaveTypeCode}`]: days,
+//         },
+//       },
+//       {
+//         new: true,
+//         upsert: true,
+//       },
+//     );
+
+//     return res.json(leaveBalance);
+
+//   };
+
+export const getLeaveBalance = async (req: Request, res: Response) => {
+  // const { userId, year } = req.params;
+  const userId = req.user?.id;
+
+  // const year = new Date().getFullYear().toLocaleString();
+  const year = '2027';
+  const leaveBalance = await LeaveBalance.findOne({
+    user: userId,
+    year,
+  });
+
+  if (!leaveBalance) {
+    throw new ApiError(404, 'Leave balance not found');
+  }
+
+  return ApiResponse.success(res, {
+    message: 'your leave Balance',
+    data: leaveBalance,
     statusCode: 200,
   });
 };
