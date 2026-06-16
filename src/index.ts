@@ -8,11 +8,14 @@ import express from 'express';
 import adminRouter from './admin/admin.routes.js';
 import attendanceRouter from './attendance/attendance.route.js';
 import authRouter from './auth/auth.routes.js';
+import { calendarRouter } from './calendar/calendar.routes.js';
 import connectDb from './database/connection.js';
+import eventRouter from './events/events.routes.js';
 import leaveRouter from './leave/leave.route.js';
 import { httpLogger } from './libs/logger/http-logger.js';
 import { logger } from './libs/logger/logger.js';
 import { register } from './libs/logger/metrics.js';
+import { underDevelopment } from './libs/middleware/development.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import { metricsMiddleware } from './libs/middleware/metrics.js';
 import { protectedRoute } from './libs/middleware/protected-route.js';
@@ -75,8 +78,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
+app.use('/api/events', underDevelopment, protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
-app.use('/api/mail', protectedRoute, mailRouter);
+app.use('/api/mail', underDevelopment, protectedRoute, mailRouter);
+app.use('/api/calendar', protectedRoute, calendarRouter);
 app.use('/api/leave', protectedRoute, leaveRouter);
 
 // Static Routes
