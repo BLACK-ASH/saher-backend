@@ -5,7 +5,6 @@ import { Mail } from '../../database/mail.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 
-
 export const sendMailUtilitySchema = z
   .object({
     senderId: z.string(),
@@ -35,62 +34,42 @@ export const sendMail = async (payload: SendMailPayload) => {
   const allRecipients = [...new Set([...data.to, ...data.cc, ...data.bcc])];
 
   const usersFound = await User.countDocuments({
-    _id: { $in: allRecipients },
+    _id: {
+      $in: allRecipients,
+    },
   });
 
   if (usersFound !== allRecipients.length) {
     throw new ApiError(404, 'Some recipients were not found');
   }
 
-  const mails = [];
-
-  if (data.to.length > 0) {
-    mails.push({
-      from: data.senderId,
-      to: data.to,
-      recipientType: 'TO',
-      subject: data.subject,
-      body: data.body,
-    });
-  }
-
-  if (data.cc.length > 0) {
-    mails.push({
-      from: data.senderId,
-      to: data.cc,
-      recipientType: 'CC',
-      subject: data.subject,
-      body: data.body,
-    });
-  }
-
-  if (data.bcc.length > 0) {
-    mails.push({
-      from: data.senderId,
-      to: data.bcc,
-      recipientType: 'BCC',
-      subject: data.subject,
-      body: data.body,
-    });
-  }
-
-  return Mail.insertMany(mails);
+  return Mail.create({
+    from: data.senderId,
+    to: data.to,
+    cc: data.cc,
+    bcc: data.bcc,
+    subject: data.subject,
+    body: data.body,
+  });
 };
-export const getMailsByRecipientType = async (
-  userId: string,
-  recipientType: 'TO' | 'CC' | 'BCC',
-) => {
+
+export const getInboxMails = async (userId: string) => {
   return Mail.aggregate([
     {
       $match: {
-        to: {
-          $in: [new mongoose.Types.ObjectId(userId)],
-        },
-        recipientType,
+        $or: [
+          {
+            to: new mongoose.Types.ObjectId(userId),
+          },
+          {
+            cc: new mongoose.Types.ObjectId(userId),
+          },
+          {
+            bcc: new mongoose.Types.ObjectId(userId),
+          },
+        ],
       },
     },
-
-    // Populate sender
     {
       $lookup: {
         from: 'users',
@@ -134,34 +113,18 @@ export const getMailsByRecipientType = async (
     {
       $unwind: '$from',
     },
-
-    // Populate recipients
     {
       $lookup: {
         from: 'users',
         let: {
-          recipientIds: '$to',
+          ids: '$to',
         },
         pipeline: [
           {
             $match: {
               $expr: {
-                $in: ['$_id', '$$recipientIds'],
+                $in: ['$_id', '$$ids'],
               },
-            },
-          },
-          {
-            $lookup: {
-              from: 'media',
-              localField: 'image',
-              foreignField: '_id',
-              as: 'image',
-            },
-          },
-          {
-            $unwind: {
-              path: '$image',
-              preserveNullAndEmptyArrays: true,
             },
           },
           {
@@ -169,23 +132,60 @@ export const getMailsByRecipientType = async (
               name: 1,
               email: 1,
               role: 1,
-              image: 1,
             },
           },
         ],
         as: 'to',
       },
     },
+    {
+      $lookup: {
+        from: 'users',
+        let: {
+          ids: '$cc',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $in: ['$_id', '$$ids'],
+              },
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              email: 1,
+              role: 1,
+            },
+          },
+        ],
+        as: 'cc',
+      },
+    },
+    {
+      $addFields: {
+        isBccRecipient: {
+          $in: [new mongoose.Types.ObjectId(userId), '$bcc'],
+        },
+      },
+    },
 
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
     {
       $project: {
         _id: 1,
         from: 1,
         to: 1,
-        recipientType: 1,
+        cc: 1,
         subject: 1,
         body: 1,
         createdAt: 1,
+        isBccRecipient: 1,
       },
     },
   ]);

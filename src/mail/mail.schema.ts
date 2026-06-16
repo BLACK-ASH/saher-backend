@@ -12,65 +12,52 @@ export const sendMailSchema = z.object({
   body: z.string().trim().min(1, 'Body is required'),
 });
 
-export const InBoxMailSchema = z.object({
+const MailUserSchema = z.object({
   id: z.string(),
-  from: z.object({
-    id: z.string(),
-    name: z.string(),
-    email: z.string(),
-    role: z.string(),
-    image: z.object({
+  name: z.string(),
+  email: z.string(),
+  role: z.string(),
+  image: z
+    .object({
       id: z.string(),
       src: z.string(),
-    }),
-  }),
+    })
+    .nullable()
+    .optional(),
+});
 
-  to: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      email: z.string(),
-      role: z.string(),
-      image: z.object({
-        id: z.string(),
-        src: z.string(),
-      }),
-    }),
-  ),
+export const InBoxMailSchema = z.object({
+  id: z.string(),
 
-  recipientType: z.enum(['TO', 'CC', 'BCC']),
+  from: MailUserSchema,
+
+  to: z.array(MailUserSchema),
+
+  cc: z.array(MailUserSchema),
+
   subject: z.string(),
+
   body: z.string(),
+
+  createdAt: z.coerce.date(),
 });
 
 export const OutBoxMailSchema = z.object({
   id: z.string(),
-  from: z.object({
-    id: z.string(),
-    name: z.string(),
-    email: z.string(),
-    role: z.string(),
-    image: z.object({
-      id: z.string(),
-      src: z.string(),
-    }),
-  }),
 
-  to: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      email: z.string(),
-      role: z.string(),
-      image: z.object({
-        id: z.string(),
-        src: z.string(),
-      }),
-    }),
-  ),
+  from: MailUserSchema,
 
-  recipientType: z.enum(['TO', 'CC', 'BCC']),
+  to: z.array(MailUserSchema),
+
+  cc: z.array(MailUserSchema),
+
+  bcc: z.array(MailUserSchema),
+
   subject: z.string(),
+
   body: z.string(),
+
+  createdAt: z.coerce.date(),
 });
+
 export type SendMailInput = z.infer<typeof sendMailSchema>;

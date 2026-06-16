@@ -2,42 +2,23 @@ import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import z from 'zod';
 
-import { InBoxMailSchema, OutBoxMailSchema, sendMailSchema } from './mail.schema.js';
+import { OutBoxMailSchema, sendMailSchema } from './mail.schema.js';
 import { Mail } from '../database/mail.model.js';
 import { ApiResponse } from '../libs/class/api-response.js';
-import { getMailsByRecipientType, sendMail } from '../libs/utils/mail.js';
+import { getInboxMails, sendMail } from '../libs/utils/mail.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
-
 
 export const getInboxController = async (req: Request, res: Response) => {
   const userId = req.user!.id.toString();
 
-  const [toMails, ccMails, bccMails] = await Promise.all([
-    getMailsByRecipientType(userId, 'TO'),
-    getMailsByRecipientType(userId, 'CC'),
-    getMailsByRecipientType(userId, 'BCC'),
-  ]);
+  const mails = await getInboxMails(userId);
 
-  const inbox = [...toMails, ...ccMails, ...bccMails].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
-
-  if (inbox.length === 0) {
-    return ApiResponse.success(res, {
-      statusCode: 200,
-      message: 'There are no mails for you',
-      data: [],
-    });
-  }
-
-  const normalized = normalizeDoc(inbox);
-
-  const parsed = z.array(InBoxMailSchema).parse(normalized);
+  const normalized = normalizeDoc(mails);
 
   return ApiResponse.success(res, {
     statusCode: 200,
     message: 'Inbox fetched successfully',
-    data: parsed,
+    data: normalized,
   });
 };
 export const sendMailController = async (req: Request, res: Response) => {
@@ -151,13 +132,94 @@ export const outboxController = async (req: Request, res: Response) => {
         as: 'to',
       },
     },
+    {
+      $lookup: {
+        from: 'users',
+        let: {
+          recipientIds: '$cc',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $in: ['$_id', '$$recipientIds'],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: 'media',
+              localField: 'image',
+              foreignField: '_id',
+              as: 'image',
+            },
+          },
+          {
+            $unwind: {
+              path: '$image',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              email: 1,
+              role: 1,
+              image: 1,
+            },
+          },
+        ],
+        as: 'cc',
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        let: {
+          recipientIds: '$bcc',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $in: ['$_id', '$$recipientIds'],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: 'media',
+              localField: 'image',
+              foreignField: '_id',
+              as: 'image',
+            },
+          },
+          {
+            $unwind: {
+              path: '$image',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              email: 1,
+              role: 1,
+              image: 1,
+            },
+          },
+        ],
+        as: 'bcc',
+      },
+    },
 
     {
       $project: {
         _id: 1,
         from: 1,
         to: 1,
-        recipientType: 1,
+        cc: 1,
+        bcc: 1,
         subject: 1,
         body: 1,
         createdAt: 1,
@@ -180,7 +242,6 @@ export const outboxController = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(record);
-
   const parsed = z.array(OutBoxMailSchema).parse(normalized);
 
   return ApiResponse.success(res, {
