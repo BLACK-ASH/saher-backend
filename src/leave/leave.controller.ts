@@ -71,7 +71,6 @@ export const updateLeaveTypeController = async (req: Request, res: Response) => 
   }
 
   const updatedLeaveType = await LeaveType.findByIdAndUpdate(id, payload, {
-    new: true,
     runValidators: true,
   });
 
