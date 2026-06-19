@@ -93,10 +93,7 @@ export const getInboxMails = async (userId: string) => {
             },
           },
           {
-            $unwind: {
-              path: '$image',
-              preserveNullAndEmptyArrays: true,
-            },
+            $unwind: '$image',
           },
           {
             $project: {

@@ -70,10 +70,7 @@ export const outboxController = async (req: Request, res: Response) => {
             },
           },
           {
-            $unwind: {
-              path: '$image',
-              preserveNullAndEmptyArrays: true,
-            },
+            $unwind: '$image',
           },
           {
             $project: {

@@ -17,13 +17,10 @@ const MailUserSchema = z.object({
   name: z.string(),
   email: z.string(),
   role: z.string(),
-  image: z
-    .object({
-      id: z.string(),
-      src: z.string(),
-    })
-    .nullable()
-    .optional(),
+  image: z.object({
+    id: z.string(),
+    src: z.string(),
+  }),
 });
 
 export const InBoxMailSchema = z.object({
