@@ -1,14 +1,7 @@
 import z from 'zod';
 
 export const leaveApplicationSchemaBase = z.object({
-  leaveTypeCode: z
-    .string()
-    .toUpperCase()
-    .trim()
-    .min(2, 'Code must be at least 2 characters')
-    .max(10, 'Code cannot exceed 10 characters')
-    .regex(/^[A-Z0-9_]+$/, 'Code can only contain uppercase letters, numbers, and underscores'),
-
+  leaveTypeCode: z.string().trim(),
   startDate: z.coerce.date(),
 
   endDate: z.coerce.date(),

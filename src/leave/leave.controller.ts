@@ -14,7 +14,7 @@ import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 
 export const createLeaveTypeController = async (req: Request, res: Response) => {
   if (req.user?.role !== 'admin') {
-    throw new ApiError(403, 'Unauthorized');
+    throw new ApiError(401, 'Unauthorized');
   }
 
   const {
@@ -128,11 +128,12 @@ export const createLeaveApplicationController = async (req: Request, res: Respon
 
   const payload = req.body;
 
-  const leaveType = await LeaveType.findOne({
-    code: payload.leaveTypeCode.toUpperCase(),
-    isActive: true,
-  });
+  // const leaveType = await LeaveType.findOne({
+  //   code: payload.leaveTypeCode.toUpperCase(),
+  //   isActive: true,
+  // });
 
+  const leaveType = await LeaveType.findById(payload.leaveTypeCode);
   if (!leaveType) {
     throw new ApiError(404, 'Leave type not found');
   }
@@ -149,7 +150,7 @@ export const createLeaveApplicationController = async (req: Request, res: Respon
 
   const leave = await Leave.create({
     user: userId,
-    leaveTypeCode: leaveType.code,
+    leaveTypeCode: payload.leaveTypeCode,
     startDate: payload.startDate,
     endDate: payload.endDate,
     totalDays,
@@ -194,10 +195,9 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
   const updatedEndDate = payload.endDate ?? leave.endDate;
   const updatedLeaveTypeCode = payload.leaveTypeCode ?? leave.leaveTypeCode;
   const leaveType = await LeaveType.findOne({
-    code: updatedLeaveTypeCode,
+    _id: updatedLeaveTypeCode,
     isActive: true,
   });
-
   if (!leaveType) {
     throw new ApiError(404, 'Leave type not found');
   }
@@ -212,11 +212,28 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
 
   const totalDays = calculateLeaveDays(updatedStartDate, updatedEndDate);
 
+  const updateData = {
+    ...(payload.startDate && {
+      startDate: payload.startDate,
+    }),
+    ...(payload.endDate && {
+      endDate: payload.endDate,
+    }),
+    ...(payload.leaveTypeCode && {
+      leaveTypeCode: payload.leaveTypeCode,
+    }),
+    ...(payload.reason && {
+      reason: payload.reason,
+    }),
+    ...(payload.proof !== undefined && {
+      proof: payload.proof,
+    }),
+  };
   const updatedLeave = await Leave.findByIdAndUpdate(
     id,
     {
       $set: {
-        ...payload,
+        ...updateData,
         totalDays,
       },
     },
@@ -258,22 +275,18 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
     throw new ApiError(400, `Leave application has already been ${leave.status}`);
   }
 
-  // leave.status = payload.status;
-  // leave.managerComment = payload.managerComment ?? '';
-  // leave.approvedBy = convertToObjectId(reviewerId);
-
-  // await leave.save();
-
   leave.status = payload.status;
   leave.managerComment = payload.managerComment ?? '';
   leave.approvedBy = convertToObjectId(reviewerId);
 
   await leave.save();
 
+  const leaveCode = (await LeaveType.findById(leave.leaveTypeCode))?.code;
+  if (!leaveCode) throw new ApiError(400, 'SomeThing went Wrong');
   if (payload.status === 'approved') {
     await recordLeaveUsage({
       userId: leave.user.toString(),
-      leaveTypeCode: leave.leaveTypeCode,
+      leaveTypeCode: leaveCode,
       year: leave.startDate.getFullYear().toString(),
       days: leave.totalDays,
       performedBy: reviewerId,

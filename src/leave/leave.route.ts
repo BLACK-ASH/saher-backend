@@ -53,7 +53,7 @@ leaveRouter.put(
 );
 
 leaveRouter.put(
-  '/appilication/update/:id',
+  '/application/update/:id',
   authorize('update', 'leave'),
   validate(updateLeaveApplicationSchema),
   updateLeaveApplicationController,

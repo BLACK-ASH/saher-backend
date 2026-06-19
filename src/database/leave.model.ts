@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 
-import type { LeaveType } from './leave-type.model.js';
-
 const leaveSchema = new mongoose.Schema(
   {
     user: {
@@ -11,7 +9,8 @@ const leaveSchema = new mongoose.Schema(
     },
 
     leaveTypeCode: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'LeaveType',
       required: true,
     },
 
@@ -67,5 +66,5 @@ const leaveSchema = new mongoose.Schema(
   },
 );
 
-export type LeaveType = mongoose.InferSchemaType<typeof leaveSchema>;
-export const Leave = mongoose.model<LeaveType>('Leave', leaveSchema);
+export type LeaveTypes = mongoose.InferSchemaType<typeof leaveSchema>;
+export const Leave = mongoose.model<LeaveTypes>('Leave', leaveSchema);

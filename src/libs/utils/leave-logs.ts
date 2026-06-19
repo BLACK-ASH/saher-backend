@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { LeaveBalance } from '../../database/leave-balance.model.js';
 import { leaveActionTypes, LeaveLog } from '../../database/leave-log.model.js';
 
-
 export const CreateLeaveLogSchema = z.object({
   user: z.string(),
   leaveTypeCode: z.string(),
