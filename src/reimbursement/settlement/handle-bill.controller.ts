@@ -7,7 +7,7 @@ import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { notificationService } from '../../libs/utils/notification.service.js';
+import { notification } from '../../libs/utils/notification.js';
 import { auditLog } from '../audit-log/audit-log.js';
 
 export const handleBillController = async (req: Request, res: Response) => {
@@ -30,12 +30,6 @@ export const handleBillController = async (req: Request, res: Response) => {
     });
   }
 
-  if (bill) {
-    bill.status = status;
-    bill.reason = reason;
-    await bill.save();
-  }
-
   const expiredAt = new Date();
   expiredAt.setDate(expiredAt.getDate() + 15);
 
@@ -43,12 +37,14 @@ export const handleBillController = async (req: Request, res: Response) => {
   let message, data;
 
   if (bill.status === 'pending') {
-    message = 'Bill is Still on pending';
-    data = null;
+    bill.status = status;
+    bill.reason = reason;
+    await bill.save();
   }
   if (bill.status === 'on-hold') {
-    message = 'Bill is has been put on on-hold';
-    data = null;
+    bill.status = status;
+    bill.reason = reason;
+    await bill.save();
   }
   if (bill.status === 'reject') {
     message = 'Bill is rejected';
@@ -89,23 +85,29 @@ export const handleBillController = async (req: Request, res: Response) => {
       );
     }
 
-    const normalized = normalizeDoc(createSettle.toObject());
-    data = createSettleSchema.parse(normalized);
+    const action = {
+      type: 'none' as const,
+      label: 'handle-bill',
+      url: '',
+      method: 'POST' as const,
+    };
+
+    const notificationDesc = `bill of amount ${amount} is created`;
+    const notificationTitle = 'New settlement bill created';
+
+    // await notification.specific.info(
+    //   [bill.user.toString()],
+    //   notificationTitle,
+    //   notificationDesc,
+    //   action,
+    // );
+
     message = 'Settlement bill created successfully';
   }
 
-  const notificationDesc = `bill is of amount ${amount} is created`;
-  const notificationTitle = 'New settlement bill created';
-
-  await notificationService.specific.success(
-    [bill.user.toString()],
-    notificationTitle,
-    notificationDesc,
-  );
-
   return ApiResponse.success(res, {
     message: message,
-    data: data,
+    data: null,
     statusCode: 201,
   });
 };

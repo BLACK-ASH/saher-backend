@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getBillResponsiveSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { getBillSchema } from './get-bill.schema.js';
 import { billSchema } from '../bill/schema.js';
 
 // For employee,admin and manager
@@ -16,21 +18,26 @@ export const myBillsController = async (req: Request, res: Response) => {
   // // else pass a message that no bill is found created by you
 
   const userId = req.user?.id;
-  const { trashbills } = req.params;
+  if (!userId) throw new ApiError(400, 'Forbidden: user required');
 
-  let getDeleted = {};
+  const key = createKey('reimbursement', 'mybill', userId.toString());
+  const data = await getCache(key);
 
-  if (trashbills === 'true') {
-    getDeleted = { isDeleted: true };
-  } else if (trashbills === 'false') {
-    getDeleted = { isDeleted: false };
+  if (data) {
+    return ApiResponse.success(res, {
+      message: 'Bills of the user',
+      data: data,
+      statusCode: 201,
+    });
   }
 
-  const bills = await Bill.find({ user: userId }, getDeleted).lean();
+  const bills = await Bill.find({ user: userId, isDeleted: false }).lean();
   if (!bills) throw new ApiError(400, 'Bill not found');
 
   const normalized = normalizeDoc(bills);
-  const parsed = getBillSchema.array().parse(normalized);
+  const parsed = getBillResponsiveSchema.array().parse(normalized);
+
+  await setCache(key, parsed, 7200);
 
   return ApiResponse.success(res, {
     message: 'Bills of the user',

@@ -1,9 +1,12 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
+import { getSettleBillResponsiveSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
-import { ApiResponse } from '../../libs/class/api-response.js';
+import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
+import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { getBillSchema } from './get-bill.schema.js';
 import { billSchema } from '../bill/schema.js';
 
 // For employee, admin and manager
@@ -17,10 +20,20 @@ export const getBillByIdController = async (req: Request, res: Response) => {
   // // if the role is admin or manager then find the bill
   // // // if the bill is not there pass error
 
-  const userId = req.user?.id;
   const { billId } = req.params;
 
-  const bill = await Bill.findById(billId).lean();
+  const key = createKey('reimbursement', 'bill', billId.toString());
+  const data = await getCache(key);
+
+  if (data) {
+    return ApiResponse.success(res, {
+      message: 'Bill fetch successfully',
+      data: data,
+      statusCode: 201,
+    });
+  }
+
+  const bill = await Settlement.findById(billId).lean();
   if (!bill) {
     return ApiResponse.success(res, {
       message: 'Bill not found',
@@ -29,7 +42,9 @@ export const getBillByIdController = async (req: Request, res: Response) => {
     });
   }
   const normalized = normalizeDoc(bill);
-  const parsed = getBillSchema.parse(normalized);
+  const parsed = getSettleBillResponsiveSchema.parse(normalized);
+
+  await setCache(key, parsed, 7200);
 
   return ApiResponse.success(res, {
     message: 'Bill fetch successfully',

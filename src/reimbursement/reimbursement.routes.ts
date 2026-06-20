@@ -2,7 +2,6 @@ import { Router } from 'express';
 
 import { createLogSchema } from './audit-log/audit-log.schema.js';
 import { createAuditLogController } from './audit-log/create-audit-log.controller.js';
-import { getAuditLogController } from './audit-log/get-audit-log.controller.js';
 import { userBalanceEnquiryController } from './balance-enquiry/user-balance-enquiry.controller.js';
 import { adminCreateBill, adminSoftDeleteBill, adminUpdateBill } from './bill/admin.controller.js';
 import {
@@ -11,16 +10,17 @@ import {
   userBillCreateSchema,
   userBillUpdateSchema,
 } from './bill/schema.js';
+import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
 import { getBillByIdController } from './get-bill/bill-by-id.controller.js';
 import { getAllBillsController } from './get-bill/get-all-bills.controller.js';
+import { getAuditLogController } from './get-bill/get-audit-log.controller.js';
 import { myBillsController } from './get-bill/my-bills.controller.js';
 import { recycleBillsController } from './get-bill/recycle-bill.controller.js';
-import { validate } from '../libs/middleware/validate-zod-schema.js';
-import { authorize } from '../permission/authorize.js';
-import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
 import { handleBillController } from './settlement/handle-bill.controller.js';
 import { handleSettlementRequest } from './settlement/handle-settle.controller.js';
 import { createSettleSchema, handleBillSchema, handleSettleSchema } from './settlement/schema.js';
+import { validate } from '../libs/middleware/validate-zod-schema.js';
+import { authorize } from '../permission/authorize.js';
 
 const billRouter = Router();
 
@@ -72,14 +72,14 @@ billRouter.post(
   handleSettlementRequest,
 );
 
-// gets bill
-billRouter.get('/bill/mybills/:trashbills', myBillsController);
+// gets bills
+billRouter.get('/bill/mybills', myBillsController);
 billRouter.get(
   '/bill/getbill/:billId',
   authorize('read', 'preReimbursement'),
   getBillByIdController,
 );
-billRouter.get('/bill/getallbills', authorize('read', 'preReimbursement'), getAllBillsController);
+billRouter.get('/bill/getallbills', authorize('write', 'preReimbursement'), getAllBillsController);
 
 // Recycle bills
 billRouter.get('/bill/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);

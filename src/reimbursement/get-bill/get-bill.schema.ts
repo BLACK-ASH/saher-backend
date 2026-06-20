@@ -1,10 +1,8 @@
 import z from 'zod';
 
-import { objectId } from '../../libs/utils/zod-object-id.js';
-
 const dateField = z.union([z.string().datetime(), z.date()]).transform((val) => new Date(val));
 
-export const getBillSchema = z.object({
+export const getBillResponsiveSchema = z.object({
   user: z.string(),
   image: z.string().optional(),
   amount: z.number(),
@@ -16,4 +14,16 @@ export const getBillSchema = z.object({
   isDeleted: z.boolean(),
 });
 
-export type GetBillSchemaInputType = z.infer<typeof getBillSchema>;
+export const getSettleBillResponsiveSchema = z.object({
+  bill: z.string(),
+  amount: z.number(),
+  mode: z.enum(['cash', 'upi', 'cheque', '-']),
+  date: dateField,
+  manager: z.string(),
+  status: z.enum(['pending', 'settle', 'expired', 'on-hold']),
+  expiredAt: dateField,
+  settleDate: dateField.optional(),
+});
+
+export type GetBillResponsiveSchemaInputType = z.infer<typeof getBillResponsiveSchema>;
+export type GetSettleBillResponsiveSchemaInputType = z.infer<typeof getSettleBillResponsiveSchema>;

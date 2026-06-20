@@ -27,8 +27,8 @@ export const userCreateBill = async (req: Request, res: Response) => {
   const notificationDesc = `bill is of amount ${amount} is created`;
   const notificationTitle = 'New bill created';
 
-  await notificationService.role.success('admin', notificationTitle, notificationDesc);
-  await notificationService.role.success('manager', notificationTitle, notificationDesc);
+  // await notificationService.role.success('admin', notificationTitle, notificationDesc);
+  // await notificationService.role.success('manager', notificationTitle, notificationDesc);
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',

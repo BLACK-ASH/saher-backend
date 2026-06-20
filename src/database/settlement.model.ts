@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const settleStatus = ['pending', 'settle', 'expired'];
+export const settleStatus = ['pending', 'settle', 'expired', 'on-hold'];
 export const modes = ['cash', 'upi', 'cheque', '-'];
 
 export const settlementSchema = new mongoose.Schema({
