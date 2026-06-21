@@ -5,7 +5,6 @@ import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 
-
 export const userBalanceEnquiryController = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) throw new ApiError(400, 'User ID is required');
@@ -14,7 +13,7 @@ export const userBalanceEnquiryController = async (req: Request, res: Response) 
   if (bills.length === 0) {
     return ApiResponse.success(res, {
       message: 'There are NO bill data related to this user',
-      data: null,
+      data: [],
       statusCode: 200,
     });
   }

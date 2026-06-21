@@ -24,11 +24,18 @@ export const userCreateBill = async (req: Request, res: Response) => {
     images,
   });
 
+  const action = {
+    type: 'none' as const,
+    label: 'create-bill',
+    url: '',
+    method: 'POST' as const,
+  };
+
   const notificationDesc = `bill is of amount ${amount} is created`;
   const notificationTitle = 'New bill created';
 
-  // await notificationService.role.success('admin', notificationTitle, notificationDesc);
-  // await notificationService.role.success('manager', notificationTitle, notificationDesc);
+  await notificationService.role.success('admin', notificationTitle, notificationDesc, action);
+  await notificationService.role.success('manager', notificationTitle, notificationDesc, action);
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',
@@ -57,19 +64,29 @@ export const userUpdateBill = async (req: Request, res: Response) => {
 
   // If Bill is accept
   if (bill.status === 'accept') {
-    throw new ApiError(400, 'Bill is already accepted');
+    return ApiResponse.success(res, {
+      message: 'Bill is already accepted',
+      data: null,
+      statusCode: 201,
+    });
   }
   // If Bill is on-hold
   if (bill.status === 'reject') {
-    throw new ApiError(400, 'Bill is already rejected');
+    return ApiResponse.success(res, {
+      message: 'Bill is already rejected',
+      data: null,
+      statusCode: 201,
+    });
   }
+
   // If bill is on pending or on-hold
   if (bill.status === 'pending' || bill.status === 'on-hold') {
-    if (bill.amount >= 0) {
+    if (bill.amount > 0) {
       bill.description = description;
     } else {
       bill.description += `\n${description}`;
     }
+
     bill.amount = amount;
     bill.images = images;
     await bill.save();

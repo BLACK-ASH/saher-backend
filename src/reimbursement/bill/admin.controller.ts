@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { billSchema, adminBillCreatSchema, adminBillUpdateSchema } from './schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -14,10 +13,11 @@ export const adminCreateBill = async (req: Request, res: Response) => {
   // after that convert it into normalizedDoc and send notification to admin
   // adn pass the response
 
-  const { user, advance, date, description } = req.body;
+  const { advance, date, description } = req.body;
 
-  const userExist = await User.findById(user);
+  const userExist = await User.findById({ _id: req.params.user });
   if (!userExist) throw new ApiError(400, 'user not found');
+  const user = userExist.id;
 
   const bill = await Bill.create({
     user,
@@ -26,10 +26,17 @@ export const adminCreateBill = async (req: Request, res: Response) => {
     date,
   });
 
+  const action = {
+    type: 'none' as const,
+    label: 'create-bill',
+    url: '',
+    method: 'POST' as const,
+  };
+
   const notificationDesc = `bill is of amount ${advance} is created`;
   const notificationTitle = 'New bill created';
 
-  // await notificationService.specific.success([user], notificationTitle, notificationDesc);
+  await notificationService.specific.info([user], notificationTitle, notificationDesc, action);
 
   return ApiResponse.success(res, {
     message: 'Bill created successfully',
@@ -57,13 +64,21 @@ export const adminUpdateBill = async (req: Request, res: Response) => {
 
   // If Bill is accept
   if (bill.status === 'accept') {
-    throw new ApiError(400, 'Bill is already accepted');
+    return ApiResponse.success(res, {
+      message: 'Bill is Already Accepted',
+      data: null,
+      statusCode: 201,
+    });
   }
   // If Bill is on-hold
   if (bill.status === 'reject') {
-    throw new ApiError(400, 'Bill is already rejected');
+    return ApiResponse.success(res, {
+      message: 'Bill is Already Rejected',
+      data: null,
+      statusCode: 201,
+    });
   }
-  // If bill is on pending
+  // If bill is on pending or on-hold
   if (bill.status === 'pending' || bill.status === 'on-hold') {
     bill.advance = advance;
     bill.description = description;
@@ -85,7 +100,6 @@ export const adminSoftDeleteBill = async (req: Request, res: Response) => {
   // // whether the bill.user is same as user
   // // whether the bills is pending or not
 
-  const user = req.user;
   const { billId } = req.params;
 
   if (!billId) throw new ApiError(400, 'BillId is required');

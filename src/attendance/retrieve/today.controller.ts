@@ -61,7 +61,7 @@ export const todayAttendanceController = async (req: Request, res: Response) => 
   }
 
   const finalToday = today.map((obj) => {
-    if (obj.inTime) {
+    if (obj.inTime && !obj.outTime) {
       const now = new Date();
       obj.workHours = Number(
         ((now.getTime() - obj.inTime.getTime()) / (1000 * 60 * 60)).toFixed(2),

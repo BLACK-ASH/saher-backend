@@ -14,7 +14,8 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
   // // after the the settlement set till which admin have to collect his money (15 days)
 
   const { settleId } = req.params;
-  const { mode, status, settleDate } = req.body;
+  const { mode, status } = req.body;
+  const settleDate = new Date();
 
   const settleBill = await Settlement.findById(settleId);
   if (!settleBill) throw new ApiError(400, 'Settlement bill not found');
@@ -28,23 +29,34 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
   }
 
   // if settlement date is expired
-  if (settleBill.status === 'expired')
+  if (settleBill.status === 'expired') {
     return ApiResponse.success(res, {
       message: 'Bill settlement date expired',
       data: null,
       statusCode: 201,
     });
+  }
 
   // if settlement is already completed
-  if (settleBill.status === 'settle')
+  if (settleBill.status === 'settle') {
     return ApiResponse.success(res, {
       message: 'Settlement is Already completed',
       data: null,
       statusCode: 201,
     });
+  }
 
   // if settlement is still pending
-  if (settleBill.status === 'pending') {
+  if (settleBill.status === 'pending' || settleBill.status === 'on-hold') {
+    // If the status is enter as Pending or On-Hold then mode cannot be change
+    if (status === 'pending' || (status === 'on-hold' && mode !== '-')) {
+      return ApiResponse.success(res, {
+        message: 'you have to change the status from "pending" or "on-hold" to change the mode',
+        data: null,
+        statusCode: 201,
+      });
+    }
+
     settleBill.mode = mode;
     settleBill.status = status;
     settleBill.settleDate = settleDate;

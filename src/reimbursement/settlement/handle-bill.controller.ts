@@ -1,12 +1,10 @@
 import type { Request, Response } from 'express';
 
-import { createSettleSchema, settleSchema } from './schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notification } from '../../libs/utils/notification.js';
 import { auditLog } from '../audit-log/audit-log.js';
 
@@ -30,6 +28,16 @@ export const handleBillController = async (req: Request, res: Response) => {
     });
   }
 
+  // find if the settlement of this bill is created or not
+  const settlementExist = await Settlement.find({ bill: bill.id }).lean();
+  if (settlementExist.length > 0) {
+    return ApiResponse.success(res, {
+      message: 'This Bill is Accepted and Settlement for this bill is already created',
+      data: null,
+      statusCode: 201,
+    });
+  }
+
   const expiredAt = new Date();
   expiredAt.setDate(expiredAt.getDate() + 15);
 
@@ -47,7 +55,7 @@ export const handleBillController = async (req: Request, res: Response) => {
     await bill.save();
   }
   if (bill.status === 'reject') {
-    message = 'Bill is rejected';
+    message = 'Bill is already rejected';
     data = null;
   }
   if (bill.status === 'accept') {
@@ -95,14 +103,13 @@ export const handleBillController = async (req: Request, res: Response) => {
     const notificationDesc = `bill of amount ${amount} is created`;
     const notificationTitle = 'New settlement bill created';
 
-    // await notification.specific.info(
-    //   [bill.user.toString()],
-    //   notificationTitle,
-    //   notificationDesc,
-    //   action,
-    // );
-
-    message = 'Settlement bill created successfully';
+    await notification.specific.info(
+      [bill.user.toString()],
+      notificationTitle,
+      notificationDesc,
+      action,
+    );
+    message = 'Bill Accepted and Settlement bill created successfully';
   }
 
   return ApiResponse.success(res, {

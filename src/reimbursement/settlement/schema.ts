@@ -23,9 +23,9 @@ export const createSettleSchema = settleSchema.pick({
   date: true,
   expiredAt: true,
 });
+
 export const handleSettleSchema = settleSchema.pick({
   mode: true,
-  settleDate: true,
   status: true,
 });
 

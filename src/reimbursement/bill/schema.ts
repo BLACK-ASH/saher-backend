@@ -34,7 +34,6 @@ export const userBillUpdateSchema = billSchema
   .partial();
 
 export const adminBillCreatSchema = billSchema.pick({
-  user: true,
   advance: true,
   date: true,
   description: true,
