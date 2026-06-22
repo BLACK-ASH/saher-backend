@@ -69,7 +69,7 @@ export const createCalendarEventController = async (req: Request, res: Response)
   const existingRecord = await CalendarEvent.findOne({ type: type, start: start, end: end });
   if (existingRecord) throw new ApiError(400, 'there is already an event added');
 
-  await CalendarEvent.create({
+  const newRecord = await CalendarEvent.create({
     title,
     description,
     start,

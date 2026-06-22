@@ -107,7 +107,7 @@ export const exportReportController = async (req: Request, res: Response) => {
       const action = {
         type: 'download' as const,
         label: 'Report',
-        url: data.result.url,
+        url: data.result.downloadPath,
         method: 'GET' as const,
       };
 
