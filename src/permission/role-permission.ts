@@ -29,6 +29,9 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     //Mail
     createPermission('write', 'mail'),
+
+    // Payroll
+    createPermission('write', 'payroll'),
   ]),
 
   manager: new Set([
