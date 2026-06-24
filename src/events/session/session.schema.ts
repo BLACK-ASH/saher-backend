@@ -1,18 +1,16 @@
-import DOMPurify from 'dompurify';
 import { Types } from 'mongoose';
 import z from 'zod';
 
+import { DOMPurify } from '../../libs/utils/dompurify.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
-  workshopId: objectId().optional(),
   title: z.string().min(3),
   description: z
     .string()
     .min(5)
     .max(500)
     .transform((value) => DOMPurify.sanitize(value)),
-
   date: z.string(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
@@ -38,7 +36,6 @@ export const updatedSessionSchema = baseSchema.partial().refine(
 );
 
 export const getSessionResponsiveSchema = z.object({
-  workshopId: z.string(),
   title: z.string(),
   description: z.string(),
   date: z.string(),

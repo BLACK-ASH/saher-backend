@@ -140,6 +140,13 @@ export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
 
 //Get all Workshops
 export const getWorkshopsFromProgramme = async (req: Request, res: Response) => {
+  const { programmeId } = req.params;
+  const programme = await Programme.findById(programmeId);
+
+  if (!programme) {
+    throw new ApiError(404, 'Programme not found');
+  }
+
   const workshop = await Workshop.find({
     programmeId: req.params.programmeId,
     isDeleted: false,
@@ -172,6 +179,37 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
 
   const normalized = normalizeDoc(workshop);
   const parsed = getSingleWorkshopSchema.parse(normalized);
+
+  return ApiResponse.success(res, {
+    message: 'Workshop fetched successfully',
+    data: parsed,
+    statusCode: 200,
+  });
+};
+
+//Search for workshop
+export const getWorkshopByKeyword = async (req: Request, res: Response) => {
+  const keyword = req.query.keyword as string;
+
+  // Search by name, brand, or category using case-insensitive regex
+  const regex = new RegExp(keyword, 'i');
+
+  const workshop = await Workshop.find({
+    $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
+  })
+    .limit(5)
+    .lean(); // Return top 5 suggestions
+
+  if (workshop.length === 0) {
+    return ApiResponse.success(res, {
+      message: 'No workshops found',
+      data: [],
+      statusCode: 200,
+    });
+  }
+
+  const normalized = normalizeDoc(workshop);
+  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Workshop fetched successfully',

@@ -1,6 +1,6 @@
-import DOMPurify from 'dompurify';
 import { z } from 'zod';
 
+import { DOMPurify } from '../../libs/utils/dompurify.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 //Base programme schema
@@ -12,31 +12,16 @@ export const baseProgrammeSchema = z.object({
     .max(500)
     .transform((value) => DOMPurify.sanitize(value)),
   participants: z.array(objectId()).optional(),
-  workshops: z.array(objectId()).optional(),
 });
 
 //Request Schema
 export const createProgrammeSchema = baseProgrammeSchema;
-export const updatedProgrammeSchema = baseProgrammeSchema.omit({ workshops: true }).partial();
+export const updatedProgrammeSchema = baseProgrammeSchema.partial();
 
 //Response Schema
 export const programmeResponseSchema = z.object({
   title: z.string(),
   description: z.string(),
-  participants: z
-    .array(
-      z.object({
-        id: z.string(),
-      }),
-    )
-    .optional(),
-  workshops: z
-    .array(
-      z.object({
-        id: z.string(),
-      }),
-    )
-    .optional(),
 });
 
 export const getProgrammesSchema = z.array(programmeResponseSchema);

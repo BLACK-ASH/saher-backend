@@ -1,7 +1,7 @@
-import DOMPurify from 'dompurify';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
+import { DOMPurify } from '../../libs/utils/dompurify.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 //Base workshop schema

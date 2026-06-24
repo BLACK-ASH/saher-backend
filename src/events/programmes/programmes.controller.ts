@@ -156,10 +156,6 @@ export const getProgrammes = async (req: Request, res: Response) => {
       path: 'participants',
       match: { isDeleted: false },
     })
-    .populate({
-      path: 'workshops',
-      match: { isDeleted: false },
-    })
     .lean();
 
   if (programme.length === 0) {
@@ -190,10 +186,6 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
       path: 'participants',
       match: { isDeleted: false },
     })
-    .populate({
-      path: 'workshops',
-      match: { isDeleted: false },
-    })
     .lean();
 
   if (!programme) {
@@ -209,3 +201,5 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+
+//Searching a programme using case-insensitive input

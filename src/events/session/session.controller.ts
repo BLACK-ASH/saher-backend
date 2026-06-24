@@ -1,6 +1,10 @@
 import type { Request, Response } from 'express';
 
-import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
+import {
+  getSessionByIdSchema,
+  getSessionResponsiveSchema,
+  getSessionSchema,
+} from './session.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -52,7 +56,8 @@ export const addSession = async (req: Request, res: Response) => {
 
   const newSession = await Session.create({
     ...req.body,
-    newWorkshopId,
+    workshopId: workshopId || newWorkshopId,
+    programmeId: programmeId,
   });
 
   const notificationTitle = 'Receieved New Session';
@@ -174,7 +179,7 @@ export const permanentDeleteSession = async (req: Request, res: Response) => {
 //Get all sessions
 export const getSessions = async (req: Request, res: Response) => {
   const session = await Session.find({
-    workshopId: req.params.workshopId,
+    programmeId: req.params.programmeId,
     isDeleted: false,
   })
     .populate('speaker')
@@ -198,6 +203,7 @@ export const getSessions = async (req: Request, res: Response) => {
 export const getSingleSession = async (req: Request, res: Response) => {
   const session = await Session.findOne({
     _id: req.params.sessionId,
+    programmeId: req.params.programmeId,
     workshopId: req.params.workshopId,
     isDeleted: false,
   })
@@ -213,6 +219,38 @@ export const getSingleSession = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',
+    data: parsed,
+    statusCode: 200,
+  });
+};
+
+//Search for Session
+export const getSessionByKeyword = async (req: Request, res: Response) => {
+  const keyword = req.query.keyword as string;
+
+  // Search by name, brand, or category using case-insensitive regex
+  const regex = new RegExp(keyword, 'i');
+
+  const session = await Session.find({
+    $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
+  })
+    .populate('speaker')
+    .limit(5)
+    .lean(); // Return top 5 suggestions
+
+  if (session.length === 0) {
+    return ApiResponse.success(res, {
+      message: 'No sessions found',
+      data: [],
+      statusCode: 200,
+    });
+  }
+
+  const normalized = normalizeDoc(session);
+  const parsed = getSessionSchema.parse(normalized);
+
+  return ApiResponse.success(res, {
+    message: 'Sessions fetched successfully',
     data: parsed,
     statusCode: 200,
   });

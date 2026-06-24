@@ -37,6 +37,7 @@ import {
   getSessions,
   getSingleSession,
   undoDeleteSession,
+  getSessionByKeyword,
 } from './session/session.controller.js';
 import { createSessionSchema, updatedSessionSchema } from './session/session.schema.js';
 import {
@@ -44,6 +45,7 @@ import {
   deleteWorkshop,
   editWorkshop,
   getSingleWorkshop,
+  getWorkshopByKeyword,
   getWorkshopsFromProgramme,
   undoDeleteWorkshop,
 } from './workshop/workshop.controller.js';
@@ -60,6 +62,13 @@ import { reminderNotificationController } from './session/reminder.controller.js
 const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
+eventRouter.get(
+  '/workshops/search',
+  underDevelopment,
+  authorize('read', 'event'),
+  getWorkshopByKeyword,
+);
+
 eventRouter.get(
   '/programmes/:programmeId/workshops',
   underDevelopment,
@@ -111,13 +120,20 @@ eventRouter.patch(
 
 // Session route ----------------------------------------------------------------------
 eventRouter.get(
-  '/workshops/:workshopId/sessions',
+  '/sessions/search',
+  underDevelopment,
+  authorize('read', 'event'),
+  getSessionByKeyword,
+);
+
+eventRouter.get(
+  '/programmes/:programmeId/sessions',
   underDevelopment,
   authorize('read', 'event'),
   getSessions,
 );
 eventRouter.get(
-  '/workshops/:workshopId/sessions/:sessionId',
+  '/programmes/sessions/:sessionId',
   underDevelopment,
   authorize('read', 'event'),
   getSingleSession,

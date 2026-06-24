@@ -27,6 +27,11 @@ const sessionSchema = new mongoose.Schema(
       // required: true,
     },
 
+    programmeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Programme',
+    },
+
     title: {
       type: String,
       required: true,
@@ -63,6 +68,7 @@ const sessionSchema = new mongoose.Schema(
       ref: 'Participant',
       default: [],
     },
+
     isDeleted: {
       type: Boolean,
       default: false,
@@ -70,6 +76,11 @@ const sessionSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+sessionSchema.index({
+  title: 'text',
+  description: 'text',
+});
 
 export type SessionType = mongoose.InferSchemaType<typeof sessionSchema>;
 export const Session = mongoose.model<SessionType>('Session', sessionSchema);

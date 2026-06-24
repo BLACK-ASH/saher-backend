@@ -18,12 +18,6 @@ const programmeSchema = new mongoose.Schema(
       default: [],
     },
 
-    workshops: {
-      type: [Schema.Types.ObjectId],
-      ref: 'Workshop',
-      default: [],
-    },
-
     isDeleted: {
       type: Boolean,
       default: false,
