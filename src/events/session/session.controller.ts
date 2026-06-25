@@ -63,7 +63,7 @@ export const addSession = async (req: Request, res: Response) => {
   const notificationTitle = 'Receieved New Session';
   const notificationDesc = `A new Session has been created`;
   await notification.specific.success(
-    [newSession.speaker.toString()],
+    newSession.speaker.map((id) => id.toString()),
     notificationTitle,
     notificationDesc,
   );
