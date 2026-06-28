@@ -21,10 +21,6 @@ export const claimFlexibleWeekOffController = async (req: Request, res: Response
 
   const selectedDate = new Date(date);
 
-  if (isNaN(selectedDate.getTime())) {
-    throw new ApiError(400, 'Invalid date');
-  }
-
   selectedDate.setHours(0, 0, 0, 0);
 
   const today = new Date();
