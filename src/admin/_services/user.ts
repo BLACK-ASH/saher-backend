@@ -12,11 +12,12 @@ export const userSchemaFinal = userSchema
     image: imageType,
     displayName: z.string(),
     emailVerified: z.boolean(),
+    pushNotificationsEnabled: z.boolean().default(false),
     isActive: z.boolean(),
     isBanned: z.boolean(),
-    deletedAt: z.date().optional(),
+    deletedAt: z.coerce.date().optional(),
     deleteBy: userSchema.omit({ password: true }).optional(),
-    bannedAt: z.date().optional(),
+    bannedAt: z.coerce.date().optional(),
     bannedBy: userSchema.omit({ password: true }).optional(),
   })
   .omit({ password: true })
@@ -33,7 +34,7 @@ export const getUser = async (id: string) => {
   const cacheUser = await getCache<UserT>(key);
   if (cacheUser) return cacheUser;
 
-  const user = await User.findById(id).populate('image deleteBy bannedBy').lean();
+  const user = await User.findById(id).populate('image deletedBy bannedBy').lean();
   if (!user) return null;
 
   const normalize = normalizeDoc(user);

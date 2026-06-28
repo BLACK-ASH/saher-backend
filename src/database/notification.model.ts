@@ -1,41 +1,8 @@
-// import mongoose from 'mongoose';
-
-// export const notificationTypes = ['info','warn','success','error'];
-// export const notificationScope = ['user', 'manager' , 'admin' , 'intern', 'specific' , 'global']
-// const notificationSchema = new mongoose.Schema(
-//   {
-//     user: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: 'User',
-//       required: false,
-//     },
-//     type: {
-//       type: String,
-//       enum: notificationTypes,
-//       required: true,
-//     },
-//     title: {
-//       type: String,
-//       required: true,
-//     },
-//     description: {
-//       type: String,
-//     },
-//     scope : {
-//       type : String ,
-//       enum : notificationScope ,
-//       required : true
-//     }
-//   },
-//   { timestamps: true },
-// );
-
-// type NotificationType = mongoose.InferSchemaType<typeof notificationSchema>;
-// export const Notification = mongoose.model<NotificationType>('Notification', notificationSchema);
-
 import mongoose from 'mongoose';
 
 export const notificationTypes = ['info', 'warn', 'success', 'error'] as const;
+export const notificationActionTypes = ['download', 'navigate', 'external', 'none'] as const;
+export const notificationMethod = ['GET', 'POST', 'PATCH', 'DELETE'] as const;
 
 export const notificationScope = [
   'user',
@@ -101,21 +68,23 @@ const notificationSchema = new mongoose.Schema(
     action: {
       type: {
         type: String,
-        enum: ['download', 'navigate', 'external', 'none'],
+        enum: notificationActionTypes,
         default: 'none',
       },
 
       label: {
         type: String, // button text like "View", "Download"
+        default: 'none',
       },
 
       url: {
         type: String, // route or external link
+        default: 'none',
       },
 
       method: {
         type: String,
-        enum: ['GET', 'POST'],
+        enum: notificationMethod,
         default: 'GET',
       },
     },
