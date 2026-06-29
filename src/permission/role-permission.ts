@@ -28,7 +28,12 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission('write', 'mail'),
 
     //Mail
-    createPermission('write', 'mail'),
+
+    // Reimbursement
+    createPermission('write', 'preReimbursement'),
+    createPermission('update', 'preReimbursement'),
+    createPermission('delete', 'preReimbursement'),
+    createPermission('update', 'postReimbursement'),
   ]),
 
   manager: new Set([
@@ -68,6 +73,12 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     //Mail
     createPermission('write', 'mail'),
+
+    // Reimbursement
+    createPermission('write', 'preReimbursement'),
+    createPermission('update', 'preReimbursement'),
+    createPermission('delete', 'preReimbursement'),
+    createPermission('update', 'postReimbursement'),
   ]),
 
   user: new Set([
@@ -82,5 +93,11 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     //Mail
     createPermission('write', 'mail'),
+
+    // Reimbursement
+    createPermission('write', 'postReimbursement'),
+    createPermission('update', 'postReimbursement'),
+    createPermission('delete', 'postReimbursement'),
+    createPermission('update', 'preReimbursement'),
   ]),
 };
