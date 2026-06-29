@@ -1,5 +1,6 @@
 import z from 'zod';
 
+import { settleStatus } from '../../database/settlement.model.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const createLogSchema = z.object({
@@ -10,7 +11,7 @@ export const createLogSchema = z.object({
   to: z.string(),
 });
 
-export const createLogResponsiveSchema = createLogSchema.extend({ status: z.string() });
+export const createLogResponsiveSchema = createLogSchema.extend({ status: settleStatus });
 
 export type CreateLogType = z.infer<typeof createLogSchema>;
 export type CreateLogResponsiveType = z.infer<typeof createLogResponsiveSchema>;
