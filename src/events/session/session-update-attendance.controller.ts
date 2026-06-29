@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import type { Types } from 'mongoose';
 
 import { Participant } from '../../database/participant.model.js';
+import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -27,10 +28,12 @@ export const updateAttendance = async (req: Request, res: Response) => {
   if (!session) throw new ApiError(404, 'Session not exist');
 
   const workshop = await Workshop.findById(session.workshopId);
-  // If workshop Does not exist
-  if (!workshop) throw new ApiError(404, 'Workshop does not exist');
+  if (!workshop) throw new ApiError(404, 'Workshop not found');
 
-  const participants = workshop.participants ?? [];
+  const programme = await Programme.findById(workshop.programmeId);
+  if (!programme) throw new ApiError(404, 'Programme not found');
+
+  const participants = programme.participants ?? [];
 
   const participantsString = participants.map((id) => id.toString());
 

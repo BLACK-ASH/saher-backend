@@ -26,6 +26,7 @@ import { connectRedis } from './libs/redis/redis-client.js';
 import { mailRouter } from './mail/mail.routes.js';
 import notificationRouter from './notification/notification.routes.js';
 import publicRouter from './public/public.routes.js';
+import billRouter from './reimbursement/reimbursement.routes.js';
 import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
 
@@ -62,8 +63,8 @@ app.use(
 );
 
 // Image Upload Routes
-app.use('/api/upload', uploadRouter);
 app.use(express.json());
+app.use('/api/upload', uploadRouter);
 app.use(cookieParser());
 
 // Databse Connection
@@ -73,6 +74,7 @@ await connectDb();
 await connectRedis();
 
 // Routes
+app.use('/api/reimbursement', protectedRoute, billRouter);
 app.use('/api', publicRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
