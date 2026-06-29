@@ -11,6 +11,7 @@ import authRouter from './auth/auth.routes.js';
 import { calendarRouter } from './calendar/calendar.routes.js';
 import connectDb from './database/connection.js';
 import eventRouter from './events/events.routes.js';
+import leaveRouter from './leave/leave.route.js';
 import { httpLogger } from './libs/logger/http-logger.js';
 import { logger } from './libs/logger/logger.js';
 import { register } from './libs/logger/metrics.js';
@@ -83,6 +84,7 @@ app.use('/api/events', underDevelopment, protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 app.use('/api/mail', underDevelopment, protectedRoute, mailRouter);
 app.use('/api/calendar', protectedRoute, calendarRouter);
+app.use('/api/leave', protectedRoute, leaveRouter);
 
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));

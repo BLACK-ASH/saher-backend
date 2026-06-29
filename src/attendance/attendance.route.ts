@@ -27,6 +27,7 @@ import { rejectMarkController, rejectMarkSchema } from './mark/reject-mark.contr
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
 import { holidaySchema, holidayUpdateSchema } from './holiday/holiday.schema.js';
+import { claimFlexibleWeekOffController } from './mark/week-off.controller.js';
 import { allAttendanceController } from './retrieve/all-attendance.controller.js';
 import { getAllUserController } from './retrieve/get-all-user.controller.js';
 import { getAttendanceById } from './retrieve/get-attendance.controller.js';
@@ -84,6 +85,8 @@ attendanceRouter.put(
   validate(holidayUpdateSchema),
   updateHolidayController,
 );
+
+attendanceRouter.post('/claim/weekoff', claimFlexibleWeekOffController);
 
 // WARN: Do Not Change This Part
 // Cron Jobs
