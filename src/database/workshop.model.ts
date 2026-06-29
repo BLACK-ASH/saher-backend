@@ -12,11 +12,12 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
-    participants: {
-      type: [Schema.Types.ObjectId],
-      ref: 'Participant',
-      default: [],
+    programmeId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Programme',
+      required: true,
     },
+
     isDeleted: {
       type: Boolean,
       default: false,
@@ -24,6 +25,11 @@ const workshopSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+workshopSchema.index({
+  title: 'text',
+  description: 'text',
+});
 
 export type WorkshopType = mongoose.InferSchemaType<typeof workshopSchema>;
 export const Workshop = mongoose.model<WorkshopType>('Workshop', workshopSchema);

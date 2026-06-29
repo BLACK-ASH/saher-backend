@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import type { Types } from 'mongoose';
 
 import { Participant } from '../../database/participant.model.js';
+import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -19,12 +20,13 @@ export const markAttendance = async (req: Request, res: Response) => {
   const session = await Session.findById(sessionId);
   if (!session) throw new ApiError(404, 'Session not found');
 
-  // get workshop
   const workshop = await Workshop.findById(session.workshopId);
   if (!workshop) throw new ApiError(404, 'Workshop not found');
 
-  // existing workshop participants
-  const participants = workshop.participants ?? [];
+  const programme = await Programme.findById(workshop.programmeId);
+  if (!programme) throw new ApiError(404, 'Programme not found');
+
+  const participants = programme.participants ?? [];
 
   const paricipantsString = participants.map((id) => id.toString());
   const success: Types.ObjectId[] = [];
@@ -59,6 +61,8 @@ export const markAttendance = async (req: Request, res: Response) => {
 
   session.participants = success;
   await session.save();
+
+  // const normalized = normalizeDoc()
 
   return ApiResponse.success(res, {
     message: 'Attendance marked successfully',
