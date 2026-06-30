@@ -27,7 +27,7 @@ export const payrollLeaveMangement = async (req: Request, res: Response) => {
     // Finding the employee attendance of half-day, week-off and on-leave of employee for this month
     const employeeAttendance = await Attendance.find({
         user: req.params.id,
-        // date: { $gte: standardDateString(firstDateOfMonth), $lte: standardDateString(lastDateOfMonth) },
+        date: { $gte: standardDateString(firstDateOfMonth), $lte: standardDateString(lastDateOfMonth) },
         status: { $in: ['week-off', 'on-leave', 'half-day'] }
     }
     );
