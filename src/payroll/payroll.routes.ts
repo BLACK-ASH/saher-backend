@@ -3,7 +3,7 @@ import { authorize } from "../permission/authorize.js";
 import { validate } from "../libs/middleware/validate-zod-schema.js";
 import { getPayrollController, payrollController } from "./controller.js";
 import { createPayrollSchema } from "./schema.js";
-import { payrollLeaveMangement } from "./leave-management.cron.js";
+import { payrollLeaveMangement } from "./payroll-management.cron.js";
 
 const payrollRouter = Router();
 
