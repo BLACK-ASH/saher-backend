@@ -6,13 +6,14 @@ import { userSchemaFinal } from '../../admin/_services/user.js';
 export const attendanceResponseSchema = z
   .object({
     id: z.string(),
-    user: userSchemaFinal,
+    user: userSchemaFinal.nullable(),
     inTime: z.string().nullable(),
     outTime: z.string().nullable(),
     workHours: z.number(),
     date: z.string(),
     status: z.enum(['present', 'half-day', 'absent', 'week-off', 'on-leave']),
-    weekOffType: z.enum(['flexible', 'fixed']).optional(),
+    weekOffType: z.enum(['flexible', 'fixed']).optional().nullable(),
+    overtime: z.boolean(),
     isLate: z.boolean(),
   })
   .readonly();

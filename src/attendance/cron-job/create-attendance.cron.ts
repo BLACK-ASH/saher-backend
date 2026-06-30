@@ -20,7 +20,7 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
   const todayDate = new Date();
   const today = standardDateString(todayDate);
 
-  const isMonday = todayDate.getDay() === 1;
+  // const isMonday = todayDate.getDay() === 1;
 
   const startOfDay = new Date(todayDate);
   startOfDay.setHours(0, 0, 0, 0);
@@ -50,12 +50,9 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
     .filter((userId) => !attendanceSet.has(userId))
     .map((userId) => {
       let status = 'absent';
-      let weekOffType: 'fixed' | 'flexible' | null = null;
+      // let weekOffType: 'fixed' | 'flexible' | null = null;
 
-      if (isMonday) {
-        status = 'week-off';
-        weekOffType = 'fixed';
-      } else if (leaveSet.has(userId)) {
+      if (leaveSet.has(userId)) {
         status = 'on-leave';
       }
 
@@ -63,7 +60,7 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
         user: userId,
         date: today,
         status,
-        weekOffType,
+        // weekOffType,
       };
     });
 

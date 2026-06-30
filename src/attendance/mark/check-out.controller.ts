@@ -44,7 +44,11 @@ export const checkOutController = async (req: Request, res: Response) => {
   if (workHours === undefined || workHours === null)
     throw new ApiError(400, 'Work Hours Is Not Valid.');
 
-  const status = workHoursAndStatus.status;
+  let status = workHoursAndStatus.status;
+
+  if (attendance.overtime === true) {
+    status = 'present';
+  }
 
   attendance.outTime = now;
   attendance.status = status;

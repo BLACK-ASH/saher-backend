@@ -23,6 +23,7 @@ import {
 } from './holiday/holiday.controller.js';
 import { checkInController } from './mark/check-in.controller.js';
 import { checkOutController } from './mark/check-out.controller.js';
+import { overtimeCheckInController } from './mark/overtime.controller.js';
 import { rejectMarkController, rejectMarkSchema } from './mark/reject-mark.controller.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
@@ -46,6 +47,10 @@ attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
 attendanceRouter.get('/retrieve-all', getAllUserController);
 attendanceRouter.get('/user/:id', allAttendanceController);
 attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
+
+// Overtime
+attendanceRouter.post('/overtime/check-in', overtimeCheckInController);
+// attendanceRouter.post("/overtime/check-out" , overtimeCheckOutController)
 
 // Export
 attendanceRouter.get('/export/report', exportReportController);
