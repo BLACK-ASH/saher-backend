@@ -24,9 +24,13 @@ export const payrollController = async (req: Request, res: Response) => {
     const expectedSalary = Number(employee?.salaryStructure) + Number(bonus || 0) - Number(deduction || 0);
 
     // If the salary is half paid then it will store in remainingSalary
-    const remainingSalary = Number(expectedSalary) - Number(paidSalary);
-
-    if (expectedSalary < paidSalary) throw new ApiError(400, `${paidSalary} amount is greater than user expected salary ${expectedSalary}`)
+    let remainingSalary = 0
+    if (expectedSalary < paidSalary) {
+        remainingSalary = 0
+    }
+    else {
+        Number(expectedSalary) - Number(paidSalary);
+    }
 
     // if remaining amount is 0 then salary is full paid if not then it is partially paid
     let status = remainingSalary <= 0 ? 'paid' : "partially-paid";

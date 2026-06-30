@@ -26,14 +26,9 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     //Mail
     createPermission('write', 'mail'),
-
-    //Mail
-<<<<<<< HEAD
-    createPermission('write', 'mail'),
-
+    
     // Payroll
     createPermission('write', 'payroll'),
-=======
 
     // Reimbursement
     createPermission('write', 'preReimbursement'),
@@ -48,7 +43,6 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     //Leave (Application )
     createPermission('write', 'leave'),
     createPermission('update', 'leave'),
->>>>>>> b4ebf3d6fbe0e8a69912e10e7c7e58912d0ccfc6
   ]),
 
   manager: new Set([

@@ -1,71 +1,77 @@
 
-import { Request, Response } from "express"
+import e, { Request, Response } from "express"
 import { User } from "../database/user.model.js"
 import { ApiError } from "../libs/class/api-error.js";
 import { Account } from "../database/account.model.js";
 import { Attendance } from "../database/attendance.model.js";
 import { ApiResponse } from "../libs/class/api-response.js";
-
-
-// Payroll create in every month last date
-
-// We have to calculate all the present,weakOff,YearOff of the user and generate an amount of current month with including all this and then deduct personalLeave approved by admin and deduct the each days leave amount in generatete amount
-
-/*Step by Step 
-1. take the employee id from params 
-    check whether the employee exist or not
-    get the Account information of employee and from account take the salary tructure
-2. calculate the total days of work of employee
-    from attendance take this month of present data
-    from leave find if the leave is weakOff or yearOff if the leave is one of them then take it
-    (after including this we can get the day of work of employee and now we have to generate employee salary according to this days)
-3. claculate the leaves of employee
-    after calculating the days of work the remaining days are the leaves
-    find the leaves of this days and see whether they are approved or not 
-    if aprroved then deducted the amount of every leaves days (by dividing the salary/month * days of leaves - salary)
-*/
+import { standardDateString } from "../libs/utils/standard-date.js";
+import { normalizeDoc } from "../libs/utils/normailize-doc.js";
 
 export const payrollLeaveMangement = async (req: Request, res: Response) => {
 
+    // Finding employee in User
     const employee = await User.findById(req.params.id);
     if (!employee) throw new ApiError(400, 'User not found');
 
-    const employeeAccount = await Account.findById(req.params.id);
+    // Finding Employee Account for baseSalary
+    const employeeAccount = await Account.findOne({ user: req.params.id });
     if (!employeeAccount) throw new ApiError(400, 'Account not found');
     const baseSalary = Number(employeeAccount.salaryStructure)
 
-    // Calculating the First and Month of month
+    // Calculating the First and Last day of month
     const date = new Date();
     const firstDateOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
     const lastDateOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-    // Finding the attendance of Present and Halfday of employee
+    // Finding the employee attendance of half-day, week-off and on-leave of employee for this month
     const employeeAttendance = await Attendance.find({
         user: req.params.id,
-        // date: { $gte: firstDateOfMonth.toISOString().split('T')[0], $lte: lastDateOfMonth.toISOString().split('T')[0] },
-        status: { $in: ['present', 'half-day'] }
+        // date: { $gte: standardDateString(firstDateOfMonth), $lte: standardDateString(lastDateOfMonth) },
+        status: { $in: ['week-off', 'on-leave', 'half-day'] }
     }
     );
-    if (!employeeAttendance) throw new ApiError(400, 'Attendance not found');
+    if (employeeAttendance.length === 0) throw new ApiError(400, 'Attendance not found');
 
-    // Separating the Present and Halfday
-    let present = 0;
-    let halfday = 0;
+    // Calculating the days in this month
+    let daysInMonth = lastDateOfMonth.getDate();
+
+    // Storing the employee data of how many days his 'on-leave', 'week-off', and 'half-day'
+    let weekOff = 0, onLeave = 0, halfDay = 0
     employeeAttendance.forEach(e => {
-        if (e.status === 'present') present++
-        if (e.status === 'half-day') halfday++
-    });
+        if (e.status === 'week-off') weekOff++
+        if (e.status === 'on-leave') onLeave++
+        if (e.status === 'half-day') halfDay++
+    })
 
-    // leave management
-    // weak off 
+    // Calculating the employee working days by deducting the week-off
+    let workingDays = daysInMonth - weekOff
 
-    // Calculating the salary of employee from present and half-day attendance
-    const onedaySalary = Number(baseSalary/present)
-    const halfdaySalary = Number(baseSalary/halfday)/2
+    // Calculating one day and half day salary
+    const oneDaySalary = Math.ceil(baseSalary / workingDays);
+    const halfDaySalary = Math.ceil(oneDaySalary / 2)
+
+    // Calculating and deducting days salary in which employee is onLeave or halfDay
+    const leaveDeduction = oneDaySalary * onLeave;
+    const halfDayDeduction = halfDaySalary * halfDay
+    // workingDays -= onLeave
+    // workingDays -= halfDay
+
+    // Adding both we get the deduction amount of employee and then substract it from baseSalary
+    const finalSalary = baseSalary - (leaveDeduction + halfDayDeduction);
+
+    const data = {
+        name: employee.displayName,
+        baseSalary: baseSalary,
+        workingDays: workingDays,
+        Leave: `${onLeave} Days of Leave salary deduction ${leaveDeduction}`,
+        halfDay: `${halfDay} Days of Half-day salary deduction ${halfDayDeduction}`,
+        calculatedSalary: Math.ceil(finalSalary),
+    }
 
     return ApiResponse.success(res, {
         message: "Payroll calculation",
-        data: null,
+        data: data,
         statusCode: 200,
     })
 }
