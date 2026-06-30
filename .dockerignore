@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 
 # 🔥 Dependencies (never copy local deps)
 
@@ -61,3 +63,4 @@ public/*.tmp
 
 *.md
 *.swp
+>>>>>>> 3159f4e9cd6483aa3a0ff65f7e5c4be979253c6a

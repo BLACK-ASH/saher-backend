@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const attendanceStatus = ['present', 'absent', 'half-day'] as const;
+export const attendanceStatus = ['present', 'absent', 'half-day', 'on-leave', 'week-off'] as const;
 
 const attendanceSchema = new mongoose.Schema(
   {
@@ -36,6 +36,11 @@ const attendanceSchema = new mongoose.Schema(
     },
     autoCheckout: {
       type: Boolean,
+    },
+    weekOffType: {
+      type: String,
+      enum: ['fixed', 'flexible'],
+      default: null,
     },
   },
   { timestamps: true },

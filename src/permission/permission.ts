@@ -9,6 +9,10 @@ export const RESOURCES = [
   'holiday',
   'notification',
   'mail',
+  'leave',
+  'leaveType',
+  'preReimbursement',
+  'postReimbursement',
   'event',
   'payroll'
 ] as const;

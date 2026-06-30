@@ -28,10 +28,27 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission('write', 'mail'),
 
     //Mail
+<<<<<<< HEAD
     createPermission('write', 'mail'),
 
     // Payroll
     createPermission('write', 'payroll'),
+=======
+
+    // Reimbursement
+    createPermission('write', 'preReimbursement'),
+    createPermission('update', 'preReimbursement'),
+    createPermission('delete', 'preReimbursement'),
+    createPermission('update', 'postReimbursement'),
+
+    // LeaveType
+    createPermission('write', 'leaveType'),
+    createPermission('update', 'leaveType'),
+
+    //Leave (Application )
+    createPermission('write', 'leave'),
+    createPermission('update', 'leave'),
+>>>>>>> b4ebf3d6fbe0e8a69912e10e7c7e58912d0ccfc6
   ]),
 
   manager: new Set([
@@ -71,6 +88,16 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
 
     //Mail
     createPermission('write', 'mail'),
+
+    // Reimbursement
+    createPermission('write', 'preReimbursement'),
+    createPermission('update', 'preReimbursement'),
+    createPermission('delete', 'preReimbursement'),
+    createPermission('update', 'postReimbursement'),
+
+    //Leave (Application )
+    createPermission('write', 'leave'),
+    createPermission('update', 'leave'),
   ]),
 
   user: new Set([
@@ -81,9 +108,19 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission('write', 'attendance-correction'),
 
     // Event
-    createPermission('write', 'event'),
+    // createPermission('write', 'event'),
 
     //Mail
     createPermission('write', 'mail'),
+
+    // Reimbursement
+    createPermission('write', 'postReimbursement'),
+    createPermission('update', 'postReimbursement'),
+    createPermission('delete', 'postReimbursement'),
+    createPermission('update', 'preReimbursement'),
+
+    //Leave (Application )
+    createPermission('write', 'leave'),
+    createPermission('update', 'leave'),
   ]),
 };
