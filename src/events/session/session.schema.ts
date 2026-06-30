@@ -1,31 +1,20 @@
 import { Types } from 'mongoose';
 import z from 'zod';
 
-import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
-
-export const objectId = z
-  .string()
-  .refine((val) => Types.ObjectId.isValid(val), {
-    message: 'Invalid ID',
-  })
-  .transform((e) => {
-    return convertToObjectId(e);
-  });
-
-// const dateField = z
-//   .union([z.string().datetime(), z.date()])
-//   .transform((val) => new Date(val))
-//   .refine((date) => !isNaN(date.getTime()), {
-//     message: 'Invalid date',
-//   });
+import { DOMPurify } from '../../libs/utils/dompurify.js';
+import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
   title: z.string().min(3),
-  description: z.string().min(5).max(500),
+  description: z
+    .string()
+    .min(5)
+    .max(500)
+    .transform((value) => DOMPurify.sanitize(value)),
   date: z.string(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
-  speaker: z.array(objectId),
+  speaker: z.array(objectId()),
 });
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {
@@ -46,5 +35,23 @@ export const updatedSessionSchema = baseSchema.partial().refine(
   },
 );
 
+export const getSessionResponsiveSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  date: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  speaker: z.array(
+    z.object({
+      id: z.string(),
+    }),
+  ),
+});
+
+export const getSessionSchema = z.array(getSessionResponsiveSchema);
+export const getSessionByIdSchema = getSessionResponsiveSchema;
+
+export const createSessionResponseSchema = baseSchema;
+export const UpdatesSessionResponseSchema = baseSchema;
 export type CreateSessionInputType = z.infer<typeof createSessionSchema>;
 export type UpdatedSessionInputType = z.infer<typeof updatedSessionSchema>;

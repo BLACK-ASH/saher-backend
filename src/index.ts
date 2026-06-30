@@ -11,6 +11,7 @@ import authRouter from './auth/auth.routes.js';
 import { calendarRouter } from './calendar/calendar.routes.js';
 import connectDb from './database/connection.js';
 import eventRouter from './events/events.routes.js';
+import leaveRouter from './leave/leave.route.js';
 import { httpLogger } from './libs/logger/http-logger.js';
 import { logger } from './libs/logger/logger.js';
 import { register } from './libs/logger/metrics.js';
@@ -25,6 +26,7 @@ import { connectRedis } from './libs/redis/redis-client.js';
 import { mailRouter } from './mail/mail.routes.js';
 import notificationRouter from './notification/notification.routes.js';
 import publicRouter from './public/public.routes.js';
+import billRouter from './reimbursement/reimbursement.routes.js';
 import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
 
@@ -61,8 +63,8 @@ app.use(
 );
 
 // Image Upload Routes
-app.use('/api/upload', uploadRouter);
 app.use(express.json());
+app.use('/api/upload', uploadRouter);
 app.use(cookieParser());
 
 // Databse Connection
@@ -72,6 +74,7 @@ await connectDb();
 await connectRedis();
 
 // Routes
+app.use('/api/reimbursement', protectedRoute, billRouter);
 app.use('/api', publicRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
@@ -81,6 +84,7 @@ app.use('/api/events', underDevelopment, protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 app.use('/api/mail', underDevelopment, protectedRoute, mailRouter);
 app.use('/api/calendar', protectedRoute, calendarRouter);
+app.use('/api/leave', protectedRoute, leaveRouter);
 
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
