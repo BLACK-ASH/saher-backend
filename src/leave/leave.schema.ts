@@ -113,9 +113,9 @@ export const updateLeaveTypeSchema = leaveTypeSchemaBase.partial().refine(
 
 // ------------------------Leave Balance ------------------------
 
-export const getLeaveBalanceSchema = z.object({
-  id: z.string(),
-  user: z.string(),
-  year: z.string(),
-  used: z.record(z.string(), z.number()),
-});
+// export const getLeaveBalanceSchema = z.object({
+//   id: z.string(),
+//   user: z.string(),
+//   year: z.string(),
+//   used: z.record(z.string(), z.number()),
+// });

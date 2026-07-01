@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 
-import { getLeaveApplicationSchema, getLeaveBalanceSchema } from './leave.schema.js';
+import { getLeaveApplicationSchema } from './leave.schema.js';
 import { LeaveBalance } from '../database/leave-balance.model.js';
 import { LeaveType } from '../database/leave-type.model.js';
 import { Leave } from '../database/leave.model.js';
@@ -341,68 +341,15 @@ export const getAllLeaveApplicationController = async (req: Request, res: Respon
 
 // ---------------------Leave Balance ---------------
 
-// export const createLeaveBalance = async (
-//   req: Request,
-//   res: Response,
-// ) => {
-
-//     const { user, year } = req.body;
-
-//     const existing = await LeaveBalance.findOne({
-//       user,
-//       year,
-//     });
-
-//     if (existing) throw new ApiError(409, 'Leave balance already exists',);
-
-//     const leaveBalance =
-//       await LeaveBalance.create({
-//         user,
-//         year,
-//       });
-
-//       return ApiResponse.success(res,{message : " Leave Balance created " , statusCode : 201})
-//   }
-
-// export const consumeLeave = async (
-//   req: Request,
-//   res: Response,
-// ) => {
-
-//   const {
-//     userId,
-//     year,
-//     leaveTypeCode,
-//     days,
-//   } = req.body;
-
-//   const leaveBalance =
-//   await LeaveBalance.findOneAndUpdate(
-//     {
-//         user: userId,
-//         year,
-//       },
-//       {
-//         $inc: {
-//           [`used.${leaveTypeCode}`]: days,
-//         },
-//       },
-//       {
-//         new: true,
-//         upsert: true,
-//       },
-//     );
-
-//     return res.json(leaveBalance);
-
-//   };
-
 export const getLeaveBalance = async (req: Request, res: Response) => {
-  // const { userId, year } = req.params;
   const userId = req.user?.id;
 
-  const year = new Date().getFullYear().toLocaleString();
-  // const year = '2027';
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized');
+  }
+
+  const year = String(new Date().getFullYear());
+
   const leaveBalance = await LeaveBalance.findOne({
     user: userId,
     year,
@@ -412,11 +359,43 @@ export const getLeaveBalance = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Leave balance not found');
   }
 
-  const normalized = normalizeDoc(leaveBalance);
-  const parsed = getLeaveBalanceSchema.parse(normalized);
+  const leaveTypes = await LeaveType.find({
+    isActive: true,
+  }).lean();
+
+  const balance: Record<
+    string,
+    {
+      used: number;
+      remaining: number;
+    }
+  > = {};
+
+  for (const leaveType of leaveTypes) {
+    const code = leaveType.code;
+
+    let used = 0;
+
+    // because mongoose Map becomes object in lean()
+    if (leaveBalance.used) {
+      used = leaveBalance.used[code] ?? 0;
+    }
+
+    const remaining = leaveType.allocatedDays - used;
+
+    balance[leaveType.name] = {
+      used,
+      remaining,
+    };
+  }
+
   return ApiResponse.success(res, {
-    message: 'your leave Balance',
-    data: parsed,
     statusCode: 200,
+    message: 'Leave balance fetched',
+    data: {
+      user: userId,
+      year,
+      balance,
+    },
   });
 };

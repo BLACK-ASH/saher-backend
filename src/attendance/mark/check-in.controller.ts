@@ -38,6 +38,9 @@ export const checkInController = async (req: Request, res: Response) => {
     date: standardDateString(now),
   });
 
+  // Future Scope : if you want to keep this req hanging for user on leave/weekoff then comment the next line
+  if (!cronRecord) throw new ApiError(400, 'today you are on leave ');
+
   if (cronRecord) {
     cronRecord.inTime = now;
     cronRecord.status = 'present';
