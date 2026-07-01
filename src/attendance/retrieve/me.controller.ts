@@ -17,6 +17,7 @@ export const defaultResponse = {
   outTime: null,
   workHours: 0,
   date: standardDateString(new Date()),
+  overtime: false,
   status: 'absent',
   isLate: true,
 };
