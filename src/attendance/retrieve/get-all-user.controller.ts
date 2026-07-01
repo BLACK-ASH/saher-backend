@@ -27,7 +27,7 @@ export const getAllUserController = async (req: Request, res: Response) => {
     endDate.setHours(23, 59, 59, 999);
 
     if (startDate > endDate)
-      throw new ApiError(400, 'The Datess that you have entered are invalid please check');
+      throw new ApiError(400, 'The Dates that you have entered are invalid please check');
   }
 
   //Agar user ko custom range nahi chahiye toh fir user ke paas option hai ki woh retrieve karne ka type bata de
@@ -55,7 +55,7 @@ export const getAllUserController = async (req: Request, res: Response) => {
   }
 
   startDate.setHours(0, 0, 0, 0);
-  endDate.setHours(23, 59, 59, 999);
+  endDate.setHours(0, 0, 0, 0);
 
   const sort = req.query.sort === 'asc' ? 1 : req.query.sort === 'desc' ? -1 : -1; // default
 

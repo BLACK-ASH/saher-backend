@@ -12,7 +12,6 @@ export const attendanceResponseSchema = z
     workHours: z.number(),
     date: z.string(),
     status: z.enum(['present', 'half-day', 'absent', 'week-off', 'on-leave']),
-    weekOffType: z.enum(['flexible', 'fixed']).optional(),
     isLate: z.boolean(),
   })
   .readonly();
