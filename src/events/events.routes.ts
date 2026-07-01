@@ -64,7 +64,7 @@ const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
 eventRouter.get(
-  '/programmes/:programmeId/workshops',
+  '/programmes/workshops',
   underDevelopment,
   authorize('read', 'event'),
   getWorkshops,
@@ -76,6 +76,7 @@ eventRouter.get(
   authorize('read', 'event'),
   getSingleWorkshop,
 );
+
 /*eventRouter.get(
   '/workshops/search',
   underDevelopment,

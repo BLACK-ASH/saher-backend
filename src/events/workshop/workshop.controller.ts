@@ -140,7 +140,7 @@ export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
 
 //Get all Workshops
 export const getWorkshopsFromProgramme = async (req: Request, res: Response) => {
-  const { programmeId } = req.params;
+  const { programmeId } = req.query;
   const programme = await Programme.findById(programmeId);
 
   if (!programme) {
@@ -220,7 +220,7 @@ export const getWorkshopByKeyword = async (req: Request, res: Response) => {
 
 //Get latest 10 workshops from a programme
 export const getLatestWorkshops = async (req: Request, res: Response) => {
-  const { programmeId } = req.params;
+  const programmeId = req.query.programmeId as string;
 
   const programme = await Programme.findById(programmeId);
 
