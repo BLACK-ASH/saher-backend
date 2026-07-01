@@ -20,6 +20,7 @@ export const updatedProgrammeSchema = baseProgrammeSchema.partial();
 
 //Response Schema
 export const programmeResponseSchema = z.object({
+  id: z.string(),
   title: z.string(),
   description: z.string(),
 });
