@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { billSchema, userBillCreateSchema } from './schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -16,7 +15,7 @@ export const userCreateBill = async (req: Request, res: Response) => {
   const user = req.user;
   const { amount, description, date, images } = req.body;
 
-  const bill = await Bill.create({
+  await Bill.create({
     user: user?.id,
     amount,
     description,

@@ -19,7 +19,7 @@ export const adminCreateBill = async (req: Request, res: Response) => {
   if (!userExist) throw new ApiError(400, 'user not found');
   const user = userExist.id;
 
-  const bill = await Bill.create({
+  await Bill.create({
     user,
     advance,
     description,
@@ -53,7 +53,6 @@ export const adminUpdateBill = async (req: Request, res: Response) => {
   // // whether the bill.user is same as user
   // // whether the bills is pending or not
 
-  const user = req.user;
   const { billId } = req.params;
   const { advance, description } = req.body;
 
