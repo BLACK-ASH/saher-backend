@@ -18,7 +18,7 @@ import { myBillsController } from './get-bill/my-bills.controller.js';
 import { recycleBillsController } from './get-bill/recycle-bill.controller.js';
 import { handleBillController } from './settlement/handle-bill.controller.js';
 import { handleSettlementRequest } from './settlement/handle-settle.controller.js';
-import { createSettleSchema, handleBillSchema, handleSettleSchema } from './settlement/schema.js';
+import { handleBillSchema, handleSettleSchema } from './settlement/schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
 
