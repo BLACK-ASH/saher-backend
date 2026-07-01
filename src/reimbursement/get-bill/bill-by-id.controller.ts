@@ -1,13 +1,10 @@
 import type { Request, Response } from 'express';
 
 import { getSettleBillResponsiveSchema } from './get-bill.schema.js';
-import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { billSchema } from '../bill/schema.js';
 
 // For employee, admin and manager
 export const getBillByIdController = async (req: Request, res: Response) => {
