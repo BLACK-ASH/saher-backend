@@ -48,6 +48,7 @@ import {
   getWorkshopByKeyword,
   getWorkshopsFromProgramme,
   undoDeleteWorkshop,
+  getWorkshops,
 } from './workshop/workshop.controller.js';
 import {
   baseWorkshopSchema,
@@ -63,6 +64,19 @@ const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
 eventRouter.get(
+  '/programmes/:programmeId/workshops',
+  underDevelopment,
+  authorize('read', 'event'),
+  getWorkshops,
+);
+
+eventRouter.get(
+  '/programmes/workshops/:workshopId',
+  underDevelopment,
+  authorize('read', 'event'),
+  getSingleWorkshop,
+);
+/*eventRouter.get(
   '/workshops/search',
   underDevelopment,
   authorize('read', 'event'),
@@ -74,13 +88,8 @@ eventRouter.get(
   underDevelopment,
   authorize('read', 'event'),
   getWorkshopsFromProgramme,
-);
-eventRouter.get(
-  '/programmes/workshops/:workshopId',
-  underDevelopment,
-  authorize('read', 'event'),
-  getSingleWorkshop,
-);
+);*/
+
 eventRouter.post(
   '/programmes/:programmeId/workshops',
   underDevelopment,

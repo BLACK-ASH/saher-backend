@@ -217,3 +217,54 @@ export const getWorkshopByKeyword = async (req: Request, res: Response) => {
     statusCode: 200,
   });
 };
+
+//Get latest 10 workshops from a programme
+export const getLatestWorkshops = async (req: Request, res: Response) => {
+  const { programmeId } = req.params;
+
+  const programme = await Programme.findById(programmeId);
+
+  if (!programme) {
+    throw new ApiError(404, 'Programme not found');
+  }
+
+  const workshops = await Workshop.find({
+    programmeId,
+    isDeleted: false,
+  })
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .lean();
+
+  if (workshops.length === 0) {
+    return ApiResponse.success(res, {
+      message: 'No workshops found',
+      data: [],
+      statusCode: 200,
+    });
+  }
+
+  const normalized = normalizeDoc(workshops);
+  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
+
+  return ApiResponse.success(res, {
+    message: 'Latest workshops fetched successfully',
+    data: parsed,
+    statusCode: 200,
+  });
+};
+
+//Get workshop query
+export const getWorkshops = async (req: Request, res: Response) => {
+  const { keyword, all } = req.query;
+
+  if (keyword) {
+    return getWorkshopByKeyword(req, res);
+  }
+
+  if (all === 'true') {
+    return getWorkshopsFromProgramme(req, res);
+  }
+
+  return getLatestWorkshops(req, res);
+};
