@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import type { QueryFilter } from 'mongoose';
 
 import { getBillResponsiveSchema, getSettleBillResponsiveSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
@@ -13,7 +14,7 @@ export const searchBillController = async (req: Request, res: Response) => {
   if (!description && !amount && !date && !user)
     throw new ApiError(400, 'Please provide search parameter.');
 
-  const query: any = {};
+  const query: QueryFilter<typeof Bill.schema.obj> = {};
 
   if (description) {
     query.description = { $regex: new RegExp(description as string, 'i') };
