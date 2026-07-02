@@ -3,6 +3,7 @@ import z from 'zod';
 import { settleStatus } from '../../database/settlement.model.js';
 
 export const createLogSchema = z.object({
+  id: z.string(),
   date: z.coerce.string(),
   description: z.string().min(5).max(500),
   amount: z.number(),

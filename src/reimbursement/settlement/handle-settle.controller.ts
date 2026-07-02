@@ -6,9 +6,9 @@ import { Settlement } from '../../database/settlement.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { auditLog } from '../../libs/utils/audit-log.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notification } from '../../libs/utils/notification.js';
-import { auditLog } from '../audit-log/audit-log.js';
 
 export const handleSettlementRequest = async (req: Request, res: Response) => {
   // Write a code to handle settlement request (complete settlement)

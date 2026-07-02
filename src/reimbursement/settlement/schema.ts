@@ -10,6 +10,7 @@ export const settleSchema = z.object({
   user: objectId(),
   amount: z.coerce.number(),
   mode: z.string(),
+  description: z.string(),
   manager: objectId(),
   date: z.coerce.date(),
   settleDate: z.coerce.date(),
@@ -23,6 +24,7 @@ export const createSettleSchema = settleSchema.pick({
   user: true,
   amount: true,
   mode: true,
+  description: true,
   manager: true,
   date: true,
   expiredAt: true,
@@ -31,6 +33,7 @@ export const createSettleSchema = settleSchema.pick({
 export const handleSettleSchema = settleSchema.pick({
   mode: true,
   status: true,
+  description: true,
 });
 
 export const handleBillSchema = z.object({

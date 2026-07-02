@@ -4,7 +4,7 @@ import { billStatus } from '../../database/bill.model.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const billSchema = z.object({
-  // id: objectId(),
+  id: z.string(),
   user: objectId(),
   images: z.array(objectId()).min(1),
   advance: z.coerce.number(),
@@ -24,22 +24,24 @@ export const billSchema = z.object({
 });
 
 export const userBillCreateSchema = billSchema.pick({
+  id: true,
   amount: true,
   description: true,
   date: true,
   images: true,
 });
 export const userBillUpdateSchema = billSchema
-  .pick({ amount: true, description: true, images: true })
+  .pick({ id: true, amount: true, description: true, images: true })
   .partial();
 
 export const adminBillCreatSchema = billSchema.pick({
+  id: true,
   advance: true,
   date: true,
   description: true,
 });
 export const adminBillUpdateSchema = billSchema
-  .pick({ advance: true, description: true })
+  .pick({ id: true, advance: true, description: true })
   .partial();
 
 export type UserCreateSchemaType = z.infer<typeof userBillCreateSchema>;
