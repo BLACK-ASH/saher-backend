@@ -1,15 +1,9 @@
 import type { Request, Response } from 'express';
 
-import { getAccountByUser } from '../../admin/_services/account.js';
 import { Attendance } from '../../database/attendance.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache, deleteCacheGroup } from '../../libs/redis/redis-utils.js';
-import {
-  calculateWorkStatus,
-  checkIsLate,
-  getShift,
-} from '../../libs/utils/calculate-work-status.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const overtimeCheckInController = async (req: Request, res: Response) => {
@@ -25,17 +19,17 @@ export const overtimeCheckInController = async (req: Request, res: Response) => 
   });
 
   if (!attendance) throw new ApiError(400, 'Today is a working day for you');
-  const account = await getAccountByUser(user);
-  if (!account) throw new ApiError(400, 'Account not found ');
+  // const account = await getAccountByUser(user);
+  // if (!account) throw new ApiError(400, 'Account not found ');
 
-  const shift = getShift(account);
+  // const shift = getShift(account);
 
-  const isLate = checkIsLate({ inTime: today, shift });
+  // const isLate = checkIsLate({ inTime: today, shift });
   if (attendance) {
     attendance.inTime = today;
     attendance.status = 'present';
     attendance.overtime = true;
-    attendance.isLate = isLate;
+    attendance.isLate = false;
     await attendance.save();
 
     const todayKey = createKey('attendance', 'today', 'me', user);

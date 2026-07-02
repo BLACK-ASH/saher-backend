@@ -393,6 +393,7 @@ export const getLeaveBalance = async (req: Request, res: Response) => {
     statusCode: 200,
     message: 'Leave balance fetched',
     data: {
+      id: leaveBalance._id,
       user: userId,
       year,
       balance,
