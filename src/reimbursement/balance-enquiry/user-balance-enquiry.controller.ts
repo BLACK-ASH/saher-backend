@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import { Resend } from 'resend';
 
 import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';

@@ -21,11 +21,7 @@ import {
   deleteProgramme,
   undoDeleteProgramme,
 } from './programmes/programmes.controller.js';
-import {
-  baseProgrammeSchema,
-  createProgrammeSchema,
-  updatedProgrammeSchema,
-} from './programmes/programmes.schema.js';
+import { createProgrammeSchema, updatedProgrammeSchema } from './programmes/programmes.schema.js';
 import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
 import { removeAttendance } from './session/session-remove-attendance.controller.js';
@@ -49,11 +45,7 @@ import {
   getWorkshopsFromProgramme,
   undoDeleteWorkshop,
 } from './workshop/workshop.controller.js';
-import {
-  baseWorkshopSchema,
-  createWorkshopSchema,
-  updatedWorkshopSchema,
-} from './workshop/workshop.schema.js';
+import { createWorkshopSchema, updatedWorkshopSchema } from './workshop/workshop.schema.js';
 import { underDevelopment } from '../libs/middleware/development.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
@@ -94,15 +86,6 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteWorkshop,
 );
-/*
-eventRouter.delete(
-  '/programmes/:programmeId/workshops/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-
-  permanentDeleteWorkshop,
-);
-*/
 
 eventRouter.put(
   '/programs/:programmeId/workshops/:id',
@@ -147,13 +130,6 @@ eventRouter.post(
 );
 eventRouter.delete('/sessions/:id', underDevelopment, authorize('delete', 'event'), deleteSession);
 
-/*eventRouter.delete(
-  '/sessions/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-  permanentDeleteSession,
-);*/
-
 eventRouter.put(
   '/sessions/:id',
   underDevelopment,
@@ -161,6 +137,7 @@ eventRouter.put(
   validate(updatedSessionSchema),
   editSession,
 );
+
 eventRouter.patch(
   '/sessions/:id/restore',
   underDevelopment,
@@ -184,14 +161,6 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteParticipantController,
 );
-/*
-eventRouter.delete(
-  '/participants/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-  permanentDeleteParticipantController,
-);*/
-
 eventRouter.put(
   '/participants/:id',
   underDevelopment,
@@ -236,7 +205,6 @@ eventRouter.post(
   authorize('write', 'event'),
   addParticipantToProgramme,
 );
-
 eventRouter.delete(
   '/programs/:programmeId/participants/:participantId',
   underDevelopment,
@@ -260,13 +228,6 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteProgramme,
 );
-/*
-eventRouter.delete(
-  '/programmes/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-  permanentDeleteProgramme,
-);*/
 eventRouter.put(
   '/programs/:id',
   underDevelopment,
@@ -287,4 +248,5 @@ eventRouter.get(
   authorize('read', 'event'),
   reminderNotificationController,
 );
+
 export default eventRouter;

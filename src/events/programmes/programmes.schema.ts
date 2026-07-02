@@ -5,7 +5,7 @@ import { objectId } from '../../libs/utils/zod-object-id.js';
 
 //Base programme schema
 export const baseProgrammeSchema = z.object({
-  title: z.string().min(5).max(50),
+  title: z.string().min(2).max(50),
   description: z
     .string()
     .min(10)
