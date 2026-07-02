@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 
-import { auditLog } from './audit-log.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { auditLog } from '../../libs/utils/audit-log.js';
 
 export const createAuditLogController = async (req: Request, res: Response) => {
   const { date, description, amount, from, to, status } = req.body;
