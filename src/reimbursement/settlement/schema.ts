@@ -5,7 +5,9 @@ import { settleStatus } from '../../database/settlement.model.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const settleSchema = z.object({
+  id: z.string(),
   bill: objectId(),
+  user: objectId(),
   amount: z.coerce.number(),
   mode: z.string(),
   manager: objectId(),
@@ -16,7 +18,9 @@ export const settleSchema = z.object({
 });
 
 export const createSettleSchema = settleSchema.pick({
+  id: true,
   bill: true,
+  user: true,
   amount: true,
   mode: true,
   manager: true,

@@ -21,6 +21,10 @@ import { handleSettlementRequest } from './settlement/handle-settle.controller.j
 import { handleBillSchema, handleSettleSchema } from './settlement/schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
+import {
+  searchBillController,
+  searchSettleBillController,
+} from './get-bill/search-bill.controller.js';
 
 const billRouter = Router();
 
@@ -80,6 +84,12 @@ billRouter.get(
   getBillByIdController,
 );
 billRouter.get('/bill/getallbills', authorize('write', 'preReimbursement'), getAllBillsController);
+billRouter.get('/bills/search', authorize('read', 'preReimbursement'), searchBillController);
+billRouter.get(
+  '/settle/search/:id',
+  authorize('read', 'preReimbursement'),
+  searchSettleBillController,
+);
 
 // Recycle bills
 billRouter.get('/bill/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);

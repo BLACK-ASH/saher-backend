@@ -1,10 +1,14 @@
 import type { Request, Response } from 'express';
 
 import { handleSettleSchema } from './schema.js';
+import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
+import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { notification } from '../../libs/utils/notification.js';
+import { auditLog } from '../audit-log/audit-log.js';
 
 export const handleSettlementRequest = async (req: Request, res: Response) => {
   // Write a code to handle settlement request (complete settlement)
@@ -14,7 +18,7 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
   // // after the the settlement set till which admin have to collect his money (15 days)
 
   const { settleId } = req.params;
-  const { mode, status } = req.body;
+  const { mode, status, description } = req.body;
   const settleDate = new Date();
 
   const settleBill = await Settlement.findById(settleId);
@@ -25,6 +29,7 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
 
   if (new Date() > settleBill.expiredAt) {
     settleBill.status = 'expired';
+    settleBill.description = 'Settlement is Expired';
     await settleBill.save();
   }
 
@@ -60,7 +65,40 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
     settleBill.mode = mode;
     settleBill.status = status;
     settleBill.settleDate = settleDate;
+    settleBill.description = description;
     await settleBill.save();
+
+    const action = {
+      type: 'none' as const,
+      label: 'handle-bill',
+      url: '',
+      method: 'POST' as const,
+    };
+
+    const notificationDesc = `bill of amount ${settleBill.amount} is completed `;
+    const notificationTitle = 'settlement bill Completed';
+
+    await notification.specific.info(
+      [settleBill.user.toString()],
+      notificationTitle,
+      notificationDesc,
+      action,
+    );
+
+    const employee = await User.findById(settleBill.user);
+    const bill = await Bill.findById(settleBill.bill);
+    if (!bill) throw new ApiError(400, 'Bill not Found');
+
+    const from = bill.advance === 0 ? 'saher' : employee?.displayName;
+    const to = bill.advance === 0 ? employee?.displayName : 'saher';
+    await auditLog(
+      settleBill.date,
+      bill?.description,
+      settleBill.amount,
+      String(from),
+      String(to),
+      settleBill.status,
+    );
   }
 
   const normalized = normalizeDoc(settleBill.toJSON());

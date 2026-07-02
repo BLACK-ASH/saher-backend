@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+import { settleStatus } from './settlement.model.js';
+
 const auditLogSchema = new mongoose.Schema({
   date: {
     type: Date,
@@ -23,6 +25,7 @@ const auditLogSchema = new mongoose.Schema({
   },
   status: {
     type: String,
+    enum: settleStatus,
     required: true,
   },
 });
