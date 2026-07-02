@@ -21,10 +21,11 @@ export const getInboxController = async (req: Request, res: Response) => {
     data: normalized,
   });
 };
+
 export const sendMailController = async (req: Request, res: Response) => {
   const data = sendMailSchema.parse(req.body);
 
-  const mails = await sendMail({
+  await sendMail({
     senderId: req.user!.id.toString(),
     ...data,
   });

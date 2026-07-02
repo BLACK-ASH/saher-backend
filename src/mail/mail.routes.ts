@@ -8,5 +8,5 @@ import { authorize } from '../permission/authorize.js';
 export const mailRouter = Router();
 
 mailRouter.get('/', getInboxController);
-mailRouter.post('/send', authorize('write', 'mail'), validate(sendMailSchema), sendMailController);
+mailRouter.post('/', authorize('write', 'mail'), validate(sendMailSchema), sendMailController);
 mailRouter.get('/outbox', outboxController);
