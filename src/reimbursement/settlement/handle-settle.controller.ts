@@ -91,14 +91,7 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
 
     const from = bill.advance === 0 ? 'saher' : employee?.displayName;
     const to = bill.advance === 0 ? employee?.displayName : 'saher';
-    await auditLog(
-      settleBill.date,
-      bill?.description,
-      settleBill.amount,
-      String(from),
-      String(to),
-      settleBill.status,
-    );
+    await auditLog(settleBill.date, bill?.description, settleBill.amount, String(from), String(to));
   }
 
   const normalized = normalizeDoc(settleBill.toJSON());

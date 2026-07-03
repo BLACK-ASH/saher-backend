@@ -1,7 +1,5 @@
 import z from 'zod';
 
-import { settleStatus } from '../../database/settlement.model.js';
-
 export const createLogSchema = z.object({
   id: z.string(),
   date: z.coerce.string(),
@@ -11,7 +9,7 @@ export const createLogSchema = z.object({
   to: z.string(),
 });
 
-export const createLogResponsiveSchema = createLogSchema.extend({ status: settleStatus });
+export const createLogResponsiveSchema = createLogSchema;
 
 export type CreateLogType = z.infer<typeof createLogSchema>;
 export type CreateLogResponsiveType = z.infer<typeof createLogResponsiveSchema>;
