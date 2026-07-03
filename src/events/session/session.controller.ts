@@ -243,7 +243,7 @@ export const getSessions = async (req: Request, res: Response) => {
   const skip = (page - 1) * limit;
 
   //Base query
-  const query: any = {
+  const query: Record<string, unknown> = {
     isDeleted: false,
   };
 
