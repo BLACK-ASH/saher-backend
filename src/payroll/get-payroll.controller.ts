@@ -68,11 +68,11 @@ export const getPayrollByUserIdController = async (req: Request, res: Response) 
 
 export const getPayrollByPayrollIdController = async (req: Request, res: Response) => {
 
-    const payrolls = await Payroll.find({
+    const payrolls = await Payroll.findOne({
         _id: req.params.id,
     }).lean();
 
-    if (payrolls.length === 0) throw new ApiError(400, 'No data Found');
+    if (!payrolls) throw new ApiError(400, 'No data Found');
 
     const normalized = normalizeDoc(payrolls);
     const parsed = payrollResponseSchema.parse(normalized);
