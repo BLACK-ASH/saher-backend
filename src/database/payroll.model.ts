@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export const salaryStatus = ['paid', 'unpaid', 'partially-paid']
-export const salaryMode = ['cash', 'cheque', 'upi','-']
+export const salaryMode = ['cash', 'cheque', 'upi', '-']
 
 export const payrollSchema = new mongoose.Schema(
     {
@@ -10,14 +10,23 @@ export const payrollSchema = new mongoose.Schema(
             ref: "User",
             required: true
         },
-        date: {
+        dateOfPayment: {
             type: Date,
-            required: true,
+        },
+        dateOfCreation: {
+            type: Date,
         },
         mode: {
             type: String,
             enum: salaryMode,
             default: '-',
+        },
+        workingDays:{
+            type: Number,
+            required: true,
+        },
+        baseSalary: {
+            type: Number,
             required: true,
         },
         expectedSalary: {
@@ -27,7 +36,6 @@ export const payrollSchema = new mongoose.Schema(
         },
         paidSalary: {
             type: Number,
-            required: true,
             min: 0,
         },
         remainingSalary: {
@@ -41,7 +49,7 @@ export const payrollSchema = new mongoose.Schema(
             min: 0,
         },
         deduction: {
-            type: Number,
+            type: String,
             default: 0,
             min: 0,
         },
@@ -52,5 +60,5 @@ export const payrollSchema = new mongoose.Schema(
         },
     }, { timestamps: true },
 );
-export type PayrollType =  mongoose.InferSchemaType<typeof payrollSchema>
+export type PayrollType = mongoose.InferSchemaType<typeof payrollSchema>
 export const Payroll = mongoose.model<PayrollType>('Payroll', payrollSchema);

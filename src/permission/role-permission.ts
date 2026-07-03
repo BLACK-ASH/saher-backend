@@ -29,6 +29,7 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     
     // Payroll
     createPermission('write', 'payroll'),
+    createPermission('update', 'payroll'),
 
     // Reimbursement
     createPermission('write', 'preReimbursement'),
