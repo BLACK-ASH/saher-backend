@@ -54,7 +54,21 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
 
 export const deleteCalendarEventController = async (req: Request, res: Response) => {
   const { id } = req.params;
-  await CalendarEvent.findByIdAndDelete(id);
+  const event = await CalendarEvent.findById(id);
+
+  if (!event) throw new ApiError(404, 'Calendar Event Not Found or Another Type Of Event');
+
+  await event.deleteOne();
+
+  const month = new Date(event.start).getMonth();
+  const year = new Date(event.start).getFullYear();
+  const key = createKey('calendar', year, month);
+  await deleteCache(key);
+
+  const monthEnd = new Date(event.end).getMonth();
+  const yearEnd = new Date(event.end).getFullYear();
+  const keyEnd = createKey('calendar', yearEnd, monthEnd);
+  await deleteCache(keyEnd);
 
   return ApiResponse.success(res, {
     message: 'Calendar Event Deleted SuccessFully',
@@ -69,7 +83,7 @@ export const createCalendarEventController = async (req: Request, res: Response)
   const existingRecord = await CalendarEvent.findOne({ type: type, start: start, end: end });
   if (existingRecord) throw new ApiError(400, 'there is already an event added');
 
-  const newRecord = await CalendarEvent.create({
+  const event = await CalendarEvent.create({
     title,
     description,
     start,
@@ -80,8 +94,12 @@ export const createCalendarEventController = async (req: Request, res: Response)
   const month = new Date(start).getMonth();
   const year = new Date(start).getFullYear();
   const key = createKey('calendar', year, month);
-
   await deleteCache(key);
+
+  const monthEnd = new Date(event.end).getMonth();
+  const yearEnd = new Date(event.end).getFullYear();
+  const keyEnd = createKey('calendar', yearEnd, monthEnd);
+  await deleteCache(keyEnd);
 
   return ApiResponse.success(res, {
     message: 'The Event has been added successfully',
@@ -90,7 +108,37 @@ export const createCalendarEventController = async (req: Request, res: Response)
   });
 };
 
-export const syncGoogleHolidaysController = async (req: Request, res: Response) => {
+export const updateCalendarEventController = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+
+  const event = await CalendarEvent.findByIdAndUpdate(id, req.body);
+  if (!event) throw new ApiError(400, 'Calendar Event Not Found');
+
+  const month = new Date(event.start).getMonth();
+  const year = new Date(event.start).getFullYear();
+  const key = createKey('calendar', year, month);
+  await deleteCache(key);
+
+  if (req.body.end) {
+    const monthEnd = new Date(req.body.end).getMonth();
+    const yearEnd = new Date(req.body.end).getFullYear();
+    const keyEnd = createKey('calendar', yearEnd, monthEnd);
+    await deleteCache(keyEnd);
+  }
+
+  const monthEnd = new Date(event.end).getMonth();
+  const yearEnd = new Date(event.end).getFullYear();
+  const keyEnd = createKey('calendar', yearEnd, monthEnd);
+  await deleteCache(keyEnd);
+
+  return ApiResponse.success(res, {
+    message: 'The Event has been updated successfully',
+    data: null,
+    statusCode: 201,
+  });
+};
+
+export const syncGoogleHolidaysController = async (_req: Request, res: Response) => {
   const year = new Date().getFullYear();
 
   if (!year) {

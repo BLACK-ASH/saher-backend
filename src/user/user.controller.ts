@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { accountSchemaFinal, getAccountByUser } from '../admin/_services/account.js';
+import { getAccountByUser } from '../admin/_services/account.js';
 import { User } from '../database/user.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
