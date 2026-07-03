@@ -9,7 +9,7 @@ export const createLogSchema = z.object({
   to: z.string(),
 });
 
-export const createLogResponsiveSchema = createLogSchema;
+export const createLogResponseSchema = createLogSchema;
 
 export type CreateLogType = z.infer<typeof createLogSchema>;
 export type CreateLogResponsiveType = z.infer<typeof createLogResponsiveSchema>;

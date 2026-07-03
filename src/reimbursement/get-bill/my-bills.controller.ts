@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { getBillResponsiveSchema } from './get-bill.schema.js';
+import { getBillResponseSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -34,7 +34,7 @@ export const myBillsController = async (req: Request, res: Response) => {
   if (!bills) throw new ApiError(400, 'Bill not found');
 
   const normalized = normalizeDoc(bills);
-  const parsed = getBillResponsiveSchema.array().parse(normalized);
+  const parsed = getBillResponseSchema.array().parse(normalized);
 
   await setCache(key, parsed, 7200);
 

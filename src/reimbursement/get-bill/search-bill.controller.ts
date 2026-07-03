@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
 
-import { getBillResponsiveSchema, getSettleBillResponsiveSchema } from './get-bill.schema.js';
+import { getBillResponseSchema, getSettleBillResponseSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -51,7 +51,7 @@ export const searchBillController = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(bills);
-  const parsed = getBillResponsiveSchema.array().parse(normalized);
+  const parsed = getBillResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Bill fetched succesfully',
@@ -83,7 +83,7 @@ export const searchSettleBillController = async (req: Request, res: Response) =>
   }
 
   const normalized = normalizeDoc(Settlebills);
-  const parsed = getSettleBillResponsiveSchema.array().parse(normalized);
+  const parsed = getSettleBillResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Settlement Bill fetched succesfully',
