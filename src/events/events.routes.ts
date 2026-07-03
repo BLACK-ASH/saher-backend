@@ -61,20 +61,6 @@ eventRouter.get(
   getSingleWorkshop,
 );
 
-/*eventRouter.get(
-  '/workshops/search',
-  underDevelopment,
-  authorize('read', 'event'),
-  getWorkshopByKeyword,
-);
-
-eventRouter.get(
-  '/programmes/:programmeId/workshops',
-  underDevelopment,
-  authorize('read', 'event'),
-  getWorkshopsFromProgramme,
-);*/
-
 eventRouter.post(
   '/workshops/:programmeId',
   underDevelopment,
@@ -105,14 +91,6 @@ eventRouter.patch(
 
 // Session route ----------------------------------------------------------------------
 eventRouter.get('/sessions', underDevelopment, authorize('read', 'event'), getSessions);
-
-/*
-eventRouter.get(
-  '/sessions/:programmeId',
-  underDevelopment,
-  authorize('read', 'event'),
-  getSessions,
-);*/
 
 eventRouter.get(
   '/sessions/:sessionId',
@@ -162,14 +140,6 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteParticipantController,
 );
-
-/*
-eventRouter.delete(
-  '/participants/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-  permanentDeleteParticipantController,
-);*/
 
 eventRouter.put(
   '/participants/:id',
@@ -254,7 +224,7 @@ eventRouter.patch(
 
 // Reminder session notification
 eventRouter.get(
-  '/programs/workshops/sessions/:sessionId', //create another route for this to get without having sessionId and checks through the database
+  '/programs/workshops/sessions/:sessionId',
   authorize('read', 'event'),
   reminderNotificationController,
 );

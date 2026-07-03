@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import type { QueryFilter } from 'mongoose';
 
 import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
 import { Programme } from '../../database/programmes.model.js';
@@ -151,86 +152,6 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
   });
 };
 
-/*Permanent Deletion of programme
-export const permanentDeleteSession = async (req: Request, res: Response) => {
-  const session = await Session.findOne({
-    _id: req.params.id,
-    isDeleted: true,
-  });
-
-  if (!session) {
-    throw new ApiError(404, 'Session must be soft deleted before permanent deletion');
-  }
-
-  await Session.findByIdAndDelete(req.params.id);
-
-  return ApiResponse.success(res, {
-    message: 'Session has been permanently deleted',
-    data: null,
-    statusCode: 200,
-  });
-};
-*/
-
-/*
-//Get all sessions
-export const getSessions = async (req: Request, res: Response) => {
-  const session = await Session.find({
-    programmeId: req.params.programmeId,
-    isDeleted: false,
-  })
-    .populate('speaker')
-    .lean();
-
-  if (session.length === 0) {
-    throw new ApiError(404, 'Sessions not found');
-  }
-
-  const normalized = normalizeDoc(session);
-  const parsed = getSessionSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Sessions fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-
-
-
-//Search for Session
-export const getSessionByKeyword = async (req: Request, res: Response) => {
-  const keyword = req.query.keyword as string;
-
-  // Search by name, brand, or category using case-insensitive regex
-  const regex = new RegExp(keyword, 'i');
-
-  const session = await Session.find({
-    $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
-  })
-    .populate('speaker')
-    .limit(5)
-    .lean(); // Return top 5 suggestions
-
-  if (session.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'No sessions found',
-      data: [],
-      statusCode: 200,
-    });
-  }
-
-  const normalized = normalizeDoc(session);
-  const parsed = getSessionSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Sessions fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-*/
-
 //Get sessions
 export const getSessions = async (req: Request, res: Response) => {
   const programmeId = req.query.programmeId as string;
@@ -243,9 +164,15 @@ export const getSessions = async (req: Request, res: Response) => {
   const skip = (page - 1) * limit;
 
   //Base query
-  const query: Record<string, unknown> = {
-    isDeleted: false,
-  };
+  const isDeleted = req.query.isDeleted as string;
+
+  const query: QueryFilter<typeof Session.schema.obj> = {};
+
+  if (isDeleted === 'true') {
+    query.isDeleted = true;
+  } else if (isDeleted === 'false') {
+    query.isDeleted = false;
+  }
 
   //Filter by programmeId
   if (programmeId) {

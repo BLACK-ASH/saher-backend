@@ -86,47 +86,6 @@ export const undoDeleteParticipantController = async (req: Request, res: Respons
   });
 };
 
-/* Permanent delete participant
-export const permanentDeleteParticipantController = async (req: Request, res: Response) => {
-  const participants = await Participant.findById(req.params);
-
-  if (!participants) throw new ApiError(404, 'Participant not found');
-
-  if (participants?.isDeleted === false) {
-    return ApiResponse.success(res, {
-      message: "Participants isn't soft deleted yet",
-      data: null,
-      statusCode: 201,
-    });
-  }
-
-  if (participants?.isDeleted === true) {
-    await Participant.findByIdAndDelete(participants);
-  }
-
-  return ApiResponse.success(res, {
-    message: 'Participants is deleted successfully',
-    data: null,
-    statusCode: 201,
-  });
-};*/
-
-/*
-//Get all participant
-export const getAllParticipantController = async (req: Request, res: Response) => {
-  const participants = await Participant.find({ isDeleted: false }).lean();
-
-  const normalized = normalizeDoc(participants);
-  const parsed = getAllParticipantSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'All Participants List',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-*/
-
 //Get Participants by ID
 export const getParticipantByIdController = async (req: Request, res: Response) => {
   const participants = await Participant.findOne(req.params, { isDeleted: false }).lean();
@@ -144,13 +103,15 @@ export const getParticipantByIdController = async (req: Request, res: Response) 
 //Get participants
 export const getParticipants = async (req: Request, res: Response) => {
   const keyword = req.query.keyword as string;
-
+  const isDeleted = req.query.isDeleted as string | undefined;
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
   const query = {
-    isDeleted: false,
+    ...(isDeleted !== undefined && {
+      isDeleted: isDeleted === 'true',
+    }),
     ...(keyword && {
       name: {
         $regex: new RegExp(keyword, 'i'),

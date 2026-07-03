@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import type { QueryFilter } from 'mongoose';
 
 import {
   getSingleWorkshopSchema,
@@ -113,59 +114,6 @@ export const undoDeleteWorkshop = async (req: Request, res: Response) => {
   });
 };
 
-/*Permanent Deletion of workshop
-export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
-  const workshop = await Workshop.findOne({
-    _id: req.params.id,
-    isDeleted: true,
-  });
-
-  if (!workshop) {
-    throw new ApiError(404, 'Workshop must be soft deleted before permanent deletion');
-  }
-
-  await Programme.findByIdAndUpdate(workshop.programmeId, {
-    $pull: { workshops: workshop._id },
-  });
-
-  await Workshop.findByIdAndDelete(req.params.id);
-
-  return ApiResponse.success(res, {
-    message: 'Workshop has been permanently deleted',
-    data: null,
-    statusCode: 200,
-  });
-};*/
-
-/*
-//Get all Workshops
-export const getWorkshopsFromProgramme = async (req: Request, res: Response) => {
-  const { programmeId } = req.query;
-  const programme = await Programme.findById(programmeId);
-
-  if (!programme) {
-    throw new ApiError(404, 'Programme not found');
-  }
-
-  const workshop = await Workshop.find({
-    programmeId: req.params.programmeId,
-    isDeleted: false,
-  }).lean();
-
-  if (workshop.length === 0) {
-    throw new ApiError(404, 'Workshops not found');
-  }
-
-  const normalized = normalizeDoc(workshop);
-  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Workshops fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};*/
-
 //Get a single Workshop
 export const getSingleWorkshop = async (req: Request, res: Response) => {
   const workshop = await Workshop.findOne({
@@ -187,98 +135,21 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
   });
 };
 
-/*
-//Search for workshop
-export const getWorkshopByKeyword = async (req: Request, res: Response) => {
-  const keyword = req.query.keyword as string;
-
-  // Search by name, brand, or category using case-insensitive regex
-  const regex = new RegExp(keyword, 'i');
-
-  const workshop = await Workshop.find({
-    $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
-  })
-    .limit(5)
-    .lean(); // Return top 5 suggestions
-
-  if (workshop.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'No workshops found',
-      data: [],
-      statusCode: 200,
-    });
-  }
-
-  const normalized = normalizeDoc(workshop);
-  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Workshop fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-
-//Get latest 10 workshops from a programme
-export const getLatestWorkshops = async (req: Request, res: Response) => {
-  const programmeId = req.query.programmeId as string;
-
-  const programme = await Programme.findById(programmeId);
-
-  if (!programme) {
-    throw new ApiError(404, 'Programme not found');
-  }
-
-  const workshops = await Workshop.find({
-    programmeId,
-    isDeleted: false,
-  })
-    .sort({ createdAt: -1 })
-    .limit(10)
-    .lean();
-
-  if (workshops.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'No workshops found',
-      data: [],
-      statusCode: 200,
-    });
-  }
-
-  const normalized = normalizeDoc(workshops);
-  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Latest workshops fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-
-//Get workshop query
-export const getWorkshops = async (req: Request, res: Response) => {
-  const { keyword, all } = req.query;
-
-  if (keyword) {
-    return getWorkshopByKeyword(req, res);
-  }
-
-  if (all === 'true') {
-    return getWorkshopsFromProgramme(req, res);
-  }
-
-  return getLatestWorkshops(req, res);
-};*/
-
 //Get workshops
 export const getWorkshops = async (req: Request, res: Response) => {
   const programmeId = req.query.programmeId as string;
   const keyword = req.query.keyword as string;
   const all = req.query.all === 'true';
 
-  const query: Record<string, unknown> = {
-    isDeleted: false,
-  };
+  const isDeleted = req.query.isDeleted as string;
+
+  const query: QueryFilter<typeof Workshop.schema.obj> = {};
+
+  if (isDeleted === 'true') {
+    query.isDeleted = true;
+  } else if (isDeleted === 'false') {
+    query.isDeleted = false;
+  }
 
   if (programmeId) {
     const programme = await Programme.findById(programmeId);
