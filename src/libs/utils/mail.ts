@@ -125,10 +125,22 @@ export const getInboxMails = async (userId: string) => {
             },
           },
           {
+            $lookup: {
+              from: 'media',
+              localField: 'image',
+              foreignField: '_id',
+              as: 'image',
+            },
+          },
+          {
+            $unwind: '$image',
+          },
+          {
             $project: {
               name: 1,
               email: 1,
               role: 1,
+              image: 1,
             },
           },
         ],
@@ -150,10 +162,22 @@ export const getInboxMails = async (userId: string) => {
             },
           },
           {
+            $lookup: {
+              from: 'media',
+              localField: 'image',
+              foreignField: '_id',
+              as: 'image',
+            },
+          },
+          {
+            $unwind: '$image',
+          },
+          {
             $project: {
               name: 1,
               email: 1,
               role: 1,
+              image: 1,
             },
           },
         ],

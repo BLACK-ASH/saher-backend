@@ -1,7 +1,6 @@
 import z from 'zod';
 
 import { settleStatus } from '../../database/settlement.model.js';
-import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const createLogSchema = z.object({
   date: z.coerce.string(),

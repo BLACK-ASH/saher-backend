@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 
 import { getSettleBillResponsiveSchema } from './get-bill.schema.js';
-import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';

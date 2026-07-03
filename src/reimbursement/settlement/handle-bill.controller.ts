@@ -42,7 +42,7 @@ export const handleBillController = async (req: Request, res: Response) => {
   expiredAt.setDate(expiredAt.getDate() + 15);
 
   const amount = bill.advance - bill.amount;
-  let message, data;
+  let message;
 
   if (bill.status === 'pending') {
     bill.status = status;
@@ -56,7 +56,6 @@ export const handleBillController = async (req: Request, res: Response) => {
   }
   if (bill.status === 'reject') {
     message = 'Bill is already rejected';
-    data = null;
   }
   if (bill.status === 'accept') {
     const createSettle = await Settlement.create({

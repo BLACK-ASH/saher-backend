@@ -88,15 +88,6 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteWorkshop,
 );
-/*
-eventRouter.delete(
-  '/programmes/:programmeId/workshops/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-
-  permanentDeleteWorkshop,
-);
-*/
 
 eventRouter.put(
   '/workshops/:id',
@@ -139,13 +130,6 @@ eventRouter.post(
 );
 eventRouter.delete('/sessions/:id', underDevelopment, authorize('delete', 'event'), deleteSession);
 
-/*eventRouter.delete(
-  '/sessions/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-  permanentDeleteSession,
-);*/
-
 eventRouter.put(
   '/sessions/:id',
   underDevelopment,
@@ -153,6 +137,7 @@ eventRouter.put(
   validate(updatedSessionSchema),
   editSession,
 );
+
 eventRouter.patch(
   '/sessions/restore/:id',
   underDevelopment,
@@ -230,7 +215,6 @@ eventRouter.post(
   authorize('write', 'event'),
   addParticipantToProgramme,
 );
-
 eventRouter.delete(
   '/programs/participants/:programmeId/:participantId',
   underDevelopment,
@@ -254,13 +238,6 @@ eventRouter.delete(
   authorize('delete', 'event'),
   deleteProgramme,
 );
-/*
-eventRouter.delete(
-  '/programmes/:id/permanent',
-  underDevelopment,
-  authorize('delete', 'event'),
-  permanentDeleteProgramme,
-);*/
 eventRouter.put(
   '/programs/:id',
   underDevelopment,
@@ -281,4 +258,5 @@ eventRouter.get(
   authorize('read', 'event'),
   reminderNotificationController,
 );
+
 export default eventRouter;

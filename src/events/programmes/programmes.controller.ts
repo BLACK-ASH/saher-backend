@@ -32,7 +32,7 @@ export const addProgramme = async (req: Request, res: Response) => {
     }
   }
 
-  const newProgramme = await Programme.create(req.body);
+  await Programme.create(req.body);
 
   return ApiResponse.success(res, {
     message: 'Programme has been added successfully.',

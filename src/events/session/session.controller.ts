@@ -305,7 +305,12 @@ export const getSessions = async (req: Request, res: Response) => {
   }
 
   const sessions = await Session.find(query)
-    .populate('speaker')
+    .populate({
+      path: 'speaker',
+      populate: {
+        path: 'image',
+      },
+    })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -348,11 +353,14 @@ export const getSessions = async (req: Request, res: Response) => {
 export const getSingleSession = async (req: Request, res: Response) => {
   const session = await Session.findOne({
     _id: req.params.sessionId,
-    programmeId: req.params.programmeId,
-    workshopId: req.params.workshopId,
     isDeleted: false,
   })
-    .populate('speaker')
+    .populate({
+      path: 'speaker',
+      populate: {
+        path: 'image',
+      },
+    })
     .lean();
 
   if (!session) {

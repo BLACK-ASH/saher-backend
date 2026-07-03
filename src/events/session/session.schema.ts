@@ -1,5 +1,6 @@
 import z from 'zod';
 
+import { userSchemaFinal } from '../../admin/_services/user.js';
 import { DOMPurify } from '../../libs/utils/dompurify.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
@@ -43,11 +44,7 @@ export const getSessionResponseSchema = z.object({
   date: z.string(),
   startTime: z.string(),
   endTime: z.string(),
-  speaker: z.array(
-    z.object({
-      id: z.string(),
-    }),
-  ),
+  speaker: z.array(userSchemaFinal),
 });
 
 export const getSessionSchema = z.array(getSessionResponseSchema);
@@ -57,3 +54,4 @@ export const createSessionResponseSchema = baseSchema;
 export const UpdatesSessionResponseSchema = baseSchema;
 export type CreateSessionInputType = z.infer<typeof createSessionSchema>;
 export type UpdatedSessionInputType = z.infer<typeof updatedSessionSchema>;
+export type SessionResponseT = z.infer<typeof getSessionResponseSchema>;

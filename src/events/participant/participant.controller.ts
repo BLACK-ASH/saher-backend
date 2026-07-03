@@ -14,7 +14,7 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 //Add participant
 export const addParticipantController = async (req: Request, res: Response) => {
   req.body = participantSchema.parse(req.body);
-  const newParticipant = await Participant.create(req.body);
+  await Participant.create(req.body);
 
   return ApiResponse.success(res, {
     message: 'Participant added successfully',
@@ -149,17 +149,14 @@ export const getParticipants = async (req: Request, res: Response) => {
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  //Base query
-  const query: any = {
+  const query = {
     isDeleted: false,
+    ...(keyword && {
+      name: {
+        $regex: new RegExp(keyword, 'i'),
+      },
+    }),
   };
-
-  //Search by name
-  if (keyword) {
-    const regex = new RegExp(keyword, 'i');
-
-    query.name = { $regex: regex };
-  }
 
   const participants = await Participant.find(query)
     .sort({ createdAt: -1 })

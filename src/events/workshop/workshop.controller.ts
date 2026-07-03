@@ -276,7 +276,7 @@ export const getWorkshops = async (req: Request, res: Response) => {
   const keyword = req.query.keyword as string;
   const all = req.query.all === 'true';
 
-  const query: any = {
+  const query: Record<string, unknown> = {
     isDeleted: false,
   };
 
