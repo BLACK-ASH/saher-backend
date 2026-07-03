@@ -40,23 +40,18 @@ export const getAllPayrollController = async (req: Request, res: Response) => {
     });
 }
 
-// To get payroll from id
+// To get payroll from user id
 export const getPayrollByUserIdController = async (req: Request, res: Response) => {
 
-    const date = new Date();
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+    const count = await Payroll.countDocuments({ user: req.params.id });
 
-    const year = Number(req.query.year) || date.getFullYear();
-    const month = Number(req.query.month) - 1 || date.getMonth();
-
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 1)
 
     const payrolls = await Payroll.find({
         user: req.params.id,
-        dateOfCreation: {
-            $gte: firstDay, $lt: lastDay
-        }
-    }).lean();
+    }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
 
     if (payrolls.length === 0) throw new ApiError(400, 'No data Found');
 
@@ -67,24 +62,14 @@ export const getPayrollByUserIdController = async (req: Request, res: Response) 
         message: "Payrolls fetched succesfully",
         data: parsed,
         statusCode: 200,
+        meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
     });
 }
 
 export const getPayrollByPayrollIdController = async (req: Request, res: Response) => {
 
-    const date = new Date();
-
-    const year = Number(req.query.year) || date.getFullYear();
-    const month = Number(req.query.month) - 1 || date.getMonth();
-
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 1)
-
     const payrolls = await Payroll.find({
         _id: req.params.id,
-        dateOfCreation: {
-            $gte: firstDay, $lt: lastDay
-        }
     }).lean();
 
     if (payrolls.length === 0) throw new ApiError(400, 'No data Found');

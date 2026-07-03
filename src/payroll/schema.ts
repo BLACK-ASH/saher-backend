@@ -16,9 +16,8 @@ export const payrollResponseSchema = z.array(z.object({
     baseSalary: z.number(),
     expectedSalary: z.number(),
     paidSalary: z.number().optional(),
-    remainingSalary: z.number(),
     bonus: z.number(),
-    deduction: z.string(),
+    deduction: z.array(z.string()),
     status: z.enum(salaryStatus),
 }))
 

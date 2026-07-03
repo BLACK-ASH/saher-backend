@@ -38,20 +38,14 @@ export const payrollSchema = new mongoose.Schema(
             type: Number,
             min: 0,
         },
-        remainingSalary: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
         bonus: {
             type: Number,
             default: 0,
             min: 0,
         },
         deduction: {
-            type: String,
-            default: 0,
-            min: 0,
+            type: [String],
+            default: [],
         },
         status: {
             type: String,
