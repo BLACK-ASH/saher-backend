@@ -12,4 +12,4 @@ export const createLogSchema = z.object({
 export const createLogResponseSchema = createLogSchema;
 
 export type CreateLogType = z.infer<typeof createLogSchema>;
-export type CreateLogResponsiveType = z.infer<typeof createLogResponsiveSchema>;
+export type CreateLogResponsiveType = z.infer<typeof createLogResponseSchema>;

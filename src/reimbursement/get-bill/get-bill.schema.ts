@@ -32,5 +32,5 @@ export const getSettleBillResponseSchema = z.object({
 
 // })
 
-export type GetBillResponsiveSchemaInputType = z.infer<typeof getBillResponsiveSchema>;
-export type GetSettleBillResponsiveSchemaInputType = z.infer<typeof getSettleBillResponsiveSchema>;
+export type GetBillResponsiveSchemaInputType = z.infer<typeof getBillResponseSchema>;
+export type GetSettleBillResponsiveSchemaInputType = z.infer<typeof getSettleBillResponseSchema>;
