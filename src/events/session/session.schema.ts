@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import z from 'zod';
 
 import { DOMPurify } from '../../libs/utils/dompurify.js';
@@ -35,7 +34,8 @@ export const updatedSessionSchema = baseSchema.partial().refine(
   },
 );
 
-export const getSessionResponsiveSchema = z.object({
+export const getSessionResponseSchema = z.object({
+  id: z.string(),
   workshopId: z.string().optional(),
   programmeId: z.string().optional(),
   title: z.string(),
@@ -50,8 +50,8 @@ export const getSessionResponsiveSchema = z.object({
   ),
 });
 
-export const getSessionSchema = z.array(getSessionResponsiveSchema);
-export const getSessionByIdSchema = getSessionResponsiveSchema;
+export const getSessionSchema = z.array(getSessionResponseSchema);
+export const getSessionByIdSchema = getSessionResponseSchema;
 
 export const createSessionResponseSchema = baseSchema;
 export const UpdatesSessionResponseSchema = baseSchema;

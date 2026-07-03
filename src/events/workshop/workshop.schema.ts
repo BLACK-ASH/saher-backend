@@ -1,8 +1,6 @@
-import { Types } from 'mongoose';
 import { z } from 'zod';
 
 import { DOMPurify } from '../../libs/utils/dompurify.js';
-import { objectId } from '../../libs/utils/zod-object-id.js';
 
 //Base workshop schema
 export const baseWorkshopSchema = z.object({
@@ -12,6 +10,7 @@ export const baseWorkshopSchema = z.object({
     .min(10)
     .max(500)
     .transform((value) => DOMPurify.sanitize(value)),
+  id: z.object,
 });
 
 //Request Schema
@@ -20,6 +19,7 @@ export const updatedWorkshopSchema = baseWorkshopSchema.partial();
 
 //Response Schema
 export const workshopResponseSchema = z.object({
+  id: z.string(),
   title: z.string(),
   description: z.string(),
   programmeId: z.string(),

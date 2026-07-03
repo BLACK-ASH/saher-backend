@@ -3,7 +3,6 @@ import type { Request, Response } from 'express';
 import {
   getSingleWorkshopSchema,
   getWorkshopsFromProgrammeResponseSchema,
-  workshopResponseSchema,
 } from './workshop.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -138,6 +137,7 @@ export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
   });
 };*/
 
+/*
 //Get all Workshops
 export const getWorkshopsFromProgramme = async (req: Request, res: Response) => {
   const { programmeId } = req.query;
@@ -164,7 +164,7 @@ export const getWorkshopsFromProgramme = async (req: Request, res: Response) => 
     data: parsed,
     statusCode: 200,
   });
-};
+};*/
 
 //Get a single Workshop
 export const getSingleWorkshop = async (req: Request, res: Response) => {
@@ -187,6 +187,7 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
   });
 };
 
+/*
 //Search for workshop
 export const getWorkshopByKeyword = async (req: Request, res: Response) => {
   const keyword = req.query.keyword as string;
@@ -267,4 +268,60 @@ export const getWorkshops = async (req: Request, res: Response) => {
   }
 
   return getLatestWorkshops(req, res);
+};*/
+
+//Get workshops
+export const getWorkshops = async (req: Request, res: Response) => {
+  const programmeId = req.query.programmeId as string;
+  const keyword = req.query.keyword as string;
+  const all = req.query.all === 'true';
+
+  const query: any = {
+    isDeleted: false,
+  };
+
+  if (programmeId) {
+    const programme = await Programme.findById(programmeId);
+
+    if (!programme) {
+      throw new ApiError(404, 'Programme not found');
+    }
+
+    query.programmeId = programmeId;
+  }
+
+  if (keyword) {
+    const regex = new RegExp(keyword, 'i');
+
+    query.$or = [{ title: { $regex: regex } }, { description: { $regex: regex } }];
+  }
+
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  let workshopQuery = Workshop.find(query).sort({ createdAt: -1 });
+
+  if (!all) {
+    workshopQuery = workshopQuery.skip(skip).limit(limit);
+  }
+
+  const workshops = await workshopQuery.lean();
+
+  const count = await Workshop.countDocuments(query);
+
+  const normalized = normalizeDoc(workshops);
+  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
+
+  return ApiResponse.success(res, {
+    message: 'Workshops fetched successfully',
+    data: parsed,
+    statusCode: 200,
+    meta: {
+      page,
+      limit,
+      count,
+      total: Math.ceil(count / limit),
+    },
+  });
 };

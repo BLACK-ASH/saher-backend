@@ -1,16 +1,13 @@
 import type { Request, Response } from 'express';
 
-import { createProgrammeParticipantsResponseSchema } from './programmes.schema.js';
 import { Participant } from '../../database/participant.model.js';
 import { Programme } from '../../database/programmes.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
-import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 export const addParticipantToProgramme = async (req: Request, res: Response) => {
   const { participantId, participantData } = req.body;
   const { programmeId } = req.params;
-
   let finalParticipantId = participantId;
 
   if (!finalParticipantId) {

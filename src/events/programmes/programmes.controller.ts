@@ -1,10 +1,6 @@
 import type { Request, Response } from 'express';
 
-import {
-  programmeResponseSchema,
-  getProgrammesSchema,
-  getSingleProgrammeSchema,
-} from './programmes.schema.js';
+import { getProgrammesSchema, getSingleProgrammeSchema } from './programmes.schema.js';
 import { Participant } from '../../database/participant.model.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Workshop } from '../../database/workshop.model.js';

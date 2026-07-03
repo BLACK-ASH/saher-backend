@@ -4,7 +4,7 @@ import {
   addParticipantController,
   deleteParticipantController,
   editParticipantController,
-  getAllParticipantController,
+  getParticipants,
   getParticipantByIdController,
   undoDeleteParticipantController,
 } from './participant/participant.controller.js';
@@ -21,11 +21,7 @@ import {
   deleteProgramme,
   undoDeleteProgramme,
 } from './programmes/programmes.controller.js';
-import {
-  baseProgrammeSchema,
-  createProgrammeSchema,
-  updatedProgrammeSchema,
-} from './programmes/programmes.schema.js';
+import { createProgrammeSchema, updatedProgrammeSchema } from './programmes/programmes.schema.js';
 import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
 import { removeAttendance } from './session/session-remove-attendance.controller.js';
@@ -37,24 +33,17 @@ import {
   getSessions,
   getSingleSession,
   undoDeleteSession,
-  getSessionByKeyword,
 } from './session/session.controller.js';
 import { createSessionSchema, updatedSessionSchema } from './session/session.schema.js';
 import {
   addWorkshop,
   deleteWorkshop,
-  editWorkshop,
   getSingleWorkshop,
-  getWorkshopByKeyword,
-  getWorkshopsFromProgramme,
+  editWorkshop,
   undoDeleteWorkshop,
   getWorkshops,
 } from './workshop/workshop.controller.js';
-import {
-  baseWorkshopSchema,
-  createWorkshopSchema,
-  updatedWorkshopSchema,
-} from './workshop/workshop.schema.js';
+import { createWorkshopSchema, updatedWorkshopSchema } from './workshop/workshop.schema.js';
 import { underDevelopment } from '../libs/middleware/development.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
@@ -63,15 +52,10 @@ import { reminderNotificationController } from './session/reminder.controller.js
 const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
-eventRouter.get(
-  '/programmes/workshops',
-  underDevelopment,
-  authorize('read', 'event'),
-  getWorkshops,
-);
+eventRouter.get('/workshops', underDevelopment, authorize('read', 'event'), getWorkshops);
 
 eventRouter.get(
-  '/programmes/workshops/:workshopId',
+  '/workshops/:workshopId',
   underDevelopment,
   authorize('read', 'event'),
   getSingleWorkshop,
@@ -92,14 +76,14 @@ eventRouter.get(
 );*/
 
 eventRouter.post(
-  '/programmes/:programmeId/workshops',
+  '/workshops/:programmeId',
   underDevelopment,
   authorize('write', 'event'),
   validate(createWorkshopSchema),
   addWorkshop,
 );
 eventRouter.delete(
-  '/programmes/:programmeId/workshops/:id',
+  '/workshops/:programmeId',
   underDevelopment,
   authorize('delete', 'event'),
   deleteWorkshop,
@@ -115,41 +99,39 @@ eventRouter.delete(
 */
 
 eventRouter.put(
-  '/programs/:programmeId/workshops/:id',
+  '/workshops/:id',
   underDevelopment,
   authorize('update', 'event'),
   validate(updatedWorkshopSchema),
   editWorkshop,
 );
 eventRouter.patch(
-  '/programs/:programmeId/workshops/:id/restore',
+  '/workshops/restore/:id',
   underDevelopment,
   authorize('update', 'event'),
   undoDeleteWorkshop,
 );
 
 // Session route ----------------------------------------------------------------------
-eventRouter.get(
-  '/sessions/search',
-  underDevelopment,
-  authorize('read', 'event'),
-  getSessionByKeyword,
-);
+eventRouter.get('/sessions', underDevelopment, authorize('read', 'event'), getSessions);
 
+/*
 eventRouter.get(
-  '/programs/:programmeId/sessions',
+  '/sessions/:programmeId',
   underDevelopment,
   authorize('read', 'event'),
   getSessions,
-);
+);*/
+
 eventRouter.get(
-  '/programs/sessions/:sessionId',
+  '/sessions/:sessionId',
   underDevelopment,
   authorize('read', 'event'),
   getSingleSession,
 );
+
 eventRouter.post(
-  '/programs/:programmeId/sessions',
+  '/sessions/:programmeId',
   underDevelopment,
   authorize('write', 'event'),
   validate(createSessionSchema),
@@ -172,14 +154,14 @@ eventRouter.put(
   editSession,
 );
 eventRouter.patch(
-  '/sessions/:id/restore',
+  '/sessions/restore/:id',
   underDevelopment,
   authorize('update', 'event'),
   undoDeleteSession,
 );
 
 // Particiapnt route ------------------------------------------------------------------------
-eventRouter.get('/participants', underDevelopment, getAllParticipantController);
+eventRouter.get('/participants', underDevelopment, getParticipants);
 eventRouter.get('/participants/:id', underDevelopment, getParticipantByIdController);
 eventRouter.post(
   '/participants',
@@ -188,12 +170,14 @@ eventRouter.post(
   validate(participantSchema),
   addParticipantController,
 );
+
 eventRouter.delete(
   '/participants/:id',
   underDevelopment,
   authorize('delete', 'event'),
   deleteParticipantController,
 );
+
 /*
 eventRouter.delete(
   '/participants/:id/permanent',
@@ -210,7 +194,7 @@ eventRouter.put(
   editParticipantController,
 );
 eventRouter.patch(
-  '/participants/:id/restore',
+  '/participants/restore/:id',
   underDevelopment,
   authorize('update', 'event'),
   undoDeleteParticipantController,
@@ -218,21 +202,21 @@ eventRouter.patch(
 
 // Session Attendance route ------------------------------------------------------------------------------
 eventRouter.post(
-  '/sessions/:sessionId/attendance',
+  '/attendance/sessions/:sessionId',
   underDevelopment,
   authorize('write', 'event'),
   validate(SessionAttendanceSchema),
   markAttendance,
 );
 eventRouter.put(
-  '/sessions/:sessionId/attendance',
+  '/attendance/sessions/:sessionId',
   underDevelopment,
   authorize('update', 'event'),
   validate(SessionAttendanceSchema),
   updateAttendance,
 );
 eventRouter.delete(
-  '/sessions/:sessionId/attendance',
+  '/attendance/sessions/:sessionId',
   underDevelopment,
   authorize('delete', 'event'),
   validate(SessionAttendanceSchema),
@@ -241,14 +225,14 @@ eventRouter.delete(
 
 //Programme-Participant route ------------------------------------------------------------------------------
 eventRouter.post(
-  '/programs/:programmeId/participants',
+  '/programs/participants/:programmeId',
   underDevelopment,
   authorize('write', 'event'),
   addParticipantToProgramme,
 );
 
 eventRouter.delete(
-  '/programs/:programmeId/participants/:participantId',
+  '/programs/participants/:programmeId/:participantId',
   underDevelopment,
   authorize('delete', 'event'),
   removeParticipantFromProgramme,
@@ -285,7 +269,7 @@ eventRouter.put(
   editProgramme,
 );
 eventRouter.patch(
-  '/programs/:id/restore',
+  '/programs/restore/:id',
   underDevelopment,
   authorize('update', 'event'),
   undoDeleteProgramme,
@@ -293,7 +277,7 @@ eventRouter.patch(
 
 // Reminder session notification
 eventRouter.get(
-  '/programs/workshops/sessions/:sessionId',
+  '/programs/workshops/sessions/:sessionId', //create another route for this to get without having sessionId and checks through the database
   authorize('read', 'event'),
   reminderNotificationController,
 );
