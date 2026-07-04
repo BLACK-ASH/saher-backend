@@ -25,6 +25,7 @@ export const participantSchema = baseSchema.refine(
 export const updatedParticipantSchema = baseSchema.partial();
 
 export const participantsResponsiveSchema = z.object({
+  id: z.string(),
   name: z.string(),
   age: z.number(),
   gender: z.string(),
@@ -32,7 +33,7 @@ export const participantsResponsiveSchema = z.object({
   photo: z.string(),
   address: z.string(),
   affiliation: z.string(),
-  parentDetails: z.string(),
+  parentDetails: z.string().optional(),
   document: z.string(),
 });
 

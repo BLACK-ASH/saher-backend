@@ -10,6 +10,7 @@ export const baseWorkshopSchema = z.object({
     .min(10)
     .max(500)
     .transform((value) => DOMPurify.sanitize(value)),
+  id: z.object,
 });
 
 //Request Schema

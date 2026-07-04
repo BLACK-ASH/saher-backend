@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express';
+import type { QueryFilter } from 'mongoose';
 
 import {
   getSingleWorkshopSchema,
   getWorkshopsFromProgrammeResponseSchema,
-  workshopResponseSchema,
 } from './workshop.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -114,58 +114,6 @@ export const undoDeleteWorkshop = async (req: Request, res: Response) => {
   });
 };
 
-/*Permanent Deletion of workshop
-export const permanentDeleteWorkshop = async (req: Request, res: Response) => {
-  const workshop = await Workshop.findOne({
-    _id: req.params.id,
-    isDeleted: true,
-  });
-
-  if (!workshop) {
-    throw new ApiError(404, 'Workshop must be soft deleted before permanent deletion');
-  }
-
-  await Programme.findByIdAndUpdate(workshop.programmeId, {
-    $pull: { workshops: workshop._id },
-  });
-
-  await Workshop.findByIdAndDelete(req.params.id);
-
-  return ApiResponse.success(res, {
-    message: 'Workshop has been permanently deleted',
-    data: null,
-    statusCode: 200,
-  });
-};*/
-
-//Get all Workshops
-export const getWorkshopsFromProgramme = async (req: Request, res: Response) => {
-  const { programmeId } = req.params;
-  const programme = await Programme.findById(programmeId);
-
-  if (!programme) {
-    throw new ApiError(404, 'Programme not found');
-  }
-
-  const workshop = await Workshop.find({
-    programmeId: req.params.programmeId,
-    isDeleted: false,
-  }).lean();
-
-  if (workshop.length === 0) {
-    throw new ApiError(404, 'Workshops not found');
-  }
-
-  const normalized = normalizeDoc(workshop);
-  const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Workshops fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-
 //Get a single Workshop
 export const getSingleWorkshop = async (req: Request, res: Response) => {
   const workshop = await Workshop.findOne({
@@ -187,33 +135,64 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
   });
 };
 
-//Search for workshop
-export const getWorkshopByKeyword = async (req: Request, res: Response) => {
+//Get workshops
+export const getWorkshops = async (req: Request, res: Response) => {
+  const programmeId = req.query.programmeId as string;
   const keyword = req.query.keyword as string;
+  const all = req.query.all === 'true';
 
-  // Search by name, brand, or category using case-insensitive regex
-  const regex = new RegExp(keyword, 'i');
+  const isDeleted = req.query.isDeleted as string;
 
-  const workshop = await Workshop.find({
-    $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
-  })
-    .limit(5)
-    .lean(); // Return top 5 suggestions
+  const query: QueryFilter<typeof Workshop.schema.obj> = {};
 
-  if (workshop.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'No workshops found',
-      data: [],
-      statusCode: 200,
-    });
+  if (isDeleted === 'true') {
+    query.isDeleted = true;
+  } else if (isDeleted === 'false') {
+    query.isDeleted = false;
   }
 
-  const normalized = normalizeDoc(workshop);
+  if (programmeId) {
+    const programme = await Programme.findById(programmeId);
+
+    if (!programme) {
+      throw new ApiError(404, 'Programme not found');
+    }
+
+    query.programmeId = programmeId;
+  }
+
+  if (keyword) {
+    const regex = new RegExp(keyword, 'i');
+
+    query.$or = [{ title: { $regex: regex } }, { description: { $regex: regex } }];
+  }
+
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  let workshopQuery = Workshop.find(query).sort({ createdAt: -1 });
+
+  if (!all) {
+    workshopQuery = workshopQuery.skip(skip).limit(limit);
+  }
+
+  const workshops = await workshopQuery.lean();
+
+  const count = await Workshop.countDocuments(query);
+
+  const normalized = normalizeDoc(workshops);
   const parsed = getWorkshopsFromProgrammeResponseSchema.parse(normalized);
 
   return ApiResponse.success(res, {
-    message: 'Workshop fetched successfully',
+    message: 'Workshops fetched successfully',
     data: parsed,
     statusCode: 200,
+    meta: {
+      page,
+      limit,
+      count,
+      total: Math.ceil(count / limit),
+    },
   });
 };

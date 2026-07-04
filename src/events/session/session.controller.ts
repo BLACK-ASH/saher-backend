@@ -1,10 +1,7 @@
 import type { Request, Response } from 'express';
+import type { QueryFilter } from 'mongoose';
 
-import {
-  getSessionByIdSchema,
-  getSessionResponsiveSchema,
-  getSessionSchema,
-} from './session.schema.js';
+import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
 import { Programme } from '../../database/programmes.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -63,7 +60,7 @@ export const addSession = async (req: Request, res: Response) => {
   const notificationTitle = 'Receieved New Session';
   const notificationDesc = `A new Session has been created`;
   await notification.specific.success(
-    [newSession.speaker.toString()],
+    newSession.speaker.map((id) => id.toString()),
     notificationTitle,
     notificationDesc,
   );
@@ -155,47 +152,127 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
   });
 };
 
-/*Permanent Deletion of programme
-export const permanentDeleteSession = async (req: Request, res: Response) => {
-  const session = await Session.findOne({
-    _id: req.params.id,
-    isDeleted: true,
-  });
+//Get sessions
+export const getSessions = async (req: Request, res: Response) => {
+  const programmeId = req.query.programmeId as string;
+  const programmeTitle = req.query.programmeTitle as string;
+  const workshopId = req.query.workshopId as string;
+  const keyword = req.query.keyword as string;
 
-  if (!session) {
-    throw new ApiError(404, 'Session must be soft deleted before permanent deletion');
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  //Base query
+  const isDeleted = req.query.isDeleted as string;
+
+  const query: QueryFilter<typeof Session.schema.obj> = {};
+
+  if (isDeleted === 'true') {
+    query.isDeleted = true;
+  } else if (isDeleted === 'false') {
+    query.isDeleted = false;
   }
 
-  await Session.findByIdAndDelete(req.params.id);
+  //Filter by programmeId
+  if (programmeId) {
+    const programme = await Programme.findById(programmeId);
 
-  return ApiResponse.success(res, {
-    message: 'Session has been permanently deleted',
-    data: null,
-    statusCode: 200,
-  });
-};
-*/
+    if (!programme) {
+      throw new ApiError(404, 'Programme not found');
+    }
 
-//Get all sessions
-export const getSessions = async (req: Request, res: Response) => {
-  const session = await Session.find({
-    programmeId: req.params.programmeId,
-    isDeleted: false,
-  })
-    .populate('speaker')
+    query.programmeId = programmeId;
+  }
+
+  //Filter by programme title
+  else if (programmeTitle) {
+    const regex = new RegExp(programmeTitle, 'i');
+
+    const programmes = await Programme.find({
+      title: { $regex: regex },
+    }).select('_id');
+
+    //If no matching programmes exist, return empty result
+    if (programmes.length === 0) {
+      return ApiResponse.success(res, {
+        message: 'No sessions found',
+        data: [],
+        statusCode: 200,
+        meta: {
+          page,
+          limit,
+          count: 0,
+          total: 0,
+        },
+      });
+    }
+
+    query.programmeId = {
+      $in: programmes.map((programme) => programme._id),
+    };
+  }
+
+  //Filter by workshop
+  if (workshopId) {
+    const workshop = await Workshop.findById(workshopId);
+
+    if (!workshop) {
+      throw new ApiError(404, 'Workshop not found');
+    }
+
+    query.workshopId = workshopId;
+  }
+
+  //Search session title/description
+  if (keyword) {
+    const regex = new RegExp(keyword, 'i');
+
+    query.$or = [{ title: { $regex: regex } }, { description: { $regex: regex } }];
+  }
+
+  const sessions = await Session.find(query)
+    .populate({
+      path: 'speaker',
+      populate: {
+        path: 'image',
+      },
+    })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
     .lean();
 
-  if (session.length === 0) {
-    throw new ApiError(404, 'Sessions not found');
+  const count = await Session.countDocuments(query);
+
+  if (sessions.length === 0) {
+    return ApiResponse.success(res, {
+      message: 'No sessions found',
+      data: [],
+      statusCode: 200,
+      meta: {
+        page,
+        limit,
+        count: 0,
+        total: 0,
+      },
+    });
   }
 
-  const normalized = normalizeDoc(session);
+  const normalized = normalizeDoc(sessions);
   const parsed = getSessionSchema.parse(normalized);
 
   return ApiResponse.success(res, {
-    message: 'Sessions fetched successfully',
+    message:
+      keyword || programmeTitle ? 'Sessions fetched successfully' : 'Sessions fetched successfully',
     data: parsed,
     statusCode: 200,
+    meta: {
+      page,
+      limit,
+      count,
+      total: Math.ceil(count / limit),
+    },
   });
 };
 
@@ -203,11 +280,14 @@ export const getSessions = async (req: Request, res: Response) => {
 export const getSingleSession = async (req: Request, res: Response) => {
   const session = await Session.findOne({
     _id: req.params.sessionId,
-    programmeId: req.params.programmeId,
-    workshopId: req.params.workshopId,
     isDeleted: false,
   })
-    .populate('speaker')
+    .populate({
+      path: 'speaker',
+      populate: {
+        path: 'image',
+      },
+    })
     .lean();
 
   if (!session) {
@@ -219,38 +299,6 @@ export const getSingleSession = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-
-//Search for Session
-export const getSessionByKeyword = async (req: Request, res: Response) => {
-  const keyword = req.query.keyword as string;
-
-  // Search by name, brand, or category using case-insensitive regex
-  const regex = new RegExp(keyword, 'i');
-
-  const session = await Session.find({
-    $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
-  })
-    .populate('speaker')
-    .limit(5)
-    .lean(); // Return top 5 suggestions
-
-  if (session.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'No sessions found',
-      data: [],
-      statusCode: 200,
-    });
-  }
-
-  const normalized = normalizeDoc(session);
-  const parsed = getSessionSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Sessions fetched successfully',
     data: parsed,
     statusCode: 200,
   });
