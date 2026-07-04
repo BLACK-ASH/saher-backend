@@ -40,32 +40,40 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     const startDate = standardDateString(start);
     const endDate = standardDateString(end);
     const record = await retrieveCustomAttendace(id, startDate, endDate, { page, limit, sort });
+    const count = record.count;
     return ApiResponse.success(res, {
       statusCode: 200,
       message: ' the attendance that you asked for ',
-      data: record,
+      data: record.parsed,
+      meta: { page, limit, count, total: Math.ceil(count / limit) },
     });
   } else if (req.query.type) {
     if (req.query.type === 'week') {
       const record = await retrieveTypeWeekAttendance(user.id, { page, limit, sort });
+      const count = record.count;
       return ApiResponse.success(res, {
         statusCode: 200,
         message: ' the attendance that you asked for ',
-        data: record,
+        data: record.parsed,
+        meta: { page, limit, count, total: Math.ceil(count / limit) },
       });
     } else if (req.query.type === 'month') {
       const record = await retrieveTypeMonthAttendance(user.id, { page, limit, sort });
+      const count = record.count;
       return ApiResponse.success(res, {
         statusCode: 200,
         message: ' the attendance that you asked for ',
-        data: record,
+        data: record.parsed,
+        meta: { page, limit, count, total: Math.ceil(count / limit) },
       });
     } else if (req.query.type === 'year') {
       const record = await retrieveTypeYearAttendance(user.id, { page, limit, sort });
+      const count = record.count;
       return ApiResponse.success(res, {
         statusCode: 200,
         message: ' the attendance that you asked for ',
-        data: record,
+        data: record.parsed,
+        meta: { page, limit, count, total: Math.ceil(count / limit) },
       });
     }
     throw new ApiError(400, 'Enter a valid type for retrieving records like week , month , year');
