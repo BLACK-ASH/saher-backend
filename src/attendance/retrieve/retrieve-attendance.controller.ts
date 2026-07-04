@@ -16,12 +16,15 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
 
   let id: string;
   // Get the user body
-  if (req.params.id === 'current') {
-    id = req.user?.id as string;
+  if (user.role === 'user' || user.role === 'intern') {
+    id = user.id;
   } else {
-    id = req.params.id as string;
+    if (req.params.id === 'current') {
+      id = req.user?.id as string;
+    } else {
+      id = req.params.id as string;
+    }
   }
-
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const sort = req.query.sort as string;
