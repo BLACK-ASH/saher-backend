@@ -27,7 +27,9 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     //Mail
     createPermission('write', 'mail'),
 
-    //Mail
+    // Attendance Correction
+    createPermission('write', 'attendance-correction'),
+    createPermission('update', 'attendance-correction'),
 
     // Reimbursement
     createPermission('write', 'preReimbursement'),
