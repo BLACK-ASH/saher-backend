@@ -57,18 +57,22 @@ export const addSession = async (req: Request, res: Response) => {
     programId: programId,
   });
 
-  const notificationTitle = 'Receieved New Session';
-  const notificationDesc = `A new Session has been created`;
-  await notification.specific.success(
+  const notificationTitle = 'New Session Assigned';
+  const notificationDesc = `${newSession.title} has been assigned to you.`;
+  await notification.specific.info(
     newSession.speaker.map((id) => id.toString()),
     notificationTitle,
     notificationDesc,
   );
 
-  // await sendPushToUser(newSession.speaker.toString(), {
-  //   title: 'New Session Created',
-  //   body: `${newSession.title} has been scheduled`,
-  // });
+  await Promise.allSettled(
+    newSession.speaker.map((id) =>
+      sendPushToUser(id.toString(), {
+        title: 'New Session Assigned',
+        body: `${newSession.title} has been assigned to you.`,
+      }),
+    ),
+  );
 
   const date = req.body.date;
   const month = new Date(date).getMonth();
@@ -90,7 +94,7 @@ export const editSession = async (req: Request, res: Response) => {
   const updates = req.body;
 
   const updatedSession = await Session.findByIdAndUpdate(
-    { _id: req.params, isDeleted: false },
+    { _id: req.params.id, isDeleted: false },
     updates,
   ).lean();
 
@@ -98,17 +102,22 @@ export const editSession = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Session not found');
   }
 
-  const notificationTitle = 'Receieved Updated Session';
-  const notificationDesc = `A Session has been Updated`;
+  const notificationTitle = 'Session Updated';
+  const notificationDesc = `"${updatedSession.title}" has been updated. Please review the latest session details.`;
   await notification.specific.success(
-    [updatedSession.speaker.toString()],
+    updatedSession.speaker.map((id) => id.toString()),
     notificationTitle,
     notificationDesc,
   );
-  await sendPushToUser(updatedSession.speaker.toString(), {
-    title: 'New Session Created',
-    body: `${updatedSession.title} has been scheduled`,
-  });
+
+  await Promise.allSettled(
+    updatedSession.speaker.map((id) =>
+      sendPushToUser(id.toString(), {
+        title: 'Session Updated',
+        body: `"${updatedSession.title}" has been updated. Tap to view the latest details.`,
+      }),
+    ),
+  );
 
   return ApiResponse.success(res, {
     message: 'Session has been Updated successfully',
@@ -158,21 +167,15 @@ export const getSessions = async (req: Request, res: Response) => {
   const programTitle = req.query.programTitle as string;
   const workshopId = req.query.workshopId as string;
   const keyword = req.query.keyword as string;
-
+  const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
   //Base query
-  const isDeleted = req.query.isDeleted as string;
-
   const query: QueryFilter<typeof Session.schema.obj> = {};
 
-  if (isDeleted === 'true') {
-    query.isDeleted = true;
-  } else if (isDeleted === 'false') {
-    query.isDeleted = false;
-  }
+  query.isDeleted = isDeleted;
 
   //Filter by programId
   if (programId) {
@@ -238,6 +241,8 @@ export const getSessions = async (req: Request, res: Response) => {
         path: 'image',
       },
     })
+    .populate('programId', 'title')
+    .populate('workshopId', 'title')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)

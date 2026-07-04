@@ -11,26 +11,22 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 // Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
-  const { programmeId } = req.params;
-  if (!programmeId) throw new ApiError(400, 'Program Id is Required');
+  const { programId } = req.params;
+  if (!programId) throw new ApiError(400, 'Program Id is Required');
 
-  const programme = await Program.findById(programmeId);
+  const program = await Program.findById(programId);
 
-  if (!programme) {
+  if (!program) {
     throw new ApiError(404, 'Program not found');
   }
 
-  const newWorkshop = await Workshop.create({
+  await Workshop.create({
     ...req.body,
-    programmeId,
-  });
-
-  await Program.findByIdAndUpdate(programmeId, {
-    $push: { workshops: newWorkshop._id },
+    programId,
   });
 
   return ApiResponse.success(res, {
-    message: 'Workshop is added successfully.',
+    message: 'Workshop added successfully.',
     data: null,
     statusCode: 201,
   });
@@ -38,19 +34,9 @@ export const addWorkshop = async (req: Request, res: Response) => {
 
 // Edit a workshop
 export const editWorkshop = async (req: Request, res: Response) => {
-  const { programmeId, id } = req.params;
-  const updatedWorkshop = await Workshop.findOneAndUpdate(
-    {
-      _id: id,
-      programmeId: programmeId,
-      isDeleted: false,
-    },
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    },
-  ).lean();
+  const { id } = req.params;
+
+  const updatedWorkshop = await Workshop.findByIdAndUpdate(id, req.body);
 
   if (!updatedWorkshop) {
     throw new ApiError(404, 'Workshop not found');
@@ -65,10 +51,9 @@ export const editWorkshop = async (req: Request, res: Response) => {
 
 // Soft delete a workshop
 export const deleteWorkshop = async (req: Request, res: Response) => {
-  const { programmeId, id } = req.params;
+  const { id } = req.params;
   const workshop = await Workshop.findOne({
     _id: id,
-    programmeId,
     isDeleted: false,
   });
 
@@ -78,10 +63,6 @@ export const deleteWorkshop = async (req: Request, res: Response) => {
 
   workshop.isDeleted = true;
   await workshop.save();
-
-  await Program.findByIdAndUpdate(programmeId, {
-    $pull: { workshops: workshop._id },
-  });
 
   return ApiResponse.success(res, {
     message: 'Workshop has been soft deleted successfully',
@@ -114,10 +95,17 @@ export const undoDeleteWorkshop = async (req: Request, res: Response) => {
 
 //Get a single Workshop
 export const getSingleWorkshop = async (req: Request, res: Response) => {
+  const workshopId = req.params.workshopId as string;
+  if (!mongoose.Types.ObjectId.isValid(workshopId)) {
+    throw new ApiError(400, 'Invalid program id');
+  }
+
   const workshop = await Workshop.findOne({
-    _id: req.params.workshopId,
+    _id: workshopId,
     isDeleted: false,
-  }).lean();
+  })
+    .populate('programId', 'title')
+    .lean();
 
   if (!workshop) {
     throw new ApiError(404, 'Workshop not found');
@@ -135,24 +123,20 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
 
 //Get workshops
 export const getWorkshops = async (req: Request, res: Response) => {
-  const programmeId = req.query.programmeId as string | undefined;
+  const programId = req.query.programId as string | undefined;
   const keyword = req.query.keyword as string | undefined;
-  const isDeleted = req.query.isDeleted as string | undefined;
+  const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
 
   const query: QueryFilter<typeof Workshop.schema.obj> = {};
 
-  if (isDeleted === 'true') {
-    query.isDeleted = true;
-  } else if (isDeleted === 'false') {
-    query.isDeleted = false;
-  }
+  query.isDeleted = isDeleted;
 
-  if (programmeId) {
-    if (!mongoose.Types.ObjectId.isValid(programmeId)) {
-      throw new ApiError(400, 'Invalid programme id');
+  if (programId) {
+    if (!mongoose.Types.ObjectId.isValid(programId)) {
+      throw new ApiError(400, 'Invalid program id');
     }
 
-    query.programmeId = programmeId;
+    query.programId = programId;
   }
 
   if (keyword?.trim()) {
@@ -168,7 +152,12 @@ export const getWorkshops = async (req: Request, res: Response) => {
   const skip = (page - 1) * limit;
 
   const [workshops, count] = await Promise.all([
-    Workshop.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Workshop.find(query)
+      .populate('programId', 'title')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
     Workshop.countDocuments(query),
   ]);
 

@@ -152,25 +152,16 @@ export const getSingleProgram = async (req: Request, res: Response) => {
 //Get programs
 export const getPrograms = async (req: Request, res: Response) => {
   const keyword = req.query.keyword as string;
-
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-
-  const isDeleted = req.query.isDeleted as string;
+  const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
 
   const query: QueryFilter<typeof Program.schema.obj> = {};
-
-  if (isDeleted === 'true') {
-    query.isDeleted = true;
-  } else if (isDeleted === 'false') {
-    query.isDeleted = false;
-  }
-
+  query.isDeleted = isDeleted;
   //Search program title/description
   if (keyword) {
     const regex = new RegExp(keyword, 'i');
-
     query.$or = [{ title: { $regex: regex } }, { description: { $regex: regex } }];
   }
 

@@ -9,7 +9,6 @@ export const baseWorkshopSchema = z.object({
     .string()
     .min(4)
     .transform((value) => DOMPurify.sanitize(value)),
-  id: z.object,
 });
 
 //Request Schema
@@ -21,7 +20,7 @@ export const workshopResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  programId: z.string(),
+  programId: z.object({ id: z.string(), title: z.string() }),
 });
 
 //Types

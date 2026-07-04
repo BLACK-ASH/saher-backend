@@ -9,12 +9,11 @@ export const baseSchema = z.object({
   description: z
     .string()
     .min(5)
-    .max(500)
     .transform((value) => DOMPurify.sanitize(value)),
   date: z.string(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
-  speaker: z.array(objectId()),
+  speaker: z.array(objectId()).min(1, 'Session Must Have Atleast One Speaker.'),
 });
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {
@@ -37,8 +36,8 @@ export const updatedSessionSchema = baseSchema.partial().refine(
 
 export const getSessionResponseSchema = z.object({
   id: z.string(),
-  workshopId: z.string().optional(),
-  programId: z.string().optional(),
+  programId: z.object({ id: z.string(), title: z.string() }),
+  workshopId: z.object({ id: z.string(), title: z.string() }),
   title: z.string(),
   description: z.string(),
   date: z.string(),

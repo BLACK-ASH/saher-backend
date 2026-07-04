@@ -67,7 +67,7 @@ eventRouter.post(
   addWorkshop,
 );
 eventRouter.delete(
-  '/workshops/:programId',
+  '/workshops/:id',
   underDevelopment,
   authorize('delete', 'event'),
   deleteWorkshop,
