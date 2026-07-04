@@ -21,13 +21,13 @@ const attendanceSchema = new Schema(
 //Session base schema
 const sessionSchema = new mongoose.Schema(
   {
-    workshopId: {
+    workshop: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Workshop',
       // required: true,
     },
 
-    programId: {
+    program: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Program',
     },

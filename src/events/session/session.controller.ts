@@ -45,7 +45,7 @@ export const addSession = async (req: Request, res: Response) => {
     const workshop = await Workshop.create({
       title: req.body.title,
       description: req.body.description,
-      programId: convertToObjectId(req.params.programId as string),
+      program: convertToObjectId(req.params.programId as string),
     });
 
     newWorkshopId = workshop._id;
