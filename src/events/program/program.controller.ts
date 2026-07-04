@@ -1,16 +1,16 @@
 import type { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
 
-import { getProgrammesSchema, getSingleProgrammeSchema } from './programmes.schema.js';
+import { programResponseSchema } from './program.schema.js';
 import { Participant } from '../../database/participant.model.js';
-import { Programme } from '../../database/programmes.model.js';
+import { Program } from '../../database/program.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
-// Add a programme
-export const addProgramme = async (req: Request, res: Response) => {
+// Add a program
+export const addProgram = async (req: Request, res: Response) => {
   if (req.body.participants?.length) {
     const participants = await Participant.find({
       _id: { $in: req.body.participants ?? [] },
@@ -33,17 +33,17 @@ export const addProgramme = async (req: Request, res: Response) => {
     }
   }
 
-  await Programme.create(req.body);
+  await Program.create(req.body);
 
   return ApiResponse.success(res, {
-    message: 'Programme has been added successfully.',
+    message: 'Program has been added successfully.',
     data: null,
     statusCode: 201,
   });
 };
 
-//Edit a programme
-export const editProgramme = async (req: Request, res: Response) => {
+//Edit a program
+export const editProgram = async (req: Request, res: Response) => {
   if (req.body.participants) {
     const participantCount = await Participant.countDocuments({
       _id: { $in: req.body.participants },
@@ -65,67 +65,67 @@ export const editProgramme = async (req: Request, res: Response) => {
       throw new ApiError(400, 'One or more workshop IDs are invalid');
     }
   }
-  const updatedProgramme = await Programme.findOneAndUpdate(
+  const updatedProgram = await Program.findOneAndUpdate(
     { _id: req.params.id, isDeleted: false },
     req.body,
   ).lean();
 
-  if (!updatedProgramme) {
-    throw new ApiError(404, 'Programme not found');
+  if (!updatedProgram) {
+    throw new ApiError(404, 'Program not found');
   }
 
   return ApiResponse.success(res, {
-    message: 'Programme has been updated successfully',
+    message: 'Program has been updated successfully',
     data: null,
     statusCode: 200,
   });
 };
 
-//Soft delete a programme
-export const deleteProgramme = async (req: Request, res: Response) => {
-  const programme = await Programme.findOne({
+//Soft delete a program
+export const deleteProgram = async (req: Request, res: Response) => {
+  const program = await Program.findOne({
     _id: req.params.id,
     isDeleted: false,
   });
 
-  if (!programme) {
-    throw new ApiError(404, 'Programme not found');
+  if (!program) {
+    throw new ApiError(404, 'Program not found');
   }
 
-  programme.isDeleted = true;
-  await programme.save();
+  program.isDeleted = true;
+  await program.save();
 
   return ApiResponse.success(res, {
-    message: 'Programme has been soft deleted successfully',
+    message: 'Program has been soft deleted successfully',
     data: null,
     statusCode: 200,
   });
 };
 
-//Undo delete (only works if the programme is soft-deleted)
-export const undoDeleteProgramme = async (req: Request, res: Response) => {
-  const programme = await Programme.findOne({
+//Undo delete (only works if the program is soft-deleted)
+export const undoDeleteProgram = async (req: Request, res: Response) => {
+  const program = await Program.findOne({
     _id: req.params.id,
     isDeleted: true,
   });
 
-  if (!programme) {
-    throw new ApiError(404, 'Deleted programme not found');
+  if (!program) {
+    throw new ApiError(404, 'Deleted program not found');
   }
 
-  programme.isDeleted = false;
-  await programme.save();
+  program.isDeleted = false;
+  await program.save();
 
   return ApiResponse.success(res, {
-    message: 'Programme has been restored successfully',
+    message: 'Program has been restored successfully',
     data: null,
     statusCode: 200,
   });
 };
 
-//Get a single Programme
-export const getSingleProgramme = async (req: Request, res: Response) => {
-  const programme = await Programme.findOne({
+//Get a single Program
+export const getSingleProgram = async (req: Request, res: Response) => {
+  const program = await Program.findOne({
     _id: req.params.id,
     isDeleted: false,
   })
@@ -135,22 +135,22 @@ export const getSingleProgramme = async (req: Request, res: Response) => {
     })
     .lean();
 
-  if (!programme) {
-    throw new ApiError(404, 'Programme not found');
+  if (!program) {
+    throw new ApiError(404, 'Program not found');
   }
 
-  const normalized = normalizeDoc(programme);
-  const parsed = getSingleProgrammeSchema.parse(normalized);
+  const normalized = normalizeDoc(program);
+  const parsed = programResponseSchema.parse(normalized);
 
   return ApiResponse.success(res, {
-    message: 'Programme fetched successfully',
+    message: 'Program fetched successfully',
     data: parsed,
     statusCode: 200,
   });
 };
 
-//Get programmes
-export const getProgrammes = async (req: Request, res: Response) => {
+//Get programs
+export const getPrograms = async (req: Request, res: Response) => {
   const keyword = req.query.keyword as string;
 
   const page = Number(req.query.page) || 1;
@@ -159,7 +159,7 @@ export const getProgrammes = async (req: Request, res: Response) => {
 
   const isDeleted = req.query.isDeleted as string;
 
-  const query: QueryFilter<typeof Programme.schema.obj> = {};
+  const query: QueryFilter<typeof Program.schema.obj> = {};
 
   if (isDeleted === 'true') {
     query.isDeleted = true;
@@ -167,24 +167,20 @@ export const getProgrammes = async (req: Request, res: Response) => {
     query.isDeleted = false;
   }
 
-  //Search programme title/description
+  //Search program title/description
   if (keyword) {
     const regex = new RegExp(keyword, 'i');
 
     query.$or = [{ title: { $regex: regex } }, { description: { $regex: regex } }];
   }
 
-  const programmes = await Programme.find(query)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .lean();
+  const programs = await Program.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
 
-  const count = await Programme.countDocuments(query);
+  const count = await Program.countDocuments(query);
 
-  if (programmes.length === 0) {
+  if (programs.length === 0) {
     return ApiResponse.success(res, {
-      message: 'No programmes found',
+      message: 'No programs found',
       data: [],
       statusCode: 200,
       meta: {
@@ -196,13 +192,13 @@ export const getProgrammes = async (req: Request, res: Response) => {
     });
   }
 
-  const normalized = normalizeDoc(programmes);
-  const parsed = getProgrammesSchema.parse(normalized);
+  const normalized = normalizeDoc(programs);
+  const parsed = programResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
     message: keyword
-      ? 'Programmes matching keyword fetched successfully'
-      : 'Programmes fetched successfully',
+      ? 'Programs matching keyword fetched successfully'
+      : 'Programs fetched successfully',
     data: parsed,
     statusCode: 200,
     meta: {

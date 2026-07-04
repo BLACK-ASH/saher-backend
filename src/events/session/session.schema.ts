@@ -38,7 +38,7 @@ export const updatedSessionSchema = baseSchema.partial().refine(
 export const getSessionResponseSchema = z.object({
   id: z.string(),
   workshopId: z.string().optional(),
-  programmeId: z.string().optional(),
+  programId: z.string().optional(),
   title: z.string(),
   description: z.string(),
   date: z.string(),

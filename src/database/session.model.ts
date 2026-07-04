@@ -27,9 +27,9 @@ const sessionSchema = new mongoose.Schema(
       // required: true,
     },
 
-    programmeId: {
+    programId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Programme',
+      ref: 'Program',
     },
 
     title: {

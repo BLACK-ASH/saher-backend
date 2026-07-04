@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
 
 import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
-import { Programme } from '../../database/programmes.model.js';
+import { Program } from '../../database/program.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -15,21 +15,21 @@ import { sendPushToUser } from '../../libs/utils/push-notification.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
-  const { programmeId } = req.params;
+  const { programId } = req.params;
   const { workshopId } = req.body;
 
-  //Checking for programme existence
-  const programme = await Programme.findById(programmeId);
+  //Checking for program existence
+  const program = await Program.findById(programId);
 
-  if (!programme) {
-    throw new ApiError(404, 'Programme not found');
+  if (!program) {
+    throw new ApiError(404, 'Program not found');
   }
 
   //Checking for workshop existence
   if (workshopId) {
     const workshop = await Workshop.findOne({
       _id: workshopId,
-      programmeId,
+      programId,
       isDeleted: false,
     });
 
@@ -45,7 +45,7 @@ export const addSession = async (req: Request, res: Response) => {
     const workshop = await Workshop.create({
       title: req.body.title,
       description: req.body.description,
-      programmeId: convertToObjectId(req.params.programmeId as string),
+      programId: convertToObjectId(req.params.programId as string),
     });
 
     newWorkshopId = workshop._id;
@@ -54,7 +54,7 @@ export const addSession = async (req: Request, res: Response) => {
   const newSession = await Session.create({
     ...req.body,
     workshopId: workshopId || newWorkshopId,
-    programmeId: programmeId,
+    programId: programId,
   });
 
   const notificationTitle = 'Receieved New Session';
@@ -154,8 +154,8 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
 
 //Get sessions
 export const getSessions = async (req: Request, res: Response) => {
-  const programmeId = req.query.programmeId as string;
-  const programmeTitle = req.query.programmeTitle as string;
+  const programId = req.query.programId as string;
+  const programTitle = req.query.programTitle as string;
   const workshopId = req.query.workshopId as string;
   const keyword = req.query.keyword as string;
 
@@ -174,27 +174,27 @@ export const getSessions = async (req: Request, res: Response) => {
     query.isDeleted = false;
   }
 
-  //Filter by programmeId
-  if (programmeId) {
-    const programme = await Programme.findById(programmeId);
+  //Filter by programId
+  if (programId) {
+    const program = await Program.findById(programId);
 
-    if (!programme) {
-      throw new ApiError(404, 'Programme not found');
+    if (!program) {
+      throw new ApiError(404, 'Program not found');
     }
 
-    query.programmeId = programmeId;
+    query.programId = programId;
   }
 
-  //Filter by programme title
-  else if (programmeTitle) {
-    const regex = new RegExp(programmeTitle, 'i');
+  //Filter by program title
+  else if (programTitle) {
+    const regex = new RegExp(programTitle, 'i');
 
-    const programmes = await Programme.find({
+    const programs = await Program.find({
       title: { $regex: regex },
     }).select('_id');
 
-    //If no matching programmes exist, return empty result
-    if (programmes.length === 0) {
+    //If no matching programs exist, return empty result
+    if (programs.length === 0) {
       return ApiResponse.success(res, {
         message: 'No sessions found',
         data: [],
@@ -208,8 +208,8 @@ export const getSessions = async (req: Request, res: Response) => {
       });
     }
 
-    query.programmeId = {
-      $in: programmes.map((programme) => programme._id),
+    query.programId = {
+      $in: programs.map((program) => program._id),
     };
   }
 
@@ -264,7 +264,7 @@ export const getSessions = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message:
-      keyword || programmeTitle ? 'Sessions fetched successfully' : 'Sessions fetched successfully',
+      keyword || programTitle ? 'Sessions fetched successfully' : 'Sessions fetched successfully',
     data: parsed,
     statusCode: 200,
     meta: {
