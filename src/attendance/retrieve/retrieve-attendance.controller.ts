@@ -49,7 +49,7 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
     });
   } else if (req.query.type) {
     if (req.query.type === 'week') {
-      const record = await retrieveTypeWeekAttendance(user.id, { page, limit, sort });
+      const record = await retrieveTypeWeekAttendance(id, { page, limit, sort });
       const count = record.count;
       return ApiResponse.success(res, {
         statusCode: 200,
@@ -58,7 +58,7 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
         meta: { page, limit, count, total: Math.ceil(count / limit) },
       });
     } else if (req.query.type === 'month') {
-      const record = await retrieveTypeMonthAttendance(user.id, { page, limit, sort });
+      const record = await retrieveTypeMonthAttendance(id, { page, limit, sort });
       const count = record.count;
       return ApiResponse.success(res, {
         statusCode: 200,
@@ -67,7 +67,7 @@ export const retrieveAttendanceController = async (req: Request, res: Response) 
         meta: { page, limit, count, total: Math.ceil(count / limit) },
       });
     } else if (req.query.type === 'year') {
-      const record = await retrieveTypeYearAttendance(user.id, { page, limit, sort });
+      const record = await retrieveTypeYearAttendance(id, { page, limit, sort });
       const count = record.count;
       return ApiResponse.success(res, {
         statusCode: 200,
