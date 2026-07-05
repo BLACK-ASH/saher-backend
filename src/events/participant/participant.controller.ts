@@ -1,8 +1,7 @@
 import type { Request, Response } from 'express';
 
 import {
-  getAllParticipantSchema,
-  getParticipantByIdSchema,
+  participantResponseSchema,
   participantSchema,
   updatedParticipantSchema,
 } from './participant.schema.js';
@@ -91,7 +90,7 @@ export const getParticipantByIdController = async (req: Request, res: Response) 
   const participants = await Participant.findOne(req.params, { isDeleted: false }).lean();
 
   const normalized = normalizeDoc(participants);
-  const parsed = getParticipantByIdSchema.parse(normalized);
+  const parsed = participantResponseSchema.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Participants By Id',
@@ -121,6 +120,8 @@ export const getParticipants = async (req: Request, res: Response) => {
 
   const participants = await Participant.find(query)
     .sort({ createdAt: -1 })
+    .populate('image')
+    .populate('document')
     .skip(skip)
     .limit(limit)
     .lean();
@@ -142,7 +143,7 @@ export const getParticipants = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(participants);
-  const parsed = getAllParticipantSchema.parse(normalized);
+  const parsed = participantResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
     message: keyword
