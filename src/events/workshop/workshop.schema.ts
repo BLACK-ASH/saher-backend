@@ -7,7 +7,7 @@ export const baseWorkshopSchema = z.object({
   title: z.string().min(5).max(50),
   description: z
     .string()
-    .min(10)
+    .min(4)
     .max(500)
     .transform((value) => DOMPurify.sanitize(value)),
 });
@@ -21,11 +21,8 @@ export const workshopResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  program: z.string(),
+  program: z.object({ id: z.string(), title: z.string() }),
 });
-
-export const getWorkshopsFromProgrammeResponseSchema = z.array(workshopResponseSchema);
-export const getSingleWorkshopSchema = workshopResponseSchema;
 
 //Types
 export type CreateWorkshopInputType = z.infer<typeof createWorkshopSchema>;
