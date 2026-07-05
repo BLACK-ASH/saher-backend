@@ -20,13 +20,9 @@ export const addWorkshop = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Program not found');
   }
 
-  const newWorkshop = await Workshop.create({
+  await Workshop.create({
     ...req.body,
     program,
-  });
-
-  await Program.findByIdAndUpdate(programId, {
-    $push: { workshops: newWorkshop._id },
   });
 
   return ApiResponse.success(res, {
