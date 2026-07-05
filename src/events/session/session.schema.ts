@@ -2,17 +2,19 @@ import z from 'zod';
 
 import { userSchemaFinal } from '../../admin/_services/user.js';
 import { DOMPurify } from '../../libs/utils/dompurify.js';
-import { objectId } from '../../libs/utils/zod-object-id.js';
+import { imageType , objectId } from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
-  title: z.string().min(3),
+  title: z.string().min(1),
   description: z
     .string()
-    .min(5)
+    .min(1)
     .transform((value) => DOMPurify.sanitize(value)),
   date: z.string(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
+  images: objectId().optional(),
+  review: z.string().optional(),
   speaker: z.array(objectId()).min(1, 'Session Must Have Atleast One Speaker.'),
 });
 
@@ -34,23 +36,21 @@ export const updatedSessionSchema = baseSchema.partial().refine(
   },
 );
 
-export const getSessionResponseSchema = z.object({
-  id: z.string(),
-  programId: z.object({ id: z.string(), title: z.string() }),
-  workshopId: z.object({ id: z.string(), title: z.string() }),
-  title: z.string(),
-  description: z.string(),
-  date: z.string(),
-  startTime: z.string(),
-  endTime: z.string(),
-  speaker: z.array(userSchemaFinal),
-});
+export const sessionResponse = baseSchema
+  .omit({ images: true, speaker: true })
+  .extend({
+    program: z.object({ id: z.string(), title: z.string() }),
+    workshop: z.object({ id: z.string(), title: z.string() }),
+    speaker: z.array(userSchemaFinal),
+    images: imageType.array().optional(),
+    review: z.string().optional(),
+  });
 
-export const getSessionSchema = z.array(getSessionResponseSchema);
-export const getSessionByIdSchema = getSessionResponseSchema;
+export const getSessionSchema = z.array(sessionResponse);
+export const getSessionByIdSchema = sessionResponse;
 
 export const createSessionResponseSchema = baseSchema;
 export const UpdatesSessionResponseSchema = baseSchema;
 export type CreateSessionInputType = z.infer<typeof createSessionSchema>;
 export type UpdatedSessionInputType = z.infer<typeof updatedSessionSchema>;
-export type SessionResponseT = z.infer<typeof getSessionResponseSchema>;
+export type SessionResponseT = z.infer<typeof sessionResponse>;

@@ -29,7 +29,7 @@ export const addSession = async (req: Request, res: Response) => {
   if (workshopId) {
     const workshop = await Workshop.findOne({
       _id: workshopId,
-      programId,
+      program: program._id,
       isDeleted: false,
     });
 
@@ -53,8 +53,8 @@ export const addSession = async (req: Request, res: Response) => {
 
   const newSession = await Session.create({
     ...req.body,
-    workshopId: workshopId || newWorkshopId,
-    programId: programId,
+    workshop: workshopId || newWorkshopId,
+    program: programId,
   });
 
   const notificationTitle = 'New Session Assigned';
@@ -163,9 +163,9 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
 
 //Get sessions
 export const getSessions = async (req: Request, res: Response) => {
-  const programId = req.query.programId as string;
+  const programId = req.query.program as string;
   const programTitle = req.query.programTitle as string;
-  const workshopId = req.query.workshopId as string;
+  const workshopId = req.query.workshop as string;
   const keyword = req.query.keyword as string;
   const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
   const page = Number(req.query.page) || 1;
@@ -185,7 +185,7 @@ export const getSessions = async (req: Request, res: Response) => {
       throw new ApiError(404, 'Program not found');
     }
 
-    query.programId = programId;
+    query.program = program;
   }
 
   //Filter by program title
@@ -211,7 +211,7 @@ export const getSessions = async (req: Request, res: Response) => {
       });
     }
 
-    query.programId = {
+    query.program = {
       $in: programs.map((program) => program._id),
     };
   }
@@ -224,7 +224,7 @@ export const getSessions = async (req: Request, res: Response) => {
       throw new ApiError(404, 'Workshop not found');
     }
 
-    query.workshopId = workshopId;
+    query.workshop = workshop;
   }
 
   //Search session title/description
@@ -241,8 +241,10 @@ export const getSessions = async (req: Request, res: Response) => {
         path: 'image',
       },
     })
-    .populate('programId', 'title')
-    .populate('workshopId', 'title')
+    .populate('images')
+    .populate('review')
+    .populate('program', 'title')
+    .populate('workshop', 'title')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -284,7 +286,7 @@ export const getSessions = async (req: Request, res: Response) => {
 //Get a single Session
 export const getSingleSession = async (req: Request, res: Response) => {
   const session = await Session.findOne({
-    _id: req.params.sessionId,
+    _id: req.params.session,
     isDeleted: false,
   })
     .populate({
@@ -293,6 +295,8 @@ export const getSingleSession = async (req: Request, res: Response) => {
         path: 'image',
       },
     })
+    .populate('images')
+    .populate('review')
     .lean();
 
   if (!session) {

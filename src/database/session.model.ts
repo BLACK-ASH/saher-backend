@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { required } from 'zod/mini';
 
 //Session attendance
 const attendanceSchema = new Schema(
@@ -30,6 +31,7 @@ const sessionSchema = new mongoose.Schema(
     program: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Program',
+      required: true,
     },
 
     title: {
@@ -55,6 +57,15 @@ const sessionSchema = new mongoose.Schema(
     endTime: {
       type: Date,
       required: true,
+    },
+
+    images: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Media',
+    },
+
+    review: {
+      type: String,
     },
 
     speaker: {
