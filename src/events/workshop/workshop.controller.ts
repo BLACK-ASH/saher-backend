@@ -13,7 +13,7 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 // Add a workshop
 export const addWorkshop = async (req: Request, res: Response) => {
   const { programId } = req.params;
-  if (!programId) throw new ApiError(400, 'Program Id is Required');
+  if (!programId) throw new ApiError(400, 'Id is required in params');
 
   const program = await Program.findById(programId);
 
@@ -27,7 +27,7 @@ export const addWorkshop = async (req: Request, res: Response) => {
   });
 
   return ApiResponse.success(res, {
-    message: 'Workshop added successfully.',
+    message: 'Workshop is added successfully.',
     data: null,
     statusCode: 201,
   });
@@ -36,7 +36,6 @@ export const addWorkshop = async (req: Request, res: Response) => {
 // Edit a workshop
 export const editWorkshop = async (req: Request, res: Response) => {
   const { id } = req.params;
-
   const updatedWorkshop = await Workshop.findByIdAndUpdate(id, req.body);
 
   if (!updatedWorkshop) {
@@ -100,12 +99,11 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
   if (!mongoose.Types.ObjectId.isValid(workshopId)) {
     throw new ApiError(400, 'Invalid program id');
   }
-
   const workshop = await Workshop.findOne({
     _id: workshopId,
     isDeleted: false,
   })
-    .populate('programId', 'title')
+    .populate('program', 'title')
     .lean();
 
   if (!workshop) {
@@ -131,6 +129,7 @@ export const getWorkshops = async (req: Request, res: Response) => {
 
   const page = Math.max(Number(req.query.page) || 1, 1);
   const limit = Math.max(Number(req.query.limit) || 10, 1);
+
   const skip = (page - 1) * limit;
 
   const query: QueryFilter<typeof Workshop.schema.obj> = {
@@ -169,7 +168,7 @@ export const getWorkshops = async (req: Request, res: Response) => {
 
   const [workshops, count] = await Promise.all([
     Workshop.find(query)
-      .populate('programId', 'title')
+      .populate('program', 'title')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)

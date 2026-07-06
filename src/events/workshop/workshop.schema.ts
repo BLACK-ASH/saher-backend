@@ -4,10 +4,10 @@ import { DOMPurify } from '../../libs/utils/dompurify.js';
 
 //Base workshop schema
 export const baseWorkshopSchema = z.object({
-  title: z.string().min(5).max(50),
+  title: z.string().min(1),
   description: z
     .string()
-    .min(4)
+    .min(1)
     .transform((value) => DOMPurify.sanitize(value)),
 });
 
@@ -20,7 +20,7 @@ export const workshopResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  programId: z.object({ id: z.string(), title: z.string() }),
+  program: z.object({ id: z.string(), title: z.string() }),
 });
 
 //Types

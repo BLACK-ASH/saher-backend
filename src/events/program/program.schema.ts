@@ -5,10 +5,10 @@ import { objectId } from '../../libs/utils/zod-object-id.js';
 
 //Base program schema
 export const baseProgramSchema = z.object({
-  title: z.string().min(2).max(50),
+  title: z.string().min(1),
   description: z
     .string()
-    .min(2)
+    .min(1)
     .transform((value) => DOMPurify.sanitize(value)),
   participants: z.array(objectId()).optional(),
 });

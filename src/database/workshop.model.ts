@@ -12,7 +12,7 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
-    programId: {
+    program: {
       type: Schema.Types.ObjectId,
       ref: 'Program',
       required: true,

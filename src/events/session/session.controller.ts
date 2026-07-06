@@ -1,7 +1,8 @@
 import type { Request, Response } from 'express';
 import { Types, type QueryFilter } from 'mongoose';
+import z from 'zod';
 
-import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
+import { sessionResponse } from './session.schema.js';
 import { Program } from '../../database/program.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -29,7 +30,7 @@ export const addSession = async (req: Request, res: Response) => {
   if (workshopId) {
     const workshop = await Workshop.findOne({
       _id: workshopId,
-      programId,
+      program: program._id,
       isDeleted: false,
     });
 
@@ -45,7 +46,7 @@ export const addSession = async (req: Request, res: Response) => {
     const workshop = await Workshop.create({
       title: req.body.title,
       description: req.body.description,
-      programId: convertToObjectId(req.params.programId as string),
+      program: convertToObjectId(req.params.programId as string),
     });
 
     newWorkshopId = workshop._id;
@@ -53,8 +54,8 @@ export const addSession = async (req: Request, res: Response) => {
 
   const newSession = await Session.create({
     ...req.body,
-    workshopId: workshopId || newWorkshopId,
-    programId: programId,
+    workshop: workshopId || newWorkshopId,
+    program: programId,
   });
 
   const notificationTitle = 'New Session Assigned';
@@ -229,13 +230,13 @@ export const getSessions = async (req: Request, res: Response) => {
     Session.find(query)
       .populate({
         path: 'speaker',
-        match: { isDeleted: false },
         populate: {
           path: 'image',
         },
       })
-      .populate('programId', 'title')
-      .populate('workshopId', 'title')
+      .populate('program', 'title')
+      .populate('workshop', 'title')
+      .populate('images')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -245,7 +246,7 @@ export const getSessions = async (req: Request, res: Response) => {
   ]);
 
   const normalized = normalizeDoc(sessions);
-  const parsed = getSessionSchema.parse(normalized);
+  const parsed = z.array(sessionResponse).parse(normalized);
 
   return ApiResponse.success(res, {
     message: sessions.length ? 'Sessions fetched successfully' : 'No sessions found',
@@ -272,6 +273,9 @@ export const getSingleSession = async (req: Request, res: Response) => {
         path: 'image',
       },
     })
+    .populate('program', 'title')
+    .populate('workshop', 'title')
+    .populate('images')
     .lean();
 
   if (!session) {
@@ -279,7 +283,7 @@ export const getSingleSession = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(session);
-  const parsed = getSessionByIdSchema.parse(normalized);
+  const parsed = sessionResponse.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',

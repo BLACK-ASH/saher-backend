@@ -21,15 +21,16 @@ const attendanceSchema = new Schema(
 //Session base schema
 const sessionSchema = new mongoose.Schema(
   {
-    workshopId: {
+    workshop: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Workshop',
       // required: true,
     },
 
-    programId: {
+    program: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Program',
+      required: true,
     },
 
     title: {
@@ -55,6 +56,15 @@ const sessionSchema = new mongoose.Schema(
     endTime: {
       type: Date,
       required: true,
+    },
+
+    images: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Media',
+    },
+
+    review: {
+      type: String,
     },
 
     speaker: {

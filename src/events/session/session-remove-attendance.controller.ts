@@ -24,7 +24,7 @@ export const removeAttendance = async (req: Request, res: Response) => {
   // If session is not Exist
   if (!session) throw new ApiError(404, 'Session not exist');
 
-  const workshop = await Workshop.findById(session.workshopId);
+  const workshop = await Workshop.findById(session.workshop);
   // If workshop Does not exist
   if (!workshop) throw new ApiError(404, 'Workshop does not exist');
 

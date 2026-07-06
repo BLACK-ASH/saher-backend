@@ -13,17 +13,17 @@ export const markAttendance = async (req: Request, res: Response) => {
   const { participantIds } = req.body;
 
   if (!sessionId) {
-    throw new ApiError(400, 'sessionId are required');
+    throw new ApiError(400, 'session id is required');
   }
 
   // Get session
   const session = await Session.findById(sessionId);
   if (!session) throw new ApiError(404, 'Session not found');
 
-  const workshop = await Workshop.findById(session.workshopId);
+  const workshop = await Workshop.findById(session.workshop);
   if (!workshop) throw new ApiError(404, 'Workshop not found');
 
-  const program = await Program.findById(workshop.programId);
+  const program = await Program.findById(workshop.program);
   if (!program) throw new ApiError(404, 'Program not found');
 
   const participants = program.participants ?? [];
