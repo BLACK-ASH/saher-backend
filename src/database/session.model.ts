@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import { required } from 'zod/mini';
 
 //Session attendance
 const attendanceSchema = new Schema(

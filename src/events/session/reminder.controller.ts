@@ -12,7 +12,7 @@ export const reminderNotificationController = async (req: Request, res: Response
   const session = await Session.findById(sessionId);
   if (!session) throw new ApiError(400, 'Session not found');
 
-  const notificationTitle = 'Recieved Session Reminder';
+  const notificationTitle = 'Receieved Session Reminder';
   const notificationDesc = `A Session Reminder has been passed`;
   await notification.specific.success(
     [session.speaker.toString()],

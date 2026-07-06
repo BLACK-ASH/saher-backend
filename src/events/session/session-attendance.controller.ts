@@ -9,7 +9,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 
 export const markAttendance = async (req: Request, res: Response) => {
-  const sessionId = req.params.session as string;
+  const sessionId = req.params.sessionId as string;
   const { participantIds } = req.body;
 
   if (!sessionId) {

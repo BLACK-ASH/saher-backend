@@ -22,7 +22,7 @@ export const addWorkshop = async (req: Request, res: Response) => {
 
   await Workshop.create({
     ...req.body,
-    program,
+    programId,
   });
 
   return ApiResponse.success(res, {
@@ -121,19 +121,19 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
 
 //Get workshops
 export const getWorkshops = async (req: Request, res: Response) => {
-  const program = req.query.program as string | undefined;
+  const programId = req.query.programId as string | undefined;
   const keyword = req.query.keyword as string | undefined;
   const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
 
   const query: QueryFilter<typeof Workshop.schema.obj> = {};
   query.isDeleted = isDeleted;
 
-  if (program) {
-    if (!mongoose.Types.ObjectId.isValid(program)) {
+  if (programId) {
+    if (!mongoose.Types.ObjectId.isValid(programId)) {
       throw new ApiError(400, 'Invalid program id');
     }
 
-    query.program = program;
+    query.program = programId;
   }
 
   if (keyword?.trim()) {

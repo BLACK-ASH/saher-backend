@@ -1,7 +1,8 @@
 import type { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
+import z from 'zod';
 
-import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
+import { sessionResponse } from './session.schema.js';
 import { Program } from '../../database/program.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
@@ -163,7 +164,7 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
 
 //Get sessions
 export const getSessions = async (req: Request, res: Response) => {
-  const programId = req.query.program as string;
+  const programId = req.query.programId as string;
   const programTitle = req.query.programTitle as string;
   const workshopId = req.query.workshop as string;
   const keyword = req.query.keyword as string;
@@ -242,7 +243,6 @@ export const getSessions = async (req: Request, res: Response) => {
       },
     })
     .populate('images')
-    .populate('review')
     .populate('program', 'title')
     .populate('workshop', 'title')
     .sort({ createdAt: -1 })
@@ -267,7 +267,7 @@ export const getSessions = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(sessions);
-  const parsed = getSessionSchema.parse(normalized);
+  const parsed = z.array(sessionResponse).parse(normalized);
 
   return ApiResponse.success(res, {
     message:
@@ -286,7 +286,7 @@ export const getSessions = async (req: Request, res: Response) => {
 //Get a single Session
 export const getSingleSession = async (req: Request, res: Response) => {
   const session = await Session.findOne({
-    _id: req.params.session,
+    _id: req.params.sessionId,
     isDeleted: false,
   })
     .populate({
@@ -295,8 +295,9 @@ export const getSingleSession = async (req: Request, res: Response) => {
         path: 'image',
       },
     })
+    .populate('program', 'title')
+    .populate('workshop', 'title')
     .populate('images')
-    .populate('review')
     .lean();
 
   if (!session) {
@@ -304,7 +305,7 @@ export const getSingleSession = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(session);
-  const parsed = getSessionByIdSchema.parse(normalized);
+  const parsed = sessionResponse.parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',

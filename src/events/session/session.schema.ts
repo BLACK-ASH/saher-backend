@@ -2,7 +2,7 @@ import z from 'zod';
 
 import { userSchemaFinal } from '../../admin/_services/user.js';
 import { DOMPurify } from '../../libs/utils/dompurify.js';
-import { imageType , objectId } from '../../libs/utils/zod-object-id.js';
+import { imageType, objectId } from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
   title: z.string().min(1),
@@ -36,18 +36,12 @@ export const updatedSessionSchema = baseSchema.partial().refine(
   },
 );
 
-export const sessionResponse = baseSchema
-  .omit({ images: true, speaker: true })
-  .extend({
-    program: z.object({ id: z.string(), title: z.string() }),
-    workshop: z.object({ id: z.string(), title: z.string() }),
-    speaker: z.array(userSchemaFinal),
-    images: imageType.array().optional(),
-    review: z.string().optional(),
-  });
-
-export const getSessionSchema = z.array(sessionResponse);
-export const getSessionByIdSchema = sessionResponse;
+export const sessionResponse = baseSchema.omit({ images: true, speaker: true }).extend({
+  program: z.object({ id: z.string(), title: z.string() }),
+  workshop: z.object({ id: z.string(), title: z.string() }),
+  speaker: z.array(userSchemaFinal),
+  images: imageType.array().optional(),
+});
 
 export const createSessionResponseSchema = baseSchema;
 export const UpdatesSessionResponseSchema = baseSchema;

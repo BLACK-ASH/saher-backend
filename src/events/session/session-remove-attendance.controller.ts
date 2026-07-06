@@ -14,7 +14,7 @@ export const removeAttendance = async (req: Request, res: Response) => {
   // step 4 : now check whether the given participantsID is exist in session attendance or not
   // // if exist then remove it from session attendance if not throw error
 
-  const sessionId = req.params.session as string;
+  const sessionId = req.params.sessionId as string;
   const { participantIds } = req.body;
 
   // If session is not given in params
