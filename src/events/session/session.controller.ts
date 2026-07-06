@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import type { QueryFilter } from 'mongoose';
+import { Types, type QueryFilter } from 'mongoose';
 
 import { getSessionByIdSchema, getSessionSchema } from './session.schema.js';
 import { Program } from '../../database/program.model.js';
@@ -162,114 +162,93 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
 };
 
 //Get sessions
+
 export const getSessions = async (req: Request, res: Response) => {
-  const programId = req.query.programId as string;
-  const programTitle = req.query.programTitle as string;
-  const workshopId = req.query.workshopId as string;
-  const keyword = req.query.keyword as string;
-  const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const keyword = req.query.keyword?.toString().trim();
+
+  const isDeleted =
+    req.query.isDeleted === 'true' ? true : req.query.isDeleted === 'false' ? false : false;
+
+  const page = Math.max(Number(req.query.page) || 1, 1);
+  const limit = Math.max(Number(req.query.limit) || 10, 1);
   const skip = (page - 1) * limit;
 
-  //Base query
-  const query: QueryFilter<typeof Session.schema.obj> = {};
+  const query: QueryFilter<typeof Session.schema.obj> = {
+    isDeleted,
+  };
 
-  query.isDeleted = isDeleted;
+  if (keyword) {
+    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedKeyword, 'i');
 
-  //Filter by programId
-  if (programId) {
-    const program = await Program.findById(programId);
+    const [programs, workshops] = await Promise.all([
+      Program.find({
+        title: { $regex: regex },
+      }).select('_id'),
 
-    if (!program) {
-      throw new ApiError(404, 'Program not found');
+      Workshop.find({
+        title: { $regex: regex },
+      }).select('_id'),
+    ]);
+
+    const orConditions: QueryFilter<typeof Session.schema.obj>[] = [
+      { title: { $regex: regex } },
+      { description: { $regex: regex } },
+    ];
+
+    if (Types.ObjectId.isValid(keyword)) {
+      orConditions.push({
+        programId: convertToObjectId(keyword),
+      });
+
+      orConditions.push({
+        workshopId: convertToObjectId(keyword),
+      });
     }
 
-    query.programId = programId;
-  }
-
-  //Filter by program title
-  else if (programTitle) {
-    const regex = new RegExp(programTitle, 'i');
-
-    const programs = await Program.find({
-      title: { $regex: regex },
-    }).select('_id');
-
-    //If no matching programs exist, return empty result
-    if (programs.length === 0) {
-      return ApiResponse.success(res, {
-        message: 'No sessions found',
-        data: [],
-        statusCode: 200,
-        meta: {
-          page,
-          limit,
-          count: 0,
-          total: 0,
+    if (programs.length > 0) {
+      orConditions.push({
+        programId: {
+          $in: programs.map((program) => program._id),
         },
       });
     }
 
-    query.programId = {
-      $in: programs.map((program) => program._id),
-    };
-  }
-
-  //Filter by workshop
-  if (workshopId) {
-    const workshop = await Workshop.findById(workshopId);
-
-    if (!workshop) {
-      throw new ApiError(404, 'Workshop not found');
+    if (workshops.length > 0) {
+      orConditions.push({
+        workshopId: {
+          $in: workshops.map((workshop) => workshop._id),
+        },
+      });
     }
 
-    query.workshopId = workshopId;
+    query.$or = orConditions;
   }
 
-  //Search session title/description
-  if (keyword) {
-    const regex = new RegExp(keyword, 'i');
+  const [sessions, count] = await Promise.all([
+    Session.find(query)
+      .populate({
+        path: 'speaker',
+        match: { isDeleted: false },
+        populate: {
+          path: 'image',
+        },
+      })
+      .populate('programId', 'title')
+      .populate('workshopId', 'title')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
 
-    query.$or = [{ title: { $regex: regex } }, { description: { $regex: regex } }];
-  }
-
-  const sessions = await Session.find(query)
-    .populate({
-      path: 'speaker',
-      populate: {
-        path: 'image',
-      },
-    })
-    .populate('programId', 'title')
-    .populate('workshopId', 'title')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .lean();
-
-  const count = await Session.countDocuments(query);
-
-  if (sessions.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'No sessions found',
-      data: [],
-      statusCode: 200,
-      meta: {
-        page,
-        limit,
-        count: 0,
-        total: 0,
-      },
-    });
-  }
+    Session.countDocuments(query),
+  ]);
 
   const normalized = normalizeDoc(sessions);
   const parsed = getSessionSchema.parse(normalized);
 
   return ApiResponse.success(res, {
-    message:
-      keyword || programTitle ? 'Sessions fetched successfully' : 'Sessions fetched successfully',
+    message: sessions.length ? 'Sessions fetched successfully' : 'No sessions found',
     data: parsed,
     statusCode: 200,
     meta: {

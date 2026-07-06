@@ -5,31 +5,37 @@ import { Program } from '../../database/program.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 
-export const addParticipantToProgram = async (req: Request, res: Response) => {
-  const { participantId, participantData } = req.body;
+export const addParticipantsToProgram = async (req: Request, res: Response) => {
   const { programId } = req.params;
-  let finalParticipantId = participantId;
+  const participantIds = req.body as string[];
 
-  if (!finalParticipantId) {
-    const newParticipant = await Participant.create(participantData);
-    finalParticipantId = newParticipant._id.toString();
+  if (!Array.isArray(participantIds) || participantIds.length === 0) {
+    throw new ApiError(400, 'participantIds must be a non-empty array');
   }
 
-  const participant = await Participant.findOne({
-    _id: finalParticipantId,
+  const participants = await Participant.find({
+    _id: { $in: participantIds },
     isDeleted: false,
-  });
+  }).select('_id');
 
-  if (!participant) {
-    throw new ApiError(404, 'Participant not found');
+  if (participants.length !== participantIds.length) {
+    throw new ApiError(404, 'One or more participants were not found');
   }
 
-  await Program.findByIdAndUpdate(programId, {
-    $addToSet: { participants: finalParticipantId },
+  const program = await Program.findByIdAndUpdate(programId, {
+    $addToSet: {
+      participants: {
+        $each: participantIds,
+      },
+    },
   });
+
+  if (!program) {
+    throw new ApiError(404, 'Program not found');
+  }
 
   return ApiResponse.success(res, {
-    message: 'Participant created and linked successfully',
+    message: 'Participants added successfully',
     data: null,
     statusCode: 200,
   });
@@ -39,13 +45,9 @@ export const addParticipantToProgram = async (req: Request, res: Response) => {
 export const removeParticipantFromProgram = async (req: Request, res: Response) => {
   const { programId, participantId } = req.params;
 
-  const program = await Program.findByIdAndUpdate(
-    programId,
-    {
-      $pull: { participants: participantId },
-    },
-    { new: true },
-  );
+  const program = await Program.findByIdAndUpdate(programId, {
+    $pull: { participants: participantId },
+  });
 
   if (!program) throw new ApiError(404, 'Program not found');
 

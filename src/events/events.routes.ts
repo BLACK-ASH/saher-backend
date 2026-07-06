@@ -10,7 +10,7 @@ import {
 } from './participant/participant.controller.js';
 import { participantSchema, updatedParticipantSchema } from './participant/participant.schema.js';
 import {
-  addParticipantToProgram,
+  addParticipantsToProgram,
   removeParticipantFromProgram,
 } from './program/program-participant.controller.js';
 import {
@@ -180,7 +180,7 @@ eventRouter.post(
   '/programs/participants/:programId',
   underDevelopment,
   authorize('write', 'event'),
-  addParticipantToProgram,
+  addParticipantsToProgram,
 );
 eventRouter.delete(
   '/programs/participants/:programId/:participantId',
