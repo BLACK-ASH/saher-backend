@@ -230,13 +230,13 @@ export const getSessions = async (req: Request, res: Response) => {
     Session.find(query)
       .populate({
         path: 'speaker',
-        match: { isDeleted: false },
         populate: {
           path: 'image',
         },
       })
-      .populate('programId', 'title')
-      .populate('workshopId', 'title')
+      .populate('program', 'title')
+      .populate('workshop', 'title')
+      .populate('images')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
