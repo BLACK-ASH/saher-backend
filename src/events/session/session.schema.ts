@@ -13,7 +13,7 @@ export const baseSchema = z.object({
   date: z.string(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
-  images: objectId().optional(),
+  images: z.array(objectId()).optional(),
   review: z
     .string()
     .optional()
@@ -40,6 +40,7 @@ export const updatedSessionSchema = baseSchema.partial().refine(
 );
 
 export const sessionResponse = baseSchema.omit({ images: true, speaker: true }).extend({
+  id: z.string(),
   program: z.object({ id: z.string(), title: z.string() }),
   workshop: z.object({ id: z.string(), title: z.string() }),
   speaker: z.array(userSchemaFinal),

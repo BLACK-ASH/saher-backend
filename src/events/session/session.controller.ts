@@ -13,6 +13,7 @@ import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notification } from '../../libs/utils/notification.js';
 import { sendPushToUser } from '../../libs/utils/push-notification.js';
+import { participantResponseSchema } from '../participant/participant.schema.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
@@ -273,6 +274,12 @@ export const getSingleSession = async (req: Request, res: Response) => {
         path: 'image',
       },
     })
+    .populate({
+      path: 'participants',
+      populate: {
+        path: 'image document',
+      },
+    })
     .populate('program', 'title')
     .populate('workshop', 'title')
     .populate('images')
@@ -283,7 +290,12 @@ export const getSingleSession = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(session);
-  const parsed = sessionResponse.parse(normalized);
+  const parsed = sessionResponse
+    .extend({
+      participants: participantResponseSchema.array().optional(),
+      review: z.string().optional(),
+    })
+    .parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',
