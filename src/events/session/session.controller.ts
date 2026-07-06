@@ -166,7 +166,7 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
 export const getSessions = async (req: Request, res: Response) => {
   const programId = req.query.programId as string;
   const programTitle = req.query.programTitle as string;
-  const workshopId = req.query.workshop as string;
+  const workshopId = req.query.workshopId as string;
   const keyword = req.query.keyword as string;
   const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
   const page = Number(req.query.page) || 1;
