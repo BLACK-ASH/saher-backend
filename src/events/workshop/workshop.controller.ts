@@ -7,6 +7,7 @@ import { Program } from '../../database/program.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 // Add a workshop
@@ -121,33 +122,49 @@ export const getSingleWorkshop = async (req: Request, res: Response) => {
 
 //Get workshops
 export const getWorkshops = async (req: Request, res: Response) => {
-  const programId = req.query.programId as string | undefined;
-  const keyword = req.query.keyword as string | undefined;
-  const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
+  const keyword = req.query.keyword?.toString().trim();
 
-  const query: QueryFilter<typeof Workshop.schema.obj> = {};
-  query.isDeleted = isDeleted;
-
-  if (programId) {
-    if (!mongoose.Types.ObjectId.isValid(programId)) {
-      throw new ApiError(400, 'Invalid program id');
-    }
-
-    query.program = programId;
-  }
-
-  if (keyword?.trim()) {
-    const escapedKeyword = keyword.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    const regex = new RegExp(escapedKeyword, 'i');
-
-    query.$or = [{ title: { $regex: regex } }, { description: { $regex: regex } }];
-  }
+  const isDeleted =
+    req.query.isDeleted === 'true' ? true : req.query.isDeleted === 'false' ? false : false;
 
   const page = Math.max(Number(req.query.page) || 1, 1);
   const limit = Math.max(Number(req.query.limit) || 10, 1);
 
   const skip = (page - 1) * limit;
+
+  const query: QueryFilter<typeof Workshop.schema.obj> = {
+    isDeleted,
+  };
+
+  if (keyword) {
+    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedKeyword, 'i');
+
+    const programs = await Program.find({
+      title: { $regex: regex },
+    }).select('_id');
+
+    const orConditions: QueryFilter<typeof Workshop.schema.obj>[] = [
+      { title: { $regex: regex } },
+      { description: { $regex: regex } },
+    ];
+
+    if (mongoose.Types.ObjectId.isValid(keyword)) {
+      orConditions.push({
+        programId: convertToObjectId(keyword),
+      });
+    }
+
+    if (programs.length > 0) {
+      orConditions.push({
+        programId: {
+          $in: programs.map((program) => program._id),
+        },
+      });
+    }
+
+    query.$or = orConditions;
+  }
 
   const [workshops, count] = await Promise.all([
     Workshop.find(query)
@@ -156,13 +173,15 @@ export const getWorkshops = async (req: Request, res: Response) => {
       .skip(skip)
       .limit(limit)
       .lean(),
+
     Workshop.countDocuments(query),
   ]);
 
-  const normalize = normalizeDoc(workshops);
-  const parsed = workshopResponseSchema.array().parse(normalizeDoc(normalize));
+  const normalized = normalizeDoc(workshops);
+  const parsed = workshopResponseSchema.array().parse(normalized);
+
   return ApiResponse.success(res, {
-    message: 'Workshops fetched successfully',
+    message: workshops.length ? 'Workshops fetched successfully' : 'No workshops found',
     data: parsed,
     statusCode: 200,
     meta: {

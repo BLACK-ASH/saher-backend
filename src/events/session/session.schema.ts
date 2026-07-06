@@ -14,7 +14,10 @@ export const baseSchema = z.object({
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
   images: objectId().optional(),
-  review: z.string().optional(),
+  review: z
+    .string()
+    .optional()
+    .transform((value) => value && DOMPurify.sanitize(value)),
   speaker: z.array(objectId()).min(1, 'Session Must Have Atleast One Speaker.'),
 });
 

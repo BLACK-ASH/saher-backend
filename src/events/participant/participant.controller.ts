@@ -87,7 +87,10 @@ export const undoDeleteParticipantController = async (req: Request, res: Respons
 
 //Get Participants by ID
 export const getParticipantByIdController = async (req: Request, res: Response) => {
-  const participants = await Participant.findOne(req.params, { isDeleted: false }).lean();
+  const participants = await Participant.findById(req.params.id as string)
+    .populate('image')
+    .populate('document')
+    .lean();
 
   const normalized = normalizeDoc(participants);
   const parsed = participantResponseSchema.parse(normalized);

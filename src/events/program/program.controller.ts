@@ -8,6 +8,7 @@ import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { participantResponseSchema } from '../participant/participant.schema.js';
 
 // Add a program
 export const addProgram = async (req: Request, res: Response) => {
@@ -132,6 +133,9 @@ export const getSingleProgram = async (req: Request, res: Response) => {
     .populate({
       path: 'participants',
       match: { isDeleted: false },
+      populate: {
+        path: 'image document',
+      },
     })
     .lean();
 
@@ -140,7 +144,9 @@ export const getSingleProgram = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(program);
-  const parsed = programResponseSchema.parse(normalized);
+  const parsed = programResponseSchema
+    .extend({ participants: participantResponseSchema.array().optional() })
+    .parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Program fetched successfully',
