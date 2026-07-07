@@ -53,7 +53,7 @@ import { reminderNotificationController } from './session/reminder.controller.js
 const eventRouter = Router();
 
 // Workshop route ---------------------------------------------------------------------
-eventRouter.get('/workshops', underDevelopment, authorize('read', 'event'), getWorkshops);
+eventRouter.get('/workshops', authorize('read', 'event'), getWorkshops);
 eventRouter.get('/workshops/:workshopId', authorize('read', 'event'), getSingleWorkshop);
 eventRouter.post(
   '/workshops/:programId',
@@ -124,21 +124,18 @@ eventRouter.patch(
 // Session Attendance route ------------------------------------------------------------------------------
 eventRouter.post(
   '/attendance/sessions/:sessionId',
-  underDevelopment,
   authorize('write', 'event'),
   validate(SessionAttendanceSchema),
   markAttendance,
 );
 eventRouter.put(
   '/attendance/sessions/:sessionId',
-  underDevelopment,
   authorize('update', 'event'),
   validate(SessionAttendanceSchema),
   updateAttendance,
 );
 eventRouter.delete(
   '/attendance/sessions/:sessionId',
-  underDevelopment,
   authorize('delete', 'event'),
   validate(SessionAttendanceSchema),
   removeAttendance,
