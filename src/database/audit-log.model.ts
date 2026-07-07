@@ -21,18 +21,7 @@ const auditLogSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  status: {
-    type: String,
-    required: true,
-  },
 });
 
 type AuditLogType = mongoose.InferSchemaType<typeof auditLogSchema>;
 export const AuditLog = mongoose.model<AuditLogType>('AuditLog', auditLogSchema);
-// audit log
-// bill-id:
-// date:
-// desc/summary:
-// amount:
-// from:
-// to:
