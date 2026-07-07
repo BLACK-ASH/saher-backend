@@ -29,7 +29,6 @@ export const addHolidayController = async (req: Request, res: Response) => {
   const month = new Date(date).getMonth();
   const year = new Date(date).getFullYear();
   const key = createKey('calendar', year, month);
-  // console.log("Holiday key " , key);
 
   await deleteCache(key);
 
@@ -52,11 +51,9 @@ export const updateHolidayController = async (req: Request, res: Response) => {
   const key = createKey('calendar', year, month);
   await deleteCache(key);
 
-  const normalized = normalizeDoc(update);
-  const parsed = holidaySchema.parse(normalized);
   return ApiResponse.success(res, {
     message: 'Holiday Record Updated Successful',
-    data: parsed,
+    data: null,
     statusCode: 200,
   });
 };
@@ -68,7 +65,7 @@ export const getHolidayController = async (req: Request, res: Response) => {
   if (!record) throw new ApiError(404, 'Holiday Record Not Found.');
 
   const normalized = normalizeDoc(record);
-  const parsed = holidaySchema.parse(normalized);
+  const parsed = holidaySchema.extend({ id: z.string() }).parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Holiday Retrive Successful',
@@ -82,7 +79,8 @@ export const getAllHolidayController = async (req: Request, res: Response) => {
   if (!holidays) throw new ApiError(404, 'No Holiday Records Found.');
 
   const normalized = normalizeDoc(holidays);
-  const parsed = z.array(holidaySchema).parse(normalized);
+  const parsed = z.array(holidaySchema.extend({ id: z.string() })).parse(normalized);
+
   return ApiResponse.success(res, {
     message: 'All Holidays Retrive Successful.',
     data: parsed,

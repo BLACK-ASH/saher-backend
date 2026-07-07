@@ -7,7 +7,7 @@ export const holidayTypes = [
   'other',
   'google',
   'public-holiday',
-];
+] as const;
 
 const holidaySchema = new mongoose.Schema(
   {
