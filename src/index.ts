@@ -29,6 +29,7 @@ import publicRouter from './public/public.routes.js';
 import billRouter from './reimbursement/reimbursement.routes.js';
 import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
+import payrollRouter from './payroll/payroll.routes.js';
 
 // Env Config
 // dotenv.config();
@@ -77,6 +78,7 @@ await connectRedis();
 app.use('/api/reimbursement', protectedRoute, billRouter);
 app.use('/api', publicRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/payroll', protectedRoute, payrollRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
