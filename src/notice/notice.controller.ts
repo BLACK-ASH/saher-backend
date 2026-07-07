@@ -6,8 +6,13 @@ import { ApiResponse } from '../libs/class/api-response.js';
 
 //Add a Notice
 export const addNotice = async (req: Request, res: Response) => {
-  const newNotice = await Notice.create(req.body);
+  const { title, description, expiresAt } = req.body;
 
+  const newNotice = await Notice.create({
+    title,
+    description,
+    expiresAt: expiresAt ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
   return ApiResponse.success(res, {
     message: 'Notice has been added successfully',
     data: newNotice,

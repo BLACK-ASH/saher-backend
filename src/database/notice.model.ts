@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
 const noticeSchema = new mongoose.Schema({
   title: {
@@ -11,9 +11,8 @@ const noticeSchema = new mongoose.Schema({
     required: true,
   },
 
-  createdBy: {
-    type: String,
-    required: true,
+  expiresAt: {
+    type: Date,
   },
 });
 

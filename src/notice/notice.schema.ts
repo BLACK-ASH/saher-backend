@@ -8,9 +8,9 @@ const objectId = z.string().refine((val) => Types.ObjectId.isValid(val), {
 
 //Base Notice Schema
 export const baseNoticeSchema = z.object({
-  title: z.string().min(5).max(50),
-  description: z.string().min(10).max(500),
-  createdBy: z.string().min(3).max(25),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  expiresAt: z.coerce.date().optional(),
 });
 
 //Create a Notice
