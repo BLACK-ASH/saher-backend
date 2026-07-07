@@ -37,10 +37,9 @@ const attendanceSchema = new mongoose.Schema(
     autoCheckout: {
       type: Boolean,
     },
-    weekOffType: {
-      type: String,
-      enum: ['fixed', 'flexible'],
-      default: null,
+    overtime: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

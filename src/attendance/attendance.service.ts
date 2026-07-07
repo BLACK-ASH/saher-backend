@@ -30,10 +30,16 @@ export const retrieveCustomAttendace = async (
     })
     .limit(limit)
     .lean();
-
+  const count = await Attendance.countDocuments({
+    user: user,
+    date: {
+      $gte: standardDateString(startDate),
+      $lte: standardDateString(endDate),
+    },
+  });
   const normalized = normalizeDoc(record);
   const parsed = z.array(attendanceResponseSchema).parse(normalized);
-  return parsed;
+  return { parsed, count };
 };
 
 export const retrieveTypeTodayAttendance = async (user: string) => {

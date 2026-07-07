@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill';
 import type { Request, Response } from 'express';
 import z from 'zod';
 
@@ -11,7 +12,7 @@ import 'dotenv/config';
 import {
   calculateWorkStatus,
   getShift,
-  setShiftTimeUTC,
+  setShiftHour,
   workHourData,
 } from '../../libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
@@ -74,10 +75,18 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
     const shiftData = workHourData.get(shift);
     if (!shiftData) continue;
 
-    const inDate = new Date(record.inTime as Date);
+    // const inDate = new Date(record.inTime as Date);
 
-    // ✅ IST shift → UTC
-    const outTime = setShiftTimeUTC(inDate, shiftData.out);
+    // // ✅ IST shift → UTC
+    // const outTime = setShiftTimeUTC(inDate, shiftData.out);
+
+    const instant = Temporal.Instant.from(new Date(record.inTime as Date).toISOString());
+
+    const zonedDateTime = instant.toZonedDateTimeISO('Asia/Kolkata');
+
+    const outZonedDateTime = setShiftHour(zonedDateTime, shiftData.out);
+
+    const outTime = new Date(outZonedDateTime.toInstant().epochMilliseconds);
 
     const { workHours, status } = calculateWorkStatus({
       inTime: record.inTime as Date,

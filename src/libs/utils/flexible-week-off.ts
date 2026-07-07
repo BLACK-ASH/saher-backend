@@ -24,23 +24,19 @@ export const claimFlexibleWeekOff = async ({ userId, date }: ClaimFlexibleWeekOf
     throw new ApiError(400, 'Future dates cannot be selected');
   }
 
-  if (selectedDate.getDay() === 1) {
-    throw new ApiError(400, 'Monday is already fixed week off');
-  }
-
   const { weekStart, weekEnd } = getWeekRange(selectedDate);
 
-  const alreadyUsed = await Attendance.findOne({
+  const alreadyUsed = await Attendance.countDocuments({
     user: userId,
     status: 'week-off',
-    weekOffType: 'flexible',
+
     date: {
       $gte: standardDateString(weekStart),
       $lte: standardDateString(weekEnd),
     },
   });
 
-  if (alreadyUsed) {
+  if (alreadyUsed === 2) {
     throw new ApiError(409, 'Flexible week off already used for this week');
   }
 
@@ -62,7 +58,7 @@ export const claimFlexibleWeekOff = async ({ userId, date }: ClaimFlexibleWeekOf
   }
 
   attendance.status = 'week-off';
-  attendance.weekOffType = 'flexible';
+  // attendance.weekOffType = 'flexible';
 
   await attendance.save();
 

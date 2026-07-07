@@ -34,8 +34,12 @@ export const checkInController = async (req: Request, res: Response) => {
   // Updating Cron Record
   const cronRecord = await Attendance.findOne({
     user: user?.id,
+    status: 'absent',
     date: standardDateString(now),
   });
+
+  // Future Scope : if you want to keep this req hanging for user on leave/weekoff then comment the next line
+  if (!cronRecord) throw new ApiError(400, 'today you are on leave ');
 
   if (cronRecord) {
     cronRecord.inTime = now;
@@ -58,24 +62,24 @@ export const checkInController = async (req: Request, res: Response) => {
   // Special case is user is check in before cron job
   //Step 5 - if User exist and have not submitted today's attendence start making new entry
   //Step 6 - Note the current time so that late hai ki nahi ka pata chal     sake
-  const newRecord = await Attendance.create({
-    user: user?.id,
-    inTime: now,
-    status: 'present',
-    date: standardDateString(now),
-    isLate,
-  });
-
-  if (!newRecord) throw new ApiError(400, 'Attendance Creation Failed.');
-
-  const todayKey = createKey('attendance', 'today', 'me', user?.id);
-  await deleteCache(todayKey);
-
-  await deleteCacheGroup('attendance', 'today', 'list');
-
-  return ApiResponse.success(res, {
-    message: 'You have been marked present',
-    data: null,
-    statusCode: 201,
-  });
 };
+// const newRecord = await Attendance.create({
+//   user: user?.id,
+//   inTime: now,
+//   status: 'present',
+//   date: standardDateString(now),
+//   isLate,
+// });
+
+// if (!newRecord) throw new ApiError(400, 'Attendance Creation Failed.');
+
+// const todayKey = createKey('attendance', 'today', 'me', user?.id);
+// await deleteCache(todayKey);
+
+// await deleteCacheGroup('attendance', 'today', 'list');
+
+// return ApiResponse.success(res, {
+//   message: 'You have been marked present',
+//   data: null,
+//   statusCode: 201,
+// });
