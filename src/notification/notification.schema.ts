@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import type {
-  notificationActionTypes} from '../database/notification.model.js';
+import type { notificationActionTypes } from '../database/notification.model.js';
 import {
   notificationMethod,
   notificationScope,

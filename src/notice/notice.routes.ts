@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 
 import { addNotice, editNotice, permanentDeleteNotice } from './notice.controller.js';
 import { baseNoticeSchema, updateNoticeSchema } from './notice.schema.js';

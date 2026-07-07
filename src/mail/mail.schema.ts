@@ -1,9 +1,62 @@
 import z from 'zod';
 
-import { objectId } from '../libs/utils/zod-object-id.js';
-
 export const sendMailSchema = z.object({
-  receiverID: z.array(objectId('Invalid Reciever User Id.')),
-  subject: z.string().min(1).max(100),
-  body: z.string().min(1).max(1000),
+  to: z.array(z.string()).min(1, 'At least one recipient is required'),
+
+  cc: z.array(z.string()).default([]),
+
+  bcc: z.array(z.string()).default([]),
+
+  subject: z.string().trim().min(1, 'Subject is required').max(255),
+
+  body: z.string().trim().min(1, 'Body is required'),
 });
+
+const MailUserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  role: z.string(),
+  image: z.object({
+    id: z.string(),
+    src: z.string(),
+    alt: z.string(),
+  }),
+});
+
+export const InBoxMailSchema = z.object({
+  id: z.string(),
+
+  from: MailUserSchema,
+
+  to: z.array(MailUserSchema),
+
+  cc: z.array(MailUserSchema),
+
+  subject: z.string(),
+
+  body: z.string(),
+
+  createdAt: z.coerce.date(),
+});
+
+export const OutBoxMailSchema = z.object({
+  id: z.string(),
+
+  from: MailUserSchema,
+
+  to: z.array(MailUserSchema),
+
+  cc: z.array(MailUserSchema),
+
+  bcc: z.array(MailUserSchema),
+
+  subject: z.string(),
+
+  body: z.string(),
+
+  createdAt: z.coerce.date(),
+});
+
+export type SendMailInput = z.infer<typeof sendMailSchema>;
+export type MailT = z.infer<typeof OutBoxMailSchema>;

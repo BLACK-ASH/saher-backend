@@ -1,6 +1,6 @@
-import { Notification } from "../../database/notification.model.js";
-import { notificationResponseListSchema } from "../../notification/notification.schema.js";
-import { createKey, getCache, setCache } from "../redis/redis-utils.js";
+import { Notification } from '../../database/notification.model.js';
+import { notificationResponseListSchema } from '../../notification/notification.schema.js';
+import { createKey, getCache, setCache } from '../redis/redis-utils.js';
 
 export const markSeenNotification = async (notificationId: string, userId: string) => {
   // mark the Db notification as seen

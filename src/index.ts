@@ -8,10 +8,14 @@ import express from 'express';
 import adminRouter from './admin/admin.routes.js';
 import attendanceRouter from './attendance/attendance.route.js';
 import authRouter from './auth/auth.routes.js';
+import { calendarRouter } from './calendar/calendar.routes.js';
 import connectDb from './database/connection.js';
+import eventRouter from './events/events.routes.js';
+import leaveRouter from './leave/leave.route.js';
 import { httpLogger } from './libs/logger/http-logger.js';
 import { logger } from './libs/logger/logger.js';
 import { register } from './libs/logger/metrics.js';
+import { underDevelopment } from './libs/middleware/development.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import { metricsMiddleware } from './libs/middleware/metrics.js';
 import { protectedRoute } from './libs/middleware/protected-route.js';
@@ -22,7 +26,9 @@ import { connectRedis } from './libs/redis/redis-client.js';
 import { mailRouter } from './mail/mail.routes.js';
 import noticeRouter from './notice/notice.routes.js';
 import notificationRouter from './notification/notification.routes.js';
+import payrollRouter from './payroll/payroll.routes.js';
 import publicRouter from './public/public.routes.js';
+import billRouter from './reimbursement/reimbursement.routes.js';
 import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
 
@@ -59,8 +65,8 @@ app.use(
 );
 
 // Image Upload Routes
-app.use('/api/upload', uploadRouter);
 app.use(express.json());
+app.use('/api/upload', uploadRouter);
 app.use(cookieParser());
 
 // Databse Connection
@@ -70,14 +76,18 @@ await connectDb();
 await connectRedis();
 
 // Routes
+app.use('/api/reimbursement', protectedRoute, billRouter);
 app.use('/api', publicRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/payroll', protectedRoute, payrollRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
+app.use('/api/events', underDevelopment, protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
-app.use('/api/mail', protectedRoute, mailRouter);
-app.use('/api/notice', protectedRoute, noticeRouter);
+app.use('/api/mail', underDevelopment, protectedRoute, mailRouter);
+app.use('/api/calendar', protectedRoute, calendarRouter);
+app.use('/api/leave', protectedRoute, leaveRouter);
 
 // Static Routes
 app.use('/', express.static(path.join(process.cwd(), 'docs')));
