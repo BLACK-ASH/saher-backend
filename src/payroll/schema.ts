@@ -1,13 +1,15 @@
-import z from "zod";
-import { objectId } from "../libs/utils/zod-object-id.js";
-import { salaryMode, salaryStatus } from "../database/payroll.model.js";
+import z from 'zod';
+
+import { salaryMode, salaryStatus } from '../database/payroll.model.js';
+import { objectId } from '../libs/utils/zod-object-id.js';
 
 export const createPayrollSchema = z.object({
-    mode: z.enum(salaryMode),
-    paidSalary: z.number(),
+  mode: z.enum(salaryMode),
+  paidSalary: z.number(),
 });
 
-export const payrollResponseSchema = z.array(z.object({
+export const payrollResponseSchema = z.array(
+  z.object({
     id: z.string(),
     user: objectId(),
     dateOfCreation: z.coerce.date(),
@@ -19,6 +21,7 @@ export const payrollResponseSchema = z.array(z.object({
     bonus: z.number(),
     deduction: z.array(z.string()),
     status: z.enum(salaryStatus),
-}))
+  }),
+);
 
 export type CreatePayrollInputType = z.infer<typeof createPayrollSchema>;

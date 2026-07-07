@@ -25,11 +25,11 @@ import { requestTimer } from './libs/middleware/request-timer.js';
 import { connectRedis } from './libs/redis/redis-client.js';
 import { mailRouter } from './mail/mail.routes.js';
 import notificationRouter from './notification/notification.routes.js';
+import payrollRouter from './payroll/payroll.routes.js';
 import publicRouter from './public/public.routes.js';
 import billRouter from './reimbursement/reimbursement.routes.js';
 import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
-import payrollRouter from './payroll/payroll.routes.js';
 
 // Env Config
 // dotenv.config();
