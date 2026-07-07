@@ -6,7 +6,6 @@ export const auditLog = async (
   amount: number,
   from: string,
   to: string,
-  status: string,
 ) => {
   const createLog = await AuditLog.create({
     date,
@@ -14,7 +13,6 @@ export const auditLog = async (
     amount,
     from,
     to,
-    status,
   });
 
   return createLog;

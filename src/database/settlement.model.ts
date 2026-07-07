@@ -9,6 +9,11 @@ export const settlementSchema = new mongoose.Schema({
     ref: 'Bill',
     required: true,
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   amount: {
     type: Number,
     required: true,
@@ -24,6 +29,9 @@ export const settlementSchema = new mongoose.Schema({
   },
   settleDate: {
     type: Date,
+  },
+  description: {
+    type: String,
   },
   manager: {
     type: mongoose.Schema.Types.ObjectId,

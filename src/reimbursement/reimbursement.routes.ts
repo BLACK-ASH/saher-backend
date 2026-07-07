@@ -21,6 +21,10 @@ import { handleSettlementRequest } from './settlement/handle-settle.controller.j
 import { handleBillSchema, handleSettleSchema } from './settlement/schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
+import {
+  searchBillController,
+  searchSettleBillController,
+} from './get-bill/search-bill.controller.js';
 
 const billRouter = Router();
 
@@ -32,62 +36,56 @@ billRouter.post(
   userCreateBill,
 );
 billRouter.patch(
-  '/bill/:billId',
+  '/:billId',
   authorize('update', 'postReimbursement'),
   validate(userBillUpdateSchema),
   userUpdateBill,
 );
-billRouter.delete('/bill/:billId', authorize('delete', 'postReimbursement'), userSoftDeleteBill);
+billRouter.delete('/:billId', authorize('delete', 'postReimbursement'), userSoftDeleteBill);
 
 // Admin route
 billRouter.post(
-  '/bill/admin/:user',
+  '/admin/:user',
   authorize('write', 'preReimbursement'),
   validate(adminBillCreatSchema),
   adminCreateBill,
 );
 billRouter.patch(
-  '/bill/admin/:billId',
+  '/admin/:billId',
   authorize('update', 'preReimbursement'),
   validate(adminBillUpdateSchema),
   adminUpdateBill,
 );
-billRouter.delete(
-  '/bill/admin/:billId',
-  authorize('delete', 'preReimbursement'),
-  adminSoftDeleteBill,
-);
+billRouter.delete('/admin/:billId', authorize('delete', 'preReimbursement'), adminSoftDeleteBill);
 
 // Settlement route
 billRouter.post(
-  '/bill/handle/:billId',
+  '/handle/:billId',
   authorize('write', 'preReimbursement'),
   validate(handleBillSchema),
   handleBillController,
 );
 billRouter.post(
-  '/bill/settle/:settleId',
+  '/settlement/:settleId',
   authorize('write', 'preReimbursement'),
   validate(handleSettleSchema),
   handleSettlementRequest,
 );
 
 // gets bills
-billRouter.get('/bill/mybills', myBillsController);
-billRouter.get(
-  '/bill/getbill/:billId',
-  authorize('read', 'preReimbursement'),
-  getBillByIdController,
-);
-billRouter.get('/bill/getallbills', authorize('write', 'preReimbursement'), getAllBillsController);
+billRouter.get('/mybills', myBillsController);
+billRouter.get('/:billId', authorize('read', 'preReimbursement'), getBillByIdController);
+billRouter.get('/bills', authorize('write', 'preReimbursement'), getAllBillsController);
+billRouter.get('/', authorize('read', 'preReimbursement'), searchBillController);
+billRouter.get('/:id', authorize('read', 'preReimbursement'), searchSettleBillController);
 
 // Recycle bills
-billRouter.get('/bill/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);
+billRouter.get('/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);
 
 // Audit Log
-billRouter.get('/bill/audit-log', authorize('read', 'preReimbursement'), getAuditLogController);
+billRouter.get('/audit-log', authorize('read', 'preReimbursement'), getAuditLogController);
 billRouter.post(
-  '/bill/create-log',
+  '/create-log',
   authorize('write', 'preReimbursement'),
   validate(createLogSchema),
   createAuditLogController,
