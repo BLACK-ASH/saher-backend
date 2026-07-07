@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { getBillResponsiveSchema } from './get-bill.schema.js';
+import { getBillResponseSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -12,7 +12,7 @@ export const recycleBillsController = async (req: Request, res: Response) => {
   if (recycles.length === 0) throw new ApiError(200, 'No bills to show');
 
   const normalized = normalizeDoc(recycles);
-  const parsed = getBillResponsiveSchema.array().parse(normalized);
+  const parsed = getBillResponseSchema.array().parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Deleted bills',

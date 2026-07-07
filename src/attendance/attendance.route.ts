@@ -73,11 +73,10 @@ attendanceRouter.put(
   handleAttendanceCorrectionController,
 );
 
+// Holiday Routes
 attendanceRouter.get('/holiday', getAllHolidayController);
 attendanceRouter.get('/holiday/:id', getHolidayController);
 attendanceRouter.delete('/holiday/:id', authorize('delete', 'holiday'), deleteHolidayController);
-
-// Holiday Routes
 attendanceRouter.post(
   '/holiday',
   authorize('write', 'holiday'),

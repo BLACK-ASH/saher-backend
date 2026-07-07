@@ -2,7 +2,8 @@ import z from 'zod';
 
 const dateField = z.union([z.string().datetime(), z.date()]).transform((val) => new Date(val));
 
-export const getBillResponsiveSchema = z.object({
+export const getBillResponseSchema = z.object({
+  id: z.string(),
   user: z.string(),
   image: z.string().optional(),
   amount: z.number(),
@@ -14,8 +15,10 @@ export const getBillResponsiveSchema = z.object({
   isDeleted: z.boolean(),
 });
 
-export const getSettleBillResponsiveSchema = z.object({
+export const getSettleBillResponseSchema = z.object({
+  id: z.string(),
   bill: z.string(),
+  user: z.string(),
   amount: z.number(),
   mode: z.enum(['cash', 'upi', 'cheque', '-']),
   date: dateField,
@@ -25,5 +28,9 @@ export const getSettleBillResponsiveSchema = z.object({
   settleDate: dateField.optional(),
 });
 
-export type GetBillResponsiveSchemaInputType = z.infer<typeof getBillResponsiveSchema>;
-export type GetSettleBillResponsiveSchemaInputType = z.infer<typeof getSettleBillResponsiveSchema>;
+// export const searchbillSchema = z.object({
+
+// })
+
+export type GetBillResponsiveSchemaInputType = z.infer<typeof getBillResponseSchema>;
+export type GetSettleBillResponsiveSchemaInputType = z.infer<typeof getSettleBillResponseSchema>;

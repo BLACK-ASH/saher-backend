@@ -4,26 +4,23 @@ const participantSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
     },
 
     age: {
       type: Number,
-      required: true,
     },
 
     gender: {
       type: String,
-      required: true,
     },
 
     phoneNumber: {
       type: String,
-      required: true,
     },
 
-    photo: {
-      type: String,
+    image: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Media',
     },
 
     address: {
@@ -39,7 +36,8 @@ const participantSchema = new mongoose.Schema(
     },
 
     document: {
-      type: String,
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Media',
     },
 
     isDeleted: {

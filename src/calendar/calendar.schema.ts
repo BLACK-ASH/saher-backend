@@ -16,7 +16,7 @@ export const event = z.object({
   }),
 });
 
-export const createMeetingSchema = z.object({
+export const createCalendarEventSchema = z.object({
   title: z.string(),
   type: z.string(),
   start: z.coerce.date(),
@@ -24,10 +24,6 @@ export const createMeetingSchema = z.object({
   description: z.string(),
 });
 
-export type CalendarObjectT = {
-  date: string | null;
-  day: string | null;
-  events: EventT[];
-};
+export const updateCalendarEventSchema = createCalendarEventSchema.partial();
 
 export type EventT = z.infer<typeof event>;

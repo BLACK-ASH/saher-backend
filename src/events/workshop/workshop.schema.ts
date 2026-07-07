@@ -4,11 +4,10 @@ import { DOMPurify } from '../../libs/utils/dompurify.js';
 
 //Base workshop schema
 export const baseWorkshopSchema = z.object({
-  title: z.string().min(5).max(50),
+  title: z.string().min(1),
   description: z
     .string()
-    .min(10)
-    .max(500)
+    .min(1)
     .transform((value) => DOMPurify.sanitize(value)),
 });
 
@@ -21,11 +20,8 @@ export const workshopResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  programmeId: z.string(),
+  program: z.object({ id: z.string(), title: z.string() }),
 });
-
-export const getWorkshopsFromProgrammeResponseSchema = z.array(workshopResponseSchema);
-export const getSingleWorkshopSchema = workshopResponseSchema;
 
 //Types
 export type CreateWorkshopInputType = z.infer<typeof createWorkshopSchema>;

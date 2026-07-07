@@ -1,11 +1,9 @@
 import type { Request, Response } from 'express';
+import { Types, type QueryFilter } from 'mongoose';
+import z from 'zod';
 
-import {
-  getSessionByIdSchema,
-  getSessionResponsiveSchema,
-  getSessionSchema,
-} from './session.schema.js';
-import { Programme } from '../../database/programmes.model.js';
+import { sessionResponse } from './session.schema.js';
+import { Program } from '../../database/program.model.js';
 import { Session } from '../../database/session.model.js';
 import { Workshop } from '../../database/workshop.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -15,24 +13,25 @@ import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notification } from '../../libs/utils/notification.js';
 import { sendPushToUser } from '../../libs/utils/push-notification.js';
+import { participantResponseSchema } from '../participant/participant.schema.js';
 
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
-  const { programmeId } = req.params;
+  const { programId } = req.params;
   const { workshopId } = req.body;
 
-  //Checking for programme existence
-  const programme = await Programme.findById(programmeId);
+  //Checking for program existence
+  const program = await Program.findById(programId);
 
-  if (!programme) {
-    throw new ApiError(404, 'Programme not found');
+  if (!program) {
+    throw new ApiError(404, 'Program not found');
   }
 
   //Checking for workshop existence
   if (workshopId) {
     const workshop = await Workshop.findOne({
       _id: workshopId,
-      programmeId,
+      program: program._id,
       isDeleted: false,
     });
 
@@ -48,7 +47,7 @@ export const addSession = async (req: Request, res: Response) => {
     const workshop = await Workshop.create({
       title: req.body.title,
       description: req.body.description,
-      programmeId: convertToObjectId(req.params.programmeId as string),
+      program: convertToObjectId(req.params.programId as string),
     });
 
     newWorkshopId = workshop._id;
@@ -56,22 +55,26 @@ export const addSession = async (req: Request, res: Response) => {
 
   const newSession = await Session.create({
     ...req.body,
-    workshopId: workshopId || newWorkshopId,
-    programmeId: programmeId,
+    workshop: workshopId || newWorkshopId,
+    program: programId,
   });
 
-  const notificationTitle = 'Receieved New Session';
-  const notificationDesc = `A new Session has been created`;
-  await notification.specific.success(
-    [newSession.speaker.toString()],
+  const notificationTitle = 'New Session Assigned';
+  const notificationDesc = `${newSession.title} has been assigned to you.`;
+  await notification.specific.info(
+    newSession.speaker.map((id) => id.toString()),
     notificationTitle,
     notificationDesc,
   );
 
-  // await sendPushToUser(newSession.speaker.toString(), {
-  //   title: 'New Session Created',
-  //   body: `${newSession.title} has been scheduled`,
-  // });
+  await Promise.allSettled(
+    newSession.speaker.map((id) =>
+      sendPushToUser(id.toString(), {
+        title: 'New Session Assigned',
+        body: `${newSession.title} has been assigned to you.`,
+      }),
+    ),
+  );
 
   const date = req.body.date;
   const month = new Date(date).getMonth();
@@ -93,7 +96,7 @@ export const editSession = async (req: Request, res: Response) => {
   const updates = req.body;
 
   const updatedSession = await Session.findByIdAndUpdate(
-    { _id: req.params, isDeleted: false },
+    { _id: req.params.id, isDeleted: false },
     updates,
   ).lean();
 
@@ -101,17 +104,22 @@ export const editSession = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Session not found');
   }
 
-  const notificationTitle = 'Receieved Updated Session';
-  const notificationDesc = `A Session has been Updated`;
+  const notificationTitle = 'Session Updated';
+  const notificationDesc = `"${updatedSession.title}" has been updated. Please review the latest session details.`;
   await notification.specific.success(
-    [updatedSession.speaker.toString()],
+    updatedSession.speaker.map((id) => id.toString()),
     notificationTitle,
     notificationDesc,
   );
-  await sendPushToUser(updatedSession.speaker.toString(), {
-    title: 'New Session Created',
-    body: `${updatedSession.title} has been scheduled`,
-  });
+
+  await Promise.allSettled(
+    updatedSession.speaker.map((id) =>
+      sendPushToUser(id.toString(), {
+        title: 'Session Updated',
+        body: `"${updatedSession.title}" has been updated. Tap to view the latest details.`,
+      }),
+    ),
+  );
 
   return ApiResponse.success(res, {
     message: 'Session has been Updated successfully',
@@ -155,47 +163,102 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
   });
 };
 
-/*Permanent Deletion of programme
-export const permanentDeleteSession = async (req: Request, res: Response) => {
-  const session = await Session.findOne({
-    _id: req.params.id,
-    isDeleted: true,
-  });
+//Get sessions
 
-  if (!session) {
-    throw new ApiError(404, 'Session must be soft deleted before permanent deletion');
-  }
-
-  await Session.findByIdAndDelete(req.params.id);
-
-  return ApiResponse.success(res, {
-    message: 'Session has been permanently deleted',
-    data: null,
-    statusCode: 200,
-  });
-};
-*/
-
-//Get all sessions
 export const getSessions = async (req: Request, res: Response) => {
-  const session = await Session.find({
-    programmeId: req.params.programmeId,
-    isDeleted: false,
-  })
-    .populate('speaker')
-    .lean();
+  const keyword = req.query.keyword?.toString().trim();
 
-  if (session.length === 0) {
-    throw new ApiError(404, 'Sessions not found');
+  const isDeleted =
+    req.query.isDeleted === 'true' ? true : req.query.isDeleted === 'false' ? false : false;
+
+  const page = Math.max(Number(req.query.page) || 1, 1);
+  const limit = Math.max(Number(req.query.limit) || 10, 1);
+  const skip = (page - 1) * limit;
+
+  const query: QueryFilter<typeof Session.schema.obj> = {
+    isDeleted,
+  };
+
+  if (keyword) {
+    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedKeyword, 'i');
+
+    const [programs, workshops] = await Promise.all([
+      Program.find({
+        title: { $regex: regex },
+      }).select('_id'),
+
+      Workshop.find({
+        title: { $regex: regex },
+      }).select('_id'),
+    ]);
+
+    const orConditions: QueryFilter<typeof Session.schema.obj>[] = [
+      { title: { $regex: regex } },
+      { description: { $regex: regex } },
+    ];
+
+    if (Types.ObjectId.isValid(keyword)) {
+      orConditions.push({
+        programId: convertToObjectId(keyword),
+      });
+
+      orConditions.push({
+        workshopId: convertToObjectId(keyword),
+      });
+    }
+
+    if (programs.length > 0) {
+      orConditions.push({
+        programId: {
+          $in: programs.map((program) => program._id),
+        },
+      });
+    }
+
+    if (workshops.length > 0) {
+      orConditions.push({
+        workshopId: {
+          $in: workshops.map((workshop) => workshop._id),
+        },
+      });
+    }
+
+    query.$or = orConditions;
   }
 
-  const normalized = normalizeDoc(session);
-  const parsed = getSessionSchema.parse(normalized);
+  const [sessions, count] = await Promise.all([
+    Session.find(query)
+      .populate({
+        path: 'speaker',
+        populate: {
+          path: 'image',
+        },
+      })
+      .populate('program', 'title')
+      .populate('workshop', 'title')
+      .populate('images')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+
+    Session.countDocuments(query),
+  ]);
+
+  const normalized = normalizeDoc(sessions);
+  const parsed = z.array(sessionResponse).parse(normalized);
 
   return ApiResponse.success(res, {
-    message: 'Sessions fetched successfully',
+    message: sessions.length ? 'Sessions fetched successfully' : 'No sessions found',
     data: parsed,
     statusCode: 200,
+    meta: {
+      page,
+      limit,
+      count,
+      total: Math.ceil(count / limit),
+    },
   });
 };
 
@@ -203,11 +266,23 @@ export const getSessions = async (req: Request, res: Response) => {
 export const getSingleSession = async (req: Request, res: Response) => {
   const session = await Session.findOne({
     _id: req.params.sessionId,
-    programmeId: req.params.programmeId,
-    workshopId: req.params.workshopId,
     isDeleted: false,
   })
-    .populate('speaker')
+    .populate({
+      path: 'speaker',
+      populate: {
+        path: 'image',
+      },
+    })
+    .populate({
+      path: 'participants',
+      populate: {
+        path: 'image document',
+      },
+    })
+    .populate('program', 'title')
+    .populate('workshop', 'title')
+    .populate('images')
     .lean();
 
   if (!session) {
@@ -215,42 +290,15 @@ export const getSingleSession = async (req: Request, res: Response) => {
   }
 
   const normalized = normalizeDoc(session);
-  const parsed = getSessionByIdSchema.parse(normalized);
+  const parsed = sessionResponse
+    .extend({
+      participants: participantResponseSchema.array().optional(),
+      review: z.string().optional(),
+    })
+    .parse(normalized);
 
   return ApiResponse.success(res, {
     message: 'Session fetched successfully',
-    data: parsed,
-    statusCode: 200,
-  });
-};
-
-//Search for Session
-export const getSessionByKeyword = async (req: Request, res: Response) => {
-  const keyword = req.query.keyword as string;
-
-  // Search by name, brand, or category using case-insensitive regex
-  const regex = new RegExp(keyword, 'i');
-
-  const session = await Session.find({
-    $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
-  })
-    .populate('speaker')
-    .limit(5)
-    .lean(); // Return top 5 suggestions
-
-  if (session.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'No sessions found',
-      data: [],
-      statusCode: 200,
-    });
-  }
-
-  const normalized = normalizeDoc(session);
-  const parsed = getSessionSchema.parse(normalized);
-
-  return ApiResponse.success(res, {
-    message: 'Sessions fetched successfully',
     data: parsed,
     statusCode: 200,
   });

@@ -20,6 +20,7 @@ const MailUserSchema = z.object({
   image: z.object({
     id: z.string(),
     src: z.string(),
+    alt: z.string(),
   }),
 });
 
@@ -58,3 +59,4 @@ export const OutBoxMailSchema = z.object({
 });
 
 export type SendMailInput = z.infer<typeof sendMailSchema>;
+export type MailT = z.infer<typeof OutBoxMailSchema>;

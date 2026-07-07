@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { getSettleBillResponsiveSchema } from './get-bill.schema.js';
+import { getSettleBillResponseSchema } from './get-bill.schema.js';
 import { Settlement } from '../../database/settlement.model.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
@@ -39,7 +39,7 @@ export const getBillByIdController = async (req: Request, res: Response) => {
     });
   }
   const normalized = normalizeDoc(bill);
-  const parsed = getSettleBillResponsiveSchema.parse(normalized);
+  const parsed = getSettleBillResponseSchema.parse(normalized);
 
   await setCache(key, parsed, 7200);
 

@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-const programmeSchema = new mongoose.Schema(
+const programSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -26,5 +26,5 @@ const programmeSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export type ProgrammeType = mongoose.InferSchemaType<typeof programmeSchema>;
-export const Programme = mongoose.model<ProgrammeType>('Programme', programmeSchema);
+export type ProgramType = mongoose.InferSchemaType<typeof programSchema>;
+export const Program = mongoose.model<ProgramType>('Program', programSchema);

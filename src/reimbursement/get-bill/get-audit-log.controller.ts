@@ -5,7 +5,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
-import { createLogResponsiveSchema } from '../audit-log/audit-log.schema.js';
+import { createLogResponseSchema } from '../audit-log/audit-log.schema.js';
 
 export const getAuditLogController = async (req: Request, res: Response) => {
   const user = req.user?.id;
@@ -35,7 +35,7 @@ export const getAuditLogController = async (req: Request, res: Response) => {
     .lean();
 
   const normalized = normalizeDoc(getAllAuditLog);
-  const parsed = createLogResponsiveSchema.array().parse(normalized);
+  const parsed = createLogResponseSchema.array().parse(normalized);
 
   await setCache(key, parsed, 7200);
 
