@@ -13,7 +13,12 @@ export const baseSchema = z.object({
     .regex(/^[A-Za-z\s]+$/, 'Gender must contain only letters')
     .transform((e) => e.toLocaleUpperCase())
     .optional(),
-  phoneNumber: z.coerce.number().optional(),
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
+      message: 'Invalid Indian Mobile Number',
+    }),
   image: objectId().optional(),
   address: z.string().optional(),
   affiliation: z.string().optional(),
@@ -21,15 +26,25 @@ export const baseSchema = z.object({
   document: z.array(objectId()).optional(),
 });
 
-export const participantSchema = baseSchema.refine(
-  (data) => {
-    if (data.age) return data.age >= 18 || !!data.parentDetails;
-  },
-  {
-    message: 'Parent Details is required if age is less than 18',
-    path: ['parentDetails'],
-  },
-);
+export const participantSchema = baseSchema
+  .transform((val) => {
+    {
+      val.phoneNumber = val.phoneNumber.toString().replace(/^\+91[\s-]?|^91[\s-]?/, '');
+    }
+    return val;
+  })
+  .refine(
+    (data) => {
+      if (data.age) {
+        return data.age >= 18 || !!data.parentDetails;
+      }
+      return true;
+    },
+    {
+      message: 'Parent Details is required if age is less than 18',
+      path: ['parentDetails'],
+    },
+  );
 
 export const updatedParticipantSchema = baseSchema.partial();
 export const participantResponseSchema = baseSchema

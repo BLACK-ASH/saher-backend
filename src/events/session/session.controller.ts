@@ -18,7 +18,7 @@ import { participantResponseSchema } from '../participant/participant.schema.js'
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
   const { programId } = req.params;
-  const { workshopId } = req.body;
+  const { workshop: workshopId } = req.body;
 
   //Checking for program existence
   const program = await Program.findById(programId);

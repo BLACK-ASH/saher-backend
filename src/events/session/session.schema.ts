@@ -23,6 +23,7 @@ export const baseSchema = z.object({
     .optional()
     .transform((value) => value && DOMPurify.sanitize(value)),
   speaker: z.array(objectId()).min(1, 'Session Must Have Atleast One Speaker.'),
+  workshop: objectId().optional(),
 });
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {
