@@ -3,13 +3,17 @@ import { z } from 'zod';
 import { imageType, objectId } from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
-  name: z.string().min(2),
+  name: z
+    .string()
+    .min(2)
+    .regex(/^[A-Za-z\s]+$/, 'Name must contain only letters'),
   age: z.coerce.number().min(1).optional(),
   gender: z
     .string()
+    .regex(/^[A-Za-z\s]+$/, 'Gender must contain only letters')
     .transform((e) => e.toLocaleUpperCase())
     .optional(),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z.coerce.number().optional(),
   image: objectId().optional(),
   address: z.string().optional(),
   affiliation: z.string().optional(),
@@ -29,8 +33,13 @@ export const participantSchema = baseSchema.refine(
 
 export const updatedParticipantSchema = baseSchema.partial();
 export const participantResponseSchema = baseSchema
-  .omit({ image: true, document: true })
-  .extend({ id: z.string(), image: imageType.optional(), document: imageType.array().optional() });
+  .omit({ phoneNumber: true, image: true, document: true })
+  .extend({
+    id: z.string(),
+    phoneNumber: z.string().optional(),
+    image: imageType.nullable().optional(),
+    document: imageType.array().optional(),
+  });
 
 export type CreateParticipantInputType = z.infer<typeof participantSchema>;
 export type UpdateParticipantInputType = z.infer<typeof updatedParticipantSchema>;
