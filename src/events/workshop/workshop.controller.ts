@@ -23,7 +23,7 @@ export const addWorkshop = async (req: Request, res: Response) => {
 
   await Workshop.create({
     ...req.body,
-    programId,
+    program: program._id,
   });
 
   return ApiResponse.success(res, {
