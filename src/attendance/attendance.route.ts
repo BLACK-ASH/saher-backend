@@ -44,7 +44,7 @@ attendanceRouter.get('/today', todayAttendanceController);
 attendanceRouter.post('/check-in', checkInController);
 attendanceRouter.post('/check-out', checkOutController);
 attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
-attendanceRouter.get('/retrieve-all', getAllUserController);
+attendanceRouter.get('/retrieve', getAllUserController);
 attendanceRouter.get('/user/:id', allAttendanceController);
 attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
 
@@ -90,7 +90,7 @@ attendanceRouter.put(
   updateHolidayController,
 );
 
-attendanceRouter.post('/claim/weekoff', claimFlexibleWeekOffController);
+attendanceRouter.post('/weekoff', claimFlexibleWeekOffController);
 
 // WARN: Do Not Change This Part
 // Cron Jobs

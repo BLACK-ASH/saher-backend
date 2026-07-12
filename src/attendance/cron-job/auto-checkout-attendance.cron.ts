@@ -21,7 +21,7 @@ import { standardDateString } from '../../libs/utils/standard-date.js';
 export const autoCheckoutCron = async (req: Request, res: Response) => {
   const pass = req.params?.pass;
 
-  if (pass !== process.env.CRON_SECRET) {
+  if (pass !== process.env.CRON_SECRET && req.user?.role !== 'admin') {
     throw new ApiError(403, 'Forbidden. You are not allowed to perform this action.');
   }
 
