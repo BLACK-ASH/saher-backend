@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 
 import { Payroll } from '../database/payroll.model.js';
-import { User } from '../database/user.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { notification } from '../libs/utils/notification.js';

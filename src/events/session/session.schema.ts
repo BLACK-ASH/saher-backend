@@ -10,8 +10,12 @@ export const baseSchema = z.object({
     .string()
     .min(1)
     .transform((value) => DOMPurify.sanitize(value)),
-  date: z.string(),
-  startTime: z.coerce.date(),
+  date: z.coerce.date().refine((date) => date > new Date(), {
+    message: 'Date must be present or future',
+  }),
+  startTime: z.coerce.date().refine((date) => date > new Date(), {
+    message: 'Start time must be present or future',
+  }),
   endTime: z.coerce.date(),
   images: z.array(objectId()).optional(),
   review: z
@@ -19,6 +23,7 @@ export const baseSchema = z.object({
     .optional()
     .transform((value) => value && DOMPurify.sanitize(value)),
   speaker: z.array(objectId()).min(1, 'Session Must Have Atleast One Speaker.'),
+  workshop: objectId().optional(),
 });
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {
