@@ -1,44 +1,55 @@
 import { z } from 'zod';
 
-import { imageType, objectId } from '../../libs/utils/zod-object-id.js';
+import {
+  imageType,
+  objectId,
+  optionalAlphaText,
+  optionalField,
+  optionalText,
+} from '../../libs/utils/zod-object-id.js';
 
 export const baseSchema = z.object({
   name: z
     .string()
     .min(2)
     .regex(/^[A-Za-z\s]+$/, 'Name must contain only letters'),
+
   age: z.coerce.number().min(1).optional(),
-  gender: z
-    .string()
-    .regex(/^[A-Za-z\s]+$/, 'Gender must contain only letters')
-    .transform((e) => e.toLocaleUpperCase())
-    .optional(),
-  phoneNumber: z
-    .string()
-    .trim()
-    .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
-      message: 'Invalid Indian Mobile Number',
-    }),
+
+  gender: optionalAlphaText(),
+
+  phoneNumber: optionalField(
+    z
+      .string()
+      .trim()
+      .regex(/^(?:\+91[\s-]?|91[\s-]?)?[6-9]\d{9}$/, {
+        message: 'Invalid Indian Mobile Number',
+      }),
+  ),
+
   image: objectId().optional(),
-  address: z.string().optional(),
-  affiliation: z.string().optional(),
-  parentDetails: z.string().optional(),
+
+  address: optionalText(),
+
+  affiliation: optionalText(),
+
+  parentDetails: optionalText(),
+
   document: z.array(objectId()).optional(),
 });
 
 export const participantSchema = baseSchema
   .transform((val) => {
     {
-      val.phoneNumber = val.phoneNumber.toString().replace(/^\+91[\s-]?|^91[\s-]?/, '');
+      val.phoneNumber = val.phoneNumber?.toString().replace(/^\+91[\s-]?|^91[\s-]?/, '');
     }
     return val;
   })
   .refine(
     (data) => {
-      if (data.age) {
-        return data.age >= 18 || !!data.parentDetails;
-      }
-      return true;
+      if (data.age === undefined) return true;
+
+      return data.age >= 18 || !!data.parentDetails;
     },
     {
       message: 'Parent Details is required if age is less than 18',
