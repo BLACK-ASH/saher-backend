@@ -1,7 +1,9 @@
 import z from 'zod';
 
+import { userSchemaFinal } from '../admin/_services/user.js';
+
 export const leaveApplicationSchemaBase = z.object({
-  leaveTypeCode: z.string().trim(),
+  type: z.string().trim(),
   startDate: z.coerce.date(),
 
   endDate: z.coerce.date(),
@@ -9,7 +11,7 @@ export const leaveApplicationSchemaBase = z.object({
   reason: z
     .string()
     .trim()
-    .min(5, 'Reason is required')
+    .min(5, 'Minimum 5 Character is required for Reason')
     .max(400, 'Reason cannot exceed 400 characters'),
 
   proof: z.string().optional(),
@@ -47,15 +49,16 @@ export const reviewLeaveApplicationSchema = z.object({
 
 export const getLeaveApplicationSchema = z.object({
   id: z.string(),
-  user: z.string(),
+  user: userSchemaFinal,
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   totalDays: z.number(),
   reason: z.string(),
-  proof: z.string().nullable(),
+  type: z.object({ name: z.string(), code: z.string() }),
+  proof: z.string().optional(),
   status: z.enum(['pending', 'approved', 'rejected', 'cancelled']),
-  approvedBy: z.string().nullable(),
-  managerComment: z.string().nullable(),
+  approvedBy: z.string().optional(),
+  managerComment: z.string().optional(),
 });
 // ----------------LeaveType--------------
 
@@ -109,13 +112,5 @@ export const updateLeaveTypeSchema = leaveTypeSchemaBase.partial().refine(
   },
 );
 
-// export type LeaveTypeT = z.infer<typeof createLeaveTypeSchema>
-
-// ------------------------Leave Balance ------------------------
-
-// export const getLeaveBalanceSchema = z.object({
-//   id: z.string(),
-//   user: z.string(),
-//   year: z.string(),
-//   used: z.record(z.string(), z.number()),
-// });
+export type LeaveT = z.infer<typeof getLeaveApplicationSchema>;
+export type LeaveTypeT = z.infer<typeof leaveTypeSchemaBase>;

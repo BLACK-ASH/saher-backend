@@ -17,7 +17,7 @@ const leaveLogSchema = new mongoose.Schema(
       required: true,
     },
 
-    leaveTypeCode: {
+    leaveCode: {
       type: String,
       required: true,
     },
