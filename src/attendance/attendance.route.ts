@@ -23,6 +23,7 @@ import {
 } from './holiday/holiday.controller.js';
 import { checkInController } from './mark/check-in.controller.js';
 import { checkOutController } from './mark/check-out.controller.js';
+import { overtimeCheckInController } from './mark/overtime.controller.js';
 import { rejectMarkController, rejectMarkSchema } from './mark/reject-mark.controller.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
@@ -43,9 +44,13 @@ attendanceRouter.get('/today', todayAttendanceController);
 attendanceRouter.post('/check-in', checkInController);
 attendanceRouter.post('/check-out', checkOutController);
 attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
-attendanceRouter.get('/retrieve-all', getAllUserController);
+attendanceRouter.get('/retrieve', getAllUserController);
 attendanceRouter.get('/user/:id', allAttendanceController);
 attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
+
+// Overtime
+attendanceRouter.post('/overtime/check-in', overtimeCheckInController);
+// attendanceRouter.post("/overtime/check-out" , overtimeCheckOutController)
 
 // Export
 attendanceRouter.get('/export/report', exportReportController);
@@ -68,11 +73,10 @@ attendanceRouter.put(
   handleAttendanceCorrectionController,
 );
 
+// Holiday Routes
 attendanceRouter.get('/holiday', getAllHolidayController);
 attendanceRouter.get('/holiday/:id', getHolidayController);
 attendanceRouter.delete('/holiday/:id', authorize('delete', 'holiday'), deleteHolidayController);
-
-// Holiday Routes
 attendanceRouter.post(
   '/holiday',
   authorize('write', 'holiday'),
@@ -86,7 +90,7 @@ attendanceRouter.put(
   updateHolidayController,
 );
 
-attendanceRouter.post('/claim/weekoff', claimFlexibleWeekOffController);
+attendanceRouter.post('/weekoff', claimFlexibleWeekOffController);
 
 // WARN: Do Not Change This Part
 // Cron Jobs

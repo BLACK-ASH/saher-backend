@@ -83,7 +83,7 @@ app.use('/api/payroll', protectedRoute, payrollRouter);
 app.use('/api/admin', protectedRoute, adminRouter);
 app.use('/api/user', protectedRoute, userRouter);
 app.use('/api/attendance', protectedRoute, attendanceRouter);
-app.use('/api/events', underDevelopment, protectedRoute, eventRouter);
+app.use('/api/events', protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/api/notice', protectedRoute, noticeRouter);

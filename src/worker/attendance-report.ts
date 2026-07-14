@@ -25,7 +25,7 @@ const generateAttendanceReportPdf = async (job: Job) => {
     sort: 'desc',
   });
 
-  const html = createAttendancePdfBody(data);
+  const html = createAttendancePdfBody(data.parsed);
 
   await page.setContent(html, {
     waitUntil: 'domcontentloaded',
@@ -99,7 +99,7 @@ const generateAttendanceReportPdf = async (job: Job) => {
   await notification.specific.info(
     [job.data.user],
     `attendance report generated, type - ${job.data.type} `,
-    `attendance report from ${data[0].date} - ${data[data.length - 1].date}`,
+    `attendance report from ${data.parsed[0].date} - ${data.parsed[data.parsed.length - 1].date}`,
     action,
   );
 

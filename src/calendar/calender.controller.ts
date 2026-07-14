@@ -162,8 +162,8 @@ export const syncGoogleHolidaysController = async (_req: Request, res: Response)
           $setOnInsert: {
             title: holiday.summary,
             date: new Date(holiday.start?.date as string),
-            type: 'google',
-            description: null,
+            type: 'google' as const,
+            description: holiday.description || '',
           },
         },
         upsert: true,
