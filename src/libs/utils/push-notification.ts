@@ -12,6 +12,7 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!,
 );
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sendPushToUser = async (userId: string, payload: any) => {
   const subscriptions = await PushSubscription.find({
     user: userId,
@@ -41,6 +42,7 @@ export const sendPushToUser = async (userId: string, payload: any) => {
     const sub = subscriptions[i];
 
     if (result.status !== 'fulfilled') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const err: any = result.reason;
 
       logger.error(

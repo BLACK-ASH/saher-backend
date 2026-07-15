@@ -15,7 +15,6 @@ import leaveRouter from './leave/leave.route.js';
 import { httpLogger } from './libs/logger/http-logger.js';
 import { logger } from './libs/logger/logger.js';
 import { register } from './libs/logger/metrics.js';
-import { underDevelopment } from './libs/middleware/development.js';
 import errorHandler from './libs/middleware/error-handler.js';
 import { metricsMiddleware } from './libs/middleware/metrics.js';
 import { protectedRoute } from './libs/middleware/protected-route.js';

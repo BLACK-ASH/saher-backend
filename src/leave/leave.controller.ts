@@ -36,7 +36,7 @@ export const createLeaveTypeController = async (req: Request, res: Response) => 
     throw new ApiError(400, 'A leave type with this code already exists.');
   }
 
-  const leaveType = await LeaveType.create({
+  await LeaveType.create({
     name,
     description,
     code: code.toUpperCase(),
@@ -84,11 +84,6 @@ export const updateLeaveTypeController = async (req: Request, res: Response) => 
 export const getAllActiveLeaveTypesController = async (req: Request, res: Response) => {
   const leaveTypes = await LeaveType.aggregate([
     {
-      $match: {
-        isActive: true,
-      },
-    },
-    {
       $sort: {
         createdAt: -1,
       },
@@ -127,12 +122,8 @@ export const createLeaveApplicationController = async (req: Request, res: Respon
 
   const payload = req.body;
 
-  // const leaveType = await LeaveType.findOne({
-  //   code: payload.leaveTypeCode.toUpperCase(),
-  //   isActive: true,
-  // });
+  const leaveType = await LeaveType.findOne({ code: payload.type });
 
-  const leaveType = await LeaveType.findById(payload.leaveTypeCode);
   if (!leaveType) {
     throw new ApiError(404, 'Leave type not found');
   }
@@ -147,14 +138,14 @@ export const createLeaveApplicationController = async (req: Request, res: Respon
 
   const totalDays = calculateLeaveDays(payload.startDate, payload.endDate);
 
-  const leave = await Leave.create({
+  await Leave.create({
     user: userId,
-    leaveTypeCode: payload.leaveTypeCode,
+    type: leaveType._id,
     startDate: payload.startDate,
     endDate: payload.endDate,
     totalDays,
     reason: payload.reason,
-    proof: payload.proof ?? null,
+    proof: payload.proof,
     status: 'pending',
   });
 
@@ -192,7 +183,7 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
 
   const updatedStartDate = payload.startDate ?? leave.startDate;
   const updatedEndDate = payload.endDate ?? leave.endDate;
-  const updatedLeaveTypeCode = payload.leaveTypeCode ?? leave.leaveTypeCode;
+  const updatedLeaveTypeCode = payload.leaveCode ?? leave.type;
   const leaveType = await LeaveType.findOne({
     _id: updatedLeaveTypeCode,
     isActive: true,
@@ -218,8 +209,8 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
     ...(payload.endDate && {
       endDate: payload.endDate,
     }),
-    ...(payload.leaveTypeCode && {
-      leaveTypeCode: payload.leaveTypeCode,
+    ...(payload.leaveCode && {
+      leaveCode: payload.leaveCode,
     }),
     ...(payload.reason && {
       reason: payload.reason,
@@ -280,12 +271,12 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
 
   await leave.save();
 
-  const leaveCode = (await LeaveType.findById(leave.leaveTypeCode))?.code;
+  const leaveCode = (await LeaveType.findById(leave.type))?.code;
   if (!leaveCode) throw new ApiError(400, 'SomeThing went Wrong');
   if (payload.status === 'approved') {
     await recordLeaveUsage({
       userId: leave.user.toString(),
-      leaveTypeCode: leaveCode,
+      leaveCode: leaveCode,
       year: leave.startDate.getFullYear().toString(),
       days: leave.totalDays,
       performedBy: reviewerId,
@@ -301,7 +292,15 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
 };
 
 export const getLeaveApplicationController = async (req: Request, res: Response) => {
-  const record = await Leave.find({ user: req.user?.id }).lean();
+  const record = await Leave.find({ user: req.user?.id })
+    .populate('type')
+    .populate({
+      path: 'user',
+      populate: {
+        path: 'image',
+      },
+    })
+    .lean();
 
   if (record.length === 0) {
     return ApiResponse.success(res, {
@@ -327,7 +326,15 @@ export const getAllLeaveApplicationController = async (req: Request, res: Respon
   if (role === 'user' || role === 'intern') {
     throw new ApiError(400, 'Only Admins and managers are allowed to access this end point ');
   }
-  const record = await Leave.find().lean();
+  const record = await Leave.find()
+    .populate('type')
+    .populate({
+      path: 'user',
+      populate: {
+        path: 'image',
+      },
+    })
+    .lean();
 
   const normalized = normalizeDoc(record);
   const parsed = z.array(getLeaveApplicationSchema).parse(normalized);
