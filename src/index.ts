@@ -86,7 +86,7 @@ app.use('/api/events', protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/api/notice', protectedRoute, noticeRouter);
-app.use('/api/mail', underDevelopment, protectedRoute, mailRouter);
+//app.use('/api/mail', underDevelopment, protectedRoute, mailRouter);
 app.use('/api/calendar', protectedRoute, calendarRouter);
 app.use('/api/leave', protectedRoute, leaveRouter);
 
