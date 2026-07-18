@@ -79,6 +79,11 @@ const sessionSchema = new mongoose.Schema(
       default: [],
     },
 
+    bill: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Bill',
+    },
+
     isDeleted: {
       type: Boolean,
       default: false,
