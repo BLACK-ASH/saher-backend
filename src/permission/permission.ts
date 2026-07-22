@@ -9,12 +9,13 @@ export const RESOURCES = [
   'holiday',
   'notification',
   'mail',
+  'notice',
   'leave',
   'leaveType',
   'preReimbursement',
   'postReimbursement',
   'event',
-  'payroll'
+  'payroll',
 ] as const;
 
 export type Action = (typeof ACTIONS)[number];

@@ -238,6 +238,7 @@ export const getSessions = async (req: Request, res: Response) => {
       .populate('program', 'title')
       .populate('workshop', 'title')
       .populate('images')
+      .populate('bills')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -283,6 +284,8 @@ export const getSingleSession = async (req: Request, res: Response) => {
     .populate('program', 'title')
     .populate('workshop', 'title')
     .populate('images')
+    .populate('bills')
+
     .lean();
 
   if (!session) {
