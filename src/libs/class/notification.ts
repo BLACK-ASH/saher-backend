@@ -197,6 +197,7 @@ export class Notification {
 
       const inserted = await NotificationModel.insertMany(notifications);
       const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cleaned = normalized.map((doc: any) => doc._doc);
       const parsed = notificationResponseListSchema.parse(cleaned);
       await this.updateCaches(parsed);
@@ -214,6 +215,7 @@ export class Notification {
 
       const inserted = await NotificationModel.insertMany(notifications);
       const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cleaned = normalized.map((doc: any) => doc._doc);
       const parsed = notificationResponseListSchema.parse(cleaned);
       await this.updateCaches(parsed);
@@ -234,6 +236,7 @@ export class Notification {
 
     const inserted = await NotificationModel.insertMany(notifications);
     const normalized = normalizeDoc(inserted) as { _doc: NotificationResponseT }[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cleaned = normalized.map((doc: any) => doc._doc);
     const parsed = notificationResponseListSchema.parse(cleaned);
     await this.updateCaches(parsed);

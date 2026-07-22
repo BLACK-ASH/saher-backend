@@ -6,7 +6,7 @@ import { leaveActionTypes, LeaveLog } from '../../database/leave-log.model.js';
 
 export const CreateLeaveLogSchema = z.object({
   user: z.string(),
-  leaveTypeCode: z.string(),
+  leaveCode: z.string(),
   year: z.string(),
   actionType: z.enum(leaveActionTypes),
   count: z.number(),
@@ -21,7 +21,7 @@ export type CreateLeaveLogInput = z.infer<typeof CreateLeaveLogSchema>;
 
 export const createLeaveLog = async ({
   user,
-  leaveTypeCode,
+  leaveCode,
   year,
   actionType,
   count,
@@ -33,7 +33,7 @@ export const createLeaveLog = async ({
 }: CreateLeaveLogInput) => {
   return LeaveLog.create({
     user,
-    leaveTypeCode,
+    leaveCode,
     year,
     actionType,
     count,
@@ -47,7 +47,7 @@ export const createLeaveLog = async ({
 
 interface RecordLeaveUsageInput {
   userId: string;
-  leaveTypeCode: string;
+  leaveCode: string;
   year: string;
   days: number;
   performedBy: string;
@@ -56,7 +56,7 @@ interface RecordLeaveUsageInput {
 
 export const recordLeaveUsage = async ({
   userId,
-  leaveTypeCode,
+  leaveCode,
   year,
   days,
   performedBy,
@@ -69,7 +69,7 @@ export const recordLeaveUsage = async ({
     },
     {
       $inc: {
-        [`used.${leaveTypeCode}`]: days,
+        [`used.${leaveCode}`]: days,
       },
     },
     {
@@ -78,13 +78,13 @@ export const recordLeaveUsage = async ({
     },
   );
 
-  const newUsed = balance?.used?.get(leaveTypeCode) ?? 0;
+  const newUsed = balance?.used?.get(leaveCode) ?? 0;
 
   const previousUsed = newUsed - days;
 
   await createLeaveLog({
     user: userId,
-    leaveTypeCode,
+    leaveCode,
     year,
     actionType: 'LEAVE_APPROVED',
     count: days,

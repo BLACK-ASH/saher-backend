@@ -8,7 +8,7 @@ const leaveSchema = new mongoose.Schema(
       required: true,
     },
 
-    leaveTypeCode: {
+    type: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'LeaveType',
       required: true,
@@ -40,7 +40,6 @@ const leaveSchema = new mongoose.Schema(
     proof: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Media',
-      default: null,
     },
 
     status: {
@@ -52,13 +51,11 @@ const leaveSchema = new mongoose.Schema(
     approvedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      default: null,
     },
 
     managerComment: {
       type: String,
       trim: true,
-      default: null,
     },
   },
   {
