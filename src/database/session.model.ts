@@ -79,7 +79,7 @@ const sessionSchema = new mongoose.Schema(
       default: [],
     },
 
-    bill: {
+    bills: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'Bill',
     },

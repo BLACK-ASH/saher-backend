@@ -25,7 +25,7 @@ export const baseSchema = z.object({
     .transform((value) => value && DOMPurify.sanitize(value)),
   speaker: z.array(objectId()).min(1, 'Session Must Have Atleast One Speaker.'),
   workshop: objectId().optional(),
-  bill: z.array(objectId()).optional(),
+  bills: z.array(objectId()).optional(),
 });
 
 export const createSessionSchema = baseSchema.refine((data) => data.endTime > data.startTime, {
@@ -46,16 +46,18 @@ export const updatedSessionSchema = baseSchema.partial().refine(
   },
 );
 
-export const sessionResponse = baseSchema.omit({ images: true, speaker: true, bill: true }).extend({
-  id: z.string(),
-  date: z.coerce.date(),
-  startTime: z.coerce.date(),
-  program: z.object({ id: z.string(), title: z.string() }),
-  workshop: z.object({ id: z.string(), title: z.string() }),
-  speaker: z.array(userSchemaFinal),
-  images: imageType.array().optional(),
-  bill: z.array(getBillResponseSchema).optional(),
-});
+export const sessionResponse = baseSchema
+  .omit({ images: true, speaker: true, bills: true })
+  .extend({
+    id: z.string(),
+    date: z.coerce.date(),
+    startTime: z.coerce.date(),
+    program: z.object({ id: z.string(), title: z.string() }),
+    workshop: z.object({ id: z.string(), title: z.string() }),
+    speaker: z.array(userSchemaFinal),
+    images: imageType.array().optional(),
+    bills: z.array(getBillResponseSchema).optional(),
+  });
 
 export const createSessionResponseSchema = baseSchema;
 export const UpdatesSessionResponseSchema = baseSchema;
