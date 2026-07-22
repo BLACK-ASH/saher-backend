@@ -16,5 +16,7 @@ const noticeSchema = new mongoose.Schema({
   },
 });
 
+noticeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 export type NoticeType = mongoose.InferSchemaType<typeof noticeSchema>;
 export const Notice = mongoose.model<NoticeType>('Notice', noticeSchema);
