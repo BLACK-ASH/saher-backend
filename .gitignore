@@ -30,6 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 
 # ===============================
+# Graphify local state (keep graph.json/GRAPH_REPORT.md/graph.html)
+# ===============================
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/.graphify_*
+
+# ===============================
 # OS / Editor files
 # ===============================
 .DS_Store
