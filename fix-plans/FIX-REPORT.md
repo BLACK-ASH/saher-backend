@@ -36,3 +36,34 @@ Verification baseline: `pnpm typecheck && pnpm lint` + boot/behavior tests via `
 **OpenAPI:** no endpoint changes — spec untouched.
 
 ---
+
+## 12-seeds ✅ — branch `fix/module-fixes`, 2026-08-22
+
+**Findings fixed (from fix-plans/12-seeds.md):**
+
+| Sev | Finding | Fix |
+|---|---|---|
+| CRIT | Hardcoded admin password `ADMIN000` committed to source | First-admin credentials now come from env: `SEED_ADMIN_EMAIL` (optional, default `admin@saher.com`) + `SEED_ADMIN_PASSWORD` (required by seed, min 12 chars, validated in `src/config/env.ts`, documented in `.env.example`). Password never logged — success line prints the email only |
+| HIGH | Seed failure swallowed (`console.error`, runner exits 0) | `createFirstUser` rethrows; runner's catch exits 1. Verified: missing password → `exit=1` |
+| MED | TOCTOU: users-exist check outside transaction → duplicate admins | Three layers: pre-check fast path → re-check inside `withTransaction` → email-unique-index duplicate-key caught as idempotent success (narrowed to `keyPattern.email`; other duplicates fail loudly) |
+
+**Extra root fixes found while testing:**
+- Seed data was module-level mutable state shared across invocations; fixed media `src` / `employeeId` made concurrent seeds collide on non-email unique indexes before the email index could decide. Now built fresh per invocation with `randomUUID()` placeholders.
+- `runner.ts` logs idempotent skip explicitly ("Users already exist").
+- AGENTS.md `pnpm seed` description updated (plan item 4).
+- `docker-compose.dev.yml`: mongo switched to single-node replica set (`--replSet rs0`) — mongoose transactions require it locally.
+- New `pnpm test` script (`tsx --test src/**/*.test.ts`) — node:test, zero new deps.
+
+**Test cases added** (`src/seeds/create-first-user.test.ts`, all passing):
+1. fails loudly when `SEED_ADMIN_PASSWORD` missing
+2. creates first admin from env creds (role/emailVerified asserted, bcrypt hash compared against env password)
+3. idempotent rerun → still exactly 1 user
+4. concurrent double-seed → exactly one admin survives the unique-index race
+
+**E2E verification:** fresh DB → seed #1 creates `ops-admin@saherindia.org`; seed #2 skips idempotently; unset password → exit 1; final count = 1 admin. Plus `pnpm typecheck && pnpm lint` green.
+
+**Deviations:** no force-reset flag — User model has no such field and adding one touches auth flow (plan 03 scope). Email defaults to `admin@saher.com` when unset so legacy dev flows keep working.
+
+**OpenAPI:** no endpoint changes — spec untouched.
+
+---
