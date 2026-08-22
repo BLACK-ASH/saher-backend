@@ -20,6 +20,11 @@ const envSchema = z.object({
 
   // Optional today: only src/libs/utils/calendar.ts consumes it and tolerates absence
   GOOGLE_API_KEY: z.string().optional(),
+
+  // Bootstrap credentials for `pnpm seed` only — required by seeds/create-first-user,
+  // not by api/worker boot. Password must be strong; it unlocks the first admin account.
+  SEED_ADMIN_EMAIL: z.email().optional(),
+  SEED_ADMIN_PASSWORD: z.string().min(12).optional(),
 });
 
 export const env = envSchema.parse(process.env);

@@ -1,92 +1,111 @@
+import { randomUUID } from 'node:crypto';
+
 import mongoose from 'mongoose';
 
+import { env } from '../config/env.js';
 import { Account } from '../database/account.model.js';
 import { Bank } from '../database/bank.model.js';
 import { Media } from '../database/media-upload.model.js';
-import { User } from '../database/user.model.js';
+import { User, type UserRole } from '../database/user.model.js';
 import { hashPassword } from '../libs/utils/password-hash.js';
 
-const firstUser = {
-  name: 'Admin_Saher',
-  displayName: 'Admin Saher',
-  image: '69c9370b5a219f0b372c5483',
-  role: 'admin',
-  email: 'admin@saher.com',
-  emailVerified: true,
-  password: '',
-};
+// Fresh objects per invocation: module-level shared state made concurrent seeds
+// collide on unique indexes (media src / employeeId) before email could decide.
+const buildSeedData = (email: string, passwordHash: string) => {
+  const image = {
+    alt: 'first-images',
+    src: `/uploads/images/seed-${randomUUID()}.webp`,
+  };
 
-const firstBank = {
-  accountHolderName: 'Admin Saher',
-  bankName: 'SAHER INDIA',
-  accountNumber: '98375923709349234',
-  ifcs: 'SAHE0123456',
-  branch: 'BRANCH',
-  mobileNumber: '9988776655',
-};
+  const user = {
+    name: 'Admin_Saher',
+    displayName: 'Admin Saher',
+    role: 'admin' as UserRole,
+    email,
+    emailVerified: true,
+    password: passwordHash,
+  };
 
-const firstImage = {
-  alt: 'first-images',
-  src: '/uploads/images/c1821c2a-7a05-414c-a54d-b6780e205031.webp',
-};
+  const bank = {
+    accountHolderName: 'Admin Saher',
+    bankName: 'SAHER INDIA',
+    accountNumber: '98375923709349234',
+    ifcs: 'SAHE0123456',
+    branch: 'BRANCH',
+    mobileNumber: '9988776655',
+  };
 
-const firstAccount = {
-  gender: 'other',
-  dateOfBirth: new Date(),
-  dateOfJoining: new Date(),
-  phoneNumber: '9988776655',
-  secondaryPhoneNumber: '9988776655',
-  employeeId: 'first-000',
-  department: 'FIRST',
-  designation: 'FIRST',
-  employeeType: 'full-time',
-  salaryStructure: '0000000',
-  address: 'First Address',
-  aadhar: '69c9370b5a219f0b372c5483',
-  pan: '69c9370b5a219f0b372c5483',
-  resume: '69c9370b5a219f0b372c5483',
+  const account = {
+    gender: 'other' as const,
+    dateOfBirth: new Date(),
+    dateOfJoining: new Date(),
+    phoneNumber: '9988776655',
+    secondaryPhoneNumber: '9988776655',
+    employeeId: `first-${randomUUID()}`,
+    department: 'FIRST',
+    designation: 'FIRST',
+    employeeType: 'full-time' as const,
+    salaryStructure: '0000000',
+    address: 'First Address',
+  };
+
+  return { image, user, bank, account };
 };
 
 const createFirstUser = async () => {
+  // Bootstrap credentials come from env — this account is the application entrypoint.
+  const email = env.SEED_ADMIN_EMAIL || 'admin@saher.com';
+  const { SEED_ADMIN_PASSWORD: password } = env;
+  if (!password) {
+    throw new Error('SEED_ADMIN_PASSWORD is required to seed the first admin (see .env.example).');
+  }
+
   const session = await mongoose.startSession();
-  const first = await User.find();
-  if (first.length !== 0) return null;
-
-  const password = await hashPassword('ADMIN000');
-
   try {
-    const user = await session.withTransaction(async () => {
-      const image = await Media.create(firstImage);
-      await image.save({ session });
+    const existing = await User.findOne();
+    if (existing) return null;
 
-      firstUser.image = image._id.toString();
-      firstUser.password = password;
-      firstAccount.aadhar = image._id.toString();
-      firstAccount.pan = image._id.toString();
-      firstAccount.resume = image._id.toString();
+    const passwordHash = await hashPassword(password);
 
-      const user = new User(firstUser);
-      await user.save({ session });
+    return await session.withTransaction(async () => {
+      // Re-check inside the transaction so two racers can't both pass the pre-check.
+      if (await User.exists({})) return null;
 
-      const bank = new Bank(firstBank);
-      await bank.save({ session });
+      const { image, user, bank, account } = buildSeedData(email, passwordHash);
 
-      const account = new Account({
-        user: user._id,
-        bank: bank._id,
-        ...firstAccount,
-      });
+      const media = await Media.create([image], { session });
 
-      await account.save({ session });
-      return user;
+      const createdUser = new User({ ...user, image: media[0]._id.toString() });
+      await createdUser.save({ session });
+
+      const createdBank = await Bank.create([bank], { session });
+
+      await Account.create(
+        [
+          {
+            user: createdUser._id,
+            bank: createdBank[0]._id,
+            aadhar: media[0]._id.toString(),
+            pan: media[0]._id.toString(),
+            resume: media[0]._id.toString(),
+            ...account,
+          },
+        ],
+        { session },
+      );
+
+      return createdUser;
     });
-
-    // ❗ Ensure user exists after transaction
-    if (!user) {
-      throw new Error('User creation failed.');
-    }
   } catch (err) {
-    console.error(err);
+    // Unique index on email lost the race against a concurrent seed → idempotent success.
+    // Narrow to the email index only: other duplicates must fail loudly.
+    const dup = err as { code?: number; keyPattern?: Record<string, unknown> };
+    if (dup.code === 11000 && dup.keyPattern && 'email' in dup.keyPattern) {
+      return null;
+    }
+    throw err;
+  } finally {
+    await session.endSession();
   }
 };
 

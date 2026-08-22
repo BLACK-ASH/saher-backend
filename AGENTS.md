@@ -7,7 +7,7 @@ Express 5 + TypeScript ESM REST API (Mongoose 9/MongoDB, Redis + BullMQ, zod v4,
 - `pnpm dev` — API server (tsx watch). `pnpm dev:worker` — separate BullMQ worker. Both processes are needed for full behavior (attendance-report jobs run only in the worker).
 - Verify changes with `pnpm typecheck && pnpm lint`. There is no test suite — don't search for one.
 - `pnpm build` runs `docs:build` (Redocly → `docs/index.html`) **before** `tsc`; docs generation failure breaks compilation order assumptions.
-- `pnpm format` (prettier), `pnpm spellcheck` (cspell over the whole repo, including markdown), `pnpm seed` (bootstraps first admin: `admin@saher.com`, hardcoded `ADMIN000`, pre-verified — dev convenience only).
+- `pnpm format` (prettier), `pnpm spellcheck` (cspell over the whole repo, including markdown), `pnpm seed` (bootstraps the first admin from `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` env, pre-verified; fails without them).
 - Prod: `pnpm prod` = clean → redocly lint → build → start.
 
 ## Toolchain quirks

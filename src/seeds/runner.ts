@@ -11,7 +11,14 @@ const run = async () => {
     // eslint-disable-next-line no-console
     console.log('DB connected for seed');
 
-    await createFirstUser();
+    const seeded = await createFirstUser();
+    if (seeded) {
+      // eslint-disable-next-line no-console
+      console.log(`Seeded first admin: ${seeded.email} (credentials from SEED_ADMIN_* env)`);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log('Users already exist — seed skipped (idempotent).');
+    }
 
     // WARN:Remove This After Development
     // eslint-disable-next-line no-console
