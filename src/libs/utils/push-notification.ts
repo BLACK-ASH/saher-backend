@@ -1,15 +1,15 @@
 import webpush from 'web-push';
 
+import { env } from '../../config/env.js';
 import { PushSubscription } from '../../database/push-subscription.js';
 import { ApiError } from '../class/api-error.js';
-import 'dotenv/config';
 import { logger } from '../logger/logger.js';
 
 // VAPID setup (run once on import)
 webpush.setVapidDetails(
   'mailto:admin@saherinternals.com',
-  process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!,
+  env.VAPID_PUBLIC_KEY,
+  env.VAPID_PRIVATE_KEY,
 );
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -6,15 +6,12 @@ import type { Request, Response } from 'express';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { DateRange } from '../../libs/class/date-range.js';
+import { bullmqConnection } from '../../libs/redis/redis-client.js';
 import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { notification } from '../../libs/utils/notification.js';
 
 export const attendanceReportQueue = new Queue('pdf-attendance-report', {
-  connection: {
-    host: 'redis',
-    port: 6379,
-    maxRetriesPerRequest: null,
-  },
+  connection: bullmqConnection,
 });
 
 export const exportReportController = async (req: Request, res: Response) => {

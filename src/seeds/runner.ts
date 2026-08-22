@@ -1,11 +1,11 @@
-import 'dotenv/config';
 import mongoose from 'mongoose';
 
 import createFirstUser from './create-first-user.js';
+import { env } from '../config/env.js';
 
 const run = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI!);
+    await mongoose.connect(env.MONGO_URI);
 
     // WARN:Remove This After Development
     // eslint-disable-next-line no-console

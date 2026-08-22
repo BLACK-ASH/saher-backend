@@ -2,13 +2,13 @@ import path from 'path';
 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import 'dotenv/config';
 import express from 'express';
 
 import adminRouter from './admin/admin.routes.js';
 import attendanceRouter from './attendance/attendance.route.js';
 import authRouter from './auth/auth.routes.js';
 import { calendarRouter } from './calendar/calendar.routes.js';
+import { env } from './config/env.js';
 import connectDb from './database/connection.js';
 import eventRouter from './events/events.routes.js';
 import leaveRouter from './leave/leave.route.js';
@@ -31,11 +31,8 @@ import billRouter from './reimbursement/reimbursement.routes.js';
 import uploadRouter from './upload/upload.routes.js';
 import userRouter from './user/user.routes.js';
 
-// Env Config
-// dotenv.config();
-
 const app = express();
-const PORT = Number(process.env.PORT) || 4000;
+const PORT = env.PORT;
 
 // Middlewares
 // 1. request id

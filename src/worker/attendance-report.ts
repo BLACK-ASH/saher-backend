@@ -6,6 +6,7 @@ import { Worker } from 'bullmq';
 
 import { retrieveCustomAttendace } from '../attendance/attendance.service.js';
 import { logger } from '../libs/logger/logger.js';
+import { bullmqConnection } from '../libs/redis/redis-client.js';
 import { getBrowser } from '../libs/utils/browser.js';
 import { createAttendancePdfBody } from './attendance/template/attendance-pdf.js';
 import { notification } from '../libs/utils/notification.js';
@@ -110,11 +111,7 @@ export const attendanceReportWorker = new Worker(
   'pdf-attendance-report',
   generateAttendanceReportPdf,
   {
-    connection: {
-      host: 'redis',
-      port: 6379,
-      maxRetriesPerRequest: null,
-    },
+    connection: bullmqConnection,
   },
 );
 

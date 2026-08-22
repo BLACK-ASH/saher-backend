@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import type { SessionMeta } from './session-meta.js';
+import { env } from '../../config/env.js';
 import type { UserRole } from '../../database/user.model.js';
 import { client } from '../../libs/redis/redis-client.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
@@ -55,7 +56,7 @@ export const generateToken = async (data: ReqUser, meta: SessionMeta) => {
   await client.sAdd(createKey('user_session', data.id), sessionId);
 
   // Generate Access Token
-  const accessToken = jwt.sign(data, process.env.JWT_ACCESS_SECRET!, {
+  const accessToken = jwt.sign(data, env.JWT_ACCESS_SECRET, {
     algorithm: 'HS384',
     expiresIn: '15m',
   });
@@ -132,7 +133,7 @@ export const renewToken = async (sessionId: string, refreshToken: string) => {
 
   await setCache(sessionKey, updatedSession, 60 * 60 * 24 * 60);
 
-  const accessToken = jwt.sign(session.user, process.env.JWT_ACCESS_SECRET!, {
+  const accessToken = jwt.sign(session.user, env.JWT_ACCESS_SECRET, {
     algorithm: 'HS384',
     expiresIn: '15m',
   });
@@ -147,7 +148,7 @@ export const renewToken = async (sessionId: string, refreshToken: string) => {
 
 // To Verify Access Token
 export const verifyAccessToken = (accessToken: string) => {
-  const data = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!, {
+  const data = jwt.verify(accessToken, env.JWT_ACCESS_SECRET, {
     algorithms: ['HS384'],
   });
 

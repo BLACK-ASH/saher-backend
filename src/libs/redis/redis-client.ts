@@ -1,10 +1,10 @@
 import { createClient } from 'redis';
 
-import 'dotenv/config';
+import { env } from '../../config/env.js';
 import { logger } from '../logger/logger.js';
 
 export const client = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379',
+  url: env.REDIS_URL,
   socket: {
     reconnectStrategy: (retries) => {
       logger.warn(`redis connection try - ${retries}`);
@@ -16,6 +16,14 @@ export const client = createClient({
     },
   },
 });
+
+// Shared BullMQ connection derived from REDIS_URL (was hardcoded to docker service name 'redis')
+const redisUrl = new URL(env.REDIS_URL);
+export const bullmqConnection = {
+  host: redisUrl.hostname,
+  port: Number(redisUrl.port) || 6379,
+  maxRetriesPerRequest: null,
+} as const;
 
 client.on('error', (error: Error) => {
   if (error instanceof Error) logger.error(error.stack, error.message);
