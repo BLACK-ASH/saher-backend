@@ -67,3 +67,36 @@ Verification baseline: `pnpm typecheck && pnpm lint` + boot/behavior tests via `
 **OpenAPI:** no endpoint changes — spec untouched.
 
 ---
+
+## 11-public ✅ — branch `fix/module-fixes`, 2026-08-22
+
+**Findings fixed (from fix-plans/11-public.md):**
+
+| Sev | Finding | Fix |
+|---|---|---|
+| CRIT | Cron triggers public with secret in URL path (`/cron/create/:pass`) | Routes now `POST /api/cron/create-attendance` and `/api/cron/auto-checkout`; secret travels in `Authorization: Bearer <CRON_SECRET>` (or `x-cron-secret`) — never in path, so it can't leak into access logs/history |
+| HIGH | Secret compared with raw `!==` (timing side channel) | New shared guard `src/libs/middleware/cron-secret.ts`: sha256 both sides → `crypto.timingSafeEqual` (length-safe), 401 on any mismatch |
+| HIGH | `.env.example` `CRON_SECRET=super` | Scrubbed earlier; boot validation tightened to **min 32 chars** (was min 16) |
+
+**Also:**
+- Dropped the dead `req.user?.role === 'admin'` bypass — routes mount before `protectedRoute`, so `req.user` is always undefined there; the bypass was misleading dead code.
+- Removed redundant `import 'dotenv/config'` stragglers and unused imports from both cron controllers.
+
+**⚠️ Deploy coordination required:** the external cron scheduler must switch from
+`POST /api/cron/create-attendance/<secret>` to
+`POST /api/cron/create-attendance` with header `-H "Authorization: Bearer $CRON_SECRET"`
+(and same for auto-checkout) in the same release. Old paths return 404 by design.
+Network-level restriction for `/api/cron/*` noted as optional defense-in-depth (ops).
+
+**Test cases added** (`src/libs/middleware/cron-secret.test.ts`, all passing):
+1. correct Bearer token → next()
+2. correct x-cron-secret → next()
+3. wrong secret → 401
+4. missing header → 401
+5. prefix of real secret → 401 (no length leak)
+
+**E2E verification (live server):** no header → 401 · garbage bearer → 401 · old secret-in-URL path → 404 · correct Bearer → `{"success":true,...,"create":1}`. Full suite `pnpm test` = 9/9, typecheck+lint green.
+
+**OpenAPI:** cron routes were never in `openapi.yaml`; nothing to sync.
+
+---
