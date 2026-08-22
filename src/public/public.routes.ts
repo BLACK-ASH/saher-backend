@@ -4,11 +4,13 @@ import mongoose from 'mongoose';
 import { autoCheckoutCron } from '../attendance/cron-job/auto-checkout-attendance.cron.js';
 import { createAttendanceCron } from '../attendance/cron-job/create-attendance.cron.js';
 import { ApiResponse } from '../libs/class/api-response.js';
+import { requireCronSecret } from '../libs/middleware/cron-secret.js';
 
 const publicRouter = Router();
 
-publicRouter.post('/cron/create/:pass', createAttendanceCron);
-publicRouter.post('/cron/auto-checkout/:pass', autoCheckoutCron);
+// Secret goes in `Authorization: Bearer <CRON_SECRET>` header, not the URL path.
+publicRouter.post('/cron/create-attendance', requireCronSecret, createAttendanceCron);
+publicRouter.post('/cron/auto-checkout', requireCronSecret, autoCheckoutCron);
 
 // To Check Services Is Healthy
 publicRouter.get('/health', async (req, res) => {

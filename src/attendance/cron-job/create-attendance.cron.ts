@@ -3,20 +3,11 @@ import type { Request, Response } from 'express';
 import { Attendance } from '../../database/attendance.model.js';
 import { Leave } from '../../database/leave.model.js';
 import { User } from '../../database/user.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
-import 'dotenv/config';
-
 export const createAttendanceCron = async (req: Request, res: Response) => {
-  const pass = req.params?.pass;
-
-  if (pass !== process.env.CRON_SECRET && req.user?.role !== 'admin') {
-    throw new ApiError(403, 'Forbidden. You are not allowed to perform this action');
-  }
-
   const todayDate = new Date();
   const today = standardDateString(todayDate);
 

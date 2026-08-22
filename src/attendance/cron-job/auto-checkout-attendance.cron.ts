@@ -5,10 +5,8 @@ import z from 'zod';
 import { accountSchemaFinal } from '../../admin/_services/account.js';
 import { Account } from '../../database/account.model.js';
 import { Attendance } from '../../database/attendance.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
-import 'dotenv/config';
 import {
   calculateWorkStatus,
   getShift,
@@ -19,12 +17,6 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const autoCheckoutCron = async (req: Request, res: Response) => {
-  const pass = req.params?.pass;
-
-  if (pass !== process.env.CRON_SECRET && req.user?.role !== 'admin') {
-    throw new ApiError(403, 'Forbidden. You are not allowed to perform this action.');
-  }
-
   const today = standardDateString(new Date());
 
   // 🔍 Find pending records

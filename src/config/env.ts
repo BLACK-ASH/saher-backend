@@ -12,7 +12,7 @@ const envSchema = z.object({
   BASE_URL: z.string().min(1),
 
   JWT_ACCESS_SECRET: z.string().min(32),
-  CRON_SECRET: z.string().min(16),
+  CRON_SECRET: z.string().min(32),
 
   RESEND_API_KEY: z.string().min(20),
   VAPID_PUBLIC_KEY: z.string().min(1),
