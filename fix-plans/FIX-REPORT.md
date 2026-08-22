@@ -100,3 +100,24 @@ Network-level restriction for `/api/cron/*` noted as optional defense-in-depth (
 **OpenAPI:** cron routes were never in `openapi.yaml`; nothing to sync.
 
 ---
+
+## ⏸ CHECKPOINT — paused mid-analysis of 10-permission (2026-08-22)
+
+Wave 1 started; no code changed yet for this module. State at pause:
+
+**Done:** read all of `fix-plans/10-permission.md` + `src/permission/{authorize,role-permission,permission}.ts`.
+
+**Blast radius mapped — `authorize('read', …)` guards that activate when the bypass dies:**
+- `payroll.routes.ts:23-25` — read 'payroll' (3 routes)
+- `events.routes.ts` — read 'event' (9 routes: workshops/sessions/participants/programs)
+- `reimbursement.routes.ts:77-86` — read 'preReimbursement' (5 routes)
+
+None of these resources have ANY role with `read` grants in ROLE_PERMISSIONS today → after removing
+the bypass, EVERYONE (incl. admin) gets 403 on those reads unless grants are added.
+
+**Resume plan (per fix-plans/10-permission.md):**
+1. Delete unconditional `if (action === 'read') next();` in `authorize.ts:22-24`
+2. Replace both `ApiResponse.success(…401/403)` blocks with `throw new ApiError(...)` (repo rule #3)
+3. Add `read` grants to ROLE_PERMISSIONS: admin needs read on payroll/event/preReimbursement (+ likely all); manager: event + preReimbursement per current usage; user: event reads (workshops are participant-facing) — product call flagged
+4. Type ROLE_PERMISSIONS as `Record<UserRole, Set<string>>`
+5. Tests: authorize unit tests (user→read admin resource = 403, granted read passes, error envelope not success envelope) + e2e curl matrix two roles
