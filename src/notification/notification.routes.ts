@@ -16,7 +16,7 @@ import { validate } from '../libs/middleware/validate-zod-schema.js';
 // import { sendPushToUser } from '../libs/utils/push-notification.js';
 import { authorize } from '../permission/authorize.js';
 const notificationRouter = Router();
-notificationRouter.get('/', validate(notificationListQuerySchema), getAllNotificationsController);
+notificationRouter.get('/', validate(notificationListQuerySchema, 'query'), getAllNotificationsController);
 notificationRouter.get('/un-seen', getUnseenNotification);
 notificationRouter.post(
   '/',

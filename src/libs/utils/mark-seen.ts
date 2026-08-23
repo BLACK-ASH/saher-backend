@@ -6,8 +6,9 @@ import { createKey, getCache, setCache } from '../redis/redis-utils.js';
 export const markSeenNotification = async (notificationId: string, userId: string) => {
   // mark the Db notification as seen
 
-  const modified = await Notification.findByIdAndUpdate(
-    // user scope — otherwise any user can mark anyone's notification seen (IDOR)
+  // findOneAndUpdate with explicit criteria — findByIdAndUpdate(obj) ignores non-_id
+  // keys, which let any user mark anyone's notification seen (IDOR)
+  const modified = await Notification.findOneAndUpdate(
     { _id: notificationId, user: userId },
     { isSeen: true, seenAt: new Date() },
     { new: true },

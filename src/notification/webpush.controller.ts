@@ -24,7 +24,11 @@ export const subscribePushController = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) throw new ApiError(403, 'forbidden');
 
-  const subscription = subscribeSchema.parse(req.body);
+  const parsed = subscribeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw new ApiError(400, z.prettifyError(parsed.error));
+  }
+  const subscription = parsed.data;
 
   // An endpoint belongs to one browser+user — refuse to rebind someone else's row (hijack)
   const existing = await PushSubscription.findOne({ endpoint: subscription.endpoint });

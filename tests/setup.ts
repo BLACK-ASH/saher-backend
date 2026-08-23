@@ -6,8 +6,11 @@ process.env.BASE_URL = 'http://localhost:4001';
 process.env.JWT_ACCESS_SECRET = 'a'.repeat(32);
 process.env.CRON_SECRET = 'b'.repeat(32);
 process.env.RESEND_API_KEY = 'a'.repeat(20);
-process.env.VAPID_PUBLIC_KEY = 'public';
-process.env.VAPID_PRIVATE_KEY = 'private';
+// web-push validates VAPID key lengths on first send — generate real-shaped keys
+const { generateVAPIDKeys } = await import('web-push');
+const vapid = generateVAPIDKeys();
+process.env.VAPID_PUBLIC_KEY = vapid.publicKey;
+process.env.VAPID_PRIVATE_KEY = vapid.privateKey;
 // integration tests make hundreds of auth calls — disable rate limiting
 process.env.RATE_LIMIT_AUTH = '100000';
 process.env.RATE_LIMIT_API = '100000';
