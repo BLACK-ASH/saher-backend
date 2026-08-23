@@ -1,47 +1,58 @@
 post:
   tags: [Attendance]
-  summary: Register Attendance Correction Details
-  operationId: registerAttendanceCorrection
+  summary: Request An Attendance Correction
+  operationId: createAttendanceCorrection
   requestBody:
     required: true
     content:
       application/json:
         schema:
           type: object
+          required: [attendanceId, message, inTime, outTime]
           properties:
-            attendenceId:
+            attendanceId:
               type: string
-            reason:
+            message:
               type: string
-            correction:
+              minLength: 3
+              maxLength: 300
+            inTime:
               type: string
+              format: date-time
+            outTime:
+              type: string
+              format: date-time
             proof:
               type: string
-              description: Image file upload Url
+              description: Media upload reference
   responses:
     '200':
-      description: Attendance Correction Added Successfully
+      description: Correction request created
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-              message:
-                type: string
-                example: Attendance Correction Added Successfully
-              data:
-                type: object
-                properties:
-                  id:
-                    type: string
+            $ref: ../../../components/common/succes-response.yaml
     '400':
       description: Invalid Details
       content:
         application/json:
           schema:
             $ref: ../../../components/common/error-response.yaml
+
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/error-response.yaml
+
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/error-response.yaml
+
     '500':
       description: Internal Server Error
       content:

@@ -1,0 +1,48 @@
+post:
+  tags: [Attendance]
+  summary: Claim Flexible Week Off
+  operationId: claimFlexibleWeekOff
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            date:
+              type: string
+              format: date
+              description: Defaults to today when omitted
+  responses:
+    '200':
+      description: Week off claimed
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '409':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

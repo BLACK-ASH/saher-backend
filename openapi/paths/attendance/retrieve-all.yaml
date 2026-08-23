@@ -1,0 +1,41 @@
+get:
+  tags: [Attendance]
+  summary: Retrieve All Users Attendance In Range
+  operationId: retrieveAllAttendance
+  parameters:
+    - name: type
+      in: query
+      schema: { type: string, enum: [week, month, year] }
+      description: Either type or both startDate and endDate are required
+    - name: startDate
+      in: query
+      schema: { type: string, format: date }
+    - name: endDate
+      in: query
+      schema: { type: string, format: date }
+    - name: page
+      in: query
+      schema: { type: integer, default: 1 }
+    - name: limit
+      in: query
+      schema: { type: integer, default: 10, maximum: 100 }
+  responses:
+    '200':
+      description: Cross-user attendance records
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

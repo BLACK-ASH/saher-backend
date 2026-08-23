@@ -1,0 +1,36 @@
+get:
+  tags: [Attendance]
+  summary: List A User Attendance History
+  operationId: listUserAttendanceHistory
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+      description: User id or the literal 'me'
+    - name: page
+      in: query
+      schema: { type: integer, default: 1 }
+    - name: limit
+      in: query
+      schema: { type: integer, default: 10 }
+  responses:
+    '200':
+      description: Paginated attendance history
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

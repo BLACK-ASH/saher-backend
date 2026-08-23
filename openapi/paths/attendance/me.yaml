@@ -1,23 +1,24 @@
 get:
   tags: [Attendance]
-  summary: Get All Holiday
-  operationId: getAllHoliday
+  summary: Get Own Today's Attendance
+  operationId: getMyTodayAttendance
   responses:
     '200':
-      description: All Holiday Details Retrive Successfully
+      description: Today's attendance for the caller
       content:
         application/json:
           schema:
-            $ref: ../../../components/holiday/response.yaml
+            $ref: ../../components/common/succes-response.yaml
     '400':
       description: Invalid Details
       content:
         application/json:
           schema:
-            $ref: ../../../components/common/error-response.yaml
+            $ref: ../../components/common/error-response.yaml
+
     '500':
       description: Internal Server Error
       content:
         application/json:
           schema:
-            $ref: ../../../components/common/error-response.yaml
+            $ref: ../../components/common/error-response.yaml

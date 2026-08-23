@@ -1,0 +1,27 @@
+get:
+  tags: [Attendance]
+  summary: List All Correction Requests
+  operationId: listAllAttendanceCorrections
+  parameters:
+    - name: page
+      in: query
+      schema: { type: integer, default: 1 }
+    - name: limit
+      in: query
+      schema: { type: integer, default: 10 }
+    - name: sort
+      in: query
+      schema: { type: string, enum: [asc, desc] }
+  responses:
+    '200':
+      description: All correction requests
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/succes-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/error-response.yaml

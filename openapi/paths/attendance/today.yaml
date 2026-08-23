@@ -1,0 +1,31 @@
+get:
+  tags: [Attendance]
+  summary: List Today's Attendance (admin/manager)
+  operationId: listTodayAttendance
+  parameters:
+    - name: page
+      in: query
+      schema: { type: integer, default: 1 }
+    - name: limit
+      in: query
+      schema: { type: integer, default: 10 }
+  responses:
+    '200':
+      description: Paginated attendance rows for today
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

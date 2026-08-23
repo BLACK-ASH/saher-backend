@@ -1,0 +1,23 @@
+post:
+  tags: [Attendance]
+  summary: Cron - Create Today Absence Rows
+  operationId: cronCreateAttendance
+  description: Creates an absent row per active user (on-leave when approved leave overlaps today). Idempotent.
+  parameters:
+    - name: pass
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Rows created
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

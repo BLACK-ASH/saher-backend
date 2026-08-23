@@ -1,0 +1,29 @@
+get:
+  tags: [Attendance]
+  summary: Download Generated Report File
+  operationId: downloadAttendanceReport
+  parameters:
+    - name: fileName
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Report file stream
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

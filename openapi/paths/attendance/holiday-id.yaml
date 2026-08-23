@@ -1,0 +1,72 @@
+get:
+  tags: [Attendance]
+  summary: Get One Holiday
+  operationId: getHoliday
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Holiday record
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+put:
+  tags: [Attendance]
+  summary: Update A Holiday
+  operationId: updateHoliday
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            title: { type: string, minLength: 2 }
+            type: { type: string, enum: [national, organizational, optional, other, google, public-holiday] }
+            date: { type: string, format: date }
+            description: { type: ['string', 'null'] }
+  responses:
+    '200':
+      description: Holiday updated
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+delete:
+  tags: [Attendance]
+  summary: Delete A Holiday
+  operationId: deleteHoliday
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Holiday deleted
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+

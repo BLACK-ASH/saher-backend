@@ -6,6 +6,7 @@ info:
   version: 1.0.0
   license:
     name: MIT
+    identifier: MIT
 
 tags:
   - name: User
@@ -20,6 +21,8 @@ tags:
     description: Upload Management Operation
   - name: Account
     description: Account Management Operation
+  - name: Attendance
+    description: Attendance Management Operation
 
 servers:
   - url: http://localhost:4000/api
@@ -78,26 +81,56 @@ paths:
 
   # Attendance
   # Mark
+  /attendance/me:
+    $ref: ./paths/attendance/me.yaml
+  /attendance/today:
+    $ref: ./paths/attendance/today.yaml
   /attendance/check-in:
     $ref: ./paths/attendance/check-in.yaml
   /attendance/check-out:
     $ref: ./paths/attendance/check-out.yaml
+  /attendance/overtime/check-in:
+    $ref: ./paths/attendance/overtime-check-in.yaml
+  /attendance/weekoff:
+    $ref: ./paths/attendance/weekoff.yaml
+  /attendance/mark:
+    $ref: ./paths/attendance/mark.yaml
+
+  # Retrieve
+  /attendance/retrieve/{id}:
+    $ref: ./paths/attendance/retrieve-user.yaml
+  /attendance/retrieve:
+    $ref: ./paths/attendance/retrieve-all.yaml
+  /attendance/user/{id}:
+    $ref: ./paths/attendance/user-history.yaml
+  /attendance/record/{id}:
+    $ref: ./paths/attendance/record.yaml
+
+  # Correction
   /attendance/correction:
     $ref: ./paths/attendance/correction/create.yaml
   /attendance/correction/{id}:
-    $ref: ./paths/attendance/correction/update.yaml
+    $ref: ./paths/attendance/correction/by-id.yaml
+  /attendance/admin/correction:
+    $ref: ./paths/attendance/correction/list-all.yaml
 
-    # Holiday
-  /attendance/holiday/create:
-    $ref: ./paths/attendance/holiday/create.yaml
-  /attendance/holiday/update/{id}:
-    $ref: ./paths/attendance/holiday/update.yaml
-  /attendance/holiday/get-all:
-    $ref: ./paths/attendance/holiday/get-all.yaml
-  /attendance/holiday/get/{id}:
-    $ref: ./paths/attendance/holiday/get.yaml
-  /attendance/holiday/delete/{id}:
-    $ref: ./paths/attendance/holiday/delete.yaml
+  # Holiday
+  /attendance/holiday:
+    $ref: ./paths/attendance/holiday.yaml
+  /attendance/holiday/{id}:
+    $ref: ./paths/attendance/holiday-id.yaml
+
+  # Export Report
+  /attendance/export/report:
+    $ref: ./paths/attendance/export-report.yaml
+  /attendance/download/{fileName}:
+    $ref: ./paths/attendance/download.yaml
+
+  # Cron Jobs (internal)
+  /attendance/cron/create/{pass}:
+    $ref: ./paths/attendance/cron-create.yaml
+  /attendance/cron/auto-checkout/{pass}:
+    $ref: ./paths/attendance/cron-auto-checkout.yaml
 
     # Export Report
 

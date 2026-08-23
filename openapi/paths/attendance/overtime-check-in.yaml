@@ -1,0 +1,24 @@
+post:
+  tags: [Attendance]
+  summary: Check In On Week Off / Leave (overtime)
+  operationId: overtimeCheckIn
+  responses:
+    '200':
+      description: Converted to present with overtime flag
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

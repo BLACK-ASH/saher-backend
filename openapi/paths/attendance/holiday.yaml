@@ -1,0 +1,55 @@
+get:
+  tags: [Attendance]
+  summary: List All Holidays
+  operationId: listHolidays
+  responses:
+    '200':
+      description: Successful
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+post:
+  tags: [Attendance]
+  summary: Create A Holiday
+  operationId: createHoliday
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [title, date]
+          properties:
+            title:
+              type: string
+              minLength: 2
+            type:
+              type: string
+              enum: [national, organizational, optional, other, google, public-holiday]
+              default: other
+            date:
+              type: string
+              format: date
+            description:
+              type: ['string', 'null']
+  responses:
+    '200':
+      description: Holiday created
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+

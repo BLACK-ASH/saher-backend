@@ -1,0 +1,77 @@
+get:
+  tags: [Attendance]
+  summary: List Correction Requests For A User
+  description: Pass 'me' as id to list own requests.
+  operationId: listAttendanceCorrections
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+    - name: page
+      in: query
+      schema: { type: integer, default: 1 }
+    - name: limit
+      in: query
+      schema: { type: integer, default: 10 }
+    - name: sort
+      in: query
+      schema: { type: string, enum: [asc, desc] }
+  responses:
+    '200':
+      description: Correction requests
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/succes-response.yaml
+put:
+  tags: [Attendance]
+  summary: Handle A Correction Request (approve / reject / on-hold)
+  operationId: handleAttendanceCorrection
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [status]
+          properties:
+            status:
+              type: string
+              enum: [reject, on-hold, approve]
+            reason:
+              type: string
+              maxLength: 300
+            changes:
+              type: object
+              description: Admin-only override of the requested times/status
+              properties:
+                inTime: { type: string, format: date-time }
+                outTime: { type: string, format: date-time }
+                status: { type: string, enum: [absent, half-day, present] }
+                isLate: { type: boolean }
+  responses:
+    '200':
+      description: Correction handled
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../../components/common/error-response.yaml
+

@@ -1,0 +1,43 @@
+patch:
+  tags: [Attendance]
+  summary: Override Attendance Status (admin/manager)
+  operationId: overrideAttendanceMark
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [id, status, isLate, date]
+          properties:
+            id:
+              type: string
+              description: User id whose attendance is overridden
+            status:
+              type: string
+              enum: [present, absent, half-day]
+            isLate:
+              type: boolean
+            date:
+              type: string
+              format: date
+  responses:
+    '200':
+      description: Updated attendance record
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

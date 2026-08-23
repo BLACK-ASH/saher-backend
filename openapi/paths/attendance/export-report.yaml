@@ -1,0 +1,31 @@
+get:
+  tags: [Attendance]
+  summary: Export Attendance Report
+  operationId: exportAttendanceReport
+  parameters:
+    - name: startDate
+      in: query
+      schema: { type: string, format: date }
+    - name: endDate
+      in: query
+      schema: { type: string, format: date }
+  responses:
+    '200':
+      description: Report job accepted
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/succes-response.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
