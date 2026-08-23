@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const salaryStatus = ['paid', 'unpaid', 'partially-paid'];
+export const salaryStatus = ['paid', 'unpaid', 'partially-paid', 'approved'];
 export const salaryMode = ['cash', 'cheque', 'upi', '-'];
 
 export const payrollSchema = new mongoose.Schema(
