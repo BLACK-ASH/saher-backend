@@ -1,15 +1,16 @@
-import request from 'supertest';
-import { beforeEach, describe, expect, it } from 'vitest';
 import { compare } from 'bcrypt';
 import { Types } from 'mongoose';
+import request from 'supertest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { app } from '../../src/app.js';
-import { createFullAccount } from '../helpers/account.js';
-import { Ctx, mkPerson } from '../helpers/person.js';
 import { Account } from '../../src/database/account.model.js';
 import { Bank } from '../../src/database/bank.model.js';
 import { Media } from '../../src/database/media-upload.model.js';
 import { User } from '../../src/database/user.model.js';
+import { createFullAccount } from '../helpers/account.js';
+import { mkPerson } from '../helpers/person.js';
+import type { Ctx} from '../helpers/person.js';
 
 let admin: Ctx;
 let manager: Ctx;

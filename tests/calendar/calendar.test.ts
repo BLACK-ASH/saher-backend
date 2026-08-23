@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { app } from '../../src/app.js';
 import { CalendarEvent } from '../../src/database/calendar-event.model.js';
 import { redisState } from '../helpers/fake-redis.js';
-import { Ctx, mkPerson } from '../helpers/person.js';
+import type { Ctx} from '../helpers/person.js';
+import { mkPerson } from '../helpers/person.js';
 
 let plain: Ctx;
 

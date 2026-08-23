@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { app } from '../../src/app.js';
 import { LeaveBalance } from '../../src/database/leave-balance.model.js';
 import { LeaveType } from '../../src/database/leave-type.model.js';
-import { Ctx, mkPerson } from '../helpers/person.js';
+import type { Ctx} from '../helpers/person.js';
+import { mkPerson } from '../helpers/person.js';
 
 let admin: Ctx;
 let manager: Ctx;
@@ -176,7 +177,7 @@ describe('leave module', () => {
     });
 
     it('applicants edit only their own pending applications', async () => {
-      const type = await makeType({ code: 'ML', name: 'Medical', requiresProof: true });
+      await makeType({ code: 'ML', name: 'Medical', requiresProof: true });
       await request(app).post('/api/leave/application/apply').set('Cookie', plain.cookie).send({
         type: 'ML',
         startDate: day(6),
@@ -203,7 +204,7 @@ describe('leave module', () => {
     });
 
     it('reviews applications, records usage, blocks double review', async () => {
-      const type = await makeType({ code: 'AL', name: 'Annual' });
+      await makeType({ code: 'AL', name: 'Annual' });
       await request(app).post('/api/leave/application/apply').set('Cookie', plain.cookie).send({
         type: 'AL',
         startDate: day(9),

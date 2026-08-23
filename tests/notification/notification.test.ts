@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { app } from '../../src/app.js';
 import { PushSubscription } from '../../src/database/push-subscription.js';
 import { User } from '../../src/database/user.model.js';
-import { Ctx, mkPerson } from '../helpers/person.js';
+import type { Ctx} from '../helpers/person.js';
+import { mkPerson } from '../helpers/person.js';
 
 let admin: Ctx;
 let manager: Ctx;
