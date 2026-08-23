@@ -4,6 +4,7 @@ import { Bill } from '../../database/bill.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { notificationService } from '../../libs/utils/notification.service.js';
 
 export const adminCreateBill = async (req: Request, res: Response) => {
@@ -25,6 +26,9 @@ export const adminCreateBill = async (req: Request, res: Response) => {
     description,
     date,
   });
+
+  // mybills is cached per-user — every writer must invalidate it
+  await deleteCache(createKey('reimbursement', 'mybill', String(user)));
 
   const action = {
     type: 'none' as const,
@@ -82,6 +86,8 @@ export const adminUpdateBill = async (req: Request, res: Response) => {
     bill.advance = advance;
     bill.description = description;
     await bill.save();
+
+    await deleteCache(createKey('reimbursement', 'mybill', String(bill.user)));
   }
 
   return ApiResponse.success(res, {
@@ -110,6 +116,8 @@ export const adminSoftDeleteBill = async (req: Request, res: Response) => {
     bill.isDeleted = true;
     bill.save();
   } else throw new ApiError(400, "you can't delete this bill now");
+
+  await deleteCache(createKey('reimbursement', 'mybill', String(bill.user)));
 
   return ApiResponse.success(res, {
     message: 'Move to trash',

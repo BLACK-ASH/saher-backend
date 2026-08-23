@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { app } from '../../src/app.js';
 import { Notice } from '../../src/database/notice.model.js';
-import { Ctx, mkPerson } from '../helpers/person.js';
+import type { Ctx} from '../helpers/person.js';
+import { mkPerson } from '../helpers/person.js';
 
 let plain: Ctx;
 

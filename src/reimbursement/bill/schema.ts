@@ -3,8 +3,9 @@ import z from 'zod';
 import { billStatus } from '../../database/bill.model.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
+// id is a response virtual — never required on input
 export const billSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   user: objectId(),
   images: z.array(objectId()).min(1),
   advance: z.coerce.number(),

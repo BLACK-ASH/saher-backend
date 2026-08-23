@@ -74,14 +74,7 @@ billRouter.post(
 
 // gets bills
 billRouter.get('/mybills', myBillsController);
-billRouter.get('/:billId', authorize('read', 'preReimbursement'), getBillByIdController);
-billRouter.get('/bills', authorize('write', 'preReimbursement'), getAllBillsController);
-billRouter.get('/', authorize('read', 'preReimbursement'), searchBillController);
-billRouter.get('/:id', authorize('read', 'preReimbursement'), searchSettleBillController);
-
-// Recycle bills
 billRouter.get('/recyclebills', authorize('read', 'preReimbursement'), recycleBillsController);
-
 // Audit Log
 billRouter.get('/audit-log', authorize('read', 'preReimbursement'), getAuditLogController);
 billRouter.post(
@@ -93,5 +86,9 @@ billRouter.post(
 
 // User Balance Enquiry
 billRouter.get('/balance-enquiry', userBalanceEnquiryController);
+billRouter.get('/bills', authorize('write', 'preReimbursement'), getAllBillsController);
+billRouter.get('/', authorize('read', 'preReimbursement'), searchBillController);
+billRouter.get('/:billId', authorize('read', 'preReimbursement'), getBillByIdController);
+billRouter.get('/:id', authorize('read', 'preReimbursement'), searchSettleBillController);
 
 export default billRouter;

@@ -2,9 +2,10 @@ import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { app } from '../../src/app.js';
-import { createFullAccount } from '../helpers/account.js';
-import { Ctx, mkPerson } from '../helpers/person.js';
 import { Payroll } from '../../src/database/payroll.model.js';
+import { createFullAccount } from '../helpers/account.js';
+import type { Ctx} from '../helpers/person.js';
+import { mkPerson } from '../helpers/person.js';
 
 let admin: Ctx;
 let manager: Ctx;

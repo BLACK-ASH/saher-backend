@@ -2,8 +2,9 @@ import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { app } from '../../src/app.js';
-import { Ctx, mkPerson } from '../helpers/person.js';
 import { Notification } from '../../src/database/notification.model.js';
+import type { Ctx} from '../helpers/person.js';
+import { mkPerson } from '../helpers/person.js';
 
 let plain: Ctx;
 let other: Ctx;

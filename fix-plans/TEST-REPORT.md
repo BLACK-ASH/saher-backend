@@ -68,3 +68,29 @@
 - `authorize()` was rewritten since AGENTS.md: read is NO LONGER unconditional (each action checked against ROLE_PERMISSIONS).
 - workHours stored EXCLUDES grace; status decision adds grace (3.5h + 1 = half-day).
 - Auto-checkout sets outTime at shift end IST and skips future outTimes.
+
+---
+
+# Checkpoint 3 — modules events → reimbursement (2026-08-23)
+
+Commits `90c2ec7`…`e224765` (8): events(35) + openapi schemas for attendance/events + admin(20) + notification(12) + calendar(7) + leave(10) + payroll(6) + user/mail/notice(15). **Green @ e224765: 14 files / 224 tests, typecheck+lint clean.**
+
+## Fixes shipped (reference for future modules)
+- IDOR class: mongoose `findByIdAndUpdate(filterObj)` drops non-`_id` criteria → use `findOneAndUpdate` with explicit filter (`src/libs/utils/mark-seen.ts`).
+- GET routes: `validate(schema)` reads req.body → always 400; use `validate(schema,'query')`. And `Object.assign(req.query,…)` is unreliable without a query string → controllers coerce `Number(req.query.page)||1`.
+- Reimbursement zod schemas required response-virtual `id` on input → bill creation 400'd unconditionally; made `.optional()` (bill + settlement schema.ts).
+- `mybills` cache never invalidated → `deleteCache(createKey('reimbursement','mybill',user))` added to all 6 bill writers.
+- Also: bank create dropped `accountNumber`; user-update passwords now hashed (validateAsync); LeaveType `description` default ''; leave edit self-overlap via `excludeId`; payroll installments accumulate priorPaid; real VAPID keys in tests/setup.ts.
+
+## Facts needed for remaining work
+- Admins hold NO write/update/delete bank; NOBODY holds delete:bank; managers-only write:notification; payroll admin-only.
+- Messages are title-cased + one trailing dot EXCEPT specific-scope notifications (raw).
+- `mkPerson(role)` must run inside beforeEach (global wipe clears redis sessions + collections).
+- Skipped by decision: upload module (writes real files), calendar sync-holidays (real Google API).
+
+## Remaining
+1. Reimbursement suite 3/9 green; uncommitted: schema-id fix + cache invalidation + test file. Search endpoint filters by `description/amount/date/user`, not `keyword`.
+2. OpenAPI typed responses for: admin, notification, calendar, leave, payroll, user, mail, notice, reimbursement (pattern = commit c377c94).
+3. Final typecheck + lint + full vitest sweep.
+
+**Quick-resume pointer: see `HANDOFF.md` at repo root.**

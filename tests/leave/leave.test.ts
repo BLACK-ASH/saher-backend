@@ -150,7 +150,7 @@ describe('leave module', () => {
     });
 
     it('lists own applications and gates the all endpoint', async () => {
-      const type = await makeType({ code: 'PL', name: 'Paternity' });
+      await makeType({ code: 'PL', name: 'Paternity' });
       await request(app).post('/api/leave/application/apply').set('Cookie', plain.cookie).send({
         type: 'PL',
         startDate: day(7),

@@ -4,8 +4,9 @@ import { billStatus } from '../../database/bill.model.js';
 import { settleStatus } from '../../database/settlement.model.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
+// id is a response virtual — never required on input
 export const settleSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   bill: objectId(),
   user: objectId(),
   amount: z.coerce.number(),
