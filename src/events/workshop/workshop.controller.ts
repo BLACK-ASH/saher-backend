@@ -151,14 +151,14 @@ export const getWorkshops = async (req: Request, res: Response) => {
 
     if (mongoose.Types.ObjectId.isValid(keyword)) {
       orConditions.push({
-        programId: convertToObjectId(keyword),
+        program: convertToObjectId(keyword),
       });
     }
 
     if (programs.length > 0) {
       orConditions.push({
-        programId: {
-          $in: programs.map((program) => program._id),
+        program: {
+          $in: programs.map((p) => p._id),
         },
       });
     }

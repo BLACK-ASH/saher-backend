@@ -218,26 +218,26 @@ export const getSessions = async (req: Request, res: Response) => {
 
     if (Types.ObjectId.isValid(keyword)) {
       orConditions.push({
-        programId: convertToObjectId(keyword),
+        program: convertToObjectId(keyword),
       });
 
       orConditions.push({
-        workshopId: convertToObjectId(keyword),
+        workshop: convertToObjectId(keyword),
       });
     }
 
     if (programs.length > 0) {
       orConditions.push({
-        programId: {
-          $in: programs.map((program) => program._id),
+        program: {
+          $in: programs.map((p) => p._id),
         },
       });
     }
 
     if (workshops.length > 0) {
       orConditions.push({
-        workshopId: {
-          $in: workshops.map((workshop) => workshop._id),
+        workshop: {
+          $in: workshops.map((w) => w._id),
         },
       });
     }

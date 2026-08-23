@@ -57,7 +57,7 @@ export const deleteParticipantController = async (req: Request, res: Response) =
 
 // Undo soft deleted Participants
 export const undoDeleteParticipantController = async (req: Request, res: Response) => {
-  const participants = await Participant.findById(req.params);
+  const participants = await Participant.findById(req.params.id);
 
   if (!participants) throw new ApiError(404, 'Participant not found');
 

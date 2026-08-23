@@ -7,67 +7,14 @@ import { AttendanceCorrection } from '../../src/database/attendance-correction.m
 import { Attendance } from '../../src/database/attendance.model.js';
 import { Holiday } from '../../src/database/holiday.model.js';
 import { Leave } from '../../src/database/leave.model.js';
-import { Media } from '../../src/database/media-upload.model.js';
 import { Notification } from '../../src/database/notification.model.js';
-import { User } from '../../src/database/user.model.js';
-import { hashPassword } from '../../src/libs/utils/password-hash.js';
-import { createFullAccount } from '../helpers/account.js';
 import { redisState } from '../helpers/fake-redis.js';
+import { cookieOf, mkPerson, mkUserOnly } from '../helpers/person.js';
 
 // Fixed IST clock: Wed 2026-08-19, 10:00:00 IST (03:30Z). Shift math asserts are exact under it.
 const NOW = new Date('2026-08-19T04:30:00Z');
 const TODAY = '2026-08-19';
 const istDate = (isoUtc: string) => new Date(isoUtc);
-
-const login = async (email: string, password: string) =>
-  request(app).post('/api/auth/login').send({ email, password });
-
-const cookieOf = (res: request.Response) =>
-  (res.headers['set-cookie'] as string[]).map((c) => c.split(';')[0]).join('; ');
-
-let seq = 0;
-
-// Plain user without an Account profile (marking flows must 400 on these)
-async function mkUserOnly(role = 'user') {
-  seq += 1;
-  const img = await Media.create({ alt: `img-${seq}`, src: `/uploads/${seq}.webp` });
-  return User.create({
-    name: `Plain ${seq}`,
-    email: `plain-${seq}-${Date.now()}@test.dev`,
-    password: await hashPassword('Password123!'),
-    role,
-    emailVerified: true,
-    isActive: true,
-    isBanned: false,
-    image: img._id,
-  });
-}
-
-interface Ctx {
-  email: string;
-  password: string;
-  cookie: string;
-  userId: string;
-}
-
-async function mkPerson(role: string): Promise<Ctx> {
-  seq += 1;
-  const email = `${role}-${seq}-${Date.now()}@test.dev`;
-  const password = 'Password123!';
-  const { user } = await createFullAccount({
-    name: `${role} ${seq}`,
-    role,
-    email,
-  });
-  const res = await login(email, password);
-  expect(res.status).toBe(200);
-  return {
-    email,
-    password,
-    cookie: cookieOf(res),
-    userId: String(user._id),
-  };
-}
 
 const seedRow = (userId: string, over: Record<string, unknown> = {}) =>
   Attendance.create({
@@ -182,7 +129,9 @@ describe('POST /check-in', () => {
   it('fails without an account profile', async () => {
     const u = await mkUserOnly();
     await seedRow(String(u._id));
-    const res = await login((u as unknown as { email: string }).email, 'Password123!');
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: (u as unknown as { email: string }).email, password: 'Password123!' });
     expect(res.status).toBe(200);
     const checkin = await request(app)
       .post('/api/attendance/check-in')
