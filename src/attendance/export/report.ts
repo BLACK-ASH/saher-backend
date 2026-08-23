@@ -24,7 +24,13 @@ export const exportReportController = async (req: Request, res: Response) => {
     endDate,
 
     days,
+
+    format = 'pdf',
   } = req.query;
+
+  if (format !== 'pdf' && format !== 'xlsx') {
+    throw new ApiError(400, 'Invalid format');
+  }
 
   const shouldIncludeToday = String(includeToday).toLowerCase() === 'true';
 
@@ -78,7 +84,7 @@ export const exportReportController = async (req: Request, res: Response) => {
   const key = createKey(
     'attendance',
     'report',
-    'pdf',
+    format,
     req.user?.id as string,
     dateRange.startDateString,
     dateRange.endDateString,
@@ -130,7 +136,7 @@ export const exportReportController = async (req: Request, res: Response) => {
 
   await attendanceReportQueue.add(
     'pdf-attendance-report',
-    { ...dateRange, type, user: req.user?.id },
+    { ...dateRange, type, user: req.user?.id, format },
     {
       jobId,
     },

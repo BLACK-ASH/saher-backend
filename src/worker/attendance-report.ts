@@ -6,6 +6,8 @@ import { Worker } from 'bullmq';
 import type { Page as PuppeteerPage } from 'puppeteer-core';
 
 import { retrieveCustomAttendace } from '../attendance/attendance.service.js';
+import type { AttendanceResponseT } from '../attendance/retrieve/attendance.schema.js';
+import { createAttendanceExcel } from '../attendance/export/excel.service.js';
 import { logger } from '../libs/logger/logger.js';
 import { bullmqConnection } from '../libs/redis/redis-client.js';
 import { getBrowser } from '../libs/utils/browser.js';
@@ -14,8 +16,53 @@ import { notification } from '../libs/utils/notification.js';
 
 const tempPath = path.join(process.cwd(), 'public', 'temp');
 
+const fetchParsed = async (job: Job): Promise<AttendanceResponseT[]> => {
+  const data = await retrieveCustomAttendace(job.data.user, job.data.startDate, job.data.endDate, {
+    page: 1,
+    limit: 1000,
+    sort: 'desc',
+  });
+
+  // empty range would crash on data.parsed[0].date below
+  if (!data.parsed.length) {
+    throw new Error(`No attendance records found for user ${job.data.user} in range`);
+  }
+
+  return data.parsed;
+};
+
+const notifyDownload = async (job: Job, parsed: AttendanceResponseT[], url: string) => {
+  const action = {
+    type: 'download' as const,
+    label: 'Report',
+    url,
+    method: 'GET' as const,
+  };
+
+  await notification.specific.info(
+    [job.data.user],
+    `attendance report generated, type - ${job.data.type} `,
+    `attendance report from ${parsed[0].date} - ${parsed[parsed.length - 1].date}`,
+    action,
+  );
+
+  return action;
+};
+
+const ensureTempDir = () => {
+  if (!fs.existsSync(tempPath)) fs.mkdirSync(tempPath, { recursive: true });
+};
+
 const generateAttendanceReportPdf = async (job: Job) => {
   logger.info(`Job ${job.id} started.`);
+
+  // xlsx needs no Chromium
+  if (job.data.format === 'xlsx') {
+    const parsed = await fetchParsed(job);
+    ensureTempDir();
+    await createAttendanceExcel(parsed, path.join(tempPath, `${job.id}.xlsx`));
+    return notifyDownload(job, parsed, `/api/attendance/download/${job.id}.xlsx`);
+  }
 
   const browser = await getBrowser();
 
@@ -29,32 +76,17 @@ const generateAttendanceReportPdf = async (job: Job) => {
 };
 
 const renderJob = async (job: Job, page: PuppeteerPage) => {
+  const parsed = await fetchParsed(job);
 
-  const data = await retrieveCustomAttendace(job.data.user, job.data.startDate, job.data.endDate, {
-    page: 1,
-    limit: 1000,
-    sort: 'desc',
-  });
-
-  // empty range would crash on data.parsed[0].date below
-  if (!data.parsed.length) {
-    throw new Error(`No attendance records found for user ${job.data.user} in range`);
-  }
-
-  const html = createAttendancePdfBody(data.parsed);
+  const html = createAttendancePdfBody(parsed);
 
   await page.setContent(html, {
     waitUntil: 'domcontentloaded',
   });
 
-  // 1. Define the destination folder path
+  ensureTempDir();
 
-  // 2. Safely create the folders if they do not exist yet
-  if (!fs.existsSync(tempPath)) fs.mkdirSync(tempPath, { recursive: true });
-
-  // 3. Combine folder path with your desired file name
   const pdfPath = path.join(tempPath, `${job.id}.pdf`);
-  const downloadPath = `/api/attendance/download/${job.id}.pdf`;
 
   await page.pdf({
     format: 'A4',
@@ -105,21 +137,7 @@ const renderJob = async (job: Job, page: PuppeteerPage) => {
   `,
   });
 
-  const action = {
-    type: 'download' as const,
-    label: 'Report',
-    url: downloadPath,
-    method: 'GET' as const,
-  };
-
-  await notification.specific.info(
-    [job.data.user],
-    `attendance report generated, type - ${job.data.type} `,
-    `attendance report from ${data.parsed[0].date} - ${data.parsed[data.parsed.length - 1].date}`,
-    action,
-  );
-
-  return action;
+  return notifyDownload(job, parsed, `/api/attendance/download/${job.id}.pdf`);
 };
 
 export const attendanceReportWorker = new Worker(
