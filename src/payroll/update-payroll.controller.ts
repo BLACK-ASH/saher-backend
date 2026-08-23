@@ -18,15 +18,19 @@ export const payrollController = async (req: Request, res: Response) => {
   const { mode, paidSalary } = req.body;
   if (paidSalary <= 0) throw new ApiError(400, 'Paid salary must be greater than zero.');
 
+  // installment payments accumulate onto what was already recorded
+  const priorPaid = employee.status === 'partially-paid' ? Number(employee.paidSalary) : 0;
+  const totalPaid = priorPaid + Number(paidSalary);
+
   // Taking the employee salary structure, adiing bonus and removing deduction
   const expectedSalary = Number(employee.expectedSalary);
 
   let remainingSalary = 0,
     bonus = 0;
-  if (expectedSalary > paidSalary) {
-    remainingSalary = Number(expectedSalary) - Number(paidSalary);
+  if (expectedSalary > totalPaid) {
+    remainingSalary = expectedSalary - totalPaid;
   } else {
-    bonus = Number(paidSalary) - Number(expectedSalary);
+    bonus = totalPaid - expectedSalary;
   }
 
   const status = remainingSalary == 0 ? 'paid' : 'partially-paid';
@@ -38,7 +42,7 @@ export const payrollController = async (req: Request, res: Response) => {
     employee.mode = mode;
     employee.bonus = bonus;
     employee.status = status;
-    employee.paidSalary = paidSalary;
+    employee.paidSalary = totalPaid;
     await employee.save();
   }
 
@@ -49,7 +53,7 @@ export const payrollController = async (req: Request, res: Response) => {
     method: 'POST' as const,
   };
   const notificationTitle = `${employee.user.displayName} your salary has been ${status}`;
-  const notificationDesc = `${employee.user.displayName} your salary of ${paidSalary}₹ through ${String(mode).toUpperCase()} has been ${status} succesfully`;
+  const notificationDesc = `${employee.user.displayName} your salary of ${totalPaid}₹ through ${String(mode).toUpperCase()} has been ${status} succesfully`;
 
   await notification.specific.success(
     [employee.user._id.toString()],
