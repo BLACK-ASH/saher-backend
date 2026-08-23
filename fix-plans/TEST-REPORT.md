@@ -98,5 +98,6 @@ Commits `90c2ec7`…`e224765` (8): events(35) + openapi schemas for attendance/e
 - Reimbursement module suite (9 cases) passing.
 - Route ordering bug in `src/reimbursement/reimbursement.routes.ts` fixed (`/recyclebills` was shadowed by `/:billId`).
 - OpenAPI response schemas created for remaining 7 modules in `openapi/components/schemas/`.
-- Docs built successfully (`pnpm run docs:build` → `docs/index.html` 979 KiB).
+- Full module-wise OpenAPI path YAML definitions written under `openapi/paths/` and mounted in `openapi/openapi.yaml` for: `notification`, `calendar`, `leave`, `payroll`, `mail`, `notice`, and `reimbursement`.
+- Docs built successfully (`pnpm run docs:build` → `docs/index.html` 1373 KiB).
 - **Totals: 15 test files / 233 tests passing. `pnpm typecheck`, `pnpm lint`, and `pnpm docs:lint` all clean.**
