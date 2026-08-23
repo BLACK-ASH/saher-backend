@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 
 import { Account } from '../database/account.model.js';
 import { Attendance } from '../database/attendance.model.js';
+import { Leave } from '../database/leave.model.js';
 import { Payroll } from '../database/payroll.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
@@ -16,6 +17,9 @@ export const payrollLeaveMangement = async (req: Request, res: Response) => {
   const date = new Date();
   const firstDateOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   const lastDateOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  // Month window as IST date strings — same representation as Attendance.date
+  const monthStartKey = standardDateString(firstDateOfMonth);
+  const monthEndKey = standardDateString(lastDateOfMonth);
 
   const records: Array<{
     user: (typeof employeeAccount)[number]['user'];
@@ -49,6 +53,26 @@ export const payrollLeaveMangement = async (req: Request, res: Response) => {
       status: { $in: ['week-off', 'on-leave', 'half-day'] },
     });
 
+    // T-03-03: Leave-based deductions must be backed by approved applications,
+    // not just attendance-table flags.
+    const approvedLeaves = await Leave.find({
+      user: a.user,
+      status: 'approved',
+      startDate: { $lte: lastDateOfMonth },
+      endDate: { $gte: firstDateOfMonth },
+    });
+    const approvedLeaveDays = new Set<string>();
+    for (const l of approvedLeaves) {
+      for (
+        let d = new Date(l.startDate);
+        d.getTime() <= l.endDate.getTime();
+        d.setUTCDate(d.getUTCDate() + 1)
+      ) {
+        const key = d.toISOString().slice(0, 10);
+        if (key >= monthStartKey && key <= monthEndKey) approvedLeaveDays.add(key);
+      }
+    }
+
     // Calculating the days in this month
     const daysInMonth = lastDateOfMonth.getDate();
 
@@ -57,9 +81,14 @@ export const payrollLeaveMangement = async (req: Request, res: Response) => {
       onLeave = 0,
       halfDay = 0;
     employeeAttendance.forEach((e) => {
-      if (e.status === 'week-off') weekOff++;
+      if (e.status === 'week-off') {
+        weekOff++;
+        return;
+      }
+      if (e.status !== 'on-leave' && e.status !== 'half-day') return;
+      if (!approvedLeaveDays.has(e.date)) return;
       if (e.status === 'on-leave') onLeave++;
-      if (e.status === 'half-day') halfDay++;
+      else halfDay++;
     });
 
     // Calculating the employee working days by deducting the week-off
