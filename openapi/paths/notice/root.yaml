@@ -1,0 +1,44 @@
+get:
+  tags: [Notice]
+  summary: Get active notices
+  operationId: getNotices
+  responses:
+    '200':
+      description: Active notices list
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notice-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Notice]
+  summary: Create notice
+  operationId: createNotice
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            title: { type: string }
+            content: { type: string }
+            expiresAt: { type: string, format: date-time }
+  responses:
+    '201':
+      description: Notice created
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notice-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

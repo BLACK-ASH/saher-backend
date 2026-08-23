@@ -23,6 +23,20 @@ tags:
     description: Account Management Operation
   - name: Attendance
     description: Attendance Management Operation
+  - name: Notification
+    description: Notification Management Operation
+  - name: Calendar
+    description: Calendar Management Operation
+  - name: Leave
+    description: Leave Management Operation
+  - name: Payroll
+    description: Payroll Management Operation
+  - name: Mail
+    description: Mail Management Operation
+  - name: Notice
+    description: Notice Management Operation
+  - name: Reimbursement
+    description: Reimbursement Management Operation
 
 servers:
   - url: https://api.saher.org/api
@@ -192,7 +206,89 @@ paths:
   /attendance/cron/auto-checkout/{pass}:
     $ref: ./paths/attendance/cron-auto-checkout.yaml
 
-    # Export Report
+  # Notification
+  /notification:
+    $ref: ./paths/notification/root.yaml
+  /notification/un-seen:
+    $ref: ./paths/notification/unseen.yaml
+  /notification/{id}:
+    $ref: ./paths/notification/id.yaml
+  /notification/subscribe:
+    $ref: ./paths/notification/subscribe.yaml
+  /notification/enable:
+    $ref: ./paths/notification/enable.yaml
+  /notification/disable:
+    $ref: ./paths/notification/disable.yaml
+
+  # Calendar
+  /calendar/{year}/{month}:
+    $ref: ./paths/calendar/month.yaml
+  /calendar/sync-holidays:
+    $ref: ./paths/calendar/sync-holidays.yaml
+  /calendar/event:
+    $ref: ./paths/calendar/event.yaml
+  /calendar/event/{id}:
+    $ref: ./paths/calendar/event-id.yaml
+
+  # Leave
+  /leave/type:
+    $ref: ./paths/leave/type.yaml
+  /leave/type/{id}:
+    $ref: ./paths/leave/type-id.yaml
+  /leave/application/apply:
+    $ref: ./paths/leave/apply.yaml
+  /leave/application/review/{id}:
+    $ref: ./paths/leave/review.yaml
+  /leave/application/update/{id}:
+    $ref: ./paths/leave/update.yaml
+  /leave/application:
+    $ref: ./paths/leave/application.yaml
+  /leave/application/all:
+    $ref: ./paths/leave/application-all.yaml
+  /leave/balance:
+    $ref: ./paths/leave/balance.yaml
+
+  # Payroll
+  /payroll/cron:
+    $ref: ./paths/payroll/cron.yaml
+  /payroll:
+    $ref: ./paths/payroll/root.yaml
+  /payroll/user/{id}:
+    $ref: ./paths/payroll/user-id.yaml
+  /payroll/{id}:
+    $ref: ./paths/payroll/id.yaml
+
+  # Mail
+  /mail:
+    $ref: ./paths/mail/root.yaml
+  /mail/outbox:
+    $ref: ./paths/mail/outbox.yaml
+
+  # Notice
+  /notice:
+    $ref: ./paths/notice/root.yaml
+  /notice/{id}:
+    $ref: ./paths/notice/id.yaml
+  /notice/{id}/permanent:
+    $ref: ./paths/notice/permanent.yaml
+
+  # Reimbursement
+  /reimbursement/bill:
+    $ref: ./paths/reimbursement/bill.yaml
+  /reimbursement/mybills:
+    $ref: ./paths/reimbursement/mybills.yaml
+  /reimbursement/recyclebills:
+    $ref: ./paths/reimbursement/recyclebills.yaml
+  /reimbursement/balance-enquiry:
+    $ref: ./paths/reimbursement/balance-enquiry.yaml
+  /reimbursement/bills:
+    $ref: ./paths/reimbursement/bills.yaml
+  /reimbursement/{billId}:
+    $ref: ./paths/reimbursement/bill-id.yaml
+  /reimbursement/handle/{billId}:
+    $ref: ./paths/reimbursement/handle.yaml
+  /reimbursement/settlement/{settleId}:
+    $ref: ./paths/reimbursement/settlement.yaml
 
 components:
   securitySchemes:

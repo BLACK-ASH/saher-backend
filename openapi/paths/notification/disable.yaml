@@ -1,0 +1,17 @@
+post:
+  tags: [Notification]
+  summary: Disable web push notifications
+  operationId: disablePush
+  responses:
+    '200':
+      description: Web push disabled
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notification-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

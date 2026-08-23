@@ -1,0 +1,17 @@
+get:
+  tags: [Notification]
+  summary: Get unseen notifications
+  operationId: getUnseenNotifications
+  responses:
+    '200':
+      description: Unseen notifications
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notification-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

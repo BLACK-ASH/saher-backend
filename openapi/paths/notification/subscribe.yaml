@@ -1,0 +1,30 @@
+post:
+  tags: [Notification]
+  summary: Subscribe to web push notifications
+  operationId: subscribePush
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            endpoint: { type: string }
+            keys:
+              type: object
+              properties:
+                p256dh: { type: string }
+                auth: { type: string }
+  responses:
+    '200':
+      description: Subscribed
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notification-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

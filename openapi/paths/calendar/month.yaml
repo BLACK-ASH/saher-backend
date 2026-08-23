@@ -1,0 +1,26 @@
+get:
+  tags: [Calendar]
+  summary: Get calendar events by month
+  operationId: getCalendarByMonth
+  parameters:
+    - name: year
+      in: path
+      required: true
+      schema: { type: string }
+    - name: month
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Calendar events
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/calendar-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

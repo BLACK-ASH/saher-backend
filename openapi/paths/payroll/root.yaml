@@ -1,0 +1,26 @@
+get:
+  tags: [Payroll]
+  summary: Get all payroll records
+  operationId: getAllPayroll
+  parameters:
+    - name: page
+      in: query
+      required: false
+      schema: { type: integer, default: 1 }
+    - name: limit
+      in: query
+      required: false
+      schema: { type: integer, default: 10 }
+  responses:
+    '200':
+      description: All payroll records
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/payroll-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

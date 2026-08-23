@@ -1,0 +1,17 @@
+post:
+  tags: [Payroll]
+  summary: Trigger payroll cron calculation
+  operationId: triggerPayrollCron
+  responses:
+    '200':
+      description: Cron triggered
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/payroll-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

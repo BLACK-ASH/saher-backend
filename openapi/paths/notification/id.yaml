@@ -1,0 +1,22 @@
+patch:
+  tags: [Notification]
+  summary: Mark notification as seen
+  operationId: markNotificationSeen
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Notification marked seen
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notification-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

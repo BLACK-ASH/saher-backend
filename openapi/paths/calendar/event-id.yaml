@@ -1,0 +1,49 @@
+put:
+  tags: [Calendar]
+  summary: Update calendar event
+  operationId: updateCalendarEvent
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            title: { type: string }
+            date: { type: string, format: date-time }
+  responses:
+    '200':
+      description: Event updated
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/calendar-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+delete:
+  tags: [Calendar]
+  summary: Delete calendar event
+  operationId: deleteCalendarEvent
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '204':
+      description: Event deleted
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

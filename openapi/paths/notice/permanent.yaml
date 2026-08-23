@@ -1,0 +1,22 @@
+delete:
+  tags: [Notice]
+  summary: Permanently delete notice
+  operationId: deleteNoticePermanent
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Notice deleted permanently
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notice-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

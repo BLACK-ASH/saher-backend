@@ -1,0 +1,31 @@
+post:
+  tags: [Reimbursement]
+  summary: Handle reimbursement bill (Accept/Reject/Hold)
+  operationId: handleReimbursementBill
+  parameters:
+    - name: billId
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status: { type: string, enum: [accept, reject, on-hold] }
+            reason: { type: string }
+  responses:
+    '201':
+      description: Bill handled
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

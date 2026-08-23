@@ -1,0 +1,17 @@
+get:
+  tags: [Reimbursement]
+  summary: Get all reimbursement bills
+  operationId: getAllReimbursementBills
+  responses:
+    '200':
+      description: All bills list
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

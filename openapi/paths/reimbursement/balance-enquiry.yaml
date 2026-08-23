@@ -1,0 +1,17 @@
+get:
+  tags: [Reimbursement]
+  summary: Get user reimbursement balance enquiry
+  operationId: getReimbursementBalanceEnquiry
+  responses:
+    '200':
+      description: Balance enquiry
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

@@ -1,0 +1,43 @@
+get:
+  tags: [Leave]
+  summary: Get all active leave types
+  operationId: getLeaveTypes
+  responses:
+    '200':
+      description: Active leave types
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/leave-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Leave]
+  summary: Create leave type
+  operationId: createLeaveType
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name: { type: string }
+            code: { type: string }
+  responses:
+    '201':
+      description: Leave type created
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/leave-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

@@ -1,0 +1,32 @@
+post:
+  tags: [Reimbursement]
+  summary: Process settlement request
+  operationId: processSettlementRequest
+  parameters:
+    - name: settleId
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            mode: { type: string }
+            status: { type: string, enum: [settle] }
+            description: { type: string }
+  responses:
+    '201':
+      description: Settlement processed
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

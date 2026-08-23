@@ -1,0 +1,55 @@
+get:
+  tags: [Mail]
+  summary: Get inbox mail
+  operationId: getInboxMail
+  parameters:
+    - name: page
+      in: query
+      required: false
+      schema: { type: integer, default: 1 }
+    - name: limit
+      in: query
+      required: false
+      schema: { type: integer, default: 10 }
+  responses:
+    '200':
+      description: Inbox mail list
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/mail-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Mail]
+  summary: Send mail
+  operationId: sendMail
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            to:
+              type: array
+              items: { type: string }
+            subject: { type: string }
+            body: { type: string }
+  responses:
+    '201':
+      description: Mail sent
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/mail-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

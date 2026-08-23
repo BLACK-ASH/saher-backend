@@ -1,0 +1,30 @@
+post:
+  tags: [Reimbursement]
+  summary: Create reimbursement bill
+  operationId: createReimbursementBill
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            amount: { type: number }
+            description: { type: string }
+            date: { type: string, format: date-time }
+            images:
+              type: array
+              items: { type: string }
+  responses:
+    '201':
+      description: Bill created
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

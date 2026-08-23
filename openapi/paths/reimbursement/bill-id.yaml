@@ -1,0 +1,75 @@
+get:
+  tags: [Reimbursement]
+  summary: Get reimbursement bill by ID
+  operationId: getReimbursementBillById
+  parameters:
+    - name: billId
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Reimbursement bill details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+patch:
+  tags: [Reimbursement]
+  summary: Update user reimbursement bill
+  operationId: updateReimbursementBill
+  parameters:
+    - name: billId
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            amount: { type: number }
+            description: { type: string }
+  responses:
+    '201':
+      description: Bill updated
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+delete:
+  tags: [Reimbursement]
+  summary: Soft delete reimbursement bill
+  operationId: deleteReimbursementBill
+  parameters:
+    - name: billId
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '201':
+      description: Bill soft deleted
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/reimbursement-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

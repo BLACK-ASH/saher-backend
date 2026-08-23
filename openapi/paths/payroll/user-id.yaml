@@ -1,0 +1,22 @@
+get:
+  tags: [Payroll]
+  summary: Get payroll by user ID
+  operationId: getPayrollByUserId
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: User payroll record
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/payroll-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

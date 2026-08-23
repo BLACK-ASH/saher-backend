@@ -1,0 +1,31 @@
+put:
+  tags: [Notice]
+  summary: Edit notice
+  operationId: editNotice
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            title: { type: string }
+            content: { type: string }
+  responses:
+    '200':
+      description: Notice updated
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/notice-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

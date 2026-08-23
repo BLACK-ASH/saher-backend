@@ -1,0 +1,53 @@
+get:
+  tags: [Payroll]
+  summary: Get payroll by record ID
+  operationId: getPayrollById
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    '200':
+      description: Payroll record
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/payroll-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+put:
+  tags: [Payroll]
+  summary: Update payroll record
+  operationId: updatePayroll
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            paidSalary: { type: number }
+            status: { type: string, enum: [unpaid, partially-paid, paid] }
+  responses:
+    '200':
+      description: Payroll updated
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/payroll-response.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
