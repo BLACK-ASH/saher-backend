@@ -11,7 +11,7 @@ export const claimFlexibleWeekOffController = async (req: Request, res: Response
     throw new ApiError(401, 'Unauthorized');
   }
 
-  const date = req.body.date ? new Date(req.body.date) : new Date();
+  const date = req.body?.date ? new Date(req.body.date) : new Date();
 
   const attendance = await claimFlexibleWeekOff({
     userId,

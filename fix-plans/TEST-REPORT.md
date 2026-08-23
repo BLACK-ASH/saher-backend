@@ -44,3 +44,27 @@
 - Refresh-token rotation grace window (previous token ≤15s) covered by tests 18–21.
 - One-time token flows (verify-email / change-password / forgot-password / change-email) tested by seeding the hashed token key directly into fake redis.
 - Anti-enumeration: unknown-email login returns same generic 401 as wrong-password (test 3). Note: forgot-password request for unknown email returns 404 (documented behavior, test 36).
+
+---
+
+# Checkpoint 2 — attendance module (2026-08-23)
+
+## Totals
+117 tests passing across 5 files (53 prior + 64 attendance). `pnpm typecheck` + `pnpm lint` clean.
+
+## New files
+- `tests/attendance/attendance.test.ts` (64 tests), `tests/helpers/account.ts` (`createFullAccount`)
+- `fix-plans/test-attendance.md` (plan)
+
+## Bugs found & fixed in src/
+1. `src/attendance/mark/week-off.controller.ts:14` — `req.body.date` crashed (500) on empty-body POSTs; now `req.body?.date`.
+2. `src/admin/_services/user.ts` `userSchemaFinal` — list endpoints populate users with name/email/role only, but schema required `emailVerified`/`isActive`/`isBanned`; added model-default-matching zod defaults. Same 500 class as the displayName fix.
+
+## Facts learned (apply to later modules)
+- `formatMessage`/`ApiResponse` title-case every message and normalize to exactly ONE trailing `.` ('The record you asked for ' → 'The Record You Asked For .'). Assert formatted forms.
+- Unauthenticated hit → `'Invalid Session.'` from protectedRoute (not 'Login Required.' — that's a different branch).
+- Login writes a per-user 'User Login' notification — don't assert raw Notification counts.
+- Fake clock (`vi.useFakeTimers({toFake:['Date']})`) makes IST shift math fully deterministic, BUT advance time BEFORE login or JWTs expire mid-test.
+- `authorize()` was rewritten since AGENTS.md: read is NO LONGER unconditional (each action checked against ROLE_PERMISSIONS).
+- workHours stored EXCLUDES grace; status decision adds grace (3.5h + 1 = half-day).
+- Auto-checkout sets outTime at shift end IST and skips future outTimes.

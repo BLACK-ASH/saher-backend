@@ -13,10 +13,11 @@ export const userSchemaFinal = userSchema
     // a derived displayName nor a populated image doc — tolerate both or /me 500s
     image: imageType.nullish(),
     displayName: z.string().optional(),
-    emailVerified: z.boolean(),
+    // list endpoints populate users with name/email/role only; fall back to model defaults
+    emailVerified: z.boolean().default(false),
     pushNotificationsEnabled: z.boolean().default(false),
-    isActive: z.boolean(),
-    isBanned: z.boolean(),
+    isActive: z.boolean().default(true),
+    isBanned: z.boolean().default(false),
     deletedAt: z.coerce.date().optional(),
     deleteBy: userSchema.omit({ password: true }).optional(),
     bannedAt: z.coerce.date().optional(),
