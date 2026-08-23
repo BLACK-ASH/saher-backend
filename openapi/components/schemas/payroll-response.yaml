@@ -15,4 +15,4 @@ allOf:
             type: number
           status:
             type: string
-            enum: [unpaid, partially-paid, paid]
+            enum: [unpaid, partially-paid, paid, approved]

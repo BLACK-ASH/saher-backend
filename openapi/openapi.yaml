@@ -257,6 +257,8 @@ paths:
   # Payroll
   /payroll/cron:
     $ref: ./paths/payroll/cron.yaml
+  /payroll/approve/{id}:
+    $ref: ./paths/payroll/approve-id.yaml
   /payroll:
     $ref: ./paths/payroll/root.yaml
   /payroll/user/{id}:

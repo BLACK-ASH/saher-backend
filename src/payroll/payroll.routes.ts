@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { approvePayrollController } from './approve-payroll.controller.js';
 import {
   getAllPayrollController,
   getPayrollByPayrollIdController,
@@ -14,6 +15,7 @@ import { authorize } from '../permission/authorize.js';
 const payrollRouter = Router();
 
 payrollRouter.post('/cron', authorize('write', 'payroll'), payrollLeaveMangement);
+payrollRouter.post('/approve/:id', authorize('update', 'payroll'), approvePayrollController);
 payrollRouter.put(
   '/:id',
   authorize('update', 'payroll'),
