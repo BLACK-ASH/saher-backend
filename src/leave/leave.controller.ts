@@ -160,6 +160,7 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
   const userId = req.user?.id;
 
   const { id } = req.params;
+  const leaveId = id as string;
 
   const payload = req.body;
 
@@ -167,7 +168,7 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
     throw new ApiError(400, 'At least one field is required for update');
   }
 
-  const leave = await Leave.findById(id);
+  const leave = await Leave.findById(leaveId);
 
   if (!leave) {
     throw new ApiError(404, 'Leave application not found');
@@ -198,6 +199,7 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
     startDate: updatedStartDate,
     endDate: updatedEndDate,
     proof: payload.proof,
+    excludeId: leaveId,
   });
 
   const totalDays = calculateLeaveDays(updatedStartDate, updatedEndDate);
@@ -220,7 +222,7 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
     }),
   };
   const updatedLeave = await Leave.findByIdAndUpdate(
-    id,
+    leaveId,
     {
       $set: {
         ...updateData,

@@ -9,7 +9,8 @@ const leaveTypeSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
+    // zod contract marks description optional — model must not be stricter (500s otherwise)
+    default: '',
   },
   code: {
     type: String,

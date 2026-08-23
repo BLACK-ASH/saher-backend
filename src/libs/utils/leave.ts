@@ -8,12 +8,15 @@ export const validateLeaveApplication = async ({
   startDate,
   endDate,
   proof,
+  excludeId,
 }: {
   userId: string;
   leaveType: LeaveTypeType;
   startDate: Date;
   endDate: Date;
   proof?: string;
+  // edits must not collide with the record being edited
+  excludeId?: string;
 }) => {
   // Notice period validation
   const today = new Date();
@@ -41,6 +44,7 @@ export const validateLeaveApplication = async ({
   // Overlapping leave validation
   const overlappingLeave = await Leave.findOne({
     user: userId,
+    ...(excludeId ? { _id: { $ne: excludeId } } : {}),
     status: {
       $in: ['pending', 'approved'],
     },
