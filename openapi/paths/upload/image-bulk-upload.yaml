@@ -1,0 +1,64 @@
+post:
+  tags:
+    - Upload
+  summary: Upload multiple images
+  operationId: uploadImages
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+            - images
+          properties:
+            images:
+              type: array
+              maxItems: 10
+              items:
+                type: string
+                format: binary
+              description: Image files to upload (png, jpg, jpeg, webp, avif — max 5 MB each)
+  responses:
+    '201':
+      description: Images uploaded successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Images Upload Successfully
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: 6988338c67ea81cf41fb4d9f
+                    fileName:
+                      type: string
+                      example: b1e5007d-eee0-461f-a22b-445fc1544a24.webp
+                    url:
+                      type: string
+                      example: http://localhost:4000/uploads/images/b1e5007d-eee0-461f-a22b-445fc1544a24.webp
+                    size:
+                      type: integer
+                      example: 74620
+                    mimetype:
+                      type: string
+                      example: image/webp
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      $ref: ../../components/common/internal-server-error.yaml

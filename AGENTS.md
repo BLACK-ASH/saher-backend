@@ -32,7 +32,8 @@ Express 5 + TypeScript ESM REST API (Mongoose 9/MongoDB, Redis + BullMQ, zod v4,
 
 ## Gotchas
 
-- `openapi/openapi.yaml` is outdated and NOT a reliable endpoint reference — read the route files instead. Redocly still builds public docs from it (`docs/` is served at `/`).
+- `openapi/openapi.yaml` was historically stale — as of 2026-08-23 the upload endpoints are current. Keep it that way (see rule below). Route files remain the source of truth.
+- **End-of-phase rule (standing, user-mandated):** after EVERY phase/increment that adds or changes endpoints — update `openapi/` path files + register in `openapi.yaml`, run `pnpm docs:lint`, and run `graphify update .` — before reporting done.
 - The worker hardcodes Redis host `redis` (`src/attendance/export/report.ts`, `src/worker/attendance-report.ts`) — only works under docker-compose service naming.
 - Deploy: push to `main` triggers a self-hosted runner that `git reset --hard origin/main`s `/home/saher/Test/saher-backend` and `docker compose up -d --build backend` (`.github/workflows/dev-deploy.yml`).
 - **Branch Pushing Rule:** MUST ALWAYS ask explicit user permission before pushing commits to `main` or `dev` branches.

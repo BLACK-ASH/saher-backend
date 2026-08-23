@@ -1,8 +1,8 @@
 post:
   tags:
     - Upload
-  summary: Upload an image
-  operationId: uploadImage
+  summary: Upload a document
+  operationId: uploadDocument
   requestBody:
     required: true
     content:
@@ -10,20 +10,20 @@ post:
         schema:
           type: object
           required:
-            - image
+            - document
             - name
           properties:
-            image:
+            document:
               type: string
               format: binary
-              description: Image file to upload
+              description: Document file to upload (pdf, doc, docx, ppt, pptx, xls, xlsx — max 10 MB)
             name:
               type: string
-              description: Alt text for the image
-              example: Profile picture
+              description: Alt text / display name for the document
+              example: Project report
   responses:
     '201':
-      description: Image uploaded successfully
+      description: Document uploaded successfully
       content:
         application/json:
           schema:
@@ -34,7 +34,7 @@ post:
                 example: true
               message:
                 type: string
-                example: Image Upload Successfully
+                example: Document Upload Successfully
               data:
                 type: object
                 properties:
@@ -43,22 +43,16 @@ post:
                     example: 6988338c67ea81cf41fb4d9f
                   fileName:
                     type: string
-                    example: b1e5007d-eee0-461f-a22b-445fc1544a24.webp
+                    example: b1e5007d-eee0-461f-a22b-445fc1544a24.pdf
                   url:
                     type: string
-                    example: http://localhost:4000/uploads/images/b1e5007d-eee0-461f-a22b-445fc1544a24.webp
+                    example: http://localhost:4000/uploads/documents/b1e5007d-eee0-461f-a22b-445fc1544a24.pdf
                   size:
                     type: integer
-                    example: 74620
-                  width:
-                    type: integer
-                    example: 1024
-                  height:
-                    type: integer
-                    example: 576
+                    example: 204800
                   mimetype:
                     type: string
-                    example: image/webp
+                    example: application/pdf
     '400':
       description: Invalid Request
       content:

@@ -1,0 +1,64 @@
+post:
+  tags:
+    - Upload
+  summary: Upload multiple documents
+  operationId: uploadDocuments
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+            - documents
+          properties:
+            documents:
+              type: array
+              maxItems: 10
+              items:
+                type: string
+                format: binary
+              description: Document files to upload (pdf, doc, docx, ppt, pptx, xls, xlsx — max 10 MB each)
+  responses:
+    '201':
+      description: Documents uploaded successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Documents Upload Successfully
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: 6988338c67ea81cf41fb4d9f
+                    fileName:
+                      type: string
+                      example: b1e5007d-eee0-461f-a22b-445fc1544a24.pdf
+                    url:
+                      type: string
+                      example: http://localhost:4000/uploads/documents/b1e5007d-eee0-461f-a22b-445fc1544a24.pdf
+                    size:
+                      type: integer
+                      example: 204800
+                    mimetype:
+                      type: string
+                      example: application/pdf
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+
+    '500':
+      $ref: ../../components/common/internal-server-error.yaml

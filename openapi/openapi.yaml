@@ -48,6 +48,12 @@ paths:
   #Upload
   /upload/image:
     $ref: ./paths/upload/image-upload.yaml
+  /upload/images:
+    $ref: ./paths/upload/image-bulk-upload.yaml
+  /upload/document:
+    $ref: ./paths/upload/document-upload.yaml
+  /upload/documents:
+    $ref: ./paths/upload/document-bulk-upload.yaml
   # --------------------------------------------------------------------- #
 
   # Auth
