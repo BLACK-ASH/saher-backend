@@ -15,8 +15,8 @@ export default function errorHandler(
 ) {
   const route = req.originalUrl.split('?')[0];
 
-  // safe fallback logging first
-  req.log.error({
+  // safe fallback logging first — req.log may be absent when httpLogger hasn't attached (tests, early errors)
+  req.log?.error({
     type: 'error',
     service: 'backend',
     method: req.method,

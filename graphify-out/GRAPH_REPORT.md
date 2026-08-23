@@ -1,29 +1,29 @@
 # Graph Report - saher-backend  (2026-08-23)
 
 ## Corpus Check
-- 237 files · ~75,782 words
+- 244 files · ~78,694 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1201 nodes · 3081 edges · 111 communities (62 shown, 49 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 159 edges (avg confidence: 0.85)
+- 1239 nodes · 3130 edges · 122 communities (68 shown, 54 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 158 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7c1cf63f`
+- Built from commit: `63499eed`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- error-handler.ts
+- account/controller.ts
 - agent.md project overview
-- normalizeDoc
-- program-participant.controller.ts
-- redis-client.ts
+- .success
+- program.controller.ts
+- env.ts
 - dependencies
-- session-attendance.controller.ts
-- src/index.ts
-- image.controller.ts
+- auth.test.ts
+- app.ts
+- upload.routes.ts
 - scripts
 - calender.controller.ts
 - leave.controller.ts
@@ -32,16 +32,16 @@
 - compilerOptions
 - Security Review Checklist Skill
 - mail.controller.ts
-- reimbursement.routes.ts
+- normalizeDoc
 - escapeHtml
 - Saher Community Code of Conduct
 - Fix Report — running summary
-- program.controller.ts
+- workshop.schema.ts
 - eslint
 - eslint-config-prettier
 - eslint-plugin-import
-- eslint-plugin-unicorn
-- globals
+- Test Plan & Coverage Tracker — saher-backend
+- mail.ts
 - husky
 - lint-staged
 - devDependencies
@@ -54,7 +54,7 @@
 - @types/jsonwebtoken
 - @types/multer
 - attendance-report.ts
-- user/user.controller.ts
+- validate-zod-schema.ts
 - @types/web-push
 - typescript
 - typescript-eslint
@@ -70,7 +70,7 @@
 - events.routes.ts
 - program.schema.ts
 - session.schema.ts
-- account.ts
+- account/schema.ts
 - Fix plan — Cross-cutting concerns
 - package.json
 - Fix plan — `src/attendance`
@@ -95,36 +95,45 @@
 - cors
 - http-logger.ts
 - express
-- dotenv
+- user.model.ts
 - express-rate-limit
-- mongoose
-- webpush.controller.ts
+- Test Plan — `auth` & `permission`
+- push-subscription.ts
 - puppeteer-core
 - redis
 - multer
 - sharp
-- ua-parser-js
+- bullmq
 - web-push
 - zod
 - pino-pretty
 - prettier
 - @types/dompurify
 - @typescript-eslint/eslint-plugin
-- pino-http
-- env.ts
+- @js-temporal/polyfill
+- cron-secret.ts
 - prom-client
+- mongodb-memory-server
+- pino
+- resend
+- supertest
 - notification.controllers.ts
-- .success
+- ApiError
 - @redocly/cli
-- @commitlint/config-conventional
+- @types/jsdom
+- @types/node
+- @types/pino-http
 - participant.schema.ts
+- @types/supertest
 - dompurify
+- vitest
+- @vitest/coverage-v8
 
 ## God Nodes (most connected - your core abstractions)
 1. `agent.md project overview` - 102 edges
 2. `createKey()` - 92 edges
 3. `normalizeDoc()` - 83 edges
-4. `ApiError` - 74 edges
+4. `ApiError` - 75 edges
 5. `ApiResponse` - 67 edges
 6. `deleteCache()` - 52 edges
 7. `setCache()` - 37 edges
@@ -133,6 +142,8 @@
 10. `Fix Report — running summary` - 26 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `createUser()` --calls--> `hashPassword()`  [EXTRACTED]
+  tests/auth/auth.test.ts → src/libs/utils/password-hash.ts
 - `Add Module Recipe Skill` --references--> `Admin Module Authorization Gaps`  [INFERRED]
   .opencode/skill/add-module/SKILL.md → MODULE_ANALYSIS.md
 - `Security Review Checklist Skill` --references--> `Admin Module Authorization Gaps`  [EXTRACTED]
@@ -141,8 +152,6 @@
   .opencode/skill/backend-dev/SKILL.md → MODULE_ANALYSIS.md
 - `saher-dev OpenCode Agent` --conceptually_related_to--> `Auth Session Lifecycle Flaws`  [INFERRED]
   .opencode/agent/saher-dev.md → MODULE_ANALYSIS.md
-- `Security Review Checklist Skill` --references--> `Cache Invalidation Gaps`  [EXTRACTED]
-  .opencode/skill/security-review/SKILL.md → MODULE_ANALYSIS.md
 
 ## Import Cycles
 - None detected.
@@ -151,59 +160,63 @@
 - **Project Governance Docs** — readme_saher_backend_project_stub, security_md_vulnerability_reporting_policy, code_of_conduct_community_code_of_conduct [INFERRED 0.75]
 - **OpenCode Agent Tooling Config** — _opencode_agent_saher_dev_saher_dev_agent, _opencode_skill_add_module_skill_add_module_recipe, _opencode_skill_backend_dev_skill_backend_dev_workflow, _opencode_skill_security_review_skill_security_audit_checklist [INFERRED 0.85]
 
-## Communities (111 total, 49 thin omitted)
+## Communities (122 total, 54 thin omitted)
+
+### Community 0 - "account/controller.ts"
+Cohesion: 0.21
+Nodes (12): AccountRegisterInput, Account, Bank, bankSchema, BankType, meadiaSchema, Media, MediaType (+4 more)
 
 ### Community 1 - "agent.md project overview"
 Cohesion: 0.02
 Nodes (102): agent.md project overview, Assistant (Saher-Dev · OmniRoute Auto · 101.5s), Assistant (Saher-Dev · OmniRoute Auto · 107.1s), Assistant (Saher-Dev · OmniRoute Auto · 107.5s), Assistant (Saher-Dev · OmniRoute Auto · 10.0s), Assistant (Saher-Dev · OmniRoute Auto · 10.1s), Assistant (Saher-Dev · OmniRoute Auto · 10.4s), Assistant (Saher-Dev · OmniRoute Auto · 11.4s) (+94 more)
 
-### Community 2 - "normalizeDoc"
-Cohesion: 0.06
-Nodes (84): getAccountByUser(), getUser(), retrieveCustomAttendace(), retrieveTypeMonthAttendance(), retrieveTypeTodayAttendance(), retrieveTypeWeekAttendance(), retrieveTypeYearAttendance(), getAllAttendanceCorrectionController() (+76 more)
+### Community 2 - ".success"
+Cohesion: 0.05
+Nodes (103): accountGetController(), accountRegisterController(), accountUpdateController(), createBankDetailController(), deleteBankDetailController(), getBankDetailController(), updateBankDetailController(), accountSchemaFinal (+95 more)
 
-### Community 3 - "program-participant.controller.ts"
-Cohesion: 0.29
-Nodes (6): Program, programSchema, ProgramType, addParticipantsToProgram(), getParticipantsFromProgram(), removeParticipantFromProgram()
+### Community 3 - "program.controller.ts"
+Cohesion: 0.13
+Nodes (14): participantSchema, ParticipantType, Program, programSchema, ProgramType, addProgram(), deleteProgram(), editProgram() (+6 more)
 
-### Community 4 - "redis-client.ts"
-Cohesion: 0.33
-Nodes (6): connectDb(), logger, getResend(), bullmqConnection, connectRedis(), redisUrl
+### Community 4 - "env.ts"
+Cohesion: 0.34
+Nodes (7): env, envSchema, connectDb(), logger, connectRedis(), redisUrl, uploadPath
 
 ### Community 5 - "dependencies"
 Cohesion: 0.11
-Nodes (19): bcrypt, bullmq, cookie-parser, googleapis, @js-temporal/polyfill, jsdom, jsonwebtoken, dependencies (+11 more)
+Nodes (19): bcrypt, cookie-parser, dotenv, googleapis, jsdom, mongoose, dependencies, bcrypt (+11 more)
 
-### Community 6 - "session-attendance.controller.ts"
-Cohesion: 0.15
-Nodes (15): Participant, participantSchema, ParticipantType, attendanceSchema, Session, sessionAttendance, SessionAttendanceType, sessionSchema (+7 more)
+### Community 6 - "auth.test.ts"
+Cohesion: 0.17
+Nodes (11): app, authedUser(), cookieHeaderOf(), createUser(), login(), setCookiesOf(), TOKEN, fakeRedis (+3 more)
 
-### Community 7 - "src/index.ts"
-Cohesion: 0.14
-Nodes (14): adminRouter, attendanceRouter, authRouter, apiLimiter, app, authLimiter, httpRequestDuration, httpRequestTotal (+6 more)
+### Community 7 - "app.ts"
+Cohesion: 0.12
+Nodes (17): adminRouter, apiLimiter, authLimiter, attendanceRouter, authRouter, corsOrigins, eventRouter, leaveRouter (+9 more)
 
-### Community 8 - "image.controller.ts"
-Cohesion: 0.23
-Nodes (7): uploadImageController(), storage, supportedFileMimeType, uploadImage, processAndSaveImage(), uploadPath, uploadRouter
+### Community 8 - "upload.routes.ts"
+Cohesion: 0.25
+Nodes (6): uploadImageController(), storage, supportedFileMimeType, uploadImage, processAndSaveImage(), uploadRouter
 
 ### Community 9 - "scripts"
 Cohesion: 0.11
 Nodes (18): scripts, build, clean, dev, dev:worker, docs:build, docs:dev, docs:lint (+10 more)
 
 ### Community 10 - "calender.controller.ts"
-Cohesion: 0.15
-Nodes (20): calendarRouter, createCalendarEventSchema, event, EventT, eventType, updateCalendarEventSchema, getCalendarEventByMonth(), syncGoogleHolidaysController() (+12 more)
+Cohesion: 0.13
+Nodes (22): holidayUpdateSchema, calendarRouter, createCalendarEventSchema, event, EventT, eventType, updateCalendarEventSchema, getCalendarEventByMonth() (+14 more)
 
 ### Community 11 - "leave.controller.ts"
 Cohesion: 0.08
-Nodes (38): LeaveBalance, leaveBalanceSchema, leaveActionTypes, LeaveLog, leaveLogSchema, Leave, leaveSchema, LeaveTypes (+30 more)
+Nodes (37): LeaveBalance, leaveBalanceSchema, leaveActionTypes, LeaveLog, leaveLogSchema, Leave, leaveSchema, LeaveTypes (+29 more)
 
 ### Community 12 - "exportReportController"
 Cohesion: 0.22
 Nodes (6): exportReportController(), BaseOptions, CustomOptions, DateRange, DateRangeResult, LastDaysOptions
 
 ### Community 13 - "authorize.ts"
-Cohesion: 0.11
-Nodes (20): payrollSchema, PayrollType, salaryMode, salaryStatus, getAllPayrollController(), getPayrollByPayrollIdController(), getPayrollByUserIdController(), payrollRouter (+12 more)
+Cohesion: 0.29
+Nodes (7): authorize(), Action, ACTIONS, createPermission(), Resource, RESOURCES, ROLE_PERMISSIONS
 
 ### Community 14 - "compilerOptions"
 Cohesion: 0.12
@@ -214,12 +227,12 @@ Cohesion: 0.27
 Nodes (10): saher-dev OpenCode Agent, Add Module Recipe Skill, Backend Dev Workflow Skill, Security Review Checklist Skill, Admin Module Authorization Gaps, Attendance Cron & Timezone Races, Auth Session Lifecycle Flaws, Cache Invalidation Gaps (+2 more)
 
 ### Community 16 - "mail.controller.ts"
-Cohesion: 0.15
-Nodes (18): Mail, mailSchema, Mailtype, getInboxMails(), sendMail(), SendMailPayload, sendMailUtilitySchema, getInboxController() (+10 more)
+Cohesion: 0.21
+Nodes (13): getInboxMails(), sendMail(), getInboxController(), outboxController(), sendMailController(), mailRouter, InBoxMailSchema, mailListQuerySchema (+5 more)
 
-### Community 17 - "reimbursement.routes.ts"
+### Community 17 - "normalizeDoc"
 Cohesion: 0.05
-Nodes (56): AuditLog, auditLogSchema, AuditLogType, Bill, billSchema, billStatus, BillType, modes (+48 more)
+Nodes (63): bankSchemaFinal, BankT, getBank(), getUser(), shortUserSchema, UserT, getAllUsersController(), AuditLog (+55 more)
 
 ### Community 18 - "escapeHtml"
 Cohesion: 0.16
@@ -229,41 +242,49 @@ Nodes (14): changeEmailTemplate(), Props, changePasswordTemplate(), Props, forgo
 Cohesion: 0.07
 Nodes (26): 00-cross-cutting ✅ — commit `72c33ac` (branch `fix/module-fixes`, 2026-08-22), 01-admin ✅ — branch `fix/module-fixes`, 2026-08-22, 02-attendance ✅ (Chunks A–D) — branch `fix/module-fixes`, 2026-08-22, 03-auth ✅ — branch `fix/module-fixes`, 2026-08-22, 04-calendar ✅ — branch `fix/module-fixes`, 2026-08-22, 05-database ✅ (+ 01-admin CRIT completion) — branch `fix/module-fixes`, 2026-08-22, 06-events ✅ — branch `fix/module-fixes`, 2026-08-22, 07-libs ✅ — branch `fix/module-fixes`, 2026-08-22 (+18 more)
 
-### Community 21 - "program.controller.ts"
+### Community 21 - "workshop.schema.ts"
 Cohesion: 0.25
-Nodes (7): participantResponseSchema, addProgram(), deleteProgram(), editProgram(), getPrograms(), getSingleProgram(), undoDeleteProgram()
+Nodes (7): baseWorkshopSchema, CreateWorkshopInputType, createWorkshopSchema, updatedWorkshopSchema, UpdateWorkshopInputType, workshopResponseSchema, DOMPurify
+
+### Community 25 - "Test Plan & Coverage Tracker — saher-backend"
+Cohesion: 0.25
+Nodes (7): Approach, Bugs found by tests (fixed), Current Status (Checkpoint 1), Module Priority & Plan, Notes / Decisions, Test Infrastructure, Test Plan & Coverage Tracker — saher-backend
+
+### Community 26 - "mail.ts"
+Cohesion: 0.29
+Nodes (5): Mail, mailSchema, Mailtype, SendMailPayload, sendMailUtilitySchema
 
 ### Community 29 - "devDependencies"
 Cohesion: 0.22
-Nodes (9): @commitlint/cli, devDependencies, @commitlint/cli, @types/jsdom, @types/node, @types/pino-http, @types/jsdom, @types/node (+1 more)
+Nodes (9): @commitlint/cli, @commitlint/config-conventional, eslint-plugin-unicorn, globals, devDependencies, @commitlint/cli, @commitlint/config-conventional, eslint-plugin-unicorn (+1 more)
 
 ### Community 38 - "attendance-report.ts"
-Cohesion: 0.43
-Nodes (5): getBrowser(), attendanceReportWorker, generateAttendanceReportPdf(), renderJob(), tempPath
+Cohesion: 0.36
+Nodes (6): bullmqConnection, getBrowser(), attendanceReportWorker, generateAttendanceReportPdf(), renderJob(), tempPath
 
-### Community 39 - "user/user.controller.ts"
-Cohesion: 0.09
-Nodes (24): Notice, noticeSchema, NoticeType, underDevelopment(), validate(), validateAsync(), addNotice(), editNotice() (+16 more)
+### Community 39 - "validate-zod-schema.ts"
+Cohesion: 0.06
+Nodes (35): Notice, noticeSchema, NoticeType, Payroll, payrollSchema, PayrollType, salaryMode, salaryStatus (+27 more)
 
 ### Community 55 - "session.controller.ts"
-Cohesion: 0.53
-Nodes (5): deleteSession(), editSession(), getSingleSession(), invalidateCalendarCache(), undoDeleteSession()
+Cohesion: 0.25
+Nodes (10): participantResponseSchema, deleteSession(), editSession(), getSessions(), getSingleSession(), invalidateCalendarCache(), undoDeleteSession(), sessionResponse (+2 more)
 
 ### Community 57 - "events.routes.ts"
-Cohesion: 0.20
-Nodes (15): eventRouter, addParticipantController(), deleteParticipantController(), editParticipantController(), getParticipantByIdController(), getParticipants(), undoDeleteParticipantController(), participantSchema (+7 more)
+Cohesion: 0.16
+Nodes (18): addParticipantController(), deleteParticipantController(), editParticipantController(), getParticipantByIdController(), getParticipants(), undoDeleteParticipantController(), participantSchema, updatedParticipantSchema (+10 more)
 
 ### Community 58 - "program.schema.ts"
-Cohesion: 0.12
-Nodes (15): addParticipantsToProgramSchema, baseProgramSchema, CreateProgramInputType, createProgramParticipantsResponseSchema, createProgramSchema, programResponseSchema, updatedProgramSchema, UpdateProgramInputType (+7 more)
+Cohesion: 0.22
+Nodes (8): addParticipantsToProgramSchema, baseProgramSchema, CreateProgramInputType, createProgramParticipantsResponseSchema, createProgramSchema, programResponseSchema, updatedProgramSchema, UpdateProgramInputType
 
 ### Community 59 - "session.schema.ts"
-Cohesion: 0.20
-Nodes (9): baseSchema, CreateSessionInputType, createSessionResponseSchema, createSessionSchema, sessionResponse, SessionResponseT, UpdatedSessionInputType, updatedSessionSchema (+1 more)
+Cohesion: 0.22
+Nodes (8): baseSchema, CreateSessionInputType, createSessionResponseSchema, createSessionSchema, SessionResponseT, UpdatedSessionInputType, updatedSessionSchema, UpdatesSessionResponseSchema
 
-### Community 60 - "account.ts"
-Cohesion: 0.07
-Nodes (41): accountGetController(), accountBaseSchema, AccountRegisterInput, accountSchema, AccountUpdateInput, accountUpdateSchema, userSchema, BankRegisterType (+33 more)
+### Community 60 - "account/schema.ts"
+Cohesion: 0.12
+Nodes (16): accountBaseSchema, accountRegisterSchema, accountSchema, AccountUpdateInput, accountUpdateSchema, userSchema, BankRegisterType, bankSchema (+8 more)
 
 ### Community 61 - "Fix plan — Cross-cutting concerns"
 Cohesion: 0.17
@@ -353,45 +374,49 @@ Nodes (4): Findings status at HEAD (2026-08-22), Fix plan — Entrypoints (`src/
 Cohesion: 0.50
 Nodes (3): httpLogger, Req, Res
 
-### Community 88 - "webpush.controller.ts"
-Cohesion: 0.33
-Nodes (7): PushNotificationType, PushSubscription, pushSubscriptionSchema, ensureVapid(), sendPushToUser(), subscribePushController(), subscribeSchema
+### Community 85 - "user.model.ts"
+Cohesion: 0.38
+Nodes (5): UserRole, userSchema, UserType, Express, Request
 
-### Community 103 - "env.ts"
-Cohesion: 0.36
-Nodes (5): corsOrigins, env, envSchema, requireCronSecret(), safeEqual()
+### Community 87 - "Test Plan — `auth` & `permission`"
+Cohesion: 0.50
+Nodes (3): Auth Scenarios (15 tests), Permission Scenarios (10 tests), Test Plan — `auth` & `permission`
+
+### Community 88 - "push-subscription.ts"
+Cohesion: 0.50
+Nodes (3): PushNotificationType, PushSubscription, pushSubscriptionSchema
 
 ### Community 109 - "notification.controllers.ts"
 Cohesion: 0.11
 Nodes (28): Notification, notificationActionTypes, notificationMethod, notificationSchema, notificationScope, NotificationType, notificationTypes, Notification (+20 more)
 
-### Community 110 - ".success"
-Cohesion: 0.08
-Nodes (72): accountRegisterController(), accountUpdateController(), accountRegisterSchema, createBankDetailController(), deleteBankDetailController(), getBankDetailController(), updateBankDetailController(), getBank() (+64 more)
+### Community 110 - "ApiError"
+Cohesion: 0.06
+Nodes (65): attendanceReportQueue, downloadReportController(), REPORT_DIR, changeEmailController(), changeEmailRequestController(), changePasswordController(), changePasswordRequestController(), forgotPasswordController() (+57 more)
 
 ### Community 115 - "participant.schema.ts"
 Cohesion: 0.23
 Nodes (10): baseSchema, CreateParticipantInputType, UpdateParticipantInputType, BulkSessionAttendanceInputType, SessionAttendanceSchema, imageType, objectId(), optionalAlphaText() (+2 more)
 
 ## Knowledge Gaps
-- **469 isolated node(s):** `name`, `version`, `description`, `main`, `dev` (+464 more)
+- **484 isolated node(s):** `name`, `version`, `description`, `main`, `dev` (+479 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **49 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `normalizeDoc()` connect `normalizeDoc` to `user/user.controller.ts`, `calender.controller.ts`, `leave.controller.ts`, `notification.controllers.ts`, `.success`, `authorize.ts`, `mail.controller.ts`, `reimbursement.routes.ts`, `program.controller.ts`, `session.controller.ts`, `events.routes.ts`, `account.ts`?**
-  _High betweenness centrality (0.045) - this node is a cross-community bridge._
-- **Why does `ApiError` connect `normalizeDoc` to `error-handler.ts`, `program-participant.controller.ts`, `session-attendance.controller.ts`, `env.ts`, `user/user.controller.ts`, `image.controller.ts`, `calender.controller.ts`, `leave.controller.ts`, `notification.controllers.ts`, `.success`, `authorize.ts`, `mail.controller.ts`, `reimbursement.routes.ts`, `program.controller.ts`, `session.controller.ts`, `webpush.controller.ts`, `events.routes.ts`, `account.ts`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `ApiResponse` connect `normalizeDoc` to `program-participant.controller.ts`, `session-attendance.controller.ts`, `user/user.controller.ts`, `image.controller.ts`, `calender.controller.ts`, `leave.controller.ts`, `notification.controllers.ts`, `.success`, `authorize.ts`, `mail.controller.ts`, `reimbursement.routes.ts`, `program.controller.ts`, `session.controller.ts`, `webpush.controller.ts`, `events.routes.ts`, `account.ts`?**
+- **Why does `normalizeDoc()` connect `normalizeDoc` to `.success`, `program.controller.ts`, `validate-zod-schema.ts`, `calender.controller.ts`, `leave.controller.ts`, `notification.controllers.ts`, `ApiError`, `mail.controller.ts`, `session.controller.ts`, `events.routes.ts`?**
+  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+- **Why does `ApiError` connect `ApiError` to `account/controller.ts`, `.success`, `program.controller.ts`, `env.ts`, `cron-secret.ts`, `validate-zod-schema.ts`, `calender.controller.ts`, `leave.controller.ts`, `notification.controllers.ts`, `authorize.ts`, `normalizeDoc`, `session.controller.ts`, `events.routes.ts`, `mail.ts`?**
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
+- **Why does `createKey()` connect `.success` to `account/controller.ts`, `calender.controller.ts`, `exportReportController`, `notification.controllers.ts`, `ApiError`, `normalizeDoc`, `session.controller.ts`?**
   _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `description` to the rest of the system?**
-  _469 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _484 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `agent.md project overview` be split into smaller, more focused modules?**
   _Cohesion score 0.019417475728155338 - nodes in this community are weakly interconnected._
-- **Should `normalizeDoc` be split into smaller, more focused modules?**
-  _Cohesion score 0.06058221872541306 - nodes in this community are weakly interconnected._
-- **Should `dependencies` be split into smaller, more focused modules?**
-  _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._
+- **Should `.success` be split into smaller, more focused modules?**
+  _Cohesion score 0.05344295991778006 - nodes in this community are weakly interconnected._
+- **Should `program.controller.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.13071895424836602 - nodes in this community are weakly interconnected._

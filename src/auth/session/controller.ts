@@ -12,27 +12,39 @@ export const getAllSessionController = async (req: Request, res: Response) => {
 
   const sessionIds = await client.sMembers(createKey('user_session', user.id));
 
-  const sessions = await Promise.all(
-    sessionIds.map(async (sessionId) => {
-      const session = await getCache<SessionT>(createKey('session', sessionId));
+  type SessionSummary = {
+    sessionId: string;
+    ip: string;
+    device: string;
+    browser: string;
+    os: string;
+    createdAt: number;
+    updatedAt: number;
+  };
 
-      // 🔥 cleanup stale session
-      if (!session) {
-        await client.sRem(createKey('user_session', user.id), sessionId);
-        return null;
-      }
+  const sessions = (
+    await Promise.all(
+      sessionIds.map(async (sessionId): Promise<SessionSummary | null> => {
+        const session = await getCache<SessionT>(createKey('session', sessionId));
 
-      return {
-        sessionId,
-        ip: session.meta.ip,
-        device: session.meta.device,
-        browser: session.meta.browser,
-        os: session.meta.os,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-      };
-    }),
-  );
+        // 🔥 cleanup stale session
+        if (!session) {
+          await client.sRem(createKey('user_session', user.id), sessionId);
+          return null;
+        }
+
+        return {
+          sessionId,
+          ip: session.meta.ip,
+          device: session.meta.device,
+          browser: session.meta.browser,
+          os: session.meta.os,
+          createdAt: session.createdAt,
+          updatedAt: session.updatedAt,
+        };
+      }),
+    )
+  ).filter((s): s is SessionSummary => s !== null);
 
   return ApiResponse.success(res, {
     message: 'user all sessions',

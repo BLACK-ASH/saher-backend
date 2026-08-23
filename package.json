@@ -20,7 +20,7 @@
     "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start",
     "spellcheck": "cspell .",
     "seed": "pnpm tsx src/seeds/runner.ts",
-    "test": "tsx --test \"src/**/*.test.ts\""
+    "test": "vitest run"
   },
   "type": "module",
   "keywords": [],

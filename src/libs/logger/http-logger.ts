@@ -27,7 +27,8 @@ export const httpLogger = pinoHttp({
     req: (req: Req) => ({
       method: req.method,
       // strip query string — tokens in URLs must not reach logs
-      url: req.originalUrl.split('?')[0],
+      // originalUrl is unset at request entry (pino-http child-logger phase) — fall back to raw url
+      url: (req.originalUrl ?? req.url ?? '').split('?')[0],
     }),
 
     res: (res: Res) => ({

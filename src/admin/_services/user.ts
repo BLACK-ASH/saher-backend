@@ -9,8 +9,10 @@ import { userSchema } from '../account/schema.js';
 export const userSchemaFinal = userSchema
   .extend({
     id: z.string(),
-    image: imageType,
-    displayName: z.string(),
+    // users created outside the account flow (seeded/self-registered) have neither
+    // a derived displayName nor a populated image doc — tolerate both or /me 500s
+    image: imageType.nullish(),
+    displayName: z.string().optional(),
     emailVerified: z.boolean(),
     pushNotificationsEnabled: z.boolean().default(false),
     isActive: z.boolean(),

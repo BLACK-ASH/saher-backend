@@ -24,9 +24,9 @@
     "semantic_hash": "9191b1625d5ed9d62d49e1e561f98634"
   },
   "package.json": {
-    "mtime": 1787448647.471825,
-    "seen": 1787448888.2579002,
-    "ast_hash": "6180869a63cc30b7a5d65728c36d79c5",
+    "mtime": 1787457477.4891407,
+    "seen": 1787458637.6077576,
+    "ast_hash": "05c1eeec72f96684d56cc3ff6018e763",
     "semantic_hash": ""
   },
   "src/admin/_services/account.ts": {
@@ -42,10 +42,10 @@
     "semantic_hash": "7f2800798d78c9e206319811215d80f9"
   },
   "src/admin/_services/user.ts": {
-    "mtime": 1787322472.5777411,
-    "seen": 1787328147.2367854,
-    "ast_hash": "c9aa9b9127a69669b771bf657b868325",
-    "semantic_hash": "c9aa9b9127a69669b771bf657b868325"
+    "mtime": 1787456753.8241541,
+    "seen": 1787458637.6077685,
+    "ast_hash": "6603deb8cf95ea376e74076a7ed9d465",
+    "semantic_hash": ""
   },
   "src/admin/account/controller.ts": {
     "mtime": 1787412457.175821,
@@ -288,10 +288,10 @@
     "semantic_hash": ""
   },
   "src/auth/session/controller.ts": {
-    "mtime": 1787322472.57911,
-    "seen": 1787328147.2368176,
-    "ast_hash": "378d8a92d885557a7a726dd17db54bd1",
-    "semantic_hash": "378d8a92d885557a7a726dd17db54bd1"
+    "mtime": 1787457369.6416914,
+    "seen": 1787458637.6080062,
+    "ast_hash": "bc5b1f5367f9ab4075c95f026aed04b4",
+    "semantic_hash": ""
   },
   "src/auth/verfiy-email/controller.ts": {
     "mtime": 1787411773.3482811,
@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "src/index.ts": {
-    "mtime": 1787448767.621934,
-    "seen": 1787448888.2580092,
-    "ast_hash": "ecb49755efd7d6e0756bde042731305f",
+    "mtime": 1787458352.223467,
+    "seen": 1787458637.6082394,
+    "ast_hash": "71a8fdd8b4fce24872679e0ee8730426",
     "semantic_hash": ""
   },
   "src/libs/class/api-error.ts": {
@@ -510,9 +510,9 @@
     "semantic_hash": "56276b84ad08ed32d5ff7e664b9d3b7d"
   },
   "src/libs/logger/http-logger.ts": {
-    "mtime": 1787414976.8305402,
-    "seen": 1787416193.5714152,
-    "ast_hash": "40aa55d821d383dec6357b8a7f6ec90f",
+    "mtime": 1787456192.4447877,
+    "seen": 1787458637.6082816,
+    "ast_hash": "68cf134ee75d837d39882c61de84e325",
     "semantic_hash": ""
   },
   "src/libs/logger/logger.ts": {
@@ -570,9 +570,9 @@
     "semantic_hash": "228a76655f1dd92f77b581abe6f558c6"
   },
   "src/libs/middleware/error-handler.ts": {
-    "mtime": 1787414939.987628,
-    "seen": 1787416193.5714276,
-    "ast_hash": "b7abbface6802e3b493047a5f8a5403c",
+    "mtime": 1787456196.319681,
+    "seen": 1787458637.6083338,
+    "ast_hash": "2da78a1a2feb5f9468f62d3615c4ea26",
     "semantic_hash": ""
   },
   "src/libs/middleware/metrics.ts": {
@@ -936,10 +936,10 @@
     "semantic_hash": "43851a9b8983166d3387680ddfa72b3a"
   },
   "pnpm-workspace.yaml": {
-    "mtime": 1787322472.5769453,
-    "seen": 1787328147.2369025,
-    "ast_hash": "34db9043a9e204632997aa7cbd92ac18",
-    "semantic_hash": "34db9043a9e204632997aa7cbd92ac18"
+    "mtime": 1787449828.1330578,
+    "seen": 1787458637.6090088,
+    "ast_hash": "c39c25a57d39f4a59ce3f922ff9bbd31",
+    "semantic_hash": ""
   },
   "redocly.yaml": {
     "mtime": 1787322472.5769453,
@@ -1662,15 +1662,9 @@
     "semantic_hash": ""
   },
   "src/config/env.ts": {
-    "mtime": 1787411773.3482811,
-    "seen": 1787416193.5713603,
+    "mtime": 1787457139.5033464,
+    "seen": 1787458637.6080363,
     "ast_hash": "c656b47ed084185a728f1be9d0725b6b",
-    "semantic_hash": ""
-  },
-  "src/seeds/create-first-user.test.ts": {
-    "mtime": 1787379084.4426103,
-    "seen": 1787379183.135994,
-    "ast_hash": "ee97489269c737243a6c232f368466d4",
     "semantic_hash": ""
   },
   "docker-compose.dev.yml": {
@@ -1683,12 +1677,6 @@
     "mtime": 1787448884.122267,
     "seen": 1787448888.2581623,
     "ast_hash": "ff332e8edafb121b025495f81dafc5be",
-    "semantic_hash": ""
-  },
-  "src/libs/middleware/cron-secret.test.ts": {
-    "mtime": 1787411773.3482811,
-    "seen": 1787416193.5714242,
-    "ast_hash": "11f8d91c5ffd59f52dd337ece0f2aef4",
     "semantic_hash": ""
   },
   "src/libs/middleware/cron-secret.ts": {
@@ -1709,16 +1697,70 @@
     "ast_hash": "351fb4734ba9a2c4fca3ed670d4d1ca7",
     "semantic_hash": ""
   },
-  "src/permission/authorize.test.ts": {
-    "mtime": 1787408695.689277,
-    "seen": 1787416193.5714836,
-    "ast_hash": "907a2181a07ecab49b2b48e488822aef",
-    "semantic_hash": ""
-  },
   "session-ses_fd65.md": {
     "mtime": 1787421761.9452138,
     "seen": 1787445929.8332508,
     "ast_hash": "84e3a8adb48c94f103dd5b44e3ffcfb7",
+    "semantic_hash": ""
+  },
+  "src/app.ts": {
+    "mtime": 1787458477.1296506,
+    "seen": 1787458637.607796,
+    "ast_hash": "e05eb7110bf40d85262ac3342e44fc3c",
+    "semantic_hash": ""
+  },
+  "tests/auth/auth.test.ts": {
+    "mtime": 1787458352.223467,
+    "seen": 1787458637.6086843,
+    "ast_hash": "850216ee427a84f8056a535d38c49435",
+    "semantic_hash": ""
+  },
+  "tests/helpers/fake-redis.ts": {
+    "mtime": 1787457082.199307,
+    "seen": 1787458637.6086874,
+    "ast_hash": "650645fcff3251adf411b4a3398d6fce",
+    "semantic_hash": ""
+  },
+  "tests/libs/cron-secret.test.ts": {
+    "mtime": 1787457452.2635038,
+    "seen": 1787458637.60869,
+    "ast_hash": "b66e081e0256033e31b618d1f5ba8c81",
+    "semantic_hash": ""
+  },
+  "tests/permission/authorize.test.ts": {
+    "mtime": 1787457408.8321283,
+    "seen": 1787458637.6086926,
+    "ast_hash": "cb0bacf49f950edabada8c9db9d33a78",
+    "semantic_hash": ""
+  },
+  "tests/seeds/create-first-user.test.ts": {
+    "mtime": 1787458352.223467,
+    "seen": 1787458637.6086957,
+    "ast_hash": "196950f68e7f18b0fcd517a1eddac4a4",
+    "semantic_hash": ""
+  },
+  "tests/setup.ts": {
+    "mtime": 1787457967.4860551,
+    "seen": 1787458637.6086984,
+    "ast_hash": "334e84f3f953aa31fcdaa9a230b56cd6",
+    "semantic_hash": ""
+  },
+  "vitest.config.ts": {
+    "mtime": 1787457487.5769954,
+    "seen": 1787458637.6087043,
+    "ast_hash": "2dbb21b34b08e8ef8e3649cf0680f4d8",
+    "semantic_hash": ""
+  },
+  "fix-plans/TEST-REPORT.md": {
+    "mtime": 1787458627.1664677,
+    "seen": 1787458637.6088257,
+    "ast_hash": "8c6e3f3d7790ae1ff69ea80fe3afe7b6",
+    "semantic_hash": ""
+  },
+  "fix-plans/test-auth-permission.md": {
+    "mtime": 1787449744.5597913,
+    "seen": 1787458637.6088276,
+    "ast_hash": "a5b2e3c404a4b8e158df7c192b380a4c",
     "semantic_hash": ""
   }
 }
