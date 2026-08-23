@@ -18,6 +18,34 @@ beforeEach(async () => {
   person = await mkPerson('user');
 });
 
+describe('single image upload', () => {
+  it('accepts a valid image, converts to WebP, and creates a Media row with the provided alt name', async () => {
+    const res = await request(app)
+      .post('/api/upload/image')
+      .set('Cookie', person.cookie)
+      .attach('image', png, { filename: 'one.png', contentType: 'image/png' })
+      .field('name', 'Profile picture');
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.url).toContain('/uploads/images/');
+    expect(res.body.data.url.endsWith('.webp')).toBe(true);
+    expect(res.body.data.mimetype).toBe('image/webp');
+    expect(res.body.data.width).toBeGreaterThan(0);
+
+    const media = await Media.findOne({ src: res.body.data.url }).lean();
+    expect(media?.alt).toBe('Profile picture');
+  });
+
+  it('rejects a missing name field', async () => {
+    const res = await request(app)
+      .post('/api/upload/image')
+      .set('Cookie', person.cookie)
+      .attach('image', png, { filename: 'one.png', contentType: 'image/png' });
+
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('bulk image upload', () => {
   it('accepts two valid images, converts both to WebP, and creates one Media row per file', async () => {
     const res = await request(app)
