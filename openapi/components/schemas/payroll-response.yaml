@@ -1,0 +1,18 @@
+allOf:
+  - $ref: './envelope.yaml'
+  - type: object
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            type: string
+          user:
+            type: string
+          baseSalary:
+            type: number
+          netSalary:
+            type: number
+          status:
+            type: string
+            enum: [unpaid, partially-paid, paid]

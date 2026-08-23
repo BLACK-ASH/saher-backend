@@ -89,8 +89,14 @@ Commits `90c2ec7`…`e224765` (8): events(35) + openapi schemas for attendance/e
 - Skipped by decision: upload module (writes real files), calendar sync-holidays (real Google API).
 
 ## Remaining
-1. Reimbursement suite 3/9 green; uncommitted: schema-id fix + cache invalidation + test file. Search endpoint filters by `description/amount/date/user`, not `keyword`.
-2. OpenAPI typed responses for: admin, notification, calendar, leave, payroll, user, mail, notice, reimbursement (pattern = commit c377c94).
-3. Final typecheck + lint + full vitest sweep.
+- None. All target modules tested and documented.
 
-**Quick-resume pointer: see `HANDOFF.md` at repo root.**
+---
+
+# Checkpoint 4 — reimbursement + OpenAPI complete (2026-08-23)
+
+- Reimbursement module suite (9 cases) passing.
+- Route ordering bug in `src/reimbursement/reimbursement.routes.ts` fixed (`/recyclebills` was shadowed by `/:billId`).
+- OpenAPI response schemas created for remaining 7 modules in `openapi/components/schemas/`.
+- Docs built successfully (`pnpm run docs:build` → `docs/index.html` 979 KiB).
+- **Totals: 15 test files / 233 tests passing. `pnpm typecheck`, `pnpm lint`, and `pnpm docs:lint` all clean.**

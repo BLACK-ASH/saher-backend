@@ -1,0 +1,22 @@
+allOf:
+  - $ref: './envelope.yaml'
+  - type: object
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            type: string
+          user:
+            type: string
+          title:
+            type: string
+          description:
+            type: string
+          type:
+            type: string
+          read:
+            type: boolean
+          createdAt:
+            type: string
+            format: date-time
