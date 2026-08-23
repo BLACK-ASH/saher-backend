@@ -6,7 +6,10 @@ import {
   uploadDocumentController,
 } from './document/document.controller.js';
 import { uploadDocument } from './document/document.middleware.js';
-import { uploadImageController } from './image/image.controller.js';
+import {
+  uploadBulkImagesController,
+  uploadImageController,
+} from './image/image.controller.js';
 import { uploadImage } from './image/image.middleware.js';
 
 const uploadRouter = Router();
@@ -16,6 +19,8 @@ uploadRouter.get('/', (req: Request, res: Response) => {
 });
 
 uploadRouter.post('/image', uploadImage.single('image'), uploadImageController);
+
+uploadRouter.post('/images', uploadImage.array('images', 10), uploadBulkImagesController);
 
 uploadRouter.post('/document', uploadDocument.single('document'), uploadDocumentController);
 
