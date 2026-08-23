@@ -74,3 +74,56 @@ describe('document upload', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('bulk document upload', () => {
+  it('accepts two valid files and creates one Media row per file', async () => {
+    const pdf = Buffer.from('%PDF-1.4 bulk one');
+    const xlsx = Buffer.from('fake xlsx bulk');
+
+    const res = await request(app)
+      .post('/api/upload/documents')
+      .set('Cookie', person.cookie)
+      .attach('documents', pdf, { filename: 'one.pdf', contentType: 'application/pdf' })
+      .attach('documents', xlsx, {
+        filename: 'two.xlsx',
+        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data[0].url).toContain('/uploads/documents/');
+    expect(res.body.data[0].mimetype).toBe('application/pdf');
+    expect(res.body.data[0].size).toBe(pdf.length);
+    expect(res.body.data[1].url.endsWith('.xlsx')).toBe(true);
+
+    const first = await Media.findOne({ src: res.body.data[0].url }).lean();
+    const second = await Media.findOne({ src: res.body.data[1].url }).lean();
+    expect(first?.alt).toBe('one.pdf');
+    expect(second?.alt).toBe('two.xlsx');
+  });
+
+  it('rejects a batch containing an unsupported file type', async () => {
+    const res = await request(app)
+      .post('/api/upload/documents')
+      .set('Cookie', person.cookie)
+      .attach('documents', Buffer.from('%PDF-1.4 ok'), {
+        filename: 'ok.pdf',
+        contentType: 'application/pdf',
+      })
+      .attach('documents', Buffer.from('just text'), {
+        filename: 'notes.txt',
+        contentType: 'text/plain',
+      });
+
+    expect(res.status).toBe(400);
+    expect(await Media.findOne({ alt: 'ok.pdf' })).toBeNull();
+  });
+
+  it('rejects an empty batch', async () => {
+    const res = await request(app)
+      .post('/api/upload/documents')
+      .set('Cookie', person.cookie);
+
+    expect(res.status).toBe(400);
+  });
+});
