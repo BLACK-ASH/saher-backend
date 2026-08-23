@@ -6,14 +6,21 @@ import { ApiError } from '../class/api-error.js';
 import { logger } from '../logger/logger.js';
 
 // VAPID setup (run once on import)
-webpush.setVapidDetails(
-  'mailto:admin@saherinternals.com',
-  env.VAPID_PUBLIC_KEY,
-  env.VAPID_PRIVATE_KEY,
-);
-
+// Lazy VAPID setup — import-time env deref crashes boot when keys are absent (e.g. tests)
+let vapidReady = false;
+const ensureVapid = () => {
+  if (!vapidReady) {
+    webpush.setVapidDetails(
+      'mailto:admin@saherinternals.com',
+      env.VAPID_PUBLIC_KEY,
+      env.VAPID_PRIVATE_KEY,
+    );
+    vapidReady = true;
+  }
+};
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sendPushToUser = async (userId: string, payload: any) => {
+  ensureVapid();
   const subscriptions = await PushSubscription.find({
     user: userId,
   });

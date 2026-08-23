@@ -23,6 +23,10 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
     throw new ApiError(404, 'User Attendance Not Found.');
   }
 
+  if (attendance.user.toString() !== user.id) {
+    throw new ApiError(403, 'Forbidden: You cannot correct others attendance.');
+  }
+
   // Check existing pending request
   const exist = await AttendanceCorrection.findOne({
     attendance: input.attendanceId,

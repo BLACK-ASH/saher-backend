@@ -4,12 +4,12 @@ const meadiaSchema = new mongoose.Schema(
   {
     src: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     alt: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   {

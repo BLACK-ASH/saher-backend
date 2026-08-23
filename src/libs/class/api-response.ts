@@ -3,6 +3,8 @@ import { formatMessage } from '../utils/formatted-message.js';
 
 type MetaType = Record<string, unknown>;
 
+type SuccessStatusCode = 200 | 201 | 202 | 204;
+
 export class ApiResponse {
   static success<T>(
     res: Response,
@@ -10,12 +12,12 @@ export class ApiResponse {
       message = 'Success',
       data,
       meta,
-      statusCode = 200,
+      statusCode = 200 satisfies SuccessStatusCode,
     }: {
       message?: string;
       data?: T;
       meta?: MetaType;
-      statusCode?: number;
+      statusCode?: SuccessStatusCode;
     },
   ) {
     return res.status(statusCode).json({

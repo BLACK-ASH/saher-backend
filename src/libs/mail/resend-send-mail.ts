@@ -1,8 +1,11 @@
 import { Resend } from 'resend';
 
 import { env } from '../../config/env.js';
+import { logger } from '../logger/logger.js';
 
-const resend = new Resend(env.RESEND_API_KEY);
+// Lazy init — import-time construction breaks env-less contexts (tests, seeds)
+let resend: Resend | undefined;
+const getResend = () => (resend ??= new Resend(env.RESEND_API_KEY));
 
 export const sendEmail = async ({
   to,
@@ -14,7 +17,7 @@ export const sendEmail = async ({
   html: string;
 }) => {
   try {
-    const response = await resend.emails.send({
+    const response = await getResend().emails.send({
       from: 'Saher Dev <noreply@saherindia.org>',
       to,
       subject,
@@ -23,7 +26,7 @@ export const sendEmail = async ({
 
     return response;
   } catch (error) {
-    console.error('Email error:', error);
+    logger.error({ err: error }, 'Email error');
     throw error;
   }
 };

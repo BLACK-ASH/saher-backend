@@ -22,7 +22,11 @@ import {
   getSingleProgram,
   undoDeleteProgram,
 } from './program/program.controller.js';
-import { createProgramSchema, updatedProgramSchema } from './program/program.schema.js';
+import {
+  addParticipantsToProgramSchema,
+  createProgramSchema,
+  updatedProgramSchema,
+} from './program/program.schema.js';
 import { markAttendance } from './session/session-attendance.controller.js';
 import { SessionAttendanceSchema } from './session/session-attendance.schema.js';
 import { removeAttendance } from './session/session-remove-attendance.controller.js';
@@ -99,8 +103,8 @@ eventRouter.patch(
 );
 
 // Particiapnt route ------------------------------------------------------------------------
-eventRouter.get('/participants', getParticipants);
-eventRouter.get('/participants/:id', getParticipantByIdController);
+eventRouter.get('/participants', authorize('read', 'event'), getParticipants);
+eventRouter.get('/participants/:id', authorize('read', 'event'), getParticipantByIdController);
 eventRouter.post(
   '/participants',
   authorize('write', 'event'),
@@ -150,6 +154,7 @@ eventRouter.get(
 eventRouter.post(
   '/programs/participants/:programId',
   authorize('write', 'event'),
+  validate(addParticipantsToProgramSchema),
   addParticipantsToProgram,
 );
 eventRouter.delete(

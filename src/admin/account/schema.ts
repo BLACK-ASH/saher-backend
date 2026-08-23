@@ -89,7 +89,21 @@ export const accountRegisterSchema = z
     };
   });
 
-export const accountUpdateSchema = z.object(accountSchema.shape).partial();
+export const accountUpdateSchema = accountBaseSchema
+  .partial()
+  .strict()
+  .refine(
+    (data) => {
+      if (data.employeeType === 'part-time' && !data.employeeShift) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Employee Shift Is Required For Part Time Employee.',
+      path: ['employeeShift'],
+    },
+  );
 
 export type AccountRegisterInput = z.infer<typeof accountRegisterSchema>;
 export type AccountUpdateInput = z.infer<typeof accountUpdateSchema>;

@@ -10,6 +10,7 @@ import { verifyEmailTemplate } from '../../libs/mail/templates/verify-mail.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { formatMessage } from '../../libs/utils/formatted-message.js';
 import { notification } from '../../libs/utils/notification.js';
+import { hashToken } from '../_utils/token.js';
 
 export const verifyEmailRequestController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -18,7 +19,7 @@ export const verifyEmailRequestController = async (req: Request, res: Response) 
   const token = crypto.randomBytes(32).toString('hex');
   const verifyUrl = process.env.BASE_URL + '/verify-email?token=' + token;
 
-  const key = createKey('email-verification', token);
+  const key = createKey('email-verification', hashToken(token));
 
   await setCache(key, user.id, 900);
 
@@ -36,13 +37,16 @@ export const verifyEmailRequestController = async (req: Request, res: Response) 
 export const verifyEmailController = async (req: Request, res: Response) => {
   const { token } = req.body;
 
-  const key = createKey('email-verification', token);
+  const key = createKey('email-verification', hashToken(token));
 
   const userId = await getCache<string>(key);
   if (!userId) throw new ApiError(400, 'Invalid Token Or Token Is Expired.');
 
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, 'User Not Found.');
+
+  // One-time use — delete token so it can't be replayed within its 15-min TTL
+  await deleteCache(key);
 
   user.emailVerified = true;
   await user.save();

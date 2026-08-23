@@ -7,7 +7,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { DateRange } from '../../libs/class/date-range.js';
 import { bullmqConnection } from '../../libs/redis/redis-client.js';
-import { createKey, getCache, setCache } from '../../libs/redis/redis-utils.js';
+import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { notification } from '../../libs/utils/notification.js';
 
 export const attendanceReportQueue = new Queue('pdf-attendance-report', {
@@ -87,29 +87,33 @@ export const exportReportController = async (req: Request, res: Response) => {
 
   if (request) {
     const job = await attendanceReportQueue.getJob(request);
-    const data = {
-      id: job?.id,
-      data: job?.data,
-      state: await job?.getState(),
-      result: job?.returnvalue,
-    };
 
-    if (!data.state || data.state !== 'completed') {
-      return ApiResponse.success(res, {
-        message: 'request is processing',
-      });
-    }
+    // Missing job (expired/evicted from queue) ⇒ treat as cache miss and re-enqueue
+    if (!job) {
+      await deleteCache(key);
+    } else {
+      const data = {
+        id: job.id,
+        data: job.data,
+        state: await job.getState(),
+        result: job.returnvalue,
+      };
 
-    if (job) {
+      if (!data.state || data.state !== 'completed') {
+        return ApiResponse.success(res, {
+          message: 'request is processing',
+        });
+      }
+
       const action = {
         type: 'download' as const,
         label: 'Report',
-        url: data.result.downloadPath,
+        url: data.result?.downloadPath,
         method: 'GET' as const,
       };
 
       await notification.specific.info(
-        [job.data.user],
+        [job.data.user as string],
         `attendance report generated, type - ${job.data.type} `,
         `attendance report from ${dateRange.startDateString} - ${dateRange.endDateString}`,
         action,
@@ -119,10 +123,6 @@ export const exportReportController = async (req: Request, res: Response) => {
         message: 'request is already process, please check notifications',
       });
     }
-
-    return ApiResponse.success(res, {
-      message: 'request is already process, please check notifications',
-    });
   }
 
   const jobId = crypto.randomUUID();

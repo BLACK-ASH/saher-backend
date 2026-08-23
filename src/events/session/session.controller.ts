@@ -15,6 +15,13 @@ import { notification } from '../../libs/utils/notification.js';
 import { sendPushToUser } from '../../libs/utils/push-notification.js';
 import { participantResponseSchema } from '../participant/participant.schema.js';
 
+// Calendar month cache is keyed on session date — every writer must invalidate
+const invalidateCalendarCache = async (date: Date | string) => {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return;
+  await deleteCache(createKey('calendar', d.getFullYear(), d.getMonth()));
+};
+
 //Add a session
 export const addSession = async (req: Request, res: Response) => {
   const { programId } = req.params;
@@ -104,6 +111,12 @@ export const editSession = async (req: Request, res: Response) => {
     throw new ApiError(404, 'Session not found');
   }
 
+  // Invalidate old date's month; date may have moved to another one
+  await invalidateCalendarCache(updatedSession.date);
+  if (updates.date && new Date(updates.date).getTime() !== new Date(updatedSession.date).getTime()) {
+    await invalidateCalendarCache(updates.date);
+  }
+
   const notificationTitle = 'Session Updated';
   const notificationDesc = `"${updatedSession.title}" has been updated. Please review the latest session details.`;
   await notification.specific.success(
@@ -134,6 +147,9 @@ export const deleteSession = async (req: Request, res: Response) => {
   if (!session) throw new ApiError(404, 'Session not found');
   session.isDeleted = true;
   await session.save();
+
+  await invalidateCalendarCache(session.date);
+
   return ApiResponse.success(res, {
     message: 'Session has been deleted successfully',
     data: null,
@@ -155,6 +171,8 @@ export const undoDeleteSession = async (req: Request, res: Response) => {
   session.isDeleted = false;
 
   await session.save();
+
+  await invalidateCalendarCache(session.date);
 
   return ApiResponse.success(res, {
     message: 'Session has been restored successfully',

@@ -1,15 +1,20 @@
 import type { Request, Response, CookieOptions } from 'express';
 
+import { corsOrigins } from '../../config/env.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { renewToken } from '../_utils/token.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
+// sameSite:'none' (cross-site cookies) only when an explicit CORS allowlist exists;
+// otherwise 'lax' — kills the CSRF chain from reflect-all-origin + none.
+const crossSiteFrontend = corsOrigins.length > 0;
+
 export const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: isProd ? 'none' : 'lax',
+  sameSite: isProd && crossSiteFrontend ? 'none' : 'lax',
   path: '/',
 };
 

@@ -26,7 +26,8 @@ export const httpLogger = pinoHttp({
   serializers: {
     req: (req: Req) => ({
       method: req.method,
-      url: req.originalUrl,
+      // strip query string — tokens in URLs must not reach logs
+      url: req.originalUrl.split('?')[0],
     }),
 
     res: (res: Res) => ({

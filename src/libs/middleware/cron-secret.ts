@@ -17,7 +17,9 @@ const safeEqual = (a: string, b: string) => {
 // (or `x-cron-secret`) — never in the URL path, which ends up in logs/history.
 export const requireCronSecret = (req: Request, _res: Response, next: NextFunction) => {
   const header = req.header('authorization') ?? '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : (req.header('x-cron-secret') ?? '');
+  const token = header.startsWith('Bearer ')
+    ? header.slice(7)
+    : (req.header('x-cron-secret') ?? '');
 
   if (!token || !safeEqual(token, env.CRON_SECRET)) {
     throw new ApiError(401, 'Unauthorized');

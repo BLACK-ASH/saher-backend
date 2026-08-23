@@ -10,6 +10,7 @@ import { changePasswordTemplate } from '../../libs/mail/templates/change-passwor
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { notification } from '../../libs/utils/notification.js';
 import { hashPassword } from '../../libs/utils/password-hash.js';
+import { revokeUserSessions, hashToken } from '../_utils/token.js';
 
 export const changePasswordRequestController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -18,7 +19,7 @@ export const changePasswordRequestController = async (req: Request, res: Respons
   const token = crypto.randomBytes(32).toString('hex');
   const url = process.env.BASE_URL + '/change-password?token=' + token;
 
-  const key = createKey('change-password', token);
+  const key = createKey('change-password', hashToken(token));
 
   await setCache(key, user.id, 900);
 
@@ -40,7 +41,7 @@ export const changePasswordRequestController = async (req: Request, res: Respons
 export const changePasswordController = async (req: Request, res: Response) => {
   const { token, password } = req.body;
 
-  const key = createKey('change-password', token);
+  const key = createKey('change-password', hashToken(token));
 
   const userId = await getCache(key);
   if (!userId) throw new ApiError(400, 'Invalid Token Or Token Is Expired.');
@@ -55,6 +56,9 @@ export const changePasswordController = async (req: Request, res: Response) => {
 
   await deleteCache(key);
   await deleteCache(userKey);
+
+  // Credential reset revokes every session — stolen sessions can't survive a password change
+  await revokeUserSessions(user._id.toString());
 
   await notification.specific.info(
     [user.id],

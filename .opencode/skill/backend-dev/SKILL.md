@@ -11,23 +11,23 @@ Express 5 · TypeScript (ESM, `type: module`) · Mongoose 9 / MongoDB · Redis +
 
 ## Module map
 
-| Path | Role |
-|---|---|
-| `src/index.ts` | HTTP entrypoint; mounts ALL routers and middlewares |
-| `src/worker/index.ts` | Separate BullMQ worker process (`pnpm dev:worker`) |
-| `src/admin` | Admin API: accounts, banks, users (requires `authorize`) |
-| `src/attendance` | Mark/check-in/out, corrections, holidays, export, cron jobs |
-| `src/auth` | JWT access + rotating refresh tokens, Redis sessions, email flows |
-| `src/calendar` | Month aggregation with Redis cache, Google holidays sync |
-| `src/database` | Every Mongoose model + connection |
-| `src/events` | Workshops/sessions/participants (under development) |
-| `src/libs` | ApiResponse/ApiError, middleware, redis utils, logger/metrics, mail templates, RBAC (`permission/`) |
-| `src/mail` | Internal mailbox endpoints |
-| `src/notification` | In-app notifications + web push |
-| `src/public` | Health check + pass-protected cron triggers |
-| `src/seeds` | First-admin bootstrap (`pnpm seed`) |
-| `src/upload` | Image pipeline: multer memory → sharp → disk + Media doc |
-| `src/user` | Self-service profile |
+| Path                  | Role                                                                                                |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| `src/index.ts`        | HTTP entrypoint; mounts ALL routers and middlewares                                                 |
+| `src/worker/index.ts` | Separate BullMQ worker process (`pnpm dev:worker`)                                                  |
+| `src/admin`           | Admin API: accounts, banks, users (requires `authorize`)                                            |
+| `src/attendance`      | Mark/check-in/out, corrections, holidays, export, cron jobs                                         |
+| `src/auth`            | JWT access + rotating refresh tokens, Redis sessions, email flows                                   |
+| `src/calendar`        | Month aggregation with Redis cache, Google holidays sync                                            |
+| `src/database`        | Every Mongoose model + connection                                                                   |
+| `src/events`          | Workshops/sessions/participants (under development)                                                 |
+| `src/libs`            | ApiResponse/ApiError, middleware, redis utils, logger/metrics, mail templates, RBAC (`permission/`) |
+| `src/mail`            | Internal mailbox endpoints                                                                          |
+| `src/notification`    | In-app notifications + web push                                                                     |
+| `src/public`          | Health check + pass-protected cron triggers                                                         |
+| `src/seeds`           | First-admin bootstrap (`pnpm seed`)                                                                 |
+| `src/upload`          | Image pipeline: multer memory → sharp → disk + Media doc                                            |
+| `src/user`            | Self-service profile                                                                                |
 
 ## Commands
 

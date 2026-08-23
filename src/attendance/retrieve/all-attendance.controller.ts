@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 
 import { attendanceListSchema } from './attendance.schema.js';
 import { Attendance } from '../../database/attendance.model.js';
+import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
@@ -9,10 +10,12 @@ export const allAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
   let id;
   // Get the user body
-  if (req.params.id === 'me') {
+  if (req.params.id === 'me' || req.params.id === user?.id) {
     id = user?.id;
+  } else if (user?.role === 'admin' || user?.role === 'manager') {
+    id = req.params.id;
   } else {
-    if (user?.role !== 'user') id = req.params.id;
+    throw new ApiError(403, 'Forbidden');
   }
 
   const page = Number(req.query.page) || 1;

@@ -33,4 +33,7 @@ const holidaySchema = new mongoose.Schema(
 );
 
 type HolidayType = mongoose.InferSchemaType<typeof holidaySchema>;
+
+holidaySchema.index({ date: 1, type: 1 }, { unique: true });
+
 export const Holiday = mongoose.model<HolidayType>('Holiday', holidaySchema);

@@ -43,13 +43,21 @@ export const updateHolidayController = async (req: Request, res: Response) => {
   const id = req.params.id;
   const updateData = req.body;
 
-  const update = await Holiday.findByIdAndUpdate(id, updateData);
+  const update = await Holiday.findByIdAndUpdate(id, updateData, { new: true });
   if (!update) throw new ApiError(400, 'Holiday Not Updated.');
 
-  const month = new Date(update.date).getMonth() + 1;
-  const year = new Date(update.date).getFullYear();
-  const key = createKey('calendar', year, month);
-  await deleteCache(key);
+  // Invalidate cache for both old and new month keys (date may have moved)
+  const invalidate = (d: Date) => {
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    return deleteCache(createKey('calendar', year, month));
+  };
+
+  await invalidate(new Date(update.date));
+
+  if (updateData.date && new Date(updateData.date).getTime() !== new Date(update.date).getTime()) {
+    await invalidate(new Date(updateData.date));
+  }
 
   return ApiResponse.success(res, {
     message: 'Holiday Record Updated Successful',
@@ -59,7 +67,7 @@ export const updateHolidayController = async (req: Request, res: Response) => {
 };
 
 export const getHolidayController = async (req: Request, res: Response) => {
-  const id = req.params;
+  const id = req.params.id;
 
   const record = await Holiday.findById(id).lean();
   if (!record) throw new ApiError(404, 'Holiday Record Not Found.');

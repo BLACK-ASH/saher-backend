@@ -39,6 +39,11 @@ export const getBankDetailController = async (req: Request, res: Response) => {
 
   const bankId = user?.bank.id || id;
 
+  // Non-admins may only read their own bank details
+  if (!user && req.user?.role !== 'admin' && req.user?.role !== 'manager') {
+    throw new ApiError(403, 'Forbidden.');
+  }
+
   const details = await getBank(bankId);
   if (!details) throw new ApiError(400, 'Bank Details Not Exist.');
 

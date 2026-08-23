@@ -1,5 +1,7 @@
 import z from 'zod';
 
+import { DOMPurify } from '../libs/utils/dompurify.js';
+
 export const sendMailSchema = z.object({
   to: z.array(z.string()).min(1, 'At least one recipient is required'),
 
@@ -9,7 +11,18 @@ export const sendMailSchema = z.object({
 
   subject: z.string().trim().min(1, 'Subject is required').max(255),
 
-  body: z.string().trim().min(1, 'Body is required'),
+  // Sanitize rich text at ingest — stored-XSS vector (bodies render as HTML downstream)
+  body: z
+    .string()
+    .trim()
+    .min(1, 'Body is required')
+    .transform((value) => DOMPurify.sanitize(value)),
+});
+
+// Shared list pagination for inbox/outbox — bounded so aggregates can't return unbounded docs
+export const mailListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
 });
 
 const MailUserSchema = z.object({

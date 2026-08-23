@@ -1,10 +1,27 @@
 // constants/rolePermissions.ts
 import { createPermission } from './permission.js';
+import type { UserRole } from '../database/user.model.js';
 
-export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
+export const ROLE_PERMISSIONS: Record<UserRole, Set<string>> = {
   admin: new Set([
-    // Full access except read (implicitly allowed)
-    // Account
+    // Read
+    createPermission('read', 'account'),
+    createPermission('read', 'user'),
+    createPermission('read', 'holiday'),
+    createPermission('read', 'attendance'),
+    createPermission('read', 'attendance-correction'),
+    createPermission('read', 'event'),
+    createPermission('read', 'mail'),
+    createPermission('read', 'payroll'),
+    createPermission('read', 'preReimbursement'),
+    createPermission('read', 'postReimbursement'),
+    createPermission('read', 'leaveType'),
+    createPermission('read', 'leave'),
+    createPermission('read', 'bank'),
+    createPermission('read', 'notification'),
+    createPermission('read', 'notice'),
+
+    // Write
     createPermission('write', 'account'),
     createPermission('update', 'account'),
     createPermission('delete', 'account'),
@@ -35,10 +52,6 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     //Mail
     createPermission('write', 'mail'),
 
-    // Attendance Correction
-    createPermission('write', 'attendance-correction'),
-    createPermission('update', 'attendance-correction'),
-
     // Payroll
     createPermission('write', 'payroll'),
     createPermission('update', 'payroll'),
@@ -59,6 +72,19 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
   ]),
 
   manager: new Set([
+    // Read
+    createPermission('read', 'user'),
+    createPermission('read', 'holiday'),
+    createPermission('read', 'attendance'),
+    createPermission('read', 'attendance-correction'),
+    createPermission('read', 'event'),
+    createPermission('read', 'mail'),
+    createPermission('read', 'preReimbursement'),
+    createPermission('read', 'postReimbursement'),
+    createPermission('read', 'leave'),
+    createPermission('read', 'bank'),
+    createPermission('read', 'notification'),
+
     // Account
     createPermission('write', 'account'),
     createPermission('update', 'account'),
@@ -108,14 +134,15 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
   ]),
 
   user: new Set([
+    // Read
+    createPermission('read', 'event'),
+    createPermission('read', 'attendance'),
+
     // Attendance
     createPermission('write', 'attendance'),
 
     // Attendance Correction
     createPermission('write', 'attendance-correction'),
-
-    // Event
-    // createPermission('write', 'event'),
 
     //Mail
     createPermission('write', 'mail'),
@@ -134,4 +161,6 @@ export const ROLE_PERMISSIONS: Record<string, Set<string>> = {
     createPermission('write', 'leave'),
     createPermission('update', 'leave'),
   ]),
+
+  intern: new Set([createPermission('read', 'event')]),
 };

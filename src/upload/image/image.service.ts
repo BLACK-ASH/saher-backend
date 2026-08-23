@@ -4,6 +4,8 @@ import path from 'path';
 
 import sharp from 'sharp';
 
+import { logger } from '../../libs/logger/logger.js';
+
 const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'images');
 
 export const processAndSaveImage = async (file: Express.Multer.File) => {
@@ -29,7 +31,7 @@ export const processAndSaveImage = async (file: Express.Multer.File) => {
       mimetype: 'image/webp',
     };
   } catch (error) {
-    console.error('Image Upload Failed', error);
+    logger.error({ err: error }, 'Image Upload Failed');
     throw error;
   }
 };

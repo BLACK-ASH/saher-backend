@@ -76,6 +76,12 @@ export const notificationResponseSchema = baseNotificationSchema
 
 export const notificationResponseListSchema = z.array(notificationResponseSchema);
 
+// List pagination — bounded payloads (cache keeps the full list, slice per request)
+export const notificationListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+});
+
 export type NotificationResponseT = z.infer<typeof notificationResponseSchema>;
 export type NotificationResponseListT = NotificationResponseT[];
 

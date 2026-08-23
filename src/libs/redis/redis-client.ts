@@ -8,10 +8,7 @@ export const client = createClient({
   socket: {
     reconnectStrategy: (retries) => {
       logger.warn(`redis connection try - ${retries}`);
-      if (retries > 10) {
-        logger.error('redis max retry limit reached.');
-        return new Error('Redis retry limit reached');
-      }
+      // Cap backoff, keep retrying — hard stop turns any outage >10 retries into a crash
       return Math.min(retries * 100, 3000);
     },
   },

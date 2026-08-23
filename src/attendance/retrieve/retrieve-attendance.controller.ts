@@ -12,18 +12,16 @@ import {
 
 export const retrieveAttendanceController = async (req: Request, res: Response) => {
   const user = req.user;
-  if (!user) throw new ApiError(400, 'Unauthorized');
+  if (!user) throw new ApiError(401, 'Unauthorized');
 
   let id: string;
-  // Get the user body
-  if (user.role === 'user' || user.role === 'intern') {
+
+  if (req.params.id === 'me' || req.params.id === user.id) {
     id = user.id;
+  } else if (user.role === 'admin' || user.role === 'manager') {
+    id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   } else {
-    if (req.params.id === 'me') {
-      id = req.user?.id as string;
-    } else {
-      id = req.params.id as string;
-    }
+    throw new ApiError(403, 'Forbidden');
   }
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;

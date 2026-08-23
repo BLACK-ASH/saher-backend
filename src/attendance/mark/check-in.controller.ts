@@ -31,55 +31,30 @@ export const checkInController = async (req: Request, res: Response) => {
 
   const isLate = checkIsLate({ inTime: now, shift });
 
-  // Updating Cron Record
-  const cronRecord = await Attendance.findOne({
-    user: user?.id,
-    status: 'absent',
-    date: standardDateString(now),
-  });
+  // Updating Cron Record (atomic: only claims a row still absent with no inTime — concurrent double check-ins can't both win)
+  const cronRecord = await Attendance.findOneAndUpdate(
+    {
+      user: user.id,
+      status: 'absent',
+      date: standardDateString(now),
+      inTime: null,
+    },
+    { $set: { inTime: now, status: 'present', isLate } },
+    { new: true },
+  );
 
   // Future Scope : if you want to keep this req hanging for user on leave/weekoff then comment the next line
-  if (!cronRecord) throw new ApiError(400, 'today you are on leave ');
+  if (!cronRecord) throw new ApiError(400, 'Already checked in today or no attendance row exists');
 
-  if (cronRecord) {
-    cronRecord.inTime = now;
-    cronRecord.status = 'present';
-    cronRecord.isLate = isLate;
-    await cronRecord.save();
+  // Cache invalidation
+  const todayKey = createKey('attendance', 'today', 'me', user.id);
+  await deleteCache(todayKey);
 
-    const todayKey = createKey('attendance', 'today', 'me', user?.id);
-    await deleteCache(todayKey);
+  await deleteCacheGroup('attendance', 'today', 'list');
 
-    await deleteCacheGroup('attendance', 'today', 'list');
-
-    return ApiResponse.success(res, {
-      message: 'You have been marked present',
-      data: null,
-      statusCode: 200,
-    });
-  }
-
-  // Special case is user is check in before cron job
-  //Step 5 - if User exist and have not submitted today's attendence start making new entry
-  //Step 6 - Note the current time so that late hai ki nahi ka pata chal     sake
+  return ApiResponse.success(res, {
+    message: 'You have been marked present',
+    data: null,
+    statusCode: 200,
+  });
 };
-// const newRecord = await Attendance.create({
-//   user: user?.id,
-//   inTime: now,
-//   status: 'present',
-//   date: standardDateString(now),
-//   isLate,
-// });
-
-// if (!newRecord) throw new ApiError(400, 'Attendance Creation Failed.');
-
-// const todayKey = createKey('attendance', 'today', 'me', user?.id);
-// await deleteCache(todayKey);
-
-// await deleteCacheGroup('attendance', 'today', 'list');
-
-// return ApiResponse.success(res, {
-//   message: 'You have been marked present',
-//   data: null,
-//   statusCode: 201,
-// });

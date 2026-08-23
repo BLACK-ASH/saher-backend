@@ -53,23 +53,27 @@ export const sendMail = async (payload: SendMailPayload) => {
   });
 };
 
-export const getInboxMails = async (userId: string) => {
-  return Mail.aggregate([
-    {
-      $match: {
-        $or: [
-          {
-            to: new mongoose.Types.ObjectId(userId),
-          },
-          {
-            cc: new mongoose.Types.ObjectId(userId),
-          },
-          {
-            bcc: new mongoose.Types.ObjectId(userId),
-          },
-        ],
+export const getInboxMails = async (userId: string, page = 1, limit = 10) => {
+  const match = {
+    $or: [
+      {
+        to: new mongoose.Types.ObjectId(userId),
       },
-    },
+      {
+        cc: new mongoose.Types.ObjectId(userId),
+      },
+      {
+        bcc: new mongoose.Types.ObjectId(userId),
+      },
+    ],
+  };
+
+  return Mail.aggregate([
+    // page before the lookups — cheaper and bounds payload
+    { $match: match },
+    { $sort: { createdAt: -1 } },
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
     {
       $lookup: {
         from: 'users',

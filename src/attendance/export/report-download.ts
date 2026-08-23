@@ -14,7 +14,13 @@ export const downloadReportController = async (req: Request, res: Response) => {
 
   const filePath = path.join(REPORT_DIR, safeFileName);
 
-  const stats = await fs.stat(filePath);
+  let stats;
+  try {
+    stats = await fs.stat(filePath);
+  } catch {
+    // ENOENT etc — file never generated or TTL-cleaned
+    throw new ApiError(404, 'Report not found.');
+  }
 
   if (!stats.isFile()) {
     throw new ApiError(404, 'Report not found.');

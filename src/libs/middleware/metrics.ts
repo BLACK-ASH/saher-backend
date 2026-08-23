@@ -7,7 +7,8 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
   res.on('finish', () => {
     const duration = Date.now() - start;
 
-    const route = req.originalUrl.split('?')[0];
+    // Route template (e.g. /user/:id), not raw URL — unbounded label cardinality OOMs prom-client
+    const route = req.route?.path ?? req.baseUrl ?? 'unmatched';
 
     httpRequestTotal.inc({
       method: req.method,

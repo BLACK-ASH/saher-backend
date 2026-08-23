@@ -1,3 +1,5 @@
+import type { UserRole } from '../database/user.model.js';
+
 declare global {
   namespace Express {
     interface Request {

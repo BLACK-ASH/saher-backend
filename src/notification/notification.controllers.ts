@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { NotificationAction } from './notification.schema.js';
+import type { NotificationAction, NotificationResponseListT } from './notification.schema.js';
 import { notificationResponseListSchema } from './notification.schema.js';
 import { Notification } from '../database/notification.model.js';
 import { ApiError } from '../libs/class/api-error.js';
@@ -68,40 +68,42 @@ export const getAllNotificationsController = async (req: Request, res: Response)
   const user = req.user;
   if (!user) throw new ApiError(401, 'Unauthorized');
 
+  // validated+defaults via validate(notificationListQuerySchema)
+  const { page, limit } = req.query as unknown as { page: number; limit: number };
+
   const userId = user.id;
   const key = createKey('notification', 'user', userId.toString());
+  let parsed: NotificationResponseListT;
+
   const cacheRaw = await getCache(key);
   if (cacheRaw) {
-    const parsedCache = notificationResponseListSchema.parse(cacheRaw);
-    return ApiResponse.success(res, {
-      message: 'Notifications fetched from cache',
-      statusCode: 200,
-      data: parsedCache,
-    });
+    parsed = notificationResponseListSchema.parse(cacheRaw);
+  } else {
+    const role = req.user?.role;
+    const notifications = await Notification.find({
+      $or: [{ user: user?.id, scope: 'specific' }, { scope: role }, { scope: 'global' }],
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    parsed = notificationResponseListSchema.parse(normalizeDoc(notifications));
+    await setCache(key, parsed, 604800);
   }
 
-  // Agr cache faiL huwa toh DB CAll
-  const role = req.user?.role;
-  const notifications = await Notification.find({
-    $or: [{ user: user?.id, scope: 'specific' }, { scope: role }, { scope: 'global' }],
-  }).lean();
-
-  if (notifications.length === 0) {
-    return ApiResponse.success(res, {
-      message: 'You have no notification',
-      data: [],
-      statusCode: 200,
-    });
-  }
-
-  const normalized = normalizeDoc(notifications);
-  const parsed = notificationResponseListSchema.parse(normalized);
-  await setCache(key, parsed, 604800);
+  // Slice after cache/DB so both paths paginate identically
+  const skip = (page - 1) * limit;
+  const pageData = parsed.slice(skip, skip + limit);
 
   return ApiResponse.success(res, {
-    message: 'Notifications fetched from cache',
+    message: 'Notifications fetched',
     statusCode: 200,
-    data: parsed,
+    data: pageData,
+    meta: {
+      page,
+      limit,
+      count: parsed.length,
+      total: Math.ceil(parsed.length / limit),
+    },
   });
 };
 
@@ -116,9 +118,8 @@ export const markSeenNotificationController = async (req: Request, res: Response
   const result = await markSeenNotification(notificationId, userId);
 
   return ApiResponse.success(res, {
-    message: result.message,
-    data: result.data,
-    statusCode: result.statusCode,
+    message: 'Notification marked as seen',
+    data: result,
   });
 };
 

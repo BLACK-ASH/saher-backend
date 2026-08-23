@@ -11,6 +11,7 @@ import { forgotPasswordTemplate } from '../../libs/mail/templates/forgot-passwor
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { notification } from '../../libs/utils/notification.js';
 import { hashPassword } from '../../libs/utils/password-hash.js';
+import { revokeUserSessions, hashToken } from '../_utils/token.js';
 
 export const forgotPasswordRequestController = async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -26,7 +27,7 @@ export const forgotPasswordRequestController = async (req: Request, res: Respons
   const token = crypto.randomBytes(32).toString('hex');
   const url = process.env.BASE_URL + '/forgot-password?token=' + token;
 
-  const key = createKey('forgot-password', token);
+  const key = createKey('forgot-password', hashToken(token));
 
   await setCache(key, parsedEmail.data, 900);
 
@@ -48,7 +49,7 @@ export const forgotPasswordRequestController = async (req: Request, res: Respons
 export const forgotPasswordController = async (req: Request, res: Response) => {
   const { token, password } = req.body;
 
-  const key = createKey('forgot-password', token);
+  const key = createKey('forgot-password', hashToken(token));
 
   const email = await getCache(key);
   if (!email) throw new ApiError(400, 'Invalid Token Or Token Is Expired.');
@@ -63,6 +64,9 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
 
   await deleteCache(key);
   await deleteCache(userKey);
+
+  // Credential reset revokes every session (no caller session here — full logout everywhere)
+  await revokeUserSessions(user._id.toString());
 
   await notification.specific.info([user.id], 'password change', 'password change of your account');
 

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-const date = new Date().toLocaleString();
+import { escapeHtml } from '../../utils/html-escape.js';
 
 type Props = {
   name: string;
@@ -8,7 +8,12 @@ type Props = {
   expiryTime: string;
 };
 
-export const changeEmailTemplate = ({ name, url, expiryTime }: Props): string => `
+export const changeEmailTemplate = ({ name, url, expiryTime }: Props): string => {
+  const date = new Date().toLocaleString();
+  const safeName = escapeHtml(name);
+  const safeUrl = escapeHtml(url);
+  const safeExpiryTime = escapeHtml(expiryTime);
+  return `
 <!DOCTYPE html>
 
 <html>
@@ -74,7 +79,7 @@ export const changeEmailTemplate = ({ name, url, expiryTime }: Props): string =>
         </p>
 
         <p style="font-size:14px; color:#111827; margin:0 0 12px;">
-          Dear ${name},
+          Dear ${safeName},
         </p>
 
         <p style="font-size:14px; color:#374151; margin:0 0 16px;">
@@ -89,7 +94,7 @@ export const changeEmailTemplate = ({ name, url, expiryTime }: Props): string =>
         <table cellpadding="0" cellspacing="0">
           <tr>
             <td bgcolor="rgb(124,0,141)" style="border-radius:6px;">
-              <a href="${url}" target="_blank"
+              <a href="${safeUrl}" target="_blank"
                 style="display:inline-block; padding:10px 22px; font-size:13px; color:#ffffff; text-decoration:none; font-weight:bold;">
                 Open Email Change Form
               </a>
@@ -103,13 +108,13 @@ export const changeEmailTemplate = ({ name, url, expiryTime }: Props): string =>
         </p>
 
         <p style="font-size:12px; color:#111827; word-break:break-all;">
-          ${url}
+          ${safeUrl}
         </p>
 
         <hr style="margin:28px 0; border:none; border-top:1px solid #e5e7eb;" />
 
         <p style="font-size:13px; color:#b91c1c;">
-          ⚠️ This link is secure and will expire in ${expiryTime}. Do not share it with anyone.
+          ⚠️ This link is secure and will expire in ${safeExpiryTime}. Do not share it with anyone.
         </p>
 
         <p style="font-size:13px; color:#6b7280;">
@@ -140,4 +145,5 @@ export const changeEmailTemplate = ({ name, url, expiryTime }: Props): string =>
 
   </body>
 </html>
-`;
+  `;
+};

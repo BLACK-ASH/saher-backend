@@ -28,7 +28,11 @@ export type SessionT = {
 };
 
 // Reusable Hash Function
-const hash = (val: string) => crypto.createHash('sha256').update(val).digest('hex');
+export const hash = (val: string) => crypto.createHash('sha256').update(val).digest('hex');
+
+// One-time tokens (verify-email / reset links) stored hashed — Redis compromise
+// must not yield usable tokens. Apply on BOTH write and read key derivation.
+export const hashToken = hash;
 
 // Generate Refresh Token
 const generateRefreshToken = () => crypto.randomBytes(128).toString('hex');
@@ -155,18 +159,18 @@ export const verifyAccessToken = (accessToken: string) => {
   return data as ReqUser;
 };
 
-// To Verify Refresh Token
-export const verifyRefreshToken = async (sessionId: string, refreshToken: string) => {
-  const session = await getCache<SessionT>(createKey('session', sessionId));
+// Revoke every session of a user (password change/reset). Keeps `exceptSessionId`
+// alive when provided so the caller isn't logged out of the current device.
+export const revokeUserSessions = async (userId: string, exceptSessionId?: string) => {
+  const setKey = createKey('user_session', userId);
+  const sessionIds = await client.sMembers(setKey);
 
-  if (!session) return null;
+  const toDelete = sessionIds.filter((id) => id !== exceptSessionId);
 
-  const isValid = session.refreshTokenHash === hash(refreshToken);
-
-  if (!isValid) {
-    await deleteCache(createKey('session', sessionId));
-    return null;
+  if (toDelete.length) {
+    await client.del(toDelete.map((id) => createKey('session', id)));
+    await client.sRem(setKey, toDelete);
   }
 
-  return session;
+  return toDelete.length;
 };

@@ -56,7 +56,19 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
     });
 
   if (createAttendance.length > 0) {
-    await Attendance.insertMany(createAttendance);
+    try {
+      // ordered:false so one duplicate doesn't abort the batch; concurrent cron triggers race on the unique index
+      await Attendance.insertMany(createAttendance, { ordered: false });
+    } catch (err) {
+      // ponytail: swallow only E11000 dup-key from racing crons — anything else rethrows
+      const mongoErr = err as { code?: number; writeErrors?: unknown[] };
+      if (
+        mongoErr.code !== 11000 &&
+        !mongoErr.writeErrors?.some((e) => (e as { code?: number }).code === 11000)
+      ) {
+        throw err;
+      }
+    }
   }
 
   const create = createAttendance.length;

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 import { autoCheckoutCron } from '../attendance/cron-job/auto-checkout-attendance.cron.js';
 import { createAttendanceCron } from '../attendance/cron-job/create-attendance.cron.js';
+import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import { requireCronSecret } from '../libs/middleware/cron-secret.js';
 
@@ -16,11 +17,7 @@ publicRouter.post('/cron/auto-checkout', requireCronSecret, autoCheckoutCron);
 publicRouter.get('/health', async (req, res) => {
   const dbStatus = mongoose.connection.readyState;
   if (dbStatus !== 1) {
-    return ApiResponse.success(res, {
-      message: 'Server Unhealthy',
-      data: undefined,
-      statusCode: 500,
-    });
+    throw new ApiError(503, 'Server Unhealthy');
   }
   return ApiResponse.success(res, {
     message: 'Server Healthy',

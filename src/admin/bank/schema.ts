@@ -24,7 +24,7 @@ export const bankSchema = z.object({
 });
 
 // Update Schema
-export const bankUpdateSchema = bankSchema.partial();
+export const bankUpdateSchema = bankSchema.partial().strict();
 
 // Types
 export type BankRegisterType = z.infer<typeof bankSchema>;

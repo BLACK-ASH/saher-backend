@@ -43,7 +43,6 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
   await setCacheWithGroup(key, result, ['calendar'], 7776000);
 
   const parsed = z.array(event).parse(result);
-  await setCacheWithGroup(key, result, ['calendar'], 7776000);
 
   return ApiResponse.success(res, {
     message: 'the data from DB ',
@@ -141,16 +140,14 @@ export const updateCalendarEventController = async (req: Request, res: Response)
 export const syncGoogleHolidaysController = async (_req: Request, res: Response) => {
   const year = new Date().getFullYear();
 
-  if (!year) {
-    throw new Error('Year is required');
-  }
-
   const googleHolidays = await fetchGoogleHolidays(year);
 
   const operations = googleHolidays
     .filter(
-      (holiday): holiday is typeof holiday & { summary: string } =>
-        typeof holiday.summary === 'string',
+      (holiday): holiday is typeof holiday & { summary: string; start: { date: string } } =>
+        typeof holiday.summary === 'string' &&
+        typeof holiday.start?.date === 'string' &&
+        !Number.isNaN(new Date(holiday.start.date).getTime()),
     )
     .map((holiday) => ({
       updateOne: {

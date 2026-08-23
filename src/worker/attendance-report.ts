@@ -3,6 +3,7 @@ import path from 'path';
 
 import type { Job } from 'bullmq';
 import { Worker } from 'bullmq';
+import type { Page as PuppeteerPage } from 'puppeteer-core';
 
 import { retrieveCustomAttendace } from '../attendance/attendance.service.js';
 import { logger } from '../libs/logger/logger.js';
@@ -18,13 +19,27 @@ const generateAttendanceReportPdf = async (job: Job) => {
 
   const browser = await getBrowser();
 
+  // try/finally — a crashed job must never abandon its Chromium page (FD leak per job)
   const page = await browser.newPage();
+  try {
+    return await renderJob(job, page);
+  } finally {
+    await page.close().catch((err) => logger.warn({ err }, `Failed to close page for job ${job.id}`));
+  }
+};
+
+const renderJob = async (job: Job, page: PuppeteerPage) => {
 
   const data = await retrieveCustomAttendace(job.data.user, job.data.startDate, job.data.endDate, {
     page: 1,
     limit: 1000,
     sort: 'desc',
   });
+
+  // empty range would crash on data.parsed[0].date below
+  if (!data.parsed.length) {
+    throw new Error(`No attendance records found for user ${job.data.user} in range`);
+  }
 
   const html = createAttendancePdfBody(data.parsed);
 

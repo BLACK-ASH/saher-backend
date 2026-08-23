@@ -11,7 +11,8 @@ export const updateUserController = async (req: Request, res: Response) => {
   const id = req.user?.id as string;
   const updateInput = req.body;
 
-  const update = await User.findByIdAndUpdate(id, updateInput);
+  // runValidators — zod only gates the shape; mongoose constraints must still apply
+  const update = await User.findByIdAndUpdate(id, updateInput, { runValidators: true });
   if (!update) throw new ApiError(404, 'User Not Found.');
 
   const key1 = createKey('users', 'list');
@@ -45,7 +46,9 @@ export const userGetController = async (req: Request, res: Response) => {
 export const userSearchController = async (req: Request, res: Response) => {
   const keyword = req.params.keyword as string;
 
-  const regex = new RegExp(keyword, 'i');
+  // escape regex metacharacters — raw user input into RegExp is a ReDoS vector
+  const safeKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(safeKeyword, 'i');
 
   const users = await User.find({
     $or: [

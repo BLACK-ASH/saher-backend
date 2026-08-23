@@ -14,19 +14,21 @@ export const checkOutController = async (req: Request, res: Response) => {
 
   if (!user) throw new ApiError(403, 'Forbidden: Unauthorized');
 
-  const attendance = await Attendance.findOne({
-    user: user?.id,
-    date: standardDateString(now),
-    inTime: { $ne: null },
-  });
+  const attendance = await Attendance.findOneAndUpdate(
+    {
+      user: user.id,
+      date: standardDateString(now),
+      inTime: { $ne: null },
+      outTime: null,
+    },
+    { $set: { outTime: now, status: 'present', workHours: 0 } },
+    { new: true },
+  );
 
-  //  If User Is Not Check In
-  if (!attendance) throw new ApiError(400, 'You Have Not Checked in Today.');
-  // If User Is Already Check Out
-  if (attendance?.outTime) throw new ApiError(400, 'You Have Already Checked Out Today');
+  //  If User Is Not Check In Or Already Checked Out
+  if (!attendance) throw new ApiError(400, 'You Have Not Checked in Today or Already Checked Out');
 
-  if (!user?.id) throw new ApiError(400, ' Unauthorized');
-  const account = await getAccountByUser(user?.id);
+  const account = await getAccountByUser(user.id);
   if (!account) throw new ApiError(400, 'Account not found ');
 
   const shift = getShift(account);
@@ -50,7 +52,6 @@ export const checkOutController = async (req: Request, res: Response) => {
     status = 'present';
   }
 
-  attendance.outTime = now;
   attendance.status = status;
   attendance.workHours = workHours;
 

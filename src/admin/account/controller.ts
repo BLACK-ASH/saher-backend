@@ -88,7 +88,7 @@ export const accountUpdateController = async (req: Request, res: Response) => {
   await deleteCache(key);
   await deleteCache(key1);
 
-  return ApiResponse.success(res, { message: 'Employee registered.' });
+  return ApiResponse.success(res, { message: 'Employee updated.' });
 };
 
 export const accountGetController = async (req: Request, res: Response) => {
@@ -106,6 +106,11 @@ export const accountGetController = async (req: Request, res: Response) => {
       data: user,
       statusCode: 200,
     });
+  }
+
+  // Non-admins may only read their own record (KYC data rides on populates)
+  if (req.user?.role !== 'admin' && req.user?.role !== 'manager') {
+    throw new ApiError(403, 'Forbidden.');
   }
 
   const account = await getAccount(id);

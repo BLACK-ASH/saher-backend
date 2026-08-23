@@ -59,8 +59,11 @@ export const markAttendance = async (req: Request, res: Response) => {
     { $addToSet: { participants: { $each: success } } },
   );
 
-  session.participants = success;
-  await session.save();
+  // Merge, don't replace — wholesale assignment wiped previously marked attendees
+  await Session.updateOne(
+    { _id: session._id },
+    { $addToSet: { participants: { $each: success } } },
+  );
 
   // const normalized = normalizeDoc()
 

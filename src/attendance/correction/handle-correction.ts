@@ -36,6 +36,13 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         throw new ApiError(404, 'Attendance Correction Request Not Found.');
       }
 
+      if (user.id === request.user.toString()) {
+        throw new ApiError(
+          403,
+          'Forbidden: You cannot approve or reject your own correction request.',
+        );
+      }
+
       // If Request Already Approved
       if (request.status === 'approve')
         throw new ApiError(400, 'Attendance Correction Already Approved.');
@@ -98,15 +105,17 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       }
 
       // If isAdmin is false then system should calculate the all the attendance status if true accept what admin says
+      const isAdmin = user.role === 'admin';
 
       const account = await getAccountByUser(user.id);
       if (!account) throw new ApiError(404, 'User Not Found.');
 
       const shift = getShift(account);
 
-      const change = input.isAdmin
-        ? input.changes!
-        : { inTime: request.changes.inTime, outTime: request.changes.outTime };
+      const change =
+        isAdmin && input.changes
+          ? input.changes
+          : { inTime: request.changes.inTime, outTime: request.changes.outTime };
 
       //  calculate work hours safely
       const { workHours, status } = calculateWorkStatus({
@@ -115,14 +124,15 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         shift,
       });
 
-      const isLate = input.isAdmin
-        ? input.changes?.isLate
-        : checkIsLate({ inTime: change.inTime, shift });
+      const isLate =
+        isAdmin && input.changes
+          ? input.changes.isLate
+          : checkIsLate({ inTime: change.inTime, shift });
 
       const newRecord = {
         ...change,
         isLate,
-        status: input.isAdmin ? input.changes?.status : status,
+        status: isAdmin && input.changes ? input.changes.status : status,
         workHours,
       };
 

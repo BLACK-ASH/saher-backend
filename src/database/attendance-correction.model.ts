@@ -77,6 +77,10 @@ const attendanceCorrectionSchema = new mongoose.Schema(
 );
 
 attendanceCorrectionSchema.index({ attendance: 1 });
+attendanceCorrectionSchema.index(
+  { user: 1, attendance: 1 },
+  { unique: true, partialFilterExpression: { status: 'pending' } },
+);
 type AttendanceCorrectionType = mongoose.InferSchemaType<typeof attendanceCorrectionSchema>;
 export const AttendanceCorrection = mongoose.model<AttendanceCorrectionType>(
   'AttendanceCorrection',

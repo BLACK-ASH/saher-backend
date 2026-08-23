@@ -11,45 +11,20 @@ export const attendanceCorrectionSchema = z.object({
   proof: z.string().optional(),
 });
 
-export const attendanceCorrectionHandleSchema = z
-  .object({
-    changes: z
-      .object({
-        inTime: z.coerce.date(),
-        outTime: z.coerce.date(),
-        status: z.enum(['absent', 'half-day', 'present']),
-        isLate: z.boolean(),
-      })
-      .optional(),
+export const attendanceCorrectionHandleSchema = z.object({
+  changes: z
+    .object({
+      inTime: z.coerce.date(),
+      outTime: z.coerce.date(),
+      status: z.enum(['absent', 'half-day', 'present']),
+      isLate: z.boolean(),
+    })
+    .optional(),
 
-    isAdmin: z.boolean(),
+  reason: z.string().max(300, 'Maximum Reason Is 300 Characters.').optional(),
 
-    reason: z.string().max(300, 'Maximum Reason Is 300 Characters.').optional(),
-
-    status: z.enum(['reject', 'on-hold', 'approve']),
-  })
-  .superRefine((data, ctx) => {
-    if (data.isAdmin) {
-      if (!data.changes) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Changes are required for admin correction.',
-          path: ['changes'],
-        });
-        return;
-      }
-
-      const { inTime, outTime, status, isLate } = data.changes;
-
-      if (!inTime || !outTime || !status || isLate === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'All change fields are required for admin correction.',
-          path: ['changes'],
-        });
-      }
-    }
-  });
+  status: z.enum(['reject', 'on-hold', 'approve']),
+});
 
 export const attendancePreviousSchema = z.object({
   inTime: z.coerce.date().nullable(),

@@ -38,7 +38,8 @@ describe('middleware: requireCronSecret', () => {
 
   it('rejects a wrong secret with 401', () => {
     assert.throws(
-      () => requireCronSecret(reqWith({ authorization: 'Bearer wrong-secret' }), {} as never, () => {}),
+      () =>
+        requireCronSecret(reqWith({ authorization: 'Bearer wrong-secret' }), {} as never, () => {}),
       (err: { statusCode?: number }) => err.statusCode === 401,
     );
   });
@@ -53,7 +54,11 @@ describe('middleware: requireCronSecret', () => {
   it('rejects a prefix of the real secret (length not leaked)', () => {
     assert.throws(
       () =>
-        requireCronSecret(reqWith({ authorization: `Bearer ${env.CRON_SECRET.slice(0, 8)}` }), {} as never, () => {}),
+        requireCronSecret(
+          reqWith({ authorization: `Bearer ${env.CRON_SECRET.slice(0, 8)}` }),
+          {} as never,
+          () => {},
+        ),
       (err: { statusCode?: number }) => err.statusCode === 401,
     );
   });

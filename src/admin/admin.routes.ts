@@ -55,14 +55,17 @@ adminRouter
   .get(accountGetController);
 
 // User Routes
-adminRouter.get('/users', getAllUsersController);
+adminRouter.get('/users', authorize('read', 'user'), getAllUsersController);
 
 adminRouter
   .route('/user/:id')
   .get(userGetController)
   .put(authorize('update', 'user'), validate(userUpdateSchema), userUpdateController)
   .delete(authorize('delete', 'user'), userDeleteController);
-
-adminRouter.patch('/user/:id/restore', userRestoreController);
+adminRouter.patch(
+  '/user/:id/restore',
+  authorize('update', 'user'),
+  userRestoreController,
+);
 
 export default adminRouter;

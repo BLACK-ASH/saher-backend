@@ -37,4 +37,6 @@ Express 5 + TypeScript ESM REST API (Mongoose 9/MongoDB, Redis + BullMQ, zod v4,
 - Deploy: push to `main` triggers a self-hosted runner that `git reset --hard origin/main`s `/home/saher/Test/saher-backend` and `docker compose up -d --build backend` (`.github/workflows/dev-deploy.yml`).
 - Commits follow conventional commits (commitlint + husky + lint-staged).
 - Read `MODULE_ANALYSIS.md` before touching auth, admin, attendance, or permission code — it catalogs ~120 known bugs (13 CRITICAL) with `file:line` refs; don't reintroduce those patterns.
+- Use GSD for work: plan → execute → verify per task; keep atomic commits per fix.
+- Autonomous iterative fixing (fix-plans/): analyze → baseline-verify → minimal fix → test (`pnpm typecheck && pnpm lint && pnpm test`) → update `FIX-REPORT.md` + OpenAPI if endpoints changed. Only stop to ask when a change is major/product-level or breaks compatibility; otherwise proceed and report.
 - A knowledge graph lives in `graphify-out/` — prefer `graphify query "<question>"` over grep for codebase questions.

@@ -11,7 +11,19 @@ import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 export const getInboxController = async (req: Request, res: Response) => {
   const userId = req.user!.id.toString();
 
-  const mails = await getInboxMails(userId);
+  // validated+defaults applied by validate(mailListQuerySchema) on the route
+  const { page, limit } = req.query as unknown as { page: number; limit: number };
+
+  const [mails, count] = await Promise.all([
+    getInboxMails(userId, page, limit),
+    Mail.countDocuments({
+      $or: [
+        { to: new mongoose.Types.ObjectId(userId) },
+        { cc: new mongoose.Types.ObjectId(userId) },
+        { bcc: new mongoose.Types.ObjectId(userId) },
+      ],
+    }),
+  ]);
 
   const normalized = normalizeDoc(mails);
 
@@ -19,6 +31,12 @@ export const getInboxController = async (req: Request, res: Response) => {
     statusCode: 200,
     message: 'Inbox fetched successfully',
     data: normalized,
+    meta: {
+      page,
+      limit,
+      count,
+      total: Math.ceil(count / limit),
+    },
   });
 };
 
@@ -39,6 +57,9 @@ export const sendMailController = async (req: Request, res: Response) => {
 
 export const outboxController = async (req: Request, res: Response) => {
   const user = req.user;
+
+  // validated+defaults applied by validate(mailListQuerySchema) on the route
+  const { page, limit } = req.query as unknown as { page: number; limit: number };
 
   const record = await Mail.aggregate([
     {
@@ -229,13 +250,19 @@ export const outboxController = async (req: Request, res: Response) => {
         createdAt: -1,
       },
     },
+
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
   ]);
+
+  const count = await Mail.countDocuments({ from: new mongoose.Types.ObjectId(user!.id) });
 
   if (record.length === 0) {
     return ApiResponse.success(res, {
       message: 'There are no mails sent by you',
       data: [],
       statusCode: 200,
+      meta: { page, limit, count, total: Math.ceil(count / limit) },
     });
   }
 
@@ -246,5 +273,6 @@ export const outboxController = async (req: Request, res: Response) => {
     message: 'The mails sent by you are',
     data: parsed,
     statusCode: 200,
+    meta: { page, limit, count, total: Math.ceil(count / limit) },
   });
 };

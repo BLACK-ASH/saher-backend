@@ -34,10 +34,16 @@ export const setCacheWithGroup = async (
   ]);
 };
 
-// get cache
+// get cache — corrupt entry is treated as a miss and evicted, never a 500
 export const getCache = async <T>(key: string): Promise<T | null> => {
   const data = await client.get(key);
-  return data ? (JSON.parse(data) as T) : null;
+  if (!data) return null;
+  try {
+    return JSON.parse(data) as T;
+  } catch {
+    await client.del(key);
+    return null;
+  }
 };
 
 // delete single key

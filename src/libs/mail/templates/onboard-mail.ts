@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-const date = new Date().toLocaleString();
+import { escapeHtml } from '../../utils/html-escape.js';
 
 type Props = {
   name: string;
@@ -8,7 +8,12 @@ type Props = {
   role: string;
 };
 
-export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
+export const onboardEmailTemplate = ({ name, email, role }: Props): string => {
+  const date = new Date().toLocaleString();
+  const safeName = escapeHtml(name);
+  const safeEmail = escapeHtml(email);
+  const safeRole = escapeHtml(role);
+  return `
 <!DOCTYPE html>
 
 <html>
@@ -77,7 +82,7 @@ export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
         </p>
 
         <p style="font-size:14px; color:#111827; margin:0 0 12px;">
-          Dear ${name},
+          Dear ${safeName},
         </p>
 
         <p style="font-size:14px; color:#374151; margin:0 0 16px;">
@@ -86,7 +91,7 @@ export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
 
         <p style="font-size:14px; color:#374151; margin:0 0 16px;">
           You may log in using your registered email:
-          <strong>${email}</strong>
+          <strong>${safeEmail}</strong>
         </p>
 
         <!-- Credential Format -->
@@ -108,7 +113,7 @@ export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
         </table>
 
         <p style="font-size:14px; color:#374151; margin:0 0 20px;">
-          You may now access the platform as ${role}
+          You may now access the platform as ${safeRole}
         </p>
 
         <!-- Button -->
@@ -155,4 +160,5 @@ export const onboardEmailTemplate = ({ name, email, role }: Props): string => `
 
   </body>
 </html>
-`;
+  `;
+};

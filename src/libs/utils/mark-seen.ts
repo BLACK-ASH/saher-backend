@@ -1,17 +1,18 @@
 import { Notification } from '../../database/notification.model.js';
 import { notificationResponseListSchema } from '../../notification/notification.schema.js';
+import { ApiError } from '../class/api-error.js';
 import { createKey, getCache, setCache } from '../redis/redis-utils.js';
 
 export const markSeenNotification = async (notificationId: string, userId: string) => {
   // mark the Db notification as seen
 
   const modified = await Notification.findByIdAndUpdate(
-    notificationId,
+    // user scope — otherwise any user can mark anyone's notification seen (IDOR)
+    { _id: notificationId, user: userId },
     { isSeen: true, seenAt: new Date() },
     { new: true },
   );
-  if (!modified)
-    return { message: 'The notification was not found  in DB ', statusCode: 400, data: null };
+  if (!modified) throw new ApiError(404, 'The notification was not found in DB');
 
   const key = createKey('notification', 'user', userId);
   const cached = await getCache(key);
@@ -28,9 +29,5 @@ export const markSeenNotification = async (notificationId: string, userId: strin
     return notification;
   });
   await setCache(key, changedCached, 604800);
-  return {
-    message: 'Notification marked as seen',
-    statusCode: 200,
-    data: modified,
-  };
+  return modified;
 };

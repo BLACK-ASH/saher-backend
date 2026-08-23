@@ -27,11 +27,7 @@ export const editParticipantController = async (req: Request, res: Response) => 
   req.body = updatedParticipantSchema.parse(req.body);
   const updatedParticipant = await Participant.findByIdAndUpdate(req.params.id, req.body).lean();
   if (!updatedParticipant) {
-    return ApiResponse.success(res, {
-      message: undefined,
-      data: undefined,
-      statusCode: 404,
-    });
+    throw new ApiError(404, 'Participant Not Found.');
   }
 
   return ApiResponse.success(res, {

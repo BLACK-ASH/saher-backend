@@ -22,13 +22,13 @@ post:
           schema:
             $ref: ../../components/auth/login-response.yaml
     '401':
-      description: Invalid credentials
+      description: Invalid credentials (generic — same response for unknown email and wrong password)
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-    '404':
-      description: User Not Found
+    '403':
+      description: Email not verified
       content:
         application/json:
           schema:

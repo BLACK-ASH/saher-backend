@@ -21,7 +21,7 @@ export const retrieveCustomAttendace = async (
       $lte: standardDateString(endDate),
     },
   })
-    .sort({ finalSort })
+    .sort({ date: finalSort })
     .skip(skip)
     .populate('user', 'name email role ')
     .populate({

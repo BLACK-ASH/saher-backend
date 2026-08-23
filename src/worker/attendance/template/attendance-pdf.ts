@@ -1,5 +1,6 @@
 import type { AttendanceResponseT } from '../../../attendance/retrieve/attendance.schema.js';
 import { formatTime } from '../../../libs/utils/format-time.js';
+import { escapeHtml } from '../../../libs/utils/html-escape.js';
 import 'dotenv/config';
 
 const formatDate = (date: string) => {
@@ -277,7 +278,7 @@ export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
           </div>
 
           <div class="field-value">
-            ${user?.name ?? '-'}
+            ${escapeHtml(user?.name ?? '-')}
           </div>
         </div>
 
@@ -297,7 +298,7 @@ export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
           </div>
 
           <div class="field-value">
-            ${user?.email ?? '-'}
+            ${escapeHtml(user?.email ?? '-')}
           </div>
         </div>
 

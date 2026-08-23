@@ -3,12 +3,13 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 
 import adminRouter from './admin/admin.routes.js';
 import attendanceRouter from './attendance/attendance.route.js';
 import authRouter from './auth/auth.routes.js';
 import { calendarRouter } from './calendar/calendar.routes.js';
-import { env } from './config/env.js';
+import { corsOrigins, env } from './config/env.js';
 import connectDb from './database/connection.js';
 import eventRouter from './events/events.routes.js';
 import leaveRouter from './leave/leave.route.js';
@@ -52,18 +53,36 @@ app.use(metricsMiddleware);
 
 app.set('trust proxy', true);
 
-// CORS
+// CORS — reflect-all only when no allowlist is configured (dev); strict list otherwise
 app.use(
   cors({
-    origin: true,
+    origin: corsOrigins.length ? corsOrigins : true,
     credentials: true,
   }),
 );
 
-// Image Upload Routes
-app.use(express.json());
-app.use('/api/upload', uploadRouter);
+// Upload routes get the raw stream (multer handles multipart) — no json parsing here
 app.use(cookieParser());
+app.use('/api/upload', protectedRoute, uploadRouter);
+app.use(express.json());
+
+// Rate limiting — auth endpoints are the brute-force target; generous global cap for the rest.
+// ponytail: in-memory store — per-instance limits only; move to rate-limit-redis if clustered
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many attempts, try again later.' },
+});
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+app.use('/api/auth', authLimiter);
+app.use('/api', apiLimiter);
 
 // Databse Connection
 await connectDb();
@@ -83,7 +102,6 @@ app.use('/api/events', protectedRoute, eventRouter);
 app.use('/api/notification', protectedRoute, notificationRouter);
 app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/api/notice', protectedRoute, noticeRouter);
-app.use('/api/mail', protectedRoute, mailRouter);
 app.use('/api/calendar', protectedRoute, calendarRouter);
 app.use('/api/leave', protectedRoute, leaveRouter);
 

@@ -28,6 +28,13 @@ export const createProgramParticipantsResponseSchema = baseProgramSchema
   .pick({ participants: true })
   .required();
 
+//Request Schema for adding participants to a program
+export const addParticipantsToProgramSchema = z.object({
+  participantIds: z
+    .array(objectId('Invalid Participant ID'))
+    .min(1, 'At least one participant ID is required.'),
+});
+
 //Types
 export type CreateProgramInputType = z.infer<typeof createProgramSchema>;
 export type UpdateProgramInputType = z.infer<typeof updatedProgramSchema>;

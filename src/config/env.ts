@@ -25,6 +25,16 @@ const envSchema = z.object({
   // not by api/worker boot. Password must be strong; it unlocks the first admin account.
   SEED_ADMIN_EMAIL: z.email().optional(),
   SEED_ADMIN_PASSWORD: z.string().min(12).optional(),
+
+  // Comma-separated browser origins allowed to make credentialed calls (e.g. https://app.saherindia.org).
+  // Unset ⇒ reflect any origin (dev convenience). Set ⇒ strict allowlist.
+  // Also gates cookie sameSite:'none': cross-site cookies are only issued when this is configured.
+  CORS_ORIGINS: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);
+
+export const corsOrigins = (env.CORS_ORIGINS ?? '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);

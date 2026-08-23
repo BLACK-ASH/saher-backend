@@ -15,6 +15,11 @@ import { logoutController } from './logout/logout.controller.js';
 import { meController } from './me/me.controller.js';
 import { refreshController } from './refresh/refresh.controller.js';
 import {
+  changeEmailRequestSchema,
+  confirmPasswordSchema,
+  confirmTokenSchema,
+} from './schemas.js';
+import {
   getAllSessionController,
   logoutAllSessionsController,
   revokeSessionController,
@@ -37,18 +42,26 @@ authRouter.post('/sessions/revoke-all', protectedRoute, logoutAllSessionsControl
 
 // Verify Email
 authRouter.route('/verify-email/request').post(protectedRoute, verifyEmailRequestController);
-authRouter.route('/verify-email/confirm').post(verifyEmailController);
+authRouter
+  .route('/verify-email/confirm')
+  .post(validate(confirmTokenSchema), verifyEmailController);
 
 // Change Password
 authRouter.route('/change-password/request').post(protectedRoute, changePasswordRequestController);
-authRouter.route('/change-password/confirm').post(changePasswordController);
+authRouter
+  .route('/change-password/confirm')
+  .post(validate(confirmPasswordSchema), changePasswordController);
 
 // Forgot Password
 authRouter.route('/forgot-password/request').post(forgotPasswordRequestController);
-authRouter.route('/forgot-password/confirm').post(forgotPasswordController);
+authRouter
+  .route('/forgot-password/confirm')
+  .post(validate(confirmPasswordSchema), forgotPasswordController);
 
 // Change Email
-authRouter.route('/change-email/request').post(protectedRoute, changeEmailRequestController);
-authRouter.route('/change-email/confirm').post(changeEmailController);
+authRouter
+  .route('/change-email/request')
+  .post(protectedRoute, validate(changeEmailRequestSchema), changeEmailRequestController);
+authRouter.route('/change-email/confirm').post(validate(confirmTokenSchema), changeEmailController);
 
 export default authRouter;

@@ -53,7 +53,7 @@ export const meAttendanceController = async (req: Request, res: Response) => {
   let data;
 
   if (!record) {
-    data = attendanceResponseSchema.parse({ ...defaultResponse, id: 'test', user });
+    data = attendanceResponseSchema.parse({ ...defaultResponse, id: '', user });
     const body = {
       message: 'today Attendance',
       data,

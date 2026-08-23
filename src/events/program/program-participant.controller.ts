@@ -21,11 +21,7 @@ export const getParticipantsFromProgram = async (req: Request, res: Response) =>
 
 export const addParticipantsToProgram = async (req: Request, res: Response) => {
   const { programId } = req.params;
-  const participantIds = req.body as string[];
-
-  if (!Array.isArray(participantIds) || participantIds.length === 0) {
-    throw new ApiError(400, 'participantIds must be a non-empty array');
-  }
+  const { participantIds } = req.body;
 
   const participants = await Participant.find({
     _id: { $in: participantIds },
@@ -55,7 +51,7 @@ export const addParticipantsToProgram = async (req: Request, res: Response) => {
   });
 };
 
-//Remove participant from worskhop
+//Remove participant from program
 export const removeParticipantFromProgram = async (req: Request, res: Response) => {
   const { programId, participantId } = req.params;
 

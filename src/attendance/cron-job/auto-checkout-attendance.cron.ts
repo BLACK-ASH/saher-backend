@@ -80,6 +80,9 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
 
     const outTime = new Date(outZonedDateTime.toInstant().epochMilliseconds);
 
+    // Guard: never auto-checkout in the future (e.g. user checked in after shift end)
+    if (outTime > new Date()) continue;
+
     const { workHours, status } = calculateWorkStatus({
       inTime: record.inTime as Date,
       outTime,
@@ -88,7 +91,7 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
 
     bulkOps.push({
       updateOne: {
-        filter: { _id: record._id },
+        filter: { _id: record._id, outTime: null },
         update: {
           $set: {
             outTime,

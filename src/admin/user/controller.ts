@@ -13,7 +13,13 @@ import { userSchemaFinal } from '../_services/user.js';
 export const userGetController = async (req: Request, res: Response) => {
   const id = req.params.id.toString().trim();
   // Get Current User If Id Not Provided
-  const userId = id === 'me' ? (req.user?.id as string) : id;
+  const isSelf = id === 'me';
+  const userId = isSelf ? (req.user?.id as string) : id;
+
+  // Non-admins may only read their own record (KYC data rides on account populate)
+  if (!isSelf && req.user?.role !== 'admin' && req.user?.role !== 'manager') {
+    throw new ApiError(403, 'Forbidden.');
+  }
 
   const user = await getAccountByUser(userId);
   if (!user) throw new ApiError(404, 'User Not Found.');

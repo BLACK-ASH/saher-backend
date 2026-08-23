@@ -27,10 +27,19 @@ export const loginController = async (req: Request, res: Response) => {
   }
 
   const user = await User.findOne({ email }).lean();
-  if (!user) throw new ApiError(404, 'User Not Found.');
+
+  // Same generic 401 + constant bcrypt work whether user exists or not (anti-enumeration / anti-timing)
+  const DUMMY_HASH = '$2b$10$3euPcmQFCiblsZeEu5s7p.9OVHgeHWFDk9nhMqZ0m/3pd/lhwZugm';
+  if (!user) {
+    await comparePassword(password, DUMMY_HASH);
+    throw new ApiError(401, 'Invalid Credentials.');
+  }
 
   const matchPassword = await comparePassword(password, user.password);
-  if (!matchPassword) throw new ApiError(403, 'Invalid Credentials.');
+  if (!matchPassword) throw new ApiError(401, 'Invalid Credentials.');
+
+  // Email verification is enforced — unverified accounts cannot log in
+  if (!user.emailVerified) throw new ApiError(403, 'Please verify your email before logging in.');
 
   const payload = { id: user._id.toString(), name: user.name, role: user.role, email: user.email };
 

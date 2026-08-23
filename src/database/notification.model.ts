@@ -102,6 +102,8 @@ const notificationSchema = new mongoose.Schema(
 
 // 🧹 MongoDB TTL auto-delete
 notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// 🔥 Hot path: unseen-per-user listing (replaces low-cardinality standalone isSeen index)
+notificationSchema.index({ user: 1, isSeen: 1, createdAt: -1 });
 
 type NotificationType = mongoose.InferSchemaType<typeof notificationSchema>;
 

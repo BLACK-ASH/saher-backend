@@ -35,11 +35,11 @@ export default function errorHandler(
     });
   }
 
-  // NORMAL ERROR
+  // NORMAL ERROR — never leak internal messages (Mongoose/JWT/etc.) to clients
   if (error instanceof Error) {
     return res.status(500).json({
       success: false,
-      message: formatMessage(error.message),
+      message: process.env.NODE_ENV !== 'production' ? formatMessage(error.message) : 'Internal Server Error.',
       error: null,
     });
   }
