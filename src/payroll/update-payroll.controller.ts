@@ -36,8 +36,10 @@ export const payrollController = async (req: Request, res: Response) => {
   const status = remainingSalary == 0 ? 'paid' : 'partially-paid';
 
   if (employee.status === 'paid') throw new ApiError(400, 'Payment already paid');
+  if (employee.status === 'unpaid')
+    throw new ApiError(400, 'Payroll must be approved before payment');
 
-  if (employee.status === 'unpaid' || employee.status === 'partially-paid') {
+  if (employee.status === 'approved' || employee.status === 'partially-paid') {
     employee.dateOfPayment = new Date();
     employee.mode = mode;
     employee.bonus = bonus;
