@@ -68,8 +68,9 @@ export const getAllNotificationsController = async (req: Request, res: Response)
   const user = req.user;
   if (!user) throw new ApiError(401, 'Unauthorized');
 
-  // validated+defaults via validate(notificationListQuerySchema)
-  const { page, limit } = req.query as unknown as { page: number; limit: number };
+  // Number() coercion — query params arrive as strings
+  const page = Number(req.query.page) || 1;
+  const limit = Math.min(Number(req.query.limit) || 10, 50);
 
   const userId = user.id;
   const key = createKey('notification', 'user', userId.toString());

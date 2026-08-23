@@ -11,8 +11,9 @@ import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 export const getInboxController = async (req: Request, res: Response) => {
   const userId = req.user!.id.toString();
 
-  // validated+defaults applied by validate(mailListQuerySchema) on the route
-  const { page, limit } = req.query as unknown as { page: number; limit: number };
+  // Number() coercion — query params arrive as strings
+  const page = Number(req.query.page) || 1;
+  const limit = Math.min(Number(req.query.limit) || 10, 50);
 
   const [mails, count] = await Promise.all([
     getInboxMails(userId, page, limit),
@@ -58,8 +59,8 @@ export const sendMailController = async (req: Request, res: Response) => {
 export const outboxController = async (req: Request, res: Response) => {
   const user = req.user;
 
-  // validated+defaults applied by validate(mailListQuerySchema) on the route
-  const { page, limit } = req.query as unknown as { page: number; limit: number };
+  const page = Number(req.query.page) || 1;
+  const limit = Math.min(Number(req.query.limit) || 10, 50);
 
   const record = await Mail.aggregate([
     {

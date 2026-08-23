@@ -7,6 +7,6 @@ import { authorize } from '../permission/authorize.js';
 
 export const mailRouter = Router();
 
-mailRouter.get('/', validate(mailListQuerySchema), getInboxController);
+mailRouter.get('/', validate(mailListQuerySchema, 'query'), getInboxController);
 mailRouter.post('/', authorize('write', 'mail'), validate(sendMailSchema), sendMailController);
-mailRouter.get('/outbox', validate(mailListQuerySchema), outboxController);
+mailRouter.get('/outbox', validate(mailListQuerySchema, 'query'), outboxController);
