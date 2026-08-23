@@ -7,6 +7,7 @@ import { Bank } from '../../database/bank.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { logger } from '../../libs/logger/logger.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
@@ -52,18 +53,22 @@ export const accountRegisterController = async (
       return next(new ApiError(500, 'User creation failed.'));
     }
 
-    // ✅ Send email AFTER transaction success
+    // ✅ Send email AFTER transaction success; an email outage must not fail onboarding
     const html = onboardEmailTemplate({
       name: user.displayName || user.name,
       email: user.email,
       role: user.role,
     });
 
-    await sendEmail({
-      to: user.email,
-      subject: 'Welcome to Saher Internal',
-      html,
-    });
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Welcome to Saher Internal',
+        html,
+      });
+    } catch (error) {
+      logger.error({ err: error }, 'Onboard email failed');
+    }
 
     const key = createKey('users', 'list');
     await deleteCache(key);
@@ -82,11 +87,11 @@ export const accountUpdateController = async (req: Request, res: Response) => {
   const update = await Account.findByIdAndUpdate(id, updateInput);
   if (!update) throw new ApiError(404, 'Employee Not Found.');
 
+  // account reads are cached by account id AND by user id — invalidate both
   const key = createKey('account', id);
-  const key1 = createKey('users', 'list');
+  const key1 = createKey('account', 'userId', String(update.user));
 
-  await deleteCache(key);
-  await deleteCache(key1);
+  await Promise.all([deleteCache(key), deleteCache(key1)]);
 
   return ApiResponse.success(res, { message: 'Employee updated.' });
 };

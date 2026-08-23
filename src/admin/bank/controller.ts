@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { Account } from '../../database/account.model.js';
 import { Bank } from '../../database/bank.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -9,11 +10,12 @@ import { getBank } from '../_services/bank.js';
 
 // Create Bank Controller
 export const createBankDetailController = async (req: Request, res: Response) => {
-  const { accountHolderName, bankName, ifcs, branch, mobileNumber } = req.body;
+  const { accountHolderName, bankName, accountNumber, ifcs, branch, mobileNumber } = req.body;
 
   const details = await Bank.create({
     accountHolderName,
     bankName,
+    accountNumber,
     ifcs,
     branch,
     mobileNumber,
@@ -59,11 +61,21 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
   const id = req.params.id as string;
   const data = req.body;
 
-  const updated = await Bank.findByIdAndUpdate(id, data);
+  const updated = await Bank.findByIdAndUpdate(id, data, { new: true });
   if (!updated) throw new ApiError(404, 'Bank Details Nott Exist.');
 
   const key = createKey('bank', id);
-  await deleteCache(key);
+
+  // account reads embed populated bank data — invalidate every account holding this bank
+  const accounts = await Account.find({ bank: id }).select('_id user').lean();
+
+  await Promise.all([
+    deleteCache(key),
+    ...accounts.flatMap((a) => [
+      deleteCache(createKey('account', String(a._id))),
+      deleteCache(createKey('account', 'userId', String(a.user))),
+    ]),
+  ]);
 
   return ApiResponse.success(res, {
     message: 'Bank Details Updated Successfull.',
@@ -80,7 +92,15 @@ export const deleteBankDetailController = async (req: Request, res: Response) =>
   if (!deleted) throw new ApiError(404, 'Bank Details Not Exist.');
 
   const key = createKey('bank', id);
-  await deleteCache(key);
+  const accounts = await Account.find({ bank: id }).select('_id user').lean();
+
+  await Promise.all([
+    deleteCache(key),
+    ...accounts.flatMap((a) => [
+      deleteCache(createKey('account', String(a._id))),
+      deleteCache(createKey('account', 'userId', String(a.user))),
+    ]),
+  ]);
 
   return ApiResponse.success(res, {
     message: 'Bank Details Deleted Succesfully',

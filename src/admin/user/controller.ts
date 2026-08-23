@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 
+import { Account } from '../../database/account.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
@@ -69,9 +70,16 @@ export const userUpdateController = async (req: Request, res: Response) => {
   const key2 = createKey('user', id);
   const key3 = createKey('account', 'userId', id);
 
-  await deleteCache(key1);
-  await deleteCache(key2);
-  await deleteCache(key3);
+  // account reads cached by account id embed the user — invalidate that variant too
+  const account = await Account.findOne({ user: id }).select('_id').lean();
+  const key4 = account ? createKey('account', String(account._id)) : '';
+
+  await Promise.all([
+    deleteCache(key1),
+    deleteCache(key2),
+    deleteCache(key3),
+    ...(key4 ? [deleteCache(key4)] : []),
+  ]);
 
   return ApiResponse.success(res, {
     message: 'User Update Successfully.',

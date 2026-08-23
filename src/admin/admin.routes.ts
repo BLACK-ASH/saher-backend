@@ -60,7 +60,7 @@ adminRouter.get('/users', authorize('read', 'user'), getAllUsersController);
 adminRouter
   .route('/user/:id')
   .get(userGetController)
-  .put(authorize('update', 'user'), validate(userUpdateSchema), userUpdateController)
+  .put(authorize('update', 'user'), validateAsync(userUpdateSchema), userUpdateController)
   .delete(authorize('delete', 'user'), userDeleteController);
 adminRouter.patch(
   '/user/:id/restore',
