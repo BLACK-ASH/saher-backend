@@ -1,0 +1,36 @@
+type: object
+properties:
+  id:
+    type: string
+  user:
+    $ref: ./user.yaml
+  attendance:
+    type: object
+    properties:
+      id:
+        type: string
+      date:
+        type: string
+  previous:
+    type: object
+    properties:
+      inTime: { type: string, format: date-time, nullable: true }
+      outTime: { type: string, format: date-time, nullable: true }
+      status: { type: string, enum: [present, absent, half-day] }
+      isLate: { type: boolean }
+  changes:
+    type: object
+    properties:
+      inTime: { type: string, format: date-time }
+      outTime: { type: string, format: date-time }
+      status: { type: string, enum: [present, absent, half-day] }
+      isLate: { type: boolean }
+  status:
+    type: string
+    enum: [pending, on-hold, approve, reject]
+  message:
+    type: string
+  reason:
+    type: string
+  manager:
+    $ref: ./user.yaml

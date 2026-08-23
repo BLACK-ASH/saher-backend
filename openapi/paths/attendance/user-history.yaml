@@ -20,7 +20,16 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/common/succes-response.yaml
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../../components/schemas/attendance-record.yaml
+                  meta:
+                    $ref: ../../components/schemas/meta-pagination.yaml
     '400':
       description: Invalid Details
       content:

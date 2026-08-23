@@ -1,0 +1,85 @@
+get:
+  tags: [Events]
+  summary: List Participants In A Program
+  operationId: listProgramParticipants
+  parameters:
+    - name: programId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Participants in the program
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../../components/schemas/participant.yaml
+    '400':
+      description: Program Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Events]
+  summary: Add Participants To A Program
+  operationId: addProgramParticipants
+  parameters:
+    - name: programId
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [participantIds]
+          properties:
+            participantIds:
+              type: array
+              minItems: 1
+              items:
+                type: string
+  responses:
+    '200':
+      description: Participants added
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '400':
+      description: Invalid participant ids
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '404':
+      description: Program Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

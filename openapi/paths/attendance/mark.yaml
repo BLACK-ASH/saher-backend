@@ -27,7 +27,12 @@ patch:
       content:
         application/json:
           schema:
-            $ref: ../../components/common/succes-response.yaml
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/attendance-record.yaml
     '400':
       description: Invalid Details
       content:

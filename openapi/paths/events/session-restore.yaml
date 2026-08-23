@@ -1,26 +1,27 @@
-get:
-  tags: [Attendance]
-  summary: Get Own Today's Attendance
-  operationId: getMyTodayAttendance
+patch:
+  tags: [Events]
+  summary: Restore A Soft-Deleted Session
+  operationId: restoreSession
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
   responses:
     '200':
-      description: Today's attendance for the caller
+      description: Restored session
       content:
         application/json:
           schema:
             allOf:
               - $ref: ../../components/schemas/envelope.yaml
-              - type: object
-                properties:
-                  data:
-                    $ref: ../../components/schemas/attendance-record.yaml
-    '400':
-      description: Invalid Details
+    '404':
+      description: Not Found
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-
     '500':
       description: Internal Server Error
       content:

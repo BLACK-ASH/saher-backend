@@ -1,0 +1,91 @@
+get:
+  tags: [Events]
+  summary: List Programs
+  operationId: listPrograms
+  parameters:
+    - name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    - name: limit
+      in: query
+      schema:
+        type: integer
+        default: 10
+  responses:
+    '200':
+      description: Programs list
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../../components/schemas/program.yaml
+                  meta:
+                    $ref: ../../components/schemas/meta-pagination.yaml
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Events]
+  summary: Create A Program
+  operationId: createProgram
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [title, description]
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            participants:
+              type: array
+              items:
+                type: string
+                format: ObjectId
+                description: Existing participant ids; all must exist and not be soft-deleted
+  responses:
+    '201':
+      description: Program created
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '400':
+      description: Invalid participant ids
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

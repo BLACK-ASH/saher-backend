@@ -1,0 +1,23 @@
+type: object
+properties:
+  id:
+    type: string
+  user:
+    $ref: ./user.yaml
+  inTime:
+    type: ['string', 'null']
+    format: date-time
+  outTime:
+    type: ['string', 'null']
+    format: date-time
+  workHours:
+    type: number
+  date:
+    type: string
+  status:
+    type: string
+    enum: [present, half-day, absent, week-off, on-leave]
+  isLate:
+    type: boolean
+  overtime:
+    type: boolean

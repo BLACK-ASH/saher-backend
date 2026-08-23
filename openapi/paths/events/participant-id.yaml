@@ -1,0 +1,131 @@
+get:
+  tags: [Events]
+  summary: Get One Participant
+  operationId: getParticipant
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Participant details
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/participant.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+put:
+  tags: [Events]
+  summary: Edit A Participant
+  operationId: editParticipant
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            age:
+              type: integer
+            gender:
+              type: string
+            phoneNumber:
+              type: string
+            address:
+              type: string
+            affiliation:
+              type: string
+            parentDetails:
+              type: string
+  responses:
+    '200':
+      description: Updated participant
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/participant.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+delete:
+  tags: [Events]
+  summary: Soft Delete A Participant
+  operationId: deleteParticipant
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Soft deleted participant
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

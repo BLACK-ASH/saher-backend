@@ -25,7 +25,7 @@ tags:
     description: Attendance Management Operation
 
 servers:
-  - url: http://localhost:4000/api
+  - url: https://api.saher.org/api
     description: Local
   - url: https://api.saher.org/api
     description: Production
@@ -81,6 +81,66 @@ paths:
 
   # Attendance
   # Mark
+  /events/workshops:
+    $ref: paths/events/workshops.yaml
+  /events/workshops/restore/{id}:
+    $ref: paths/events/workshop-restore.yaml
+  /events/workshops/{workshopId}:
+    $ref: paths/events/workshop-id.yaml
+  /events/sessions:
+    $ref: paths/events/sessions.yaml
+  /events/sessions/restore/{id}:
+    $ref: paths/events/session-restore.yaml
+  /events/sessions/{sessionId}:
+    $ref: paths/events/session-id.yaml
+  /events/participants:
+    $ref: paths/events/participants.yaml
+  /events/participants/restore/{id}:
+    $ref: paths/events/participant-restore.yaml
+  /events/participants/{id}:
+    $ref: paths/events/participant-id.yaml
+  /events/programs:
+    $ref: paths/events/programs.yaml
+  /events/programs/restore/{id}:
+    $ref: paths/events/program-restore.yaml
+  /events/programs/{id}:
+    $ref: paths/events/program-id.yaml
+  /events/programs/participants/{programId}:
+    $ref: paths/events/program-participants.yaml
+  /events/programs/participants/{programId}/{participantId}:
+    delete:
+      tags: [Events]
+      summary: Remove A Participant From A Program
+      operationId: removeProgramParticipant
+      parameters:
+        - name: programId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: participantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Participant removed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: components/schemas/envelope.yaml
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: components/common/error-response.yaml
+  /events/attendance/sessions/{sessionId}:
+    $ref: paths/events/session-attendance.yaml
+  /events/programs/workshops/sessions/{sessionId}:
+    $ref: paths/events/reminder.yaml
   /attendance/me:
     $ref: ./paths/attendance/me.yaml
   /attendance/today:

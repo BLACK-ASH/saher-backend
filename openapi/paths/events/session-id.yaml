@@ -1,0 +1,209 @@
+get:
+  tags: [Events]
+  summary: Get One Session
+  operationId: getSession
+  parameters:
+    - name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Session details
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/session.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Events]
+  summary: Create A Session Under A Program
+  operationId: createSession
+  description: Requires a valid program. If workshopId is given it must belong to the program; otherwise a workshop is auto-created from title/description. Speakers receive a notification.
+  parameters:
+    - name: sessionId
+      in: path
+      required: true
+      description: Program id for POST
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [title, description, date, startTime, endTime]
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            date:
+              type: string
+              format: date
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            review:
+              type: string
+            workshopId:
+              type: ['string', 'null']
+            speaker:
+              type: array
+              items:
+                type: string
+                format: ObjectId
+            images:
+              type: array
+              items:
+                type: object
+  responses:
+    '201':
+      description: Session created
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '400':
+      description: Program Not Found / Workshop Mismatch
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+put:
+  tags: [Events]
+  summary: Edit A Session
+  operationId: editSession
+  parameters:
+    - name: sessionId
+      in: path
+      required: true
+      description: Session id
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            date:
+              type: string
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+            review:
+              type: string
+            speaker:
+              type: array
+              items:
+                type: string
+  responses:
+    '200':
+      description: Updated session
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/session.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+delete:
+  tags: [Events]
+  summary: Soft Delete A Session
+  operationId: deleteSession
+  parameters:
+    - name: sessionId
+      in: path
+      required: true
+      description: Session id
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Soft deleted session
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

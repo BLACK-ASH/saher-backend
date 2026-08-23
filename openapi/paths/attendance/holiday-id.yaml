@@ -13,7 +13,13 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/common/succes-response.yaml
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/holiday.yaml
+
 put:
   tags: [Attendance]
   summary: Update A Holiday

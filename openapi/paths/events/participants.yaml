@@ -1,0 +1,119 @@
+get:
+  tags: [Events]
+  summary: List Participants
+  operationId: listParticipants
+  parameters:
+    - name: keyword
+      in: query
+      schema:
+        type: string
+      description: Matches participant name
+    - name: isDeleted
+      in: query
+      schema:
+        type: boolean
+        default: false
+    - name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    - name: limit
+      in: query
+      schema:
+        type: integer
+        default: 10
+  responses:
+    '200':
+      description: Participants list
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../../components/schemas/participant.yaml
+                  meta:
+                    $ref: ../../components/schemas/meta-pagination.yaml
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Events]
+  summary: Create A Participant
+  operationId: createParticipant
+  description: Minors (age under 18) require parentDetails.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [name, phoneNumber]
+          properties:
+            name:
+              type: string
+            age:
+              type: integer
+            gender:
+              type: string
+            phoneNumber:
+              type: string
+              description: Indian mobile number; +91/91 prefix is stripped on save
+            address:
+              type: string
+            affiliation:
+              type: string
+            parentDetails:
+              type: string
+            image:
+              type: string
+              description: Media id
+            document:
+              type: array
+              items:
+                type: string
+                description: Media ids
+  responses:
+    '201':
+      description: Participant created
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/participant.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

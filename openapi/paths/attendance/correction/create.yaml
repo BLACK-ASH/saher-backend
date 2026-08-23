@@ -31,7 +31,21 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../../components/common/succes-response.yaml
+            allOf:
+              - $ref: ../../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                        enum: [pending, on-hold, approve, reject]
+                      message:
+                        type: string
+
     '400':
       description: Invalid Details
       content:

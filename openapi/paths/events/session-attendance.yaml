@@ -1,0 +1,146 @@
+post:
+  tags: [Events]
+  summary: Mark Session Attendance
+  operationId: markSessionAttendance
+  description: Only participants already enrolled in the session's program are accepted; unknown ids are reported in the failure array.
+  parameters:
+    - name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [participantIds]
+          properties:
+            participantIds:
+              type: array
+              minItems: 1
+              items:
+                type: string
+  responses:
+    '200':
+      description: Attendance marked; data lists ids that were not enrolled
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      failure:
+                        type: array
+                        items:
+                          type: string
+    '400':
+      description: Session/Workshop/Program Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+put:
+  tags: [Events]
+  summary: Update Session Attendance (Merge)
+  operationId: updateSessionAttendance
+  parameters:
+    - name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [participantIds]
+          properties:
+            participantIds:
+              type: array
+              minItems: 1
+              items:
+                type: string
+  responses:
+    '200':
+      description: Attendance updated
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '404':
+      description: Participants Do Not Match Session
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+delete:
+  tags: [Events]
+  summary: Remove Session Attendance
+  operationId: removeSessionAttendance
+  description: Rejects with 404 if any id is not a current member of the session.
+  parameters:
+    - name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [participantIds]
+          properties:
+            participantIds:
+              type: array
+              minItems: 1
+              items:
+                type: string
+  responses:
+    '200':
+      description: Attendance removed
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '404':
+      description: Participants Do Not Match Session
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

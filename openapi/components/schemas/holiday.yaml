@@ -1,0 +1,14 @@
+type: object
+properties:
+  id:
+    type: string
+  title:
+    type: string
+  type:
+    type: string
+    enum: [national, organizational, optional, other, google, public-holiday]
+  date:
+    type: string
+    format: date
+  description:
+    type: ['string', 'null']

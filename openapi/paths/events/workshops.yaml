@@ -1,27 +1,31 @@
 get:
-  tags: [Attendance]
-  summary: Retrieve All Users Attendance In Range
-  operationId: retrieveAllAttendance
+  tags: [Events]
+  summary: List Workshops
+  operationId: listWorkshops
   parameters:
-    - name: type
+    - name: keyword
       in: query
-      schema: { type: string, enum: [week, month, year] }
-      description: Either type or both startDate and endDate are required
-    - name: startDate
+      schema:
+        type: string
+      description: Matches workshop title/description or program titles
+    - name: isDeleted
       in: query
-      schema: { type: string, format: date }
-    - name: endDate
-      in: query
-      schema: { type: string, format: date }
+      schema:
+        type: boolean
+        default: false
     - name: page
       in: query
-      schema: { type: integer, default: 1 }
+      schema:
+        type: integer
+        default: 1
     - name: limit
       in: query
-      schema: { type: integer, default: 10, maximum: 100 }
+      schema:
+        type: integer
+        default: 10
   responses:
     '200':
-      description: Cross-user attendance records
+      description: Workshops list
       content:
         application/json:
           schema:
@@ -32,16 +36,15 @@ get:
                   data:
                     type: array
                     items:
-                      $ref: ../../components/schemas/attendance-record.yaml
+                      $ref: ../../components/schemas/workshop.yaml
                   meta:
                     $ref: ../../components/schemas/meta-pagination.yaml
-    '400':
-      description: Invalid Details
+    '401':
+      description: Unauthorized
       content:
         application/json:
           schema:
             $ref: ../../components/common/error-response.yaml
-
     '500':
       description: Internal Server Error
       content:

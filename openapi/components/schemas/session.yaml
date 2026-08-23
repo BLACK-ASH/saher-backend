@@ -1,0 +1,40 @@
+type: object
+properties:
+  id:
+    type: string
+  title:
+    type: string
+  description:
+    type: string
+  date:
+    type: string
+  startTime:
+    type: string
+    format: date-time
+  endTime:
+    type: string
+    format: date-time
+  review:
+    type: string
+  program:
+    type: object
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+  workshop:
+    type: object
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+  speaker:
+    type: array
+    items:
+      $ref: ./user.yaml
+  participants:
+    type: array
+    items:
+      $ref: ./participant.yaml

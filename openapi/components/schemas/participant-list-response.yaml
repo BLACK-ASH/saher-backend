@@ -1,0 +1,10 @@
+allOf:
+              - $ref: ../schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ./participant.yaml
+                  meta:
+                    $ref: ../schemas/meta-pagination.yaml

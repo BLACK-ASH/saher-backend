@@ -1,0 +1,172 @@
+get:
+  tags: [Events]
+  summary: Get One Workshop
+  operationId: getWorkshop
+  parameters:
+    - name: workshopId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Workshop details
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/workshop.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+post:
+  tags: [Events]
+  summary: Create A Workshop Under A Program
+  operationId: createWorkshop
+  parameters:
+    - name: workshopId
+      in: path
+      required: true
+      description: Program id for POST; ignored otherwise
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [title, description]
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+  responses:
+    '201':
+      description: Workshop created
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '400':
+      description: Program Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+put:
+  tags: [Events]
+  summary: Edit A Workshop
+  operationId: editWorkshop
+  parameters:
+    - name: workshopId
+      in: path
+      required: true
+      description: Workshop id
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+  responses:
+    '200':
+      description: Updated workshop
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    $ref: ../../components/schemas/workshop.yaml
+    '400':
+      description: Invalid Details
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+delete:
+  tags: [Events]
+  summary: Soft Delete A Workshop
+  operationId: deleteWorkshop
+  parameters:
+    - name: workshopId
+      in: path
+      required: true
+      description: Workshop id
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Soft deleted workshop
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

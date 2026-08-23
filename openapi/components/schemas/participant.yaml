@@ -1,0 +1,31 @@
+type: object
+properties:
+  id:
+    type: string
+  name:
+    type: string
+  age:
+    type: integer
+  gender:
+    type: string
+  phoneNumber:
+    type: string
+  address:
+    type: string
+  affiliation:
+    type: string
+  parentDetails:
+    type: string
+  image:
+    type: ['object', 'null']
+    properties:
+      id:
+        type: string
+      src:
+        type: string
+      alt:
+        type: string
+  document:
+    type: array
+    items:
+      type: object
