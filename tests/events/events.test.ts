@@ -602,4 +602,32 @@ describe('session attendance marking', () => {
     );
     expect(await Notification.exists({ user: speaker.userId })).toBeTruthy();
   });
+
+  it('enqueues session report generation', async () => {
+    const { admin, session } = await mkScenario();
+    const res = await request(app)
+      .get(`/api/events/export/report?sessionId=${session._id}`)
+      .set('Cookie', admin.cookie);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('jobId');
+  });
+
+  it('attaches bills to session', async () => {
+    const { admin, session } = await mkScenario();
+    const bill = await import('../../src/database/bill.model.js').then((m) => m.Bill);
+    const b = await bill.create({
+      user: admin.userId,
+      amount: 100,
+      description: 'Test Bill',
+      date: new Date(),
+    });
+    const res = await request(app)
+      .put(`/api/events/sessions/${session._id}`)
+      .set('Cookie', admin.cookie)
+      .send({ bills: [b._id] });
+    expect(res.status).toBe(200);
+    const doc = await Session.findById(session._id).populate('bills').lean();
+    expect(doc?.bills).toHaveLength(1);
+    expect((doc?.bills[0] as any).description).toBe('Test Bill');
+  });
 });

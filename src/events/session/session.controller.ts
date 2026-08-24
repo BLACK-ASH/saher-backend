@@ -10,6 +10,7 @@ import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { convertToObjectId } from '../../libs/utils/convert-object-id.js';
+import { escapeRegex } from '../../libs/utils/keyword-filter.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notification } from '../../libs/utils/notification.js';
 import { sendPushToUser } from '../../libs/utils/push-notification.js';
@@ -198,16 +199,18 @@ export const getSessions = async (req: Request, res: Response) => {
   };
 
   if (keyword) {
-    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedKeyword = escapeRegex(keyword);
     const regex = new RegExp(escapedKeyword, 'i');
 
     const [programs, workshops] = await Promise.all([
       Program.find({
         title: { $regex: regex },
+        isDeleted: false,
       }).select('_id'),
 
       Workshop.find({
         title: { $regex: regex },
+        isDeleted: false,
       }).select('_id'),
     ]);
 

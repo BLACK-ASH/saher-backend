@@ -49,7 +49,7 @@ import {
   getWorkshops,
 } from './workshop/workshop.controller.js';
 import { createWorkshopSchema, updatedWorkshopSchema } from './workshop/workshop.schema.js';
-import { underDevelopment } from '../libs/middleware/development.js';
+import { exportSessionReportController } from './export/session-report.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
 import { reminderNotificationController } from './session/reminder.controller.js';
@@ -74,7 +74,6 @@ eventRouter.put(
 );
 eventRouter.patch(
   '/workshops/restore/:id',
-  underDevelopment,
   authorize('update', 'event'),
   undoDeleteWorkshop,
 );
@@ -97,7 +96,6 @@ eventRouter.put(
 );
 eventRouter.patch(
   '/sessions/restore/:id',
-  underDevelopment,
   authorize('update', 'event'),
   undoDeleteSession,
 );
@@ -120,7 +118,6 @@ eventRouter.put(
 );
 eventRouter.patch(
   '/participants/restore/:id',
-  underDevelopment,
   authorize('update', 'event'),
   undoDeleteParticipantController,
 );
@@ -181,7 +178,6 @@ eventRouter.put(
 );
 eventRouter.patch(
   '/programs/restore/:id',
-  underDevelopment,
   authorize('update', 'event'),
   undoDeleteProgram,
 );
@@ -192,5 +188,8 @@ eventRouter.get(
   authorize('read', 'event'),
   reminderNotificationController,
 );
+
+// Session report export (mirrors /api/attendance/export/report query-param style)
+eventRouter.get('/export/report', authorize('read', 'event'), exportSessionReportController);
 
 export default eventRouter;
