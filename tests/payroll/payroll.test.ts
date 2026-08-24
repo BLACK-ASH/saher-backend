@@ -53,6 +53,8 @@ describe('payroll module', () => {
       expectedSalary: 25000,
       deduction: [],
     });
+    // phase-03 rule: payroll must be approved before payment
+    await request(app).post(`/api/payroll/approve/${doc._id}`).set('Cookie', admin.cookie);
 
     const res = await request(app)
       .put(`/api/payroll/${doc._id}`)
@@ -82,6 +84,8 @@ describe('payroll module', () => {
       expectedSalary: 10000,
       deduction: [],
     });
+    // phase-03 rule: payroll must be approved before payment
+    await request(app).post(`/api/payroll/approve/${under._id}`).set('Cookie', admin.cookie);
     const res = await request(app)
       .put(`/api/payroll/${under._id}`)
       .set('Cookie', admin.cookie)
@@ -107,6 +111,8 @@ describe('payroll module', () => {
       expectedSalary: 12000,
       deduction: [],
     });
+    // phase-03 rule: payroll must be approved before payment
+    await request(app).post(`/api/payroll/approve/${over._id}`).set('Cookie', admin.cookie);
     const overRes = await request(app)
       .put(`/api/payroll/${over._id}`)
       .set('Cookie', admin.cookie)

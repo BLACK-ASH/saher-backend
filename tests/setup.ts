@@ -35,6 +35,21 @@ vi.mock('../src/libs/mail/resend-send-mail.js', () => ({
   sendEmail: vi.fn(async () => ({ data: { id: 'test-email-id' } })),
 }));
 
+// BullMQ Queue/Worker dial real Redis on add()/getJob() — no Redis in unit tests.
+// Inert instances keep enqueue-path controllers testable (attendance/session reports).
+vi.mock('bullmq', async () => {
+  const { vi: v } = await import('vitest');
+  class FakeQueue {
+    add = v.fn(async () => ({ id: 'test-job-id' }));
+    getJob = v.fn(async () => null);
+    upsertJobScheduler = v.fn(async () => null);
+  }
+  class FakeWorker {
+    on = v.fn();
+  }
+  return { Queue: FakeQueue, Worker: FakeWorker };
+});
+
 let mongod: MongoMemoryReplSet;
 
 beforeAll(async () => {
