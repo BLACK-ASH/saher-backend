@@ -1,62 +1,65 @@
 import type { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
 
-import { getBillResponseSchema, getSettleBillResponseSchema } from './get-bill.schema.js';
+import { searchBillQuerySchema, getBillResponseSchema, getSettleBillResponseSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
+import { escapeRegex, buildKeywordOrConditions } from '../../libs/utils/keyword-filter.js';
+import { istDayRange } from '../../libs/utils/date-time.js';
 
 export const searchBillController = async (req: Request, res: Response) => {
-  const { description, amount, date, user } = req.query;
+  const queryParams = searchBillQuerySchema.parse(req.query);
+  const { description, amount, user, date, isDeleted, page, limit } = queryParams;
 
   if (!description && !amount && !date && !user)
     throw new ApiError(400, 'Please provide search parameter.');
 
-  const query: QueryFilter<typeof Bill.schema.obj> = {};
+  const query: QueryFilter<typeof Bill.schema.obj> = { isDeleted };
 
   if (description) {
-    query.description = { $regex: new RegExp(description as string, 'i') };
+    const orConditions = buildKeywordOrConditions(description, ['description']);
+    query.$or = orConditions;
   }
   if (amount) {
-    query.amount = Number(amount);
+    query.amount = amount;
   }
   if (user) {
     query.user = user;
   }
 
   if (date) {
-    const startDate = new Date(date as string);
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(startDate);
-    end.setHours(23, 59, 59, 999);
-
+    const [start, end] = istDayRange(date);
     query.date = {
       $gte: start,
       $lte: end,
     };
   }
 
-  const bills = await Bill.find(query).sort({ createdAt: -1 }).limit(5).lean();
+  const skip = (page - 1) * limit;
+  const [bills, count] = await Promise.all([
+    Bill.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Bill.countDocuments(query),
+  ]);
 
   if (bills.length === 0) {
     return ApiResponse.success(res, {
       message: 'Bill not found',
       data: [],
       statusCode: 200,
+      meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
     });
   }
 
   const normalized = normalizeDoc(bills);
   const parsed = getBillResponseSchema.array().parse(normalized);
-
   return ApiResponse.success(res, {
-    message: 'Bill fetched succesfully',
+    message: 'Bills fetched successfully',
     data: parsed,
     statusCode: 200,
+    meta: { page, limit, count, totalPages: Math.ceil(count / limit) },
   });
 };
 

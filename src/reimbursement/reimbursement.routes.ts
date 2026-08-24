@@ -11,6 +11,7 @@ import {
   userBillUpdateSchema,
 } from './bill/schema.js';
 import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
+import { exportBillReportController } from './export/bill-report.js';
 import { getBillByIdController } from './get-bill/bill-by-id.controller.js';
 import { getAllBillsController } from './get-bill/get-all-bills.controller.js';
 import { getAuditLogController } from './get-bill/get-audit-log.controller.js';
@@ -86,6 +87,12 @@ billRouter.post(
 
 // User Balance Enquiry
 billRouter.get('/balance-enquiry', userBalanceEnquiryController);
+// Bill report export — must precede /:billId param routes
+billRouter.get(
+  '/export/report',
+  authorize('read', 'preReimbursement'),
+  exportBillReportController,
+);
 billRouter.get('/bills', authorize('write', 'preReimbursement'), getAllBillsController);
 billRouter.get('/', authorize('read', 'preReimbursement'), searchBillController);
 billRouter.get('/:billId', authorize('read', 'preReimbursement'), getBillByIdController);

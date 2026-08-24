@@ -42,15 +42,16 @@ export const handleBillController = async (req: Request, res: Response) => {
   const amount = bill.advance - bill.amount;
   let message;
 
-  if (bill.status === 'pending') {
+  // pending/on-hold → transition to requested status; accept additionally mints a settlement
+  if (bill.status === 'pending' || bill.status === 'on-hold') {
+    if (status !== 'accept' && status !== 'reject' && status !== 'on-hold') {
+      throw new ApiError(400, 'Invalid status transition');
+    }
     bill.status = status;
     bill.reason = reason;
     await bill.save();
-  }
-  if (bill.status === 'on-hold') {
-    bill.status = status;
-    bill.reason = reason;
-    await bill.save();
+    if (status === 'reject') message = 'Bill has been rejected';
+    if (status === 'on-hold') message = 'Bill has been put on hold';
   }
   if (bill.status === 'reject') {
     message = 'Bill is already rejected';

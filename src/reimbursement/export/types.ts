@@ -1,0 +1,13 @@
+// Shared shape for populated bill docs passed to export renderers.
+// user is lean-populated to a subset of User fields; schema typing keeps it ObjectId.
+import type { HydratedDocument } from 'mongoose';
+import type { BillType } from '../../database/bill.model.js';
+
+export type BillUserSubset = {
+  displayName?: string | null;
+  email?: string | null;
+};
+
+export type BillDocumentT = Omit<HydratedDocument<BillType>, 'user'> & {
+  user: BillUserSubset;
+};
