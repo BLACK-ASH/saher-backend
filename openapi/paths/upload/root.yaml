@@ -1,0 +1,13 @@
+get:
+  tags: [Upload]
+  summary: Upload service health check
+  operationId: uploadHealth
+  description: Authenticated liveness ping for the upload module. Returns a plain JSON string body (not the standard envelope).
+  responses:
+    '200':
+      description: Service reachable
+      content:
+        application/json:
+          schema:
+            type: string
+            example: This Is A Upload Route

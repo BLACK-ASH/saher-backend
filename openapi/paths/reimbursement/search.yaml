@@ -1,0 +1,79 @@
+get:
+  tags: [Reimbursement]
+  summary: Search reimbursement bills
+  operationId: searchReimbursementBills
+  parameters:
+    - name: description
+      in: query
+      schema:
+        type: string
+      description: Keyword search in bill description (case-insensitive, regex-escaped)
+    - name: amount
+      in: query
+      schema:
+        type: number
+      description: Exact amount match
+    - name: user
+      in: query
+      schema:
+        type: string
+      description: User ID filter
+    - name: date
+      in: query
+      schema:
+        type: string
+        format: date-time
+      description: Filter by date (IST day range)
+    - name: isDeleted
+      in: query
+      schema:
+        type: boolean
+        default: false
+      description: Include soft-deleted bills
+    - name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    - name: limit
+      in: query
+      schema:
+        type: integer
+        default: 5
+        minimum: 1
+        maximum: 100
+  responses:
+    '200':
+      description: Bills list with pagination
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../../components/schemas/reimbursement-response.yaml
+                  meta:
+                    $ref: ../../components/schemas/meta-pagination.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

@@ -46,6 +46,8 @@ servers:
 
 paths:
   #Upload
+  /upload:
+    $ref: ./paths/upload/root.yaml
   /upload/image:
     $ref: ./paths/upload/image-upload.yaml
   /upload/images:
@@ -78,6 +80,8 @@ paths:
     $ref: ./paths/admin/bank/update.yaml
   /admin/bank/delete/{id}:
     $ref: ./paths/admin/bank/delete.yaml
+  /admin/bank/restore/{id}:
+    $ref: ./paths/admin/bank/restore.yaml
 
   # Account Operation
   /admin/account/register:
@@ -199,6 +203,8 @@ paths:
     $ref: ./paths/attendance/holiday.yaml
   /attendance/holiday/{id}:
     $ref: ./paths/attendance/holiday-id.yaml
+  /attendance/holiday/{id}/restore:
+    $ref: ./paths/attendance/holiday-restore.yaml
 
   # Export Report
   /attendance/export/report:
@@ -235,6 +241,8 @@ paths:
     $ref: ./paths/calendar/event.yaml
   /calendar/event/{id}:
     $ref: ./paths/calendar/event-id.yaml
+  /calendar/event/restore/{id}:
+    $ref: ./paths/calendar/event-restore.yaml
 
   # Leave
   /leave/type:
@@ -277,10 +285,14 @@ paths:
     $ref: ./paths/notice/root.yaml
   /notice/{id}:
     $ref: ./paths/notice/id.yaml
+  /notice/{id}/restore:
+    $ref: ./paths/notice/restore.yaml
   /notice/{id}/permanent:
     $ref: ./paths/notice/permanent.yaml
 
   # Reimbursement
+  /reimbursement:
+    $ref: ./paths/reimbursement/search.yaml
   /reimbursement/bill:
     $ref: ./paths/reimbursement/bill.yaml
   /reimbursement/mybills:
@@ -289,6 +301,8 @@ paths:
     $ref: ./paths/reimbursement/recyclebills.yaml
   /reimbursement/balance-enquiry:
     $ref: ./paths/reimbursement/balance-enquiry.yaml
+  /reimbursement/export/report:
+    $ref: ./paths/reimbursement/export-report.yaml
   /reimbursement/bills:
     $ref: ./paths/reimbursement/bills.yaml
   /reimbursement/{billId}:

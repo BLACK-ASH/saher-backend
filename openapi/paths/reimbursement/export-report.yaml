@@ -1,0 +1,57 @@
+get:
+  tags: [Reimbursement]
+  summary: Export bill report (PDF/Excel)
+  operationId: exportBillReport
+  description: >-
+    Enqueues a BullMQ job that generates a filtered bill report. Returns immediately;
+    the finished file link arrives as a notification download action. Requires at least
+    read:preReimbursement.
+  parameters:
+    - name: user
+      in: query
+      schema:
+        type: string
+      description: Filter by employee ObjectId
+    - name: status
+      in: query
+      schema:
+        type: string
+        enum: [pending, reject, accept, on-hold]
+    - name: from
+      in: query
+      schema:
+        type: string
+        format: date-time
+      description: Inclusive IST day-window start
+    - name: to
+      in: query
+      schema:
+        type: string
+        format: date-time
+      description: Inclusive IST day-window end
+    - name: format
+      in: query
+      schema:
+        type: string
+        enum: [pdf, xlsx]
+        default: pdf
+  responses:
+    '200':
+      description: Enqueue accepted (or processing/duplicate hint)
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../components/schemas/envelope.yaml
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/common/error-response.yaml

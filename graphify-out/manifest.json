@@ -12,10 +12,10 @@
     "semantic_hash": "2be36b29d4e3601b8f6a79c7fb44d2e0"
   },
   "cspell.json": {
-    "mtime": 1787322472.5747042,
-    "seen": 1787328147.2367814,
-    "ast_hash": "7e204975939b27dc5376859009f8e566",
-    "semantic_hash": "7e204975939b27dc5376859009f8e566"
+    "mtime": 1787565495.8099937,
+    "seen": 1787565558.3839266,
+    "ast_hash": "18f6aa9bf46d4053d341674ac677d829",
+    "semantic_hash": ""
   },
   "eslint.config.mjs": {
     "mtime": 1787322472.5747042,
@@ -24,9 +24,9 @@
     "semantic_hash": "9191b1625d5ed9d62d49e1e561f98634"
   },
   "package.json": {
-    "mtime": 1787457477.4891407,
-    "seen": 1787458637.6077576,
-    "ast_hash": "05c1eeec72f96684d56cc3ff6018e763",
+    "mtime": 1787492869.2962224,
+    "seen": 1787495693.9258823,
+    "ast_hash": "4f260cdb7e3eab6dbf9b057e475c44b2",
     "semantic_hash": ""
   },
   "src/admin/_services/account.ts": {
@@ -36,10 +36,10 @@
     "semantic_hash": "dbee1d168d452a838f6dd5772e844866"
   },
   "src/admin/_services/bank.ts": {
-    "mtime": 1787322472.5777411,
-    "seen": 1787328147.236785,
-    "ast_hash": "7f2800798d78c9e206319811215d80f9",
-    "semantic_hash": "7f2800798d78c9e206319811215d80f9"
+    "mtime": 1787562795.8301802,
+    "seen": 1787564173.2399652,
+    "ast_hash": "9d866113adfef64d565cd3859c97e7b9",
+    "semantic_hash": ""
   },
   "src/admin/_services/user.ts": {
     "mtime": 1787459898.6789062,
@@ -60,15 +60,15 @@
     "semantic_hash": ""
   },
   "src/admin/admin.routes.ts": {
-    "mtime": 1787464721.8002734,
-    "seen": 1787489309.1653926,
-    "ast_hash": "69609cfb93bef5193c717fe2d233c3ed",
+    "mtime": 1787563614.4080062,
+    "seen": 1787564173.239976,
+    "ast_hash": "0d9f81431ae6f78176855fb0f1a66f6b",
     "semantic_hash": ""
   },
   "src/admin/bank/controller.ts": {
-    "mtime": 1787465384.395914,
-    "seen": 1787489309.1653953,
-    "ast_hash": "a8f54b05287a05d3ecae41cc381d9a41",
+    "mtime": 1787562771.5929966,
+    "seen": 1787564173.2399783,
+    "ast_hash": "ae10b4da493e7c3df6a889267b495955",
     "semantic_hash": ""
   },
   "src/admin/bank/schema.ts": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "src/admin/user/controller.ts": {
-    "mtime": 1787464877.8556805,
-    "seen": 1787489309.1653984,
-    "ast_hash": "1fc71814cc85f84d0ad0f44af9262008",
+    "mtime": 1787562765.204959,
+    "seen": 1787564173.2399828,
+    "ast_hash": "b85971dbf0dc3490205202d4aafe691c",
     "semantic_hash": ""
   },
   "src/admin/user/schema.ts": {
@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "src/attendance/attendance.route.ts": {
-    "mtime": 1787328250.778668,
-    "seen": 1787374735.9160404,
-    "ast_hash": "0b81677f07d97420b5a275a3e9f56459",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2399902,
+    "ast_hash": "eccc3c2f3c3667c20aa51514d9d5d2d3",
     "semantic_hash": ""
   },
   "src/attendance/attendance.service.ts": {
@@ -144,15 +144,15 @@
     "semantic_hash": ""
   },
   "src/attendance/export/report.ts": {
-    "mtime": 1787411773.3462813,
-    "seen": 1787416193.5713236,
-    "ast_hash": "90e1b77ab5919274798d874ce1d8fe0c",
+    "mtime": 1787493307.562174,
+    "seen": 1787495693.9259112,
+    "ast_hash": "af8a60b24f61ebbcbf493f112007a443",
     "semantic_hash": ""
   },
   "src/attendance/holiday/holiday.controller.ts": {
-    "mtime": 1787411773.3462813,
-    "seen": 1787416193.5713248,
-    "ast_hash": "d16507476b49371b8cd60f5c9ae16a66",
+    "mtime": 1787562038.964825,
+    "seen": 1787564173.2400165,
+    "ast_hash": "dd1e9915845015d14c5f4d667ab96b5d",
     "semantic_hash": ""
   },
   "src/attendance/holiday/holiday.schema.ts": {
@@ -300,9 +300,9 @@
     "semantic_hash": ""
   },
   "src/calendar/calendar.routes.ts": {
-    "mtime": 1787328250.7806678,
-    "seen": 1787374735.9160774,
-    "ast_hash": "5b6e2f48829a41efd26304833ece339d",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2400908,
+    "ast_hash": "6758679a55bc84469ae77a171c4ea6d5",
     "semantic_hash": ""
   },
   "src/calendar/calendar.schema.ts": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "src/calendar/calender.controller.ts": {
-    "mtime": 1787411987.8642783,
-    "seen": 1787416193.5713592,
-    "ast_hash": "4957f84fea6c668935d915c65eacfec9",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2400959,
+    "ast_hash": "37328911c903e0909d66724af589ffe3",
     "semantic_hash": ""
   },
   "src/database/account.model.ts": {
@@ -336,16 +336,16 @@
     "semantic_hash": ""
   },
   "src/database/bank.model.ts": {
-    "mtime": 1787322472.5794523,
-    "seen": 1787328147.2368236,
-    "ast_hash": "6102c2c772aaa62c362e03f9331bef1d",
-    "semantic_hash": "6102c2c772aaa62c362e03f9331bef1d"
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.240112,
+    "ast_hash": "08900fdf921ede3e8b08264d33fc4582",
+    "semantic_hash": ""
   },
   "src/database/calendar-event.model.ts": {
-    "mtime": 1787322472.5794523,
-    "seen": 1787328147.2368243,
-    "ast_hash": "b240645fc26869f2785434433189e820",
-    "semantic_hash": "b240645fc26869f2785434433189e820"
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2401168,
+    "ast_hash": "9862fa3db5dd0080a2022f18ce186fe9",
+    "semantic_hash": ""
   },
   "src/database/connection.ts": {
     "mtime": 1787376718.9208922,
@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "src/database/holiday.model.ts": {
-    "mtime": 1787411773.3482811,
-    "seen": 1787416193.57137,
-    "ast_hash": "d6258c820a4dbdff21781add0c891c10",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2401216,
+    "ast_hash": "06a25b16b0366e459eb4e55548fc35ec",
     "semantic_hash": ""
   },
   "src/database/mail.model.ts": {
@@ -390,9 +390,9 @@
     "semantic_hash": "fadfb8ce2d6eafec24c97b9cec4c6555"
   },
   "src/database/session.model.ts": {
-    "mtime": 1787328250.781668,
-    "seen": 1787374735.9160993,
-    "ast_hash": "b075b0f418c3aa46686054be7a313d37",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2401536,
+    "ast_hash": "fb61e512cc722cd6def23ec71361091e",
     "semantic_hash": ""
   },
   "src/database/user.model.ts": {
@@ -402,15 +402,15 @@
     "semantic_hash": "2bdb5fa961096f292db195d20d4585f9"
   },
   "src/database/workshop.model.ts": {
-    "mtime": 1787328250.781668,
-    "seen": 1787374735.9161057,
-    "ast_hash": "5aca346fc611828672ed0cb1c95099b5",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2401605,
+    "ast_hash": "2cb8b10d69aaa555987cfb6ee18a0a0c",
     "semantic_hash": ""
   },
   "src/events/events.routes.ts": {
-    "mtime": 1787413594.897998,
-    "seen": 1787416193.5713892,
-    "ast_hash": "96443db56d87c8691422af5883d3ba8d",
+    "mtime": 1787562181.448762,
+    "seen": 1787564173.2401628,
+    "ast_hash": "aaa2e6f0925059dfd29859f9451bbf22",
     "semantic_hash": ""
   },
   "src/events/participant/participant.controller.ts": {
@@ -450,9 +450,9 @@
     "semantic_hash": ""
   },
   "src/events/session/session.controller.ts": {
-    "mtime": 1787463565.6024363,
-    "seen": 1787489309.165528,
-    "ast_hash": "86fd65a33df8ab1a84a7dcb08807e332",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2401953,
+    "ast_hash": "10f5096d07de0130177e9017ffedf75d",
     "semantic_hash": ""
   },
   "src/events/session/session.schema.ts": {
@@ -462,9 +462,9 @@
     "semantic_hash": ""
   },
   "src/events/workshop/workshop.controller.ts": {
-    "mtime": 1787463565.6015117,
-    "seen": 1787489309.1655312,
-    "ast_hash": "8d2cd7f5ab7b556e434a572d39311f27",
+    "mtime": 1787561535.191679,
+    "seen": 1787564173.2402005,
+    "ast_hash": "fe6f3342351f501909e36174be7ad357",
     "semantic_hash": ""
   },
   "src/events/workshop/workshop.schema.ts": {
@@ -636,10 +636,10 @@
     "semantic_hash": ""
   },
   "src/libs/utils/calendar.ts": {
-    "mtime": 1787322472.5807428,
-    "seen": 1787328147.2368615,
-    "ast_hash": "ce6f91b725a7a3315df566175d10135d",
-    "semantic_hash": "ce6f91b725a7a3315df566175d10135d"
+    "mtime": 1787561535.191679,
+    "seen": 1787564173.2402778,
+    "ast_hash": "17f5211762499766267786c116313643",
+    "semantic_hash": ""
   },
   "src/libs/utils/convert-object-id.ts": {
     "mtime": 1787415131.5551348,
@@ -852,9 +852,9 @@
     "semantic_hash": "3f8df6eac88ec5a25710a1460938f77c"
   },
   "src/worker/attendance-report.ts": {
-    "mtime": 1787447834.196699,
-    "seen": 1787448183.9829884,
-    "ast_hash": "e7b19a08ec716d90cf54935b03701583",
+    "mtime": 1787493244.529481,
+    "seen": 1787495693.9261107,
+    "ast_hash": "352fd27db86de7e157fa1927148ee59b",
     "semantic_hash": ""
   },
   "src/worker/attendance/template/attendance-pdf.ts": {
@@ -864,9 +864,9 @@
     "semantic_hash": ""
   },
   "src/worker/index.ts": {
-    "mtime": 1787376688.0827978,
-    "seen": 1787377207.381722,
-    "ast_hash": "9fc21a5a505eca0b98caf65f9e1e2808",
+    "mtime": 1787564705.3603227,
+    "seen": 1787565558.3845005,
+    "ast_hash": "4a271d2378b6c3d479b8c42d573b3e83",
     "semantic_hash": ""
   },
   "src/worker/model.ts": {
@@ -882,10 +882,10 @@
     "semantic_hash": ""
   },
   ".github/workflows/dev-deploy.yml": {
-    "mtime": 1787322472.5746272,
-    "seen": 1787328147.2368958,
-    "ast_hash": "9dfb0693301d27cbb4b3b3051fe49df0",
-    "semantic_hash": "9dfb0693301d27cbb4b3b3051fe49df0"
+    "mtime": 1787563769.50625,
+    "seen": 1787564173.240434,
+    "ast_hash": "28d27c64fbccaa0867f96b7937acc15b",
+    "semantic_hash": ""
   },
   ".opencode/agent/saher-dev.md": {
     "mtime": 1787326805.0230982,
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "src/database/bill.model.ts": {
-    "mtime": 1787328250.7806678,
-    "seen": 1787374735.9160848,
-    "ast_hash": "4dd51bcd6ab819f3dcc3f05771877b33",
+    "mtime": 1787565003.0819542,
+    "seen": 1787565558.384223,
+    "ast_hash": "7fdacc98b546c6977d483572a1a5d541",
     "semantic_hash": ""
   },
   "src/database/leave-balance.model.ts": {
@@ -990,15 +990,15 @@
     "semantic_hash": ""
   },
   "src/database/notice.model.ts": {
-    "mtime": 1787328250.7806678,
-    "seen": 1787374735.9160936,
-    "ast_hash": "2162fe243a93433c12ac9cc985d975c9",
+    "mtime": 1787561535.1906788,
+    "seen": 1787564173.2401392,
+    "ast_hash": "eba0a613c3ff4f3a1e36a945cc60739c",
     "semantic_hash": ""
   },
   "src/database/payroll.model.ts": {
-    "mtime": 1787328250.781668,
-    "seen": 1787374735.9160964,
-    "ast_hash": "571e5839faa8752d7853bcd2ff9604dd",
+    "mtime": 1787497708.0591588,
+    "seen": 1787498008.5170865,
+    "ast_hash": "0f1c2b62eb4f1571b4d25d42e84b8c86",
     "semantic_hash": ""
   },
   "src/database/program.model.ts": {
@@ -1110,15 +1110,15 @@
     "semantic_hash": ""
   },
   "src/notice/notice.controller.ts": {
-    "mtime": 1787328250.7839553,
-    "seen": 1787374735.9161723,
-    "ast_hash": "c17b2ec158b775038c95764ce8a40dff",
+    "mtime": 1787562797.092657,
+    "seen": 1787564173.2403202,
+    "ast_hash": "88c1df57e3810a6ace420677cda12327",
     "semantic_hash": ""
   },
   "src/notice/notice.routes.ts": {
-    "mtime": 1787328250.7849376,
-    "seen": 1787374735.916173,
-    "ast_hash": "b3e6f87d5371be3825bcf99270cdf116",
+    "mtime": 1787561535.191679,
+    "seen": 1787564173.2403214,
+    "ast_hash": "e47ba5ddd3c4066fa78c21f5cdcc432f",
     "semantic_hash": ""
   },
   "src/notice/notice.schema.ts": {
@@ -1134,15 +1134,15 @@
     "semantic_hash": ""
   },
   "src/payroll/payroll-management.cron.ts": {
-    "mtime": 1787328250.7850482,
-    "seen": 1787374735.91618,
-    "ast_hash": "4b538d15a9f2f82774ab40cc79ff1112",
+    "mtime": 1787499521.9200644,
+    "seen": 1787499808.9877903,
+    "ast_hash": "6dc90b798e3cbff6ee273d79dd541993",
     "semantic_hash": ""
   },
   "src/payroll/payroll.routes.ts": {
-    "mtime": 1787328250.7850482,
-    "seen": 1787374735.9161808,
-    "ast_hash": "da4dd8d3d6002cf753ad0a85a2d95e24",
+    "mtime": 1787497893.2199805,
+    "seen": 1787498008.5172257,
+    "ast_hash": "1bf59e0b225ba44364441a00c92bd948",
     "semantic_hash": ""
   },
   "src/payroll/schema.ts": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "src/payroll/update-payroll.controller.ts": {
-    "mtime": 1787468857.4837854,
-    "seen": 1787489309.165639,
-    "ast_hash": "b57ff370cf488a707a5a24269084da56",
+    "mtime": 1787497795.9186113,
+    "seen": 1787498008.5172288,
+    "ast_hash": "3a5d4cad1f74b732ede2491fe85e771e",
     "semantic_hash": ""
   },
   "src/reimbursement/audit-log/audit-log.schema.ts": {
@@ -1170,9 +1170,9 @@
     "semantic_hash": ""
   },
   "src/reimbursement/balance-enquiry/user-balance-enquiry.controller.ts": {
-    "mtime": 1787328250.7853615,
-    "seen": 1787374735.9161885,
-    "ast_hash": "abfc47f5b8213a9cc7e9075ce3cfcaf9",
+    "mtime": 1787564541.4429119,
+    "seen": 1787565558.3844352,
+    "ast_hash": "1eda753d7d18cd9bab8a7860d677276b",
     "semantic_hash": ""
   },
   "src/reimbursement/bill/admin.controller.ts": {
@@ -1212,15 +1212,15 @@
     "semantic_hash": ""
   },
   "src/reimbursement/get-bill/get-bill.schema.ts": {
-    "mtime": 1787328250.7856078,
-    "seen": 1787374735.9161937,
-    "ast_hash": "4d5f0715a26ad061c55d3743df287370",
+    "mtime": 1787561535.191679,
+    "seen": 1787564173.2403622,
+    "ast_hash": "96a22873d2a5268a26cff3943868c7f8",
     "semantic_hash": ""
   },
   "src/reimbursement/get-bill/my-bills.controller.ts": {
-    "mtime": 1787328250.7856078,
-    "seen": 1787374735.9161947,
-    "ast_hash": "d28b0d9b7327455c71c9b2990eee54f7",
+    "mtime": 1787561535.191679,
+    "seen": 1787564173.2403634,
+    "ast_hash": "9fb3f50ade55c412fff69d1b9eab1d20",
     "semantic_hash": ""
   },
   "src/reimbursement/get-bill/recycle-bill.controller.ts": {
@@ -1230,21 +1230,21 @@
     "semantic_hash": ""
   },
   "src/reimbursement/get-bill/search-bill.controller.ts": {
-    "mtime": 1787328250.7856078,
-    "seen": 1787374735.9161963,
-    "ast_hash": "8bae81e4ff3bc34b4b7e33b93f41c280",
+    "mtime": 1787561535.191679,
+    "seen": 1787564173.240366,
+    "ast_hash": "8ecffca856cc1493342013ac6688c4a5",
     "semantic_hash": ""
   },
   "src/reimbursement/reimbursement.routes.ts": {
-    "mtime": 1787473493.730956,
-    "seen": 1787489309.165665,
-    "ast_hash": "10c70bfd1f675d20060fc3cefac29fbd",
+    "mtime": 1787564735.8901472,
+    "seen": 1787565558.3844626,
+    "ast_hash": "f619e2263cfd019af11582acdc01325e",
     "semantic_hash": ""
   },
   "src/reimbursement/settlement/handle-bill.controller.ts": {
-    "mtime": 1787328250.7856078,
-    "seen": 1787374735.9161978,
-    "ast_hash": "9a706d085f74242b06d5bd99fa1a5296",
+    "mtime": 1787564515.1689422,
+    "seen": 1787565558.3844645,
+    "ast_hash": "1e33708efef151bee994a395a87a8327",
     "semantic_hash": ""
   },
   "src/reimbursement/settlement/handle-settle.controller.ts": {
@@ -1494,9 +1494,9 @@
     "semantic_hash": ""
   },
   "openapi/openapi.yaml": {
-    "mtime": 1787489269.7784555,
-    "seen": 1787489309.1658757,
-    "ast_hash": "b32e5d0db32399ed076d507bd005b61f",
+    "mtime": 1787564769.8369312,
+    "seen": 1787565558.3847697,
+    "ast_hash": "ecab42139fa3c9bf8c8c909b7d2293f9",
     "semantic_hash": ""
   },
   "openapi/paths/admin/account/delete.yaml": {
@@ -1716,9 +1716,9 @@
     "semantic_hash": ""
   },
   "tests/setup.ts": {
-    "mtime": 1787466017.3791912,
-    "seen": 1787489309.1657238,
-    "ast_hash": "0bc93aeb985e9906a8817eb2d6944c00",
+    "mtime": 1787562610.798738,
+    "seen": 1787564173.2404246,
+    "ast_hash": "c5465d51b9fc2136d0add92784f32864",
     "semantic_hash": ""
   },
   "vitest.config.ts": {
@@ -1740,9 +1740,9 @@
     "semantic_hash": ""
   },
   "tests/attendance/attendance.test.ts": {
-    "mtime": 1787463104.9976294,
-    "seen": 1787489309.1657007,
-    "ast_hash": "f91249750c6c230549fdd75a581c362a",
+    "mtime": 1787562943.2691836,
+    "seen": 1787564173.2404006,
+    "ast_hash": "95d6cb8a8bba566c638f27c6ef29e32f",
     "semantic_hash": ""
   },
   "tests/helpers/account.ts": {
@@ -1776,21 +1776,21 @@
     "semantic_hash": ""
   },
   "tests/admin/admin.test.ts": {
-    "mtime": 1787468496.2075818,
-    "seen": 1787489309.1656988,
-    "ast_hash": "d20c2a2e2f2d03fdbefdd86268e79d92",
+    "mtime": 1787563615.4669876,
+    "seen": 1787564173.2403991,
+    "ast_hash": "97f35e1339b4d1e5c30b85bf5a16beca",
     "semantic_hash": ""
   },
   "tests/calendar/calendar.test.ts": {
-    "mtime": 1787468496.2085817,
-    "seen": 1787489309.1657038,
-    "ast_hash": "9e31407c37e59bffc7f5070140d9e887",
+    "mtime": 1787562843.7461898,
+    "seen": 1787564173.240406,
+    "ast_hash": "f63a417c272602a644335feda698a871",
     "semantic_hash": ""
   },
   "tests/events/events.test.ts": {
-    "mtime": 1787463721.4920275,
-    "seen": 1787489309.165705,
-    "ast_hash": "676e5b3f1889799ab198512f06f28d59",
+    "mtime": 1787561535.191679,
+    "seen": 1787564173.240407,
+    "ast_hash": "37f43065f35c428e49fef1ccf33157c7",
     "semantic_hash": ""
   },
   "tests/helpers/person.ts": {
@@ -1812,9 +1812,9 @@
     "semantic_hash": ""
   },
   "tests/notice/notice.test.ts": {
-    "mtime": 1787473553.4909947,
-    "seen": 1787489309.1657155,
-    "ast_hash": "e97c0b960d9a554b826e5b7a3098ef00",
+    "mtime": 1787562906.639571,
+    "seen": 1787564173.2404168,
+    "ast_hash": "6f23651ecbde1134f074596555b059e0",
     "semantic_hash": ""
   },
   "tests/notification/notification.test.ts": {
@@ -1824,9 +1824,9 @@
     "semantic_hash": ""
   },
   "tests/payroll/payroll.test.ts": {
-    "mtime": 1787473553.4909947,
-    "seen": 1787489309.165718,
-    "ast_hash": "fcdc3674367997384e949c14f18b7e08",
+    "mtime": 1787561655.013465,
+    "seen": 1787564173.2404194,
+    "ast_hash": "fc1e1ae44c54c169132ee8ed0b0661b3",
     "semantic_hash": ""
   },
   "tests/reimbursement/reimbursement.test.ts": {
@@ -1842,9 +1842,9 @@
     "semantic_hash": ""
   },
   "tests/upload/image.test.ts": {
-    "mtime": 1787488959.4321833,
-    "seen": 1787489309.1657267,
-    "ast_hash": "7085cba50c35244c2943e4009c9ddace",
+    "mtime": 1787489931.4586153,
+    "seen": 1787495693.9261398,
+    "ast_hash": "ea2ab2a0d3d4f30fe4c2806b99f5879a",
     "semantic_hash": ""
   },
   "tests/user/user.test.ts": {
@@ -1854,9 +1854,9 @@
     "semantic_hash": ""
   },
   ".planning/ROADMAP.md": {
-    "mtime": 1787486253.0383046,
-    "seen": 1787489309.1657403,
-    "ast_hash": "ae096d04b9c82523ff9c97ca307dd929",
+    "mtime": 1787554871.1125479,
+    "seen": 1787564173.2404404,
+    "ast_hash": "db4a85429f39e9d7309f136391554f97",
     "semantic_hash": ""
   },
   ".planning/codebase/ARCHITECTURE.md": {
@@ -1905,12 +1905,6 @@
     "mtime": 1787488784.228711,
     "seen": 1787489309.1657572,
     "ast_hash": "0140dbe7e814544b07534272db2f89f9",
-    "semantic_hash": ""
-  },
-  "HANDOFF.md": {
-    "mtime": 1787475094.5275388,
-    "seen": 1787489309.1657612,
-    "ast_hash": "a1faa3e3e7b1c0c2059ada98c5fec2de",
     "semantic_hash": ""
   },
   "openapi/components/schemas/attendance-list-response.yaml": {
@@ -2004,9 +1998,9 @@
     "semantic_hash": ""
   },
   "openapi/components/schemas/payroll-response.yaml": {
-    "mtime": 1787473987.6883943,
-    "seen": 1787489309.1658514,
-    "ast_hash": "e81c65a6d20eb0d45f206bcb3cf84e44",
+    "mtime": 1787497809.4836705,
+    "seen": 1787498008.5174544,
+    "ast_hash": "9254de4993154e50f48dfe6632593fcc",
     "semantic_hash": ""
   },
   "openapi/components/schemas/program-list-response.yaml": {
@@ -2460,9 +2454,9 @@
     "semantic_hash": ""
   },
   "openapi/paths/reimbursement/mybills.yaml": {
-    "mtime": 1787474838.0652735,
-    "seen": 1787489309.1659837,
-    "ast_hash": "f472a778e72add3c9f486f189d07e515",
+    "mtime": 1787563523.0515687,
+    "seen": 1787564173.2407296,
+    "ast_hash": "2353f8da73efa95118c4f953bac0f81a",
     "semantic_hash": ""
   },
   "openapi/paths/reimbursement/recyclebills.yaml": {
@@ -2493,6 +2487,384 @@
     "mtime": 1787489239.5176713,
     "seen": 1787489309.16599,
     "ast_hash": "0a80fc0570fb93f759504b10ad55da58",
+    "semantic_hash": ""
+  },
+  "src/attendance/export/excel.service.ts": {
+    "mtime": 1787493164.0608687,
+    "seen": 1787495693.9259079,
+    "ast_hash": "66142a42063a6019e57f1bee8ecb1300",
+    "semantic_hash": ""
+  },
+  "src/worker/cleanup.ts": {
+    "mtime": 1787493824.728918,
+    "seen": 1787495693.9261127,
+    "ast_hash": "a27720f501184aaba9ad24e0bf35221e",
+    "semantic_hash": ""
+  },
+  "tests/attendance/excel.service.test.ts": {
+    "mtime": 1787494094.7467542,
+    "seen": 1787495693.9261184,
+    "ast_hash": "c885adc16f879ad3eba8657d5814561d",
+    "semantic_hash": ""
+  },
+  "tests/attendance/export.test.ts": {
+    "mtime": 1787494023.1389854,
+    "seen": 1787495693.9261193,
+    "ast_hash": "76bbe8ff9a7d79fda6790fd4c1bd6723",
+    "semantic_hash": ""
+  },
+  "tests/worker/cleanup.test.ts": {
+    "mtime": 1787493724.415278,
+    "seen": 1787495693.9261417,
+    "ast_hash": "c5f608f928a279e567aa5ef9112d4cdf",
+    "semantic_hash": ""
+  },
+  ".planning/phases/01-expand-file-upload-support/01-SUMMARY.md": {
+    "mtime": 1787489615.3138235,
+    "seen": 1787495693.92616,
+    "ast_hash": "33d925f3031790756a93c7b3b38634b9",
+    "semantic_hash": ""
+  },
+  ".planning/phases/01-expand-file-upload-support/01-VERIFICATION.md": {
+    "mtime": 1787489877.1607003,
+    "seen": 1787495693.926161,
+    "ast_hash": "24cebf05ef2c341c0255e7f017b0dadd",
+    "semantic_hash": ""
+  },
+  ".planning/phases/02-attendance-excel-export/02-CONTEXT.md": {
+    "mtime": 1787491523.678209,
+    "seen": 1787495693.926162,
+    "ast_hash": "1f607597d38e67e6ded874e3fe4ce751",
+    "semantic_hash": ""
+  },
+  ".planning/phases/02-attendance-excel-export/02-PATTERNS.md": {
+    "mtime": 1787492055.1941788,
+    "seen": 1787495693.926163,
+    "ast_hash": "fdb0ff4ac9930ea804e2e76bc181c012",
+    "semantic_hash": ""
+  },
+  ".planning/phases/02-attendance-excel-export/02-PLAN.md": {
+    "mtime": 1787492559.7453482,
+    "seen": 1787495693.9261642,
+    "ast_hash": "1a0751d014e9d6c9ba15af000d797700",
+    "semantic_hash": ""
+  },
+  ".planning/phases/02-attendance-excel-export/02-RESEARCH.md": {
+    "mtime": 1787491373.3229542,
+    "seen": 1787495693.9261653,
+    "ast_hash": "9e5f898fdf8507bcc7c087a467a6871e",
+    "semantic_hash": ""
+  },
+  ".planning/phases/02-attendance-excel-export/02-VALIDATION.md": {
+    "mtime": 1787491462.8328629,
+    "seen": 1787495693.9261663,
+    "ast_hash": "cc4e350fc034197fe043f9482f505bb1",
+    "semantic_hash": ""
+  },
+  "MODULE_ROUTES.md": {
+    "mtime": 1787489533.6360114,
+    "seen": 1787495693.9261706,
+    "ast_hash": "ab4e89e22dff9e0597b74764b6a5f892",
+    "semantic_hash": ""
+  },
+  "src/payroll/approve-payroll.controller.ts": {
+    "mtime": 1787497771.0284956,
+    "seen": 1787498008.5172205,
+    "ast_hash": "a85bed9f9d305ff6a9bb8b29e0b465ee",
+    "semantic_hash": ""
+  },
+  ".planning/STATE.md": {
+    "mtime": 1787565535.006457,
+    "seen": 1787565558.3845668,
+    "ast_hash": "12cc885afaa59902b3f5bede95893f99",
+    "semantic_hash": ""
+  },
+  ".planning/phases/03-attendance-leave-verification-payroll/03-01-PLAN.md": {
+    "mtime": 1787497007.0695608,
+    "seen": 1787498008.5173604,
+    "ast_hash": "7d1bdf937682df18210047b528815815",
+    "semantic_hash": ""
+  },
+  ".planning/phases/03-attendance-leave-verification-payroll/03-02-PLAN.md": {
+    "mtime": 1787497046.534438,
+    "seen": 1787498008.517362,
+    "ast_hash": "21b2b9f1ba7ebe5990284d442e2b78b0",
+    "semantic_hash": ""
+  },
+  ".planning/phases/03-attendance-leave-verification-payroll/03-RESEARCH.md": {
+    "mtime": 1787496217.2252195,
+    "seen": 1787498008.5173635,
+    "ast_hash": "4d1c1d571a6da66df2cb7f75bb1b1f44",
+    "semantic_hash": ""
+  },
+  "openapi/paths/payroll/approve-id.yaml": {
+    "mtime": 1787497807.1886606,
+    "seen": 1787498008.517584,
+    "ast_hash": "2385b307fe636155e34276191609863a",
+    "semantic_hash": ""
+  },
+  ".planning/phases/03-attendance-leave-verification-payroll/03-01-SUMMARY.md": {
+    "mtime": 1787498501.5583367,
+    "seen": 1787499808.988299,
+    "ast_hash": "0d94cbb835cda5d85cbb8aea4a105c28",
+    "semantic_hash": ""
+  },
+  ".planning/phases/03-attendance-leave-verification-payroll/deferred-items.md": {
+    "mtime": 1787498644.3861372,
+    "seen": 1787499808.9883144,
+    "ast_hash": "5ecfbdc31fabb2c463c6282334ac3697",
+    "semantic_hash": ""
+  },
+  "src/events/export/session-excel.service.ts": {
+    "mtime": 1787561535.202679,
+    "seen": 1787564173.2401662,
+    "ast_hash": "0a04b325e0b3bf3e0b4fd21510eeae93",
+    "semantic_hash": ""
+  },
+  "src/events/export/session-report.ts": {
+    "mtime": 1787562205.3759737,
+    "seen": 1787564173.2401683,
+    "ast_hash": "56b112213148b06d7dc3a406e711c989",
+    "semantic_hash": ""
+  },
+  "src/libs/utils/date-time.ts": {
+    "mtime": 1787561535.2034755,
+    "seen": 1787564173.2402823,
+    "ast_hash": "4e8709ab296f5495c25872c85ef61a28",
+    "semantic_hash": ""
+  },
+  "src/libs/utils/keyword-filter.ts": {
+    "mtime": 1787561535.2034755,
+    "seen": 1787564173.2402925,
+    "ast_hash": "651122062b839feab29978e5ad11fee4",
+    "semantic_hash": ""
+  },
+  "src/worker/session-report.ts": {
+    "mtime": 1787561535.2034755,
+    "seen": 1787564173.240398,
+    "ast_hash": "7cb1d1a2de04cb026e3777e13f8ac122",
+    "semantic_hash": ""
+  },
+  ".planning/phases/03-attendance-leave-verification-payroll/03-02-SUMMARY.md": {
+    "mtime": 1787500000.5252893,
+    "seen": 1787564173.2404678,
+    "ast_hash": "1a54cd3ecceb9c1d937a031b6a324b81",
+    "semantic_hash": ""
+  },
+  ".planning/phases/04-attendance-leave-verification-payroll/04-CONTEXT.md": {
+    "mtime": 1787550802.1234508,
+    "seen": 1787564173.2404716,
+    "ast_hash": "7a6a8fd5b316eb736bbc360a88911beb",
+    "semantic_hash": ""
+  },
+  ".planning/phases/04-attendance-leave-verification-payroll/04-RESEARCH.md": {
+    "mtime": 1787550893.7782617,
+    "seen": 1787564173.2404728,
+    "ast_hash": "45db7290d15288f0d2c5b2b8bf2fdd14",
+    "semantic_hash": ""
+  },
+  ".planning/phases/04-events-module-enhancements/04-01-PLAN.md": {
+    "mtime": 1787551057.3549573,
+    "seen": 1787564173.2404742,
+    "ast_hash": "3314ac7b3e09668221fe70c4deb1bfa9",
+    "semantic_hash": ""
+  },
+  ".planning/phases/04-events-module-enhancements/04-02-PLAN.md": {
+    "mtime": 1787551120.648147,
+    "seen": 1787564173.2404754,
+    "ast_hash": "4c66c9e04654ec5e7006e3f426649eaf",
+    "semantic_hash": ""
+  },
+  ".planning/phases/04-events-module-enhancements/04-CONTEXT.md": {
+    "mtime": 1787550765.554241,
+    "seen": 1787564173.2404764,
+    "ast_hash": "f3a22d22e06ea9ce84072464b7832447",
+    "semantic_hash": ""
+  },
+  ".planning/phases/05-reimbursement-audit-balance-export/05-PLAN.md": {
+    "mtime": 1787551613.5796976,
+    "seen": 1787564173.2404778,
+    "ast_hash": "1bfafcc6b614c11a8a3411a75b069e94",
+    "semantic_hash": ""
+  },
+  ".planning/phases/05-reimbursement-audit-balance-export/05-RESEARCH.md": {
+    "mtime": 1787551589.8057027,
+    "seen": 1787564173.2404788,
+    "ast_hash": "4c4d1f77e47b93eee93ca6e00399c2a3",
+    "semantic_hash": ""
+  },
+  ".planning/phases/05-reimbursement-audit-balance-export/05-VALIDATION.md": {
+    "mtime": 1787551607.9111707,
+    "seen": 1787564173.24048,
+    "ast_hash": "ee7c7b4712b141fe9a839995a0da75db",
+    "semantic_hash": ""
+  },
+  ".planning/phases/05-reimbursement-audit-export/05-CONTEXT.md": {
+    "mtime": 1787551709.7630723,
+    "seen": 1787564173.2404811,
+    "ast_hash": "b2c75eb0c2a92c36281a57a7402f817a",
+    "semantic_hash": ""
+  },
+  ".planning/phases/05-reimbursement-audit-export/05-RESEARCH.md": {
+    "mtime": 1787551550.887111,
+    "seen": 1787564173.240482,
+    "ast_hash": "368d5a08f776adde7ed74bdccf41c4c8",
+    "semantic_hash": ""
+  },
+  ".planning/phases/06-hard-delete-audit/06-CONTEXT.md": {
+    "mtime": 1787554053.9444153,
+    "seen": 1787564173.2404835,
+    "ast_hash": "b344e33e04fc4ebe056bff082c943d66",
+    "semantic_hash": ""
+  },
+  ".planning/phases/06-hard-delete-audit/06-PLAN.md": {
+    "mtime": 1787554101.5117352,
+    "seen": 1787564173.240485,
+    "ast_hash": "c9fdb657d04a23dec16d4b5a1d24c2f1",
+    "semantic_hash": ""
+  },
+  ".planning/phases/06-hard-delete-audit/06-RESEARCH.md": {
+    "mtime": 1787554076.5960345,
+    "seen": 1787564173.240486,
+    "ast_hash": "605086772f5a5fb33056d3b699538477",
+    "semantic_hash": ""
+  },
+  ".planning/phases/06-hard-delete-audit/06-SUMMARY.md": {
+    "mtime": 1787564110.78396,
+    "seen": 1787564173.2404869,
+    "ast_hash": "48f1d8af5f3fec48478b7fca3c203ebc",
+    "semantic_hash": ""
+  },
+  ".planning/phases/07-soft-delete-gets-search-openapi/07-CONTEXT.md": {
+    "mtime": 1787554490.973816,
+    "seen": 1787564173.240488,
+    "ast_hash": "4e9391dc61cc750019372eb18220751f",
+    "semantic_hash": ""
+  },
+  ".planning/phases/07-soft-delete-gets-search-openapi/07-PLAN.md": {
+    "mtime": 1787554542.598173,
+    "seen": 1787564173.2404892,
+    "ast_hash": "b1d30265ee9fe5f812693b37a9988551",
+    "semantic_hash": ""
+  },
+  ".planning/phases/07-soft-delete-gets-search-openapi/07-RESEARCH.md": {
+    "mtime": 1787554515.4409986,
+    "seen": 1787564173.2404902,
+    "ast_hash": "04eb2bb68fd46d55fcfd38065760d090",
+    "semantic_hash": ""
+  },
+  ".planning/phases/07-soft-delete-gets-search-openapi/07-SUMMARY.md": {
+    "mtime": 1787564126.4056685,
+    "seen": 1787564173.2404912,
+    "ast_hash": "5d71fe34e00c2a504acdea8ff7b683e0",
+    "semantic_hash": ""
+  },
+  ".planning/phases/08-prod-compose-frontend-handbook/08-CONTEXT.md": {
+    "mtime": 1787554897.295512,
+    "seen": 1787564173.2404926,
+    "ast_hash": "3aff52662b98eac8511c0c5085c836f1",
+    "semantic_hash": ""
+  },
+  ".planning/phases/08-prod-compose-frontend-handbook/08-PLAN.md": {
+    "mtime": 1787554977.6266294,
+    "seen": 1787564173.2404935,
+    "ast_hash": "f49f58f3afbd2f8e446e5d4bca8ff92d",
+    "semantic_hash": ""
+  },
+  ".planning/phases/08-prod-compose-frontend-handbook/08-RESEARCH.md": {
+    "mtime": 1787554943.89454,
+    "seen": 1787564173.240495,
+    "ast_hash": "00ea686893154c646e0a261a275845f9",
+    "semantic_hash": ""
+  },
+  ".planning/phases/08-prod-compose-frontend-handbook/08-SUMMARY.md": {
+    "mtime": 1787564142.4793682,
+    "seen": 1787564173.240496,
+    "ast_hash": "cb3cc3cc985ba6e2f2b286d298f20448",
+    "semantic_hash": ""
+  },
+  "FRONTEND-HANDBOOK.md": {
+    "mtime": 1787563830.4911425,
+    "seen": 1787564173.2405,
+    "ast_hash": "210deaa593a388457a920a7e484fcd67",
+    "semantic_hash": ""
+  },
+  "deploy/docker-compose.yml": {
+    "mtime": 1787563725.1250486,
+    "seen": 1787564173.240505,
+    "ast_hash": "2ac97692085f52b4a244d51e0ccf7568",
+    "semantic_hash": ""
+  },
+  "openapi/paths/admin/bank/restore.yaml": {
+    "mtime": 1787563603.0041702,
+    "seen": 1787564173.2406144,
+    "ast_hash": "4ae53e057ca56af3402d10842b39693e",
+    "semantic_hash": ""
+  },
+  "openapi/paths/attendance/holiday-restore.yaml": {
+    "mtime": 1787563449.8577719,
+    "seen": 1787564173.2406325,
+    "ast_hash": "067ce9fe2fbfd83766ad1ce001e823fd",
+    "semantic_hash": ""
+  },
+  "openapi/paths/calendar/event-restore.yaml": {
+    "mtime": 1787563422.4212086,
+    "seen": 1787564173.240662,
+    "ast_hash": "1790a4336d74e0a084cfcef131f601a1",
+    "semantic_hash": ""
+  },
+  "openapi/paths/notice/restore.yaml": {
+    "mtime": 1787563470.617436,
+    "seen": 1787564173.240705,
+    "ast_hash": "f1083cb1e2ae1f1b436c3b3bcafb2495",
+    "semantic_hash": ""
+  },
+  "openapi/paths/reimbursement/search.yaml": {
+    "mtime": 1787561535.202679,
+    "seen": 1787564173.2407322,
+    "ast_hash": "680dbae920c93961bdbc8ae65972ee9f",
+    "semantic_hash": ""
+  },
+  "src/reimbursement/export/bill-excel.service.ts": {
+    "mtime": 1787564602.957767,
+    "seen": 1787565558.384444,
+    "ast_hash": "7e6891caec9d07bdbcaec6512bd559b8",
+    "semantic_hash": ""
+  },
+  "src/reimbursement/export/bill-report.ts": {
+    "mtime": 1787565256.6381023,
+    "seen": 1787565558.3844461,
+    "ast_hash": "bd320b1f5de5c7520bfb9e4a9bc7b2a7",
+    "semantic_hash": ""
+  },
+  "src/reimbursement/export/types.ts": {
+    "mtime": 1787564880.0130947,
+    "seen": 1787565558.384448,
+    "ast_hash": "592024d80a0880ae65979f3996384faa",
+    "semantic_hash": ""
+  },
+  "src/worker/bill-report.ts": {
+    "mtime": 1787564648.4745986,
+    "seen": 1787565558.3844967,
+    "ast_hash": "626879de125ede8b5c9847a1cb1789ae",
+    "semantic_hash": ""
+  },
+  "tests/reimbursement/export.test.ts": {
+    "mtime": 1787564790.983786,
+    "seen": 1787565558.3845356,
+    "ast_hash": "ef2aa8d0540bd06fa7ed17ef43ee01f7",
+    "semantic_hash": ""
+  },
+  ".planning/phases/05-reimbursement-audit-export/05-SUMMARY.md": {
+    "mtime": 1787565527.005567,
+    "seen": 1787565558.384626,
+    "ast_hash": "e1630dd269a30ca16d093317edb7a6aa",
+    "semantic_hash": ""
+  },
+  "openapi/paths/reimbursement/export-report.yaml": {
+    "mtime": 1787565313.8099434,
+    "seen": 1787565558.3848999,
+    "ast_hash": "3e96fe470778befc3b7cff53222e135d",
     "semantic_hash": ""
   }
 }

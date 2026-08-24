@@ -35,6 +35,17 @@ export default function errorHandler(
     });
   }
 
+  // Multer body-limit breaches (uploads) — client mistake, not a server fault
+  type MulterishError = Error & { code?: string; field?: string };
+  const multerError = error as MulterishError;
+  if (multerError?.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({
+      success: false,
+      message: 'File Too Large.',
+      error: { field: multerError.field ?? null },
+    });
+  }
+
   // NORMAL ERROR — never leak internal messages (Mongoose/JWT/etc.) to clients
   if (error instanceof Error) {
     return res.status(500).json({

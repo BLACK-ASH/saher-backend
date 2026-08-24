@@ -2,6 +2,13 @@ get:
   tags: [Reimbursement]
   summary: Get my reimbursement bills
   operationId: getMyReimbursementBills
+  parameters:
+    - name: isDeleted
+      in: query
+      schema:
+        type: boolean
+        default: false
+      description: When true, returns soft-deleted (recycle) bills instead of active ones. Only the default view is cached.
   responses:
     '200':
       description: My bills list

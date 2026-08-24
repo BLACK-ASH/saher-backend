@@ -294,14 +294,17 @@ Employee leave management: defining leave types (paid, casual, sick, paternity, 
 ## 13. Upload Module (`/api/upload`)
 
 ### Overview
-File and image upload handling using Multer stream processing and Sharp image optimization.
-
-### Routes
+Authenticated file uploads via Multer memory storage. Images are normalized to WebP (max width 1024) with Sharp; documents are stored as-is. Every upload creates a `Media` record and returns its id for embedding in other payloads (bills, sessions, participants).
 
 | Method | Path | Auth / Permission | Middleware / Validation | Description |
 |---|---|---|---|---|
-| `GET` | `/api/upload` | `protectedRoute` | - | Health check route for upload service. |
-| `POST` | `/api/upload/image` | `protectedRoute` | `uploadImage.single('image')` | Uploads and processes an image file, returning stored media object ID. |
+| `GET` | `/api/upload` | `protectedRoute` | - | Health check for the upload service (plain string body). |
+| `POST` | `/api/upload/image` | `protectedRoute` | `uploadImage.single('image')` | Upload one image. Fields: `image` (file; png/jpg/jpeg/webp/avif, ≤5 MB) + `name` (alt text). Converts to WebP, returns `{ id, fileName, url, size, width, height, mimetype }`. |
+| `POST` | `/api/upload/images` | `protectedRoute` | `uploadImage.array('images', 10)` | Upload up to 10 images at once (same formats/limits). Alt falls back to each file's original name. Returns array without width/height. Any failure removes already-written files. |
+| `POST` | `/api/upload/document` | `protectedRoute` | `uploadDocument.single('document')` | Upload one document. Fields: `document` (file; pdf/doc/docx/ppt/pptx/xls/xlsx, ≤10 MB) + `name`. Returns `{ id, fileName, url, size, mimetype }`. |
+| `POST` | `/api/upload/documents` | `protectedRoute` | `uploadDocument.array('documents', 10)` | Upload up to 10 documents (same formats/limits). Returns array; atomic cleanup on failure. |
+
+Oversize files return `413 { message: "File Too Large." }`; wrong type returns `400 File Validation Failed.`
 
 ---
 

@@ -46,7 +46,7 @@ post:
                     example: b1e5007d-eee0-461f-a22b-445fc1544a24.webp
                   url:
                     type: string
-                    example: http://localhost:4000/uploads/images/b1e5007d-eee0-461f-a22b-445fc1544a24.webp
+                    example: /uploads/images/b1e5007d-eee0-461f-a22b-445fc1544a24.webp
                   size:
                     type: integer
                     example: 74620
@@ -68,3 +68,16 @@ post:
 
     '500':
       $ref: ../../components/common/internal-server-error.yaml
+    '413':
+      description: File Too Large (images 5 MB, documents 10 MB per file)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: File Too Large.
