@@ -22,7 +22,8 @@ jobs:
           git reset --hard origin/main
 
           cd /home/saher/Test/
-          docker compose up -d --build backend
+          # worker must be rebuilt too — stale worker ships old job handlers otherwise
+          docker compose up -d --build backend worker
 
       - name: Cleanup old images
         run: docker image prune -a
