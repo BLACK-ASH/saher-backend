@@ -1,4 +1,44 @@
-# Upload samples — manual verification kit
+# Samples — manual verification kit
+
+Two kits live here:
+
+- **`reports/`** — sample *outputs* of the three BullMQ report exports (attendance, session,
+  bill) as PDF + Excel. Generated with the **actual production templates** — see below.
+- upload fixtures (`sample-image.*`, `sample-document.*`) — inputs for `POST /api/upload/*`.
+
+---
+
+## Report samples (`reports/`)
+
+| File | Produced by |
+|---|---|
+| `attendance-report.{pdf,xlsx}` | `GET /api/attendance/export/report` → worker `pdf-attendance-report` |
+| `session-report.{pdf,xlsx}` | `GET /api/events/export/report?sessionId=…&format=xlsx\|pdf` |
+| `bill-report.{pdf,xlsx}` | `GET /api/reimbursement/export/report?…` |
+
+These are **not mocks**: the `.xlsx` files come straight from
+`createAttendanceExcel / createSessionExcel / createBillExcel`, and each `.pdf` was printed
+by headless Chromium from the *identical HTML string* the workers pass to `page.pdf()`
+(`createAttendancePdfBody / createSessionPdfBody / createBillPdfBody`). Mock rows contain
+realistic SAHER-branded data (5 attendance days incl. week-off/half-day/leave, a session
+with 4 participants, 3 bills in mixed statuses).
+
+Regenerate:
+
+```bash
+npx tsx scripts/generate-report-samples.ts        # writes .html + .xlsx (pure renderers)
+docker run --rm -v "$PWD/samples/reports":/work -w /work --entrypoint sh node:24-alpine -c '
+  apk add -q chromium >/dev/null &&
+  for f in attendance-report session-report bill-report; do
+    chromium-browser --headless --no-sandbox --print-to-pdf="/work/$f.pdf" \
+      --print-to-pdf-no-header "file:///work/$f.html"; done'
+```
+
+In production the worker does the same print inside the backend image (chromium is baked in).
+
+---
+
+## Upload fixtures
 
 One real file per accepted format. Images are genuine rasters (backend runs Sharp →
 WebP conversion on them); documents are valid Office/PDF containers.
@@ -48,6 +88,7 @@ dd if=/dev/zero of=/tmp/big.png bs=1M count=6 2>/dev/null && curl -s -b cookies.
 ## What to eyeball in responses
 - `data.url` is **relative** (`/uploads/images/<uuid>.webp`) — served by the backend static handler.
 - Single image includes `width`/`height` (≤1024 wide after resize); bulk items do not.
-- Each success creates a row in the `mediauploads` collection (`alt` = name/original filename).
+- Each success creates a row in the media collection (`alt` = name/original filename).
 
-Regenerate anytime: `node scripts/make-upload-samples.mjs`
+Regenerate upload fixtures: `node scripts/make-upload-samples.mjs`
+

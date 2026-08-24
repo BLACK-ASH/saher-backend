@@ -7,6 +7,7 @@ import type { HydratedDocument } from 'mongoose';
 import type { Page as PuppeteerPage } from 'puppeteer-core';
 
 import { createSessionExcel } from '../events/export/session-excel.service.js';
+import { createSessionPdfBody } from '../events/export/session-pdf.js';
 import type { SessionType } from '../database/session.model.js';
 import { Session } from '../database/session.model.js';
 import { logger } from '../libs/logger/logger.js';
@@ -47,50 +48,6 @@ const fetchSession = async (job: Job): Promise<SessionDoc> => {
   return session;
 };
 
-
-const createSessionPdfBody = (session: SessionDoc) => `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 32px; color: #09090b; font-family: Inter, Arial, sans-serif; }
-    .header { border-bottom: 1px solid #e4e4e7; padding-bottom: 18px; margin-bottom: 20px; }
-    .brand-name { font-size: 17px; font-weight: 700; color: #7a1cac; }
-    .title h1 { font-size: 18px; font-weight: 700; }
-    .meta { margin: 12px 0 20px; font-size: 12px; color: #52525b; }
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; padding: 14px 16px; font-size: 12px; color: #71717a; border-bottom: 1px solid #e4e4e7; background: #fafafa; }
-    td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f4f4f5; }
-    @page { size: A4; margin: 8mm; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="brand-name">SAHER Internal</div>
-    <div style="font-size:11px;color:#71717a;">Society for Awareness, Harmony and Equal Rights</div>
-  </div>
-  <div class="title"><h1>Session Report</h1></div>
-  <div class="meta">
-    <strong>${escapeHtml(String(session.get('title') ?? '-'))}</strong><br/>
-    Program: ${escapeHtml(JSON.stringify(session.get('program')))}<br/>
-    Date: ${formatDate(session.get('date'))}<br/>
-    Participants: ${(session.participants ?? []).length}
-  </div>
-  <table>
-    <thead><tr><th>Participant</th><th>Phone</th></tr></thead>
-    <tbody>
-      ${((session.participants ?? []) as unknown as PopulatedParticipant[])
-        .map(
-          (p) =>
-            `<tr><td>${escapeHtml(p.name ?? '-')}</td><td>${escapeHtml(p.phoneNumber ?? '-')}</td></tr>`,
-        )
-        .join('')}
-    </tbody>
-  </table>
-</body>
-</html>`;
 
 const renderPdf = async (job: Job, session: SessionDoc, page: PuppeteerPage) => {
   await page.setContent(createSessionPdfBody(session), { waitUntil: 'domcontentloaded' });

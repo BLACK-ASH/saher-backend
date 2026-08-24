@@ -8,6 +8,7 @@ import type { Page as PuppeteerPage } from 'puppeteer-core';
 import { Bill } from '../database/bill.model.js';
 import type { QueryFilter } from 'mongoose';
 import { createBillExcel } from '../reimbursement/export/bill-excel.service.js';
+import { createBillPdfBody } from '../reimbursement/export/bill-pdf.js';
 import type { BillDocumentT } from '../reimbursement/export/types.js';
 import { logger } from '../libs/logger/logger.js';
 import { bullmqConnection } from '../libs/redis/redis-client.js';
@@ -42,47 +43,6 @@ const fetchBills = async (job: Job): Promise<BillDocumentT[]> => {
 
   return bills as unknown as BillDocumentT[];
 };
-
-const createBillPdfBody = (bills: BillDocumentT[]) => `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 32px; color: #09090b; font-family: Inter, Arial, sans-serif; }
-    .header { border-bottom: 1px solid #e4e4e7; padding-bottom: 18px; margin-bottom: 20px; }
-    .brand-name { font-size: 17px; font-weight: 700; color: #7a1cac; }
-    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    th { text-align: left; padding: 12px 14px; font-size: 12px; color: #71717a; border-bottom: 1px solid #e4e4e7; background: #fafafa; }
-    td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #f4f4f5; }
-    @page { size: A4; margin: 8mm; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="brand-name">SAHER Internal</div>
-    <div style="font-size:11px;color:#71717a;">Society for Awareness, Harmony and Equal Rights</div>
-  </div>
-  <h1 style="font-size:18px;">Bill Report</h1>
-  <table>
-    <thead><tr><th>Employee</th><th>Amount</th><th>Advance</th><th>Status</th><th>Date</th></tr></thead>
-    <tbody>
-      ${bills
-        .map(
-          (b) => `<tr>
-            <td>${escapeHtml(b.user?.displayName ?? b.user?.email ?? '-')}</td>
-            <td>${b.amount ?? 0}</td>
-            <td>${b.advance ?? 0}</td>
-            <td>${escapeHtml(String(b.status))}</td>
-            <td>${formatDate(b.date)}</td>
-          </tr>`,
-        )
-        .join('')}
-    </tbody>
-  </table>
-</body>
-</html>`;
 
 const renderPdf = async (job: Job, bills: BillDocumentT[], page: PuppeteerPage) => {
   await page.setContent(createBillPdfBody(bills), { waitUntil: 'domcontentloaded' });
