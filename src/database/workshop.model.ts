@@ -30,6 +30,8 @@ workshopSchema.index({
   title: 'text',
   description: 'text',
 });
+workshopSchema.index({ isDeleted: 1, createdAt: -1 });
+workshopSchema.index({ program: 1, isDeleted: 1 });
 
 export type WorkshopType = mongoose.InferSchemaType<typeof workshopSchema>;
 export const Workshop = mongoose.model<WorkshopType>('Workshop', workshopSchema);

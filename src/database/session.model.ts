@@ -96,6 +96,9 @@ sessionSchema.index({
   title: 'text',
   description: 'text',
 });
+sessionSchema.index({ isDeleted: 1, createdAt: -1 });
+sessionSchema.index({ program: 1, isDeleted: 1 });
+sessionSchema.index({ workshop: 1, isDeleted: 1 });
 
 export type SessionType = mongoose.InferSchemaType<typeof sessionSchema>;
 export const Session = mongoose.model<SessionType>('Session', sessionSchema);

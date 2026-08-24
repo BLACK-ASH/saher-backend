@@ -49,5 +49,9 @@ const billSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-type BillType = mongoose.InferSchemaType<typeof billSchema>;
+billSchema.index({ user: 1, isDeleted: 1, createdAt: -1 });
+billSchema.index({ date: 1, isDeleted: 1 });
+billSchema.index({ description: 'text' });
+
+export type BillType = mongoose.InferSchemaType<typeof billSchema>;
 export const Bill = mongoose.model<BillType>('Bill', billSchema);
