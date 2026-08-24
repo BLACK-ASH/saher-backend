@@ -37,6 +37,7 @@ export const editNotice = async (req: Request, res: Response) => {
   const updatedNotice = await Notice.findOneAndUpdate(
     {
       _id: req.params.id,
+      isDeleted: false,
     },
     req.body,
     {
@@ -55,7 +56,43 @@ export const editNotice = async (req: Request, res: Response) => {
   });
 };
 
-//Permanent Deletion of Notice
+//Soft Delete Notice
+export const deleteNotice = async (req: Request, res: Response) => {
+  const notice = await Notice.findById(req.params.id);
+
+  if (!notice || notice.isDeleted) {
+    throw new ApiError(404, 'Notice not found');
+  }
+
+  notice.isDeleted = true;
+  await notice.save();
+
+  return ApiResponse.success(res, {
+    message: 'Notice has been deleted successfully',
+    data: null,
+    statusCode: 200,
+  });
+};
+
+// Restore Notice
+export const restoreNotice = async (req: Request, res: Response) => {
+  const notice = await Notice.findById(req.params.id);
+
+  if (!notice || !notice.isDeleted) {
+    throw new ApiError(404, 'Deleted notice not found');
+  }
+
+  notice.isDeleted = false;
+  await notice.save();
+
+  return ApiResponse.success(res, {
+    message: 'Notice has been restored successfully',
+    data: null,
+    statusCode: 200,
+  });
+};
+
+//Permanent Deletion of Notice (for admin cleanup only)
 export const permanentDeleteNotice = async (req: Request, res: Response) => {
   const notice = await Notice.findByIdAndDelete(req.params.id);
 
@@ -73,6 +110,7 @@ export const permanentDeleteNotice = async (req: Request, res: Response) => {
 //Get Active Notices
 export const getNotices = async (req: Request, res: Response) => {
   const notices = await Notice.find({
+    isDeleted: false,
     expiresAt: {
       $gt: new Date(),
     },

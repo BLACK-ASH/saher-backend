@@ -5,6 +5,7 @@ import {
   createCalendarEventController,
   deleteCalendarEventController,
   getCalendarEventByMonth,
+  restoreCalendarEventController,
   syncGoogleHolidaysController,
   updateCalendarEventController,
 } from './calender.controller.js';
@@ -24,3 +25,4 @@ calendarRouter.put(
   updateCalendarEventController,
 );
 calendarRouter.delete('/event/:id', deleteCalendarEventController);
+calendarRouter.patch('/event/restore/:id', restoreCalendarEventController);

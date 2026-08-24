@@ -258,6 +258,32 @@ describe('admin module', () => {
         expect(res.status).toBe(403);
       }
     });
+
+    it('restores a soft-deleted bank and hides deleted from reads', async () => {
+      const soft = await Bank.create({
+        accountHolderName: 'Ghost Holder',
+        accountNumber: '42',
+        bankName: 'Phantom Bank',
+        ifcs: 'PHNT0000042',
+        branch: 'Nowhere',
+        mobileNumber: '9800000042',
+        isDeleted: true,
+      });
+
+      // deleted bank is invisible on read
+      const gone = await request(app).get(`/api/admin/bank/${soft._id}`).set('Cookie', admin.cookie);
+      expect(gone.status).toBe(400);
+
+      // restore brings it back (managers hold bank write/update)
+      const restore = await request(app)
+        .patch(`/api/admin/bank/restore/${soft._id}`)
+        .set('Cookie', manager.cookie);
+      expect(restore.status).toBe(200);
+      expect((await Bank.findById(soft._id).lean())?.isDeleted).toBe(false);
+
+      const back = await request(app).get(`/api/admin/bank/${soft._id}`).set('Cookie', admin.cookie);
+      expect(back.status).toBe(200);
+    });
   });
 
   describe('user management', () => {
@@ -327,16 +353,21 @@ describe('admin module', () => {
       expect(notDeleted.status).toBe(400);
     });
 
-    it('hard-deletes already-inactive users beyond restoration', async () => {
+    it('never hard-deletes already-inactive users — repeat delete 404s, record survives', async () => {
       const { user } = await createFullAccount();
       await User.findByIdAndUpdate(user._id, { isActive: false, deletedAt: new Date() });
 
+      // repeat delete of an already-soft-deleted user → 404 (events convention)
       const del = await request(app).delete(`/api/admin/user/${user._id}`).set('Cookie', admin.cookie);
-      expect(del.status).toBe(200);
-      expect(await User.findById(user._id)).toBeNull();
+      expect(del.status).toBe(404);
 
+      // record still exists — no permanent-delete path
+      expect(await User.findById(user._id)).not.toBeNull();
+
+      // and it remains restorable
       const restore = await request(app).patch(`/api/admin/user/${user._id}/restore`).set('Cookie', admin.cookie);
-      expect(restore.status).toBe(404);
+      expect(restore.status).toBe(200);
+      expect((await User.findById(user._id))?.isActive).toBe(true);
     });
   });
 });

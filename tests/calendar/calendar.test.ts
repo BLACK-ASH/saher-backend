@@ -132,4 +132,30 @@ describe('calendar module', () => {
       .set('Cookie', plain.cookie);
     expect(res.status).toBe(404);
   });
+
+  it('restores a soft-deleted event and re-surfaces it on the month read', async () => {
+    const doc = await CalendarEvent.create({
+      title: 'Phoenix',
+      type: 'meeting',
+      description: 'Comes back',
+      start: '2026-07-20T10:00:00.000Z',
+      end: '2026-07-20T11:00:00.000Z',
+      isDeleted: true,
+    });
+
+    const restore = await request(app)
+      .patch(`/api/calendar/event/restore/${doc._id}`)
+      .set('Cookie', plain.cookie);
+    expect(restore.status).toBe(200);
+    expect((await CalendarEvent.findById(doc._id).lean())?.isDeleted).toBe(false);
+
+    const july = await month(2026, 6);
+    expect(july.body.data.map((e: { title: string }) => e.title)).toContain('Phoenix');
+
+    // restore of a live event → 404
+    const again = await request(app)
+      .patch(`/api/calendar/event/restore/${doc._id}`)
+      .set('Cookie', plain.cookie);
+    expect(again.status).toBe(404);
+  });
 });

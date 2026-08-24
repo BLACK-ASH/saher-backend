@@ -14,7 +14,7 @@ export const getBank = async (id: string): Promise<BankT | null> => {
   const cacheBank = await getCache<BankT>(key);
   if (cacheBank) return cacheBank;
 
-  const bank = await Bank.findById(id).lean();
+  const bank = await Bank.findOne({ _id: id, isDeleted: false }).lean();
   if (!bank) return null;
 
   const normalize = normalizeDoc(bank);

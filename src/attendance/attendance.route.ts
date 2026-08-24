@@ -19,6 +19,7 @@ import {
   getAllHolidayController,
   getHolidayController,
   deleteHolidayController,
+  restoreHolidayController,
   addHolidayController,
 } from './holiday/holiday.controller.js';
 import { checkInController } from './mark/check-in.controller.js';
@@ -88,6 +89,11 @@ attendanceRouter.put(
   authorize('update', 'holiday'),
   validate(holidayUpdateSchema),
   updateHolidayController,
+);
+attendanceRouter.patch(
+  '/holiday/:id/restore',
+  authorize('update', 'holiday'),
+  restoreHolidayController,
 );
 
 attendanceRouter.post('/weekoff', claimFlexibleWeekOffController);

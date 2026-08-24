@@ -43,7 +43,7 @@ export const updateHolidayController = async (req: Request, res: Response) => {
   const id = req.params.id;
   const updateData = req.body;
 
-  const update = await Holiday.findByIdAndUpdate(id, updateData, { new: true });
+  const update = await Holiday.findOneAndUpdate({ _id: id, isDeleted: false }, updateData, { new: true });
   if (!update) throw new ApiError(400, 'Holiday Not Updated.');
 
   // Invalidate cache for both old and new month keys (date may have moved)
@@ -69,7 +69,7 @@ export const updateHolidayController = async (req: Request, res: Response) => {
 export const getHolidayController = async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const record = await Holiday.findById(id).lean();
+  const record = await Holiday.findOne({ _id: id, isDeleted: false }).lean();
   if (!record) throw new ApiError(404, 'Holiday Record Not Found.');
 
   const normalized = normalizeDoc(record);
@@ -83,7 +83,7 @@ export const getHolidayController = async (req: Request, res: Response) => {
 };
 
 export const getAllHolidayController = async (req: Request, res: Response) => {
-  const holidays = await Holiday.find().lean();
+  const holidays = await Holiday.find({ isDeleted: false }).lean();
   if (!holidays) throw new ApiError(404, 'No Holiday Records Found.');
 
   const normalized = normalizeDoc(holidays);
@@ -99,8 +99,11 @@ export const getAllHolidayController = async (req: Request, res: Response) => {
 export const deleteHolidayController = async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const record = await Holiday.findByIdAndDelete(id);
-  if (!record) throw new ApiError(404, 'Holiday Record Not Found.');
+  const record = await Holiday.findById(id);
+  if (!record || record.isDeleted) throw new ApiError(404, 'Holiday Record Not Found.');
+
+  record.isDeleted = true;
+  await record.save();
 
   const month = new Date(record.date).getMonth() + 1;
   const year = new Date(record.date).getFullYear();
@@ -109,6 +112,27 @@ export const deleteHolidayController = async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, {
     message: 'The Holiday has been deleted successful.',
+    data: null,
+    statusCode: 200,
+  });
+};
+
+export const restoreHolidayController = async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const record = await Holiday.findById(id);
+  if (!record || !record.isDeleted) throw new ApiError(404, 'Deleted Holiday Record Not Found.');
+
+  record.isDeleted = false;
+  await record.save();
+
+  const month = new Date(record.date).getMonth() + 1;
+  const year = new Date(record.date).getFullYear();
+  const key = createKey('calendar', year, month);
+  await deleteCache(key);
+
+  return ApiResponse.success(res, {
+    message: 'The Holiday has been restored successfully.',
     data: null,
     statusCode: 200,
   });

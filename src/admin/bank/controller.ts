@@ -61,7 +61,7 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
   const id = req.params.id as string;
   const data = req.body;
 
-  const updated = await Bank.findByIdAndUpdate(id, data, { new: true });
+  const updated = await Bank.findOneAndUpdate({ _id: id, isDeleted: false }, data, { new: true });
   if (!updated) throw new ApiError(404, 'Bank Details Nott Exist.');
 
   const key = createKey('bank', id);
@@ -84,12 +84,15 @@ export const updateBankDetailController = async (req: Request, res: Response) =>
   });
 };
 
-// Delete Bank Controller
+// Delete Bank Controller (soft delete)
 export const deleteBankDetailController = async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const deleted = await Bank.findByIdAndDelete(id);
-  if (!deleted) throw new ApiError(404, 'Bank Details Not Exist.');
+  const bank = await Bank.findById(id);
+  if (!bank || bank.isDeleted) throw new ApiError(404, 'Bank Details Not Exist.');
+
+  bank.isDeleted = true;
+  await bank.save();
 
   const key = createKey('bank', id);
   const accounts = await Account.find({ bank: id }).select('_id user').lean();
@@ -103,8 +106,36 @@ export const deleteBankDetailController = async (req: Request, res: Response) =>
   ]);
 
   return ApiResponse.success(res, {
-    message: 'Bank Details Deleted Succesfully',
-    data: deleted,
+    message: 'Bank Details Deleted Successfully',
+    data: null,
+    statusCode: 200,
+  });
+};
+
+// Restore Bank Controller
+export const restoreBankDetailController = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+
+  const bank = await Bank.findById(id);
+  if (!bank || !bank.isDeleted) throw new ApiError(404, 'Deleted Bank Details Not Found.');
+
+  bank.isDeleted = false;
+  await bank.save();
+
+  const key = createKey('bank', id);
+  const accounts = await Account.find({ bank: id }).select('_id user').lean();
+
+  await Promise.all([
+    deleteCache(key),
+    ...accounts.flatMap((a) => [
+      deleteCache(createKey('account', String(a._id))),
+      deleteCache(createKey('account', 'userId', String(a.user))),
+    ]),
+  ]);
+
+  return ApiResponse.success(res, {
+    message: 'Bank Details Restored Successfully',
+    data: null,
     statusCode: 200,
   });
 };

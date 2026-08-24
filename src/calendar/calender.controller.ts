@@ -51,23 +51,24 @@ export const getCalendarEventByMonth = async (req: Request, res: Response) => {
   });
 };
 
+// calendar caches are keyed per-month — a range-spanning event invalidates both ends
+const invalidateCalendarRange = async (doc: { start: Date; end: Date }) => {
+  const key = createKey('calendar', new Date(doc.start).getFullYear(), new Date(doc.start).getMonth());
+  const keyEnd = createKey('calendar', new Date(doc.end).getFullYear(), new Date(doc.end).getMonth());
+  await deleteCache(key);
+  await deleteCache(keyEnd);
+};
+
 export const deleteCalendarEventController = async (req: Request, res: Response) => {
   const { id } = req.params;
   const event = await CalendarEvent.findById(id);
 
-  if (!event) throw new ApiError(404, 'Calendar Event Not Found or Another Type Of Event');
+  if (!event || event.isDeleted) throw new ApiError(404, 'Calendar Event Not Found or Another Type Of Event');
 
-  await event.deleteOne();
+  event.isDeleted = true;
+  await event.save();
 
-  const month = new Date(event.start).getMonth();
-  const year = new Date(event.start).getFullYear();
-  const key = createKey('calendar', year, month);
-  await deleteCache(key);
-
-  const monthEnd = new Date(event.end).getMonth();
-  const yearEnd = new Date(event.end).getFullYear();
-  const keyEnd = createKey('calendar', yearEnd, monthEnd);
-  await deleteCache(keyEnd);
+  await invalidateCalendarRange(event);
 
   return ApiResponse.success(res, {
     message: 'Calendar Event Deleted SuccessFully',
@@ -76,10 +77,28 @@ export const deleteCalendarEventController = async (req: Request, res: Response)
   });
 };
 
+export const restoreCalendarEventController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const event = await CalendarEvent.findById(id);
+
+  if (!event || !event.isDeleted) throw new ApiError(404, 'Deleted Calendar Event Not Found');
+
+  event.isDeleted = false;
+  await event.save();
+
+  await invalidateCalendarRange(event);
+
+  return ApiResponse.success(res, {
+    message: 'Calendar Event Restored Successfully',
+    data: null,
+    statusCode: 200,
+  });
+};
+
 export const createCalendarEventController = async (req: Request, res: Response) => {
   const { title, type, description, start, end } = req.body;
 
-  const existingRecord = await CalendarEvent.findOne({ type: type, start: start, end: end });
+  const existingRecord = await CalendarEvent.findOne({ type: type, start: start, end: end, isDeleted: false });
   if (existingRecord) throw new ApiError(400, 'there is already an event added');
 
   const event = await CalendarEvent.create({
@@ -110,25 +129,15 @@ export const createCalendarEventController = async (req: Request, res: Response)
 export const updateCalendarEventController = async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const event = await CalendarEvent.findByIdAndUpdate(id, req.body);
+  const event = await CalendarEvent.findOneAndUpdate({ _id: id, isDeleted: false }, req.body);
   if (!event) throw new ApiError(400, 'Calendar Event Not Found');
 
-  const month = new Date(event.start).getMonth();
-  const year = new Date(event.start).getFullYear();
-  const key = createKey('calendar', year, month);
-  await deleteCache(key);
+  await invalidateCalendarRange(event);
 
   if (req.body.end) {
-    const monthEnd = new Date(req.body.end).getMonth();
-    const yearEnd = new Date(req.body.end).getFullYear();
-    const keyEnd = createKey('calendar', yearEnd, monthEnd);
+    const keyEnd = createKey('calendar', new Date(req.body.end).getFullYear(), new Date(req.body.end).getMonth());
     await deleteCache(keyEnd);
   }
-
-  const monthEnd = new Date(event.end).getMonth();
-  const yearEnd = new Date(event.end).getFullYear();
-  const keyEnd = createKey('calendar', yearEnd, monthEnd);
-  await deleteCache(keyEnd);
 
   return ApiResponse.success(res, {
     message: 'The Event has been updated successfully',

@@ -20,6 +20,7 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
   const data = await Holiday.aggregate([
     {
       $match: {
+        isDeleted: { $ne: true },
         date: {
           $gte: startOfMonth,
           $lt: endOfMonth,
@@ -104,7 +105,8 @@ export const getCalendarSession = async (year: number, month: number): Promise<E
   const data = await Session.aggregate([
     {
       $match: {
-        startTime: {
+        isDeleted: { $ne: true },
+        start: {
           $gte: startOfMonth,
           $lt: endOfMonth,
         },
@@ -166,6 +168,7 @@ export const getCalendarEvents = async (year: number, month: number): Promise<Ev
   const data = await CalendarEvent.aggregate([
     {
       $match: {
+        isDeleted: false,
         start: {
           $gte: startOfMonth,
           $lt: endOfMonth,

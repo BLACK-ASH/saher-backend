@@ -14,6 +14,13 @@ const noticeSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
   },
+
+  // ponytail: noticeSchema also has a TTL index on expiresAt (auto-purge of stale
+  // notices) — that's lifecycle expiry, kept as-is; only user deletes go soft.
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 noticeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });

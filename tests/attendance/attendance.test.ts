@@ -484,6 +484,25 @@ describe('holidays CRUD', () => {
       .delete(`/api/attendance/holiday/${h._id}`)
       .set('Cookie', a.cookie);
     expect(again.status).toBe(404);
+
+    // restore round-trip
+    const restore = await request(app)
+      .patch(`/api/attendance/holiday/${h._id}/restore`)
+      .set('Cookie', a.cookie);
+    expect(restore.status).toBe(200);
+    expect((await Holiday.findById(h._id).lean())?.isDeleted).toBe(false);
+
+    // restored holiday is readable again
+    const back = await request(app)
+      .get(`/api/attendance/holiday/${h._id}`)
+      .set('Cookie', a.cookie);
+    expect(back.status).toBe(200);
+
+    // restoring a live record → 404
+    const onceMore = await request(app)
+      .patch(`/api/attendance/holiday/${h._id}/restore`)
+      .set('Cookie', a.cookie);
+    expect(onceMore.status).toBe(404);
   });
 });
 

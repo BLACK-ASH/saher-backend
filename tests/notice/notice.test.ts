@@ -115,4 +115,35 @@ describe('notice module', () => {
       .set('Cookie', plain.cookie);
     expect(again.status).toBe(404);
   });
+
+  it('soft deletes, hides from list, and restores notices', async () => {
+    const created = await Notice.create({
+      title: 'Soft Doomed',
+      description: 'Recoverable',
+      expiresAt: new Date(Date.now() + 86400000),
+    });
+
+    const del = await request(app)
+      .delete(`/api/notice/notice/${created._id}`)
+      .set('Cookie', plain.cookie);
+    expect(del.status).toBe(200);
+    expect((await Notice.findById(created._id).lean())?.isDeleted).toBe(true);
+
+    // soft-deleted notice is hidden from the active list
+    const list = await request(app).get('/api/notice/notice').set('Cookie', plain.cookie);
+    const titles = (list.body.data ?? []).map((n: { title: string }) => n.title);
+    expect(titles).not.toContain('Soft Doomed');
+
+    // repeat delete → 404; restore → visible flag cleared
+    const again = await request(app)
+      .delete(`/api/notice/notice/${created._id}`)
+      .set('Cookie', plain.cookie);
+    expect(again.status).toBe(404);
+
+    const restore = await request(app)
+      .patch(`/api/notice/notice/${created._id}/restore`)
+      .set('Cookie', plain.cookie);
+    expect(restore.status).toBe(200);
+    expect((await Notice.findById(created._id).lean())?.isDeleted).toBe(false);
+  });
 });

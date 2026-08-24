@@ -10,6 +10,7 @@ import {
   createBankDetailController,
   deleteBankDetailController,
   getBankDetailController,
+  restoreBankDetailController,
   updateBankDetailController,
 } from './bank/controller.js';
 import { bankSchema, bankUpdateSchema } from './bank/schema.js';
@@ -33,6 +34,13 @@ adminRouter
   .get(getBankDetailController)
   .put(authorize('update', 'bank'), validate(bankUpdateSchema), updateBankDetailController)
   .delete(authorize('delete', 'bank'), deleteBankDetailController);
+
+adminRouter.patch(
+  '/bank/restore/:id',
+  // managers own bank writes (admin holds read-only on bank) — restore = reverse of delete
+  authorize('update', 'bank'),
+  restoreBankDetailController,
+);
 
 adminRouter.post(
   '/bank',

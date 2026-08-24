@@ -104,17 +104,9 @@ export const userDeleteController = async (req: Request, res: Response) => {
   const key1 = createKey('users', 'list');
   const key2 = createKey('user', id);
 
+  // already soft-deleted → same as not found (events convention; no hard delete)
   if (!user.isActive) {
-    await User.findByIdAndDelete(id);
-
-    await deleteCache(key1);
-    await deleteCache(key2);
-
-    return ApiResponse.success(res, {
-      message: 'User Deleted Successfully.',
-      data: null,
-      statusCode: 200,
-    });
+    throw new ApiError(404, 'User Not Found.');
   }
 
   user.isActive = false;
