@@ -20,6 +20,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, Set<string>> = {
     createPermission('read', 'bank'),
     createPermission('read', 'notification'),
     createPermission('read', 'notice'),
+    createPermission('write', 'notice'),
+    createPermission('update', 'notice'),
+    createPermission('delete', 'notice'),
 
     // Write
     createPermission('write', 'account'),
