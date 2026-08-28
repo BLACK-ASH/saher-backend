@@ -63,7 +63,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, Set<string>> = {
     createPermission('write', 'preReimbursement'),
     createPermission('update', 'preReimbursement'),
     createPermission('delete', 'preReimbursement'),
+    createPermission('write', 'postReimbursement'),
     createPermission('update', 'postReimbursement'),
+    createPermission('delete', 'postReimbursement'),
 
     // LeaveType
     createPermission('write', 'leaveType'),
@@ -129,7 +131,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, Set<string>> = {
     createPermission('write', 'preReimbursement'),
     createPermission('update', 'preReimbursement'),
     createPermission('delete', 'preReimbursement'),
+    createPermission('write', 'postReimbursement'),
     createPermission('update', 'postReimbursement'),
+    createPermission('delete', 'postReimbursement'),
 
     //Leave (Application )
     createPermission('write', 'leave'),
