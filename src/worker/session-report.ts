@@ -38,6 +38,7 @@ type PopulatedParticipant = { name?: string | null; phoneNumber?: string | null 
 const fetchSession = async (job: Job): Promise<SessionDoc> => {
   const session = await Session.findOne({ _id: job.data.sessionId, isDeleted: false })
     .populate('program', 'title')
+    .populate('workshop', 'title')
     .populate({
       path: 'participants',
       populate: { path: 'image document' },

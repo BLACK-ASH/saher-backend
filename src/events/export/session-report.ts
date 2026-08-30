@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import fs from 'fs';
+import path from 'path';
 
 import { Queue } from 'bullmq';
 import type { Request, Response } from 'express';
@@ -81,15 +83,26 @@ export const exportSessionReportController = async (req: Request, res: Response)
     } else {
       const state = await job.getState();
 
-      if (state !== 'completed') {
+      if (state === 'failed') {
+        // A failed job would otherwise poison the dedupe cache and block all
+        // future exports for this session+user+format until the 24h TTL.
+        await deleteCache(key);
+      } else if (state !== 'completed') {
         return ApiResponse.success(res, {
           message: 'request is processing',
         });
+      } else {
+        // Completed — only claim "already generated" if the artifact is still
+        // servable. Otherwise (temp TTL cleanup, pre-volume orphan) regenerate.
+        const fileName = `${existingJobId}.${format}`;
+        const reportPath = path.join(process.cwd(), 'public', 'temp', fileName);
+        if (fs.existsSync(reportPath)) {
+          return ApiResponse.success(res, {
+            message: 'report already generated, please check notifications',
+          });
+        }
+        await deleteCache(key);
       }
-
-      return ApiResponse.success(res, {
-        message: 'report already generated, please check notifications',
-      });
     }
   }
 

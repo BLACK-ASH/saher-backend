@@ -18,6 +18,10 @@ type PopulatedParticipant = { name?: string | null; phoneNumber?: string | null 
 const populatedParticipants = (session: SessionDoc): PopulatedParticipant[] =>
   (session.participants ?? []) as unknown as PopulatedParticipant[];
 
+// populate('program'/'workshop') hydrates ObjectIds into ref docs; schema types don't reflect that
+type PopulatedMeta = { title?: string | null } | null;
+const titleOf = (meta: unknown): string => (meta as PopulatedMeta)?.title ?? '-';
+
 // ponytail: minimal column set (name/phone/status); extend when report needs more fields
 export const createSessionExcel = async (
   session: SessionDoc,
@@ -43,7 +47,8 @@ export const createSessionExcel = async (
 
   sheet.addRow([]);
   sheet.addRow(['Session', session.title]);
-  sheet.addRow(['Program', String(session.program ?? '-')]);
+  sheet.addRow(['Program', titleOf(session.program)]);
+  sheet.addRow(['Workshop', titleOf(session.workshop)]);
   sheet.addRow(['Date', formatDate(session.date)]);
 
   await workbook.xlsx.writeFile(filePath);

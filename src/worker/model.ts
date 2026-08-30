@@ -7,3 +7,7 @@ import '../database/mail.model.js';
 import '../database/notification.model.js';
 import '../database/media-upload.model.js';
 import '../database/user.model.js';
+import '../database/participant.model.js';
+import '../database/program.model.js';
+import '../database/session.model.js';
+import '../database/workshop.model.js';
