@@ -107,14 +107,15 @@ export const permanentDeleteNotice = async (req: Request, res: Response) => {
   });
 };
 
-//Get Active Notices
+//Get Active Notices (or deleted notices when ?isDeleted=true)
 export const getNotices = async (req: Request, res: Response) => {
-  const notices = await Notice.find({
-    isDeleted: false,
-    expiresAt: {
-      $gt: new Date(),
-    },
-  }).sort({ createdAt: -1 });
+  const showDeleted = req.query.isDeleted === 'true';
+
+  const filter: Record<string, unknown> = showDeleted
+    ? { isDeleted: true }
+    : { isDeleted: false, expiresAt: { $gt: new Date() } };
+
+  const notices = await Notice.find(filter).sort({ createdAt: -1 });
 
   const normalized = notices.map((notice) => normalizeDoc(notice.toObject()));
 
