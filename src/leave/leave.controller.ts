@@ -184,9 +184,9 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
 
   const updatedStartDate = payload.startDate ?? leave.startDate;
   const updatedEndDate = payload.endDate ?? leave.endDate;
-  const updatedLeaveTypeCode = payload.leaveCode ?? leave.type;
+  const updatedLeaveTypeCode = payload.type ?? leave.type;
   const leaveType = await LeaveType.findOne({
-    _id: updatedLeaveTypeCode,
+    $or: [{ code: updatedLeaveTypeCode }, { _id: updatedLeaveTypeCode }],
     isActive: true,
   });
   if (!leaveType) {
@@ -211,8 +211,8 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
     ...(payload.endDate && {
       endDate: payload.endDate,
     }),
-    ...(payload.leaveCode && {
-      leaveCode: payload.leaveCode,
+    ...(leaveType && {
+      type: leaveType._id,
     }),
     ...(payload.reason && {
       reason: payload.reason,
