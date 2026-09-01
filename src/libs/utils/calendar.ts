@@ -14,8 +14,11 @@ export const calculateNumberOfDays = (year: number, monthIndex: number) => {
 export const getCalendarHoliday = async (year: number, month: number): Promise<EventT[]> => {
   const numberOfDays = calculateNumberOfDays(year, month);
 
-  const startOfMonth = new Date(year, month, 1);
-  const endOfMonth = new Date(year, month, numberOfDays + 1);
+  // IST = UTC+5:30. Boundaries at IST midnight = prev-day 18:30 UTC, so the query
+  // captures the month regardless of the server's timezone (UTC in Docker, IST on dev).
+  // month param is 0-indexed (JS Date convention).
+  const startOfMonth = new Date(Date.UTC(year, month, 1, -5, -30, 0, 0));
+  const endOfMonth = new Date(Date.UTC(year, month, numberOfDays + 1, -5, -30, 0, 0));
 
   const data = await Holiday.aggregate([
     {
@@ -99,8 +102,9 @@ export const getCalendarHoliday = async (year: number, month: number): Promise<E
 export const getCalendarSession = async (year: number, month: number): Promise<EventT[]> => {
   const numberOfDays = calculateNumberOfDays(year, month);
 
-  const startOfMonth = new Date(year, month, 1);
-  const endOfMonth = new Date(year, month, numberOfDays + 1);
+  // IST month boundaries (see getCalendarHoliday).
+  const startOfMonth = new Date(Date.UTC(year, month, 1, -5, -30, 0, 0));
+  const endOfMonth = new Date(Date.UTC(year, month, numberOfDays + 1, -5, -30, 0, 0));
 
   const data = await Session.aggregate([
     {
@@ -162,8 +166,9 @@ export const getCalendarSession = async (year: number, month: number): Promise<E
 export const getCalendarEvents = async (year: number, month: number): Promise<EventT[]> => {
   const numberOfDays = calculateNumberOfDays(year, month);
 
-  const startOfMonth = new Date(year, month, 1);
-  const endOfMonth = new Date(year, month, numberOfDays + 1);
+  // IST month boundaries (see getCalendarHoliday).
+  const startOfMonth = new Date(Date.UTC(year, month, 1, -5, -30, 0, 0));
+  const endOfMonth = new Date(Date.UTC(year, month, numberOfDays + 1, -5, -30, 0, 0));
 
   const data = await CalendarEvent.aggregate([
     {

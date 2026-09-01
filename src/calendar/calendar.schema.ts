@@ -18,7 +18,7 @@ export const event = z.object({
 
 export const createCalendarEventSchema = z.object({
   title: z.string(),
-  type: z.string(),
+  type: z.enum(eventType),
   start: z.coerce.date(),
   end: z.coerce.date(),
   description: z.string(),
