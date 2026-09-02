@@ -15,7 +15,7 @@ beforeEach(async () => {
 describe('notice module', () => {
   it('creates a notice with default 7-day expiry', async () => {
     const res = await request(app)
-      .post('/api/notice/notice')
+      .post('/api/notice/')
       .set('Cookie', plain.cookie)
       .send({ title: 'Downtime', description: 'Server maintenance on Sunday' });
     expect(res.status).toBe(201);
@@ -29,7 +29,7 @@ describe('notice module', () => {
   it('honours explicit expiry dates', async () => {
     const future = new Date(Date.now() + 3 * 86400000).toISOString();
     await request(app)
-      .post('/api/notice/notice')
+      .post('/api/notice/')
       .set('Cookie', plain.cookie)
       .send({ title: 'Short Notice', description: 'Expires in 3 days', expiresAt: future });
 
@@ -41,7 +41,7 @@ describe('notice module', () => {
 
   it('rejects past expiry dates', async () => {
     const res = await request(app)
-      .post('/api/notice/notice')
+      .post('/api/notice/')
       .set('Cookie', plain.cookie)
       .send({
         title: 'Expired',
@@ -70,7 +70,7 @@ describe('notice module', () => {
       },
     ]);
 
-    const res = await request(app).get('/api/notice/notice').set('Cookie', plain.cookie);
+    const res = await request(app).get('/api/notice/').set('Cookie', plain.cookie);
     expect(res.status).toBe(200);
     const titles = res.body.data.map((n: { title: string }) => n.title);
     expect(titles).toContain('Live One');
@@ -88,7 +88,7 @@ describe('notice module', () => {
 
     // controller uses new:false — response carries the PRE-edit doc
     const res = await request(app)
-      .put(`/api/notice/notice/${created._id}`)
+      .put(`/api/notice/${created._id}`)
       .set('Cookie', plain.cookie)
       .send({ description: 'Updated body' });
     expect(res.status).toBe(200);
@@ -105,13 +105,13 @@ describe('notice module', () => {
     });
 
     const del = await request(app)
-      .delete(`/api/notice/notice/${created._id}/permanent`)
+      .delete(`/api/notice/${created._id}/permanent`)
       .set('Cookie', plain.cookie);
     expect(del.status).toBe(200);
     expect(await Notice.findById(created._id)).toBeNull();
 
     const again = await request(app)
-      .delete(`/api/notice/notice/${created._id}/permanent`)
+      .delete(`/api/notice/${created._id}/permanent`)
       .set('Cookie', plain.cookie);
     expect(again.status).toBe(404);
   });
@@ -124,24 +124,24 @@ describe('notice module', () => {
     });
 
     const del = await request(app)
-      .delete(`/api/notice/notice/${created._id}`)
+      .delete(`/api/notice/${created._id}`)
       .set('Cookie', plain.cookie);
     expect(del.status).toBe(200);
     expect((await Notice.findById(created._id).lean())?.isDeleted).toBe(true);
 
     // soft-deleted notice is hidden from the active list
-    const list = await request(app).get('/api/notice/notice').set('Cookie', plain.cookie);
+    const list = await request(app).get('/api/notice/').set('Cookie', plain.cookie);
     const titles = (list.body.data ?? []).map((n: { title: string }) => n.title);
     expect(titles).not.toContain('Soft Doomed');
 
     // repeat delete → 404; restore → visible flag cleared
     const again = await request(app)
-      .delete(`/api/notice/notice/${created._id}`)
+      .delete(`/api/notice/${created._id}`)
       .set('Cookie', plain.cookie);
     expect(again.status).toBe(404);
 
     const restore = await request(app)
-      .patch(`/api/notice/notice/${created._id}/restore`)
+      .patch(`/api/notice/${created._id}/restore`)
       .set('Cookie', plain.cookie);
     expect(restore.status).toBe(200);
     expect((await Notice.findById(created._id).lean())?.isDeleted).toBe(false);

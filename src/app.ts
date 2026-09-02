@@ -47,7 +47,9 @@ app.use(requestLogger);
 // 5. Metrics Middleware
 app.use(metricsMiddleware);
 
-app.set('trust proxy', true);
+// Trust exactly one proxy hop (nginx) so X-Forwarded-For yields the real client IP.
+// A bare `true` triggered express-rate-limit v8's ERR_ERL_PERMISSIVE_TRUST_PROXY.
+app.set('trust proxy', 1);
 
 // CORS — reflect-all only when no allowlist is configured (dev); strict list otherwise
 app.use(

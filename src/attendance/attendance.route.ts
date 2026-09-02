@@ -45,7 +45,7 @@ attendanceRouter.get('/today', todayAttendanceController);
 attendanceRouter.post('/check-in', checkInController);
 attendanceRouter.post('/check-out', checkOutController);
 attendanceRouter.get('/retrieve/:id', retrieveAttendanceController);
-attendanceRouter.get('/retrieve', getAllUserController);
+attendanceRouter.get('/retrieve', authorize('read', 'attendance'), getAllUserController);
 attendanceRouter.get('/user/:id', allAttendanceController);
 attendanceRouter.patch('/', validate(rejectMarkSchema), rejectMarkController);
 
@@ -60,7 +60,7 @@ attendanceRouter.get('/download/:fileName', downloadReportController);
 // Attendance correction
 attendanceRouter.get('/record/:id', getAttendanceById);
 attendanceRouter.get('/correction/:id', getAttendanceCorrectionController);
-attendanceRouter.get('/admin/correction', getAllAttendanceCorrectionController);
+attendanceRouter.get('/admin/correction', authorize('read', 'attendance-correction'), getAllAttendanceCorrectionController);
 attendanceRouter.post(
   '/correction',
   authorize('write', 'attendance-correction'),

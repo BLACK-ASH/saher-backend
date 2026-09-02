@@ -6,29 +6,52 @@ import { Worker } from 'bullmq';
 import type { Page as PuppeteerPage } from 'puppeteer-core';
 
 import { retrieveCustomAttendace } from '../attendance/attendance.service.js';
+import { attendanceListSchema } from '../attendance/retrieve/attendance.schema.js';
 import type { AttendanceResponseT } from '../attendance/retrieve/attendance.schema.js';
+import { Attendance } from '../database/attendance.model.js';
 import { createAttendanceExcel } from '../attendance/export/excel.service.js';
 import { logger } from '../libs/logger/logger.js';
 import { bullmqConnection } from '../libs/redis/redis-client.js';
 import { getBrowser } from '../libs/utils/browser.js';
+import { normalizeDoc } from '../libs/utils/normailize-doc.js';
+import { standardDateString } from '../libs/utils/standard-date.js';
 import { createAttendancePdfBody } from './attendance/template/attendance-pdf.js';
 import { notification } from '../libs/utils/notification.js';
 
 const tempPath = path.join(process.cwd(), 'public', 'temp');
 
 const fetchParsed = async (job: Job): Promise<AttendanceResponseT[]> => {
-  const data = await retrieveCustomAttendace(job.data.user, job.data.startDate, job.data.endDate, {
-    page: 1,
-    limit: 1000,
-    sort: 'desc',
-  });
+  let parsed;
 
-  // empty range would crash on data.parsed[0].date below
-  if (!data.parsed.length) {
-    throw new Error(`No attendance records found for user ${job.data.user} in range`);
+  if (job.data.user === 'all') {
+    const records = (await Attendance.find({
+      date: { $gte: standardDateString(job.data.startDate), $lte: standardDateString(job.data.endDate) },
+    })
+      .populate('user', 'name email role ')
+      .populate({
+        path: 'user',
+        populate: [{ path: 'image', model: 'Media' }],
+      })
+      .sort({ date: 1 })
+      .limit(5000)
+      .lean()) as unknown[];
+
+    parsed = attendanceListSchema.parse(normalizeDoc(records));
+  } else {
+    const data = await retrieveCustomAttendace(job.data.user, job.data.startDate, job.data.endDate, {
+      page: 1,
+      limit: 1000,
+      sort: 'desc',
+    });
+    parsed = data.parsed;
   }
 
-  return data.parsed;
+  // empty range would crash on data.parsed[0].date below
+  if (!parsed.length) {
+    throw new Error(`No attendance records found${job.data.user === 'all' ? '' : ` for user ${job.data.user}`} in range`);
+  }
+
+  return parsed;
 };
 
 const notifyDownload = async (job: Job, parsed: AttendanceResponseT[], url: string) => {
@@ -39,8 +62,11 @@ const notifyDownload = async (job: Job, parsed: AttendanceResponseT[], url: stri
     method: 'GET' as const,
   };
 
+  // `user` is 'all' for all-employees exports — notify the requesting admin/manager instead
+  const recipient = job.data.requestedBy ?? job.data.user;
+
   await notification.specific.info(
-    [job.data.user],
+    [recipient],
     `attendance report generated, type - ${job.data.type} `,
     `attendance report from ${parsed[0].date} - ${parsed[parsed.length - 1].date}`,
     action,

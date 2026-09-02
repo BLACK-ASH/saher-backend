@@ -37,12 +37,20 @@ type PopulatedParticipant = { name?: string | null; phoneNumber?: string | null 
 
 const fetchSession = async (job: Job): Promise<SessionDoc> => {
   const session = await Session.findOne({ _id: job.data.sessionId, isDeleted: false })
-    .populate('program', 'title')
+    .populate({
+      path: 'program',
+      select: 'title',
+      // full roster: all participants registered under the program
+      populate: { path: 'participants', populate: { path: 'image document' } },
+    })
     .populate('workshop', 'title')
+    .populate('speaker', 'name email')
     .populate({
       path: 'participants',
       populate: { path: 'image document' },
-    });
+    })
+    .populate('images')
+    .populate('bills');
 
   if (!session) throw new Error(`Session ${job.data.sessionId} not found for report`);
 

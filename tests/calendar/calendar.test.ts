@@ -13,7 +13,8 @@ let cookie = '';
 const month = (y: number, m: number) => request(app).get(`/api/calendar/${y}/${m}`).set('Cookie', cookie);
 
 beforeEach(async () => {
-  plain = await mkPerson('user');
+  // calendar event mutations require event:write/update/delete — only admin holds all three
+  plain = await mkPerson('admin');
   cookie = plain.cookie;
 });
 

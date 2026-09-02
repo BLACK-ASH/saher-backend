@@ -26,10 +26,18 @@ export const exportReportController = async (req: Request, res: Response) => {
     days,
 
     format = 'pdf',
+
+    userId,
   } = req.query;
 
   if (format !== 'pdf' && format !== 'xlsx') {
     throw new ApiError(400, 'Invalid format');
+  }
+
+  const effectiveUser = userId ? String(userId) : (req.user?.id as string);
+
+  if (effectiveUser === 'all' && req.user?.role !== 'admin' && req.user?.role !== 'manager') {
+    throw new ApiError(403, 'Forbidden');
   }
 
   const shouldIncludeToday = String(includeToday).toLowerCase() === 'true';
@@ -85,7 +93,7 @@ export const exportReportController = async (req: Request, res: Response) => {
     'attendance',
     'report',
     format,
-    req.user?.id as string,
+    effectiveUser === 'all' ? `all:${req.user?.id as string}` : (effectiveUser as string),
     dateRange.startDateString,
     dateRange.endDateString,
   );
@@ -114,12 +122,12 @@ export const exportReportController = async (req: Request, res: Response) => {
       const action = {
         type: 'download' as const,
         label: 'Report',
-        url: data.result?.downloadPath,
+        url: data.result?.url,
         method: 'GET' as const,
       };
 
       await notification.specific.info(
-        [job.data.user as string],
+        [job.data.requestedBy ?? (job.data.user as string)],
         `attendance report generated, type - ${job.data.type} `,
         `attendance report from ${dateRange.startDateString} - ${dateRange.endDateString}`,
         action,
@@ -136,7 +144,7 @@ export const exportReportController = async (req: Request, res: Response) => {
 
   await attendanceReportQueue.add(
     'pdf-attendance-report',
-    { ...dateRange, type, user: req.user?.id, format },
+    { ...dateRange, type, user: effectiveUser, format, requestedBy: req.user?.id },
     {
       jobId,
     },
