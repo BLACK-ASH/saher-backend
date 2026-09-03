@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { SessionT, verifyAccessToken } from '../../auth/_utils/token.js';
+import { User } from '../../database/user.model.js';
 import { ApiError } from '../class/api-error.js';
 import { createKey, getCache } from '../redis/redis-utils.js';
 
@@ -29,6 +30,12 @@ export const protectedRoute = async (req: Request, _res: Response, next: NextFun
     // own session id must not authenticate as the victim.
     if (!user || user.id !== session.user.id) {
       throw new ApiError(401, 'Invalid Session');
+    }
+
+    // Check if user is still active — revoked/deactivated users must not access protected routes
+    const dbUser = await User.findById(user.id).select('isActive').lean();
+    if (!dbUser || !dbUser.isActive) {
+      throw new ApiError(401, 'Account has been deactivated');
     }
 
     req.user = user;

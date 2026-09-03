@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 
+import { revokeUserSessions } from '../../auth/_utils/token.js';
 import { Account } from '../../database/account.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
@@ -114,6 +115,7 @@ export const userDeleteController = async (req: Request, res: Response) => {
   user.deletedBy = convertToObjectId(admin.id);
   await user.save();
 
+  await revokeUserSessions(id);
   await deleteCache(key1);
   await deleteCache(key2);
 

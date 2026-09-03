@@ -6,9 +6,10 @@ type Props = {
   name: string;
   email: string;
   role: string;
+  verifyUrl: string;
 };
 
-export const onboardEmailTemplate = ({ name, email, role }: Props): string => {
+export const onboardEmailTemplate = ({ name, email, role, verifyUrl }: Props): string => {
   const date = new Date().toLocaleString();
   const safeName = escapeHtml(name);
   const safeEmail = escapeHtml(email);
@@ -116,17 +117,29 @@ export const onboardEmailTemplate = ({ name, email, role }: Props): string => {
           You may now access the platform as ${safeRole}
         </p>
 
-        <!-- Button -->
+        <!-- Verify Email Button -->
         <table cellpadding="0" cellspacing="0">
           <tr>
             <td bgcolor="rgb(124,0,141)" style="border-radius:6px;">
-              <a href="${process.env.BASE_URL}/login" target="_blank"
+              <a href="${escapeHtml(verifyUrl)}" target="_blank"
                 style="display:inline-block; padding:10px 22px; font-size:13px; color:#ffffff; text-decoration:none; font-weight:bold;">
-                Access Your Account
+                Verify Email
               </a>
             </td>
           </tr>
         </table>
+
+        <p style="font-size:13px; color:#6b7280; margin-top:16px;">
+          If the button does not work, copy and paste the following link into your browser:
+        </p>
+
+        <p style="font-size:12px; color:#111827; word-break:break-all;">
+          ${escapeHtml(verifyUrl)}
+        </p>
+
+        <p style="font-size:13px; color:#b91c1c; margin-top:16px;">
+          You must verify your email before you can log in. This link expires in 15 minutes.
+        </p>
 
         <hr style="margin:28px 0; border:none; border-top:1px solid #e5e7eb;" />
 

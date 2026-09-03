@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import type { SessionMeta } from './session-meta.js';
 import { env } from '../../config/env.js';
 import type { UserRole } from '../../database/user.model.js';
+import { User } from '../../database/user.model.js';
 import { client } from '../../libs/redis/redis-client.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 
@@ -119,6 +120,14 @@ export const renewToken = async (sessionId: string, refreshToken: string) => {
     await deleteCache(sessionKey);
     await client.sRem(createKey('user_session', session.user.id), sessionId);
 
+    return null;
+  }
+
+  // Check if user is still active — revoked/deactivated users must not get new tokens
+  const user = await User.findById(session.user.id).select('isActive').lean();
+  if (!user || !user.isActive) {
+    await deleteCache(sessionKey);
+    await client.sRem(createKey('user_session', session.user.id), sessionId);
     return null;
   }
 

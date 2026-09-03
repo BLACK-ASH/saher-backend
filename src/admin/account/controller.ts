@@ -1,7 +1,10 @@
+import crypto from 'crypto';
+
 import type { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 import type { AccountRegisterInput } from './schema.js';
+import { hashToken } from '../../auth/_utils/token.js';
 import { Account } from '../../database/account.model.js';
 import { Bank } from '../../database/bank.model.js';
 import { User } from '../../database/user.model.js';
@@ -10,7 +13,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { logger } from '../../libs/logger/logger.js';
 import { sendEmail } from '../../libs/mail/resend-send-mail.js';
 import { onboardEmailTemplate } from '../../libs/mail/templates/onboard-mail.js';
-import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
+import { createKey, deleteCache, setCache } from '../../libs/redis/redis-utils.js';
 import { getAccount, getAccountByUser } from '../_services/account.js';
 
 export const accountRegisterController = async (
@@ -54,10 +57,15 @@ export const accountRegisterController = async (
     }
 
     // ✅ Send email AFTER transaction success; an email outage must not fail onboarding
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyUrl = process.env.BASE_URL + '/verify-email?token=' + verifyToken;
+    await setCache(createKey('email-verification', hashToken(verifyToken)), user._id.toString(), 900);
+
     const html = onboardEmailTemplate({
       name: user.displayName || user.name,
       email: user.email,
       role: user.role,
+      verifyUrl,
     });
 
     try {

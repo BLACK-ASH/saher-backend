@@ -205,15 +205,15 @@ describe('Auth Module - GET /api/auth/me', () => {
     expect(res.status).toBe(401);
   });
 
-  it('16. deleted user with live session — 404 User Not Found', async () => {
+  it('16. deleted user with live session — 401 Account has been deactivated', async () => {
     const { user, cookies } = await authedUser();
 
     await User.deleteOne({ _id: user._id });
 
     const res = await request(app).get('/api/auth/me').set('Cookie', cookies);
 
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe('User Not Found.');
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe('Account Has Been Deactivated.');
   });
 });
 
