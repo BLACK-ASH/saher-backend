@@ -161,7 +161,12 @@ export const getPrograms = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-  const isDeleted = (req.query.isDeleted as unknown as boolean) || false;
+  const isDeleted =
+    req.query.isDeleted === 'true'
+      ? true
+      : req.query.isDeleted === 'false'
+        ? false
+        : false;
 
   const query: QueryFilter<typeof Program.schema.obj> = {};
   query.isDeleted = isDeleted;
