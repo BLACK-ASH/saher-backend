@@ -12,9 +12,9 @@ import { istDayRange } from '../../libs/utils/date-time.js';
 
 export const searchBillController = async (req: Request, res: Response) => {
   const queryParams = searchBillQuerySchema.parse(req.query);
-  const { description, amount, user, date, isDeleted, page, limit } = queryParams;
+  const { description, amount, user, status, date, isDeleted, page, limit } = queryParams;
 
-  if (!description && !amount && !date && !user)
+  if (!description && !amount && !date && !user && !status)
     throw new ApiError(400, 'Please provide search parameter.');
 
   const query: QueryFilter<typeof Bill.schema.obj> = { isDeleted };
@@ -28,6 +28,10 @@ export const searchBillController = async (req: Request, res: Response) => {
   }
   if (user) {
     query.user = user;
+  }
+
+  if (status && status !== 'all') {
+    query.status = status;
   }
 
   if (date) {

@@ -6,6 +6,7 @@ export const searchBillQuerySchema = z.object({
   description: z.string().optional(),
   amount: z.coerce.number().optional(),
   user: z.string().optional(),
+  status: z.enum(['pending', 'accept', 'reject', 'on-hold', 'all']).optional(),
   date: z.string().datetime().optional(),
   isDeleted: z.union([z.boolean(), z.enum(['true', 'false'])]).optional().transform((val) => {
     if (val === 'true') return true;
