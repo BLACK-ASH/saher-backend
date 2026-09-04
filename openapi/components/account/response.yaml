@@ -32,10 +32,13 @@ properties:
     type: string
   aadhar:
     type: string
+    nullable: true
   pan:
     type: string
+    nullable: true
   resume:
     type: string
+    nullable: true
 required:
   - id
   - user

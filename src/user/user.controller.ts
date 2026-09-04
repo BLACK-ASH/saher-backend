@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 
 import { getAccountByUser } from '../admin/_services/account.js';
+import { getUser } from '../admin/_services/user.js';
 import { User } from '../database/user.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
@@ -33,12 +34,23 @@ export const updateUserController = async (req: Request, res: Response) => {
 export const userGetController = async (req: Request, res: Response) => {
   const id = req.user?.id as string;
 
-  const user = await getAccountByUser(id);
-  if (!user) throw new ApiError(404, 'User Not Found.');
+  const account = await getAccountByUser(id);
+
+  // Authenticated users without a fully-onboarded Account (seeded/self-registered)
+  // still need identity on /profile. Degrade instead of 404ing.
+  if (!account) {
+    const user = await getUser(id);
+    if (!user) throw new ApiError(404, 'User Not Found.');
+    return ApiResponse.success(res, {
+      message: 'User Get Successfully.',
+      data: { ...user, user, bank: null, gender: null },
+      statusCode: 200,
+    });
+  }
 
   return ApiResponse.success(res, {
     message: 'User Get Successfully.',
-    data: user,
+    data: account,
     statusCode: 200,
   });
 };

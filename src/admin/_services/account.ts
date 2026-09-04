@@ -14,9 +14,9 @@ export const accountSchemaFinal = accountBaseSchema
     id: z.string(),
     user: userSchemaFinal,
     bank: bankSchemaFinal,
-    aadhar: imageType,
-    pan: imageType,
-    resume: imageType,
+    aadhar: imageType.nullish(),
+    pan: imageType.nullish(),
+    resume: imageType.nullish(),
   })
   .readonly();
 

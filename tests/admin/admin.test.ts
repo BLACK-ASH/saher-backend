@@ -123,6 +123,31 @@ describe('admin module', () => {
       expect(bank?.ifcs).toBe('HDFC0001234');
     });
 
+    it('persists bankName as a string and returns it unaltered on self-read (USER-01)', async () => {
+      const body = await registrationBody({ email: `bank-${Date.now()}@test.dev`, employeeId: `BNK-${Date.now()}` });
+      const res = await request(app).post('/api/admin/account').set('Cookie', admin.cookie).send(body);
+      expect(res.status).toBe(201);
+
+      const account = await Account.findOne({ user: (await User.findOne({ email: body.user.email }).lean())?._id }).lean();
+      const bank = await Bank.findById(account?.bank).lean();
+      expect(bank?.bankName).toBe('HDFC');
+      expect(typeof bank?.bankName).toBe('string');
+
+      // admin registration intentionally creates an unverified user (email flow) —
+      // verify directly so we can exercise the self-read path, which is what we assert
+      await User.updateOne({ email: body.user.email }, { $set: { emailVerified: true } });
+      const login = await request(app)
+        .post('/api/auth/login')
+        .send({ email: body.user.email, password: 'PRIY1995' });
+      expect(login.status).toBe(200);
+
+      const self = await request(app)
+        .get('/api/user')
+        .set('Cookie', login.headers['set-cookie']);
+      expect(self.status).toBe(200);
+      expect(self.body.data.bank.bankName).toBe('HDFC');
+    });
+
     it('requires employeeShift for part-time employees', async () => {
       const body = await registrationBody({
         email: `part-${Date.now()}@test.dev`,
