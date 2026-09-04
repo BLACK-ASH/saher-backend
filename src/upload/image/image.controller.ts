@@ -20,7 +20,8 @@ export const uploadBulkImagesController = async (req: Request, res: Response) =>
   const uploaded: Array<{
     id: Types.ObjectId;
     fileName: string;
-    url: string;
+    alt: string;
+    src: string;
     size: number;
     mimetype: string;
   }> = [];
@@ -36,7 +37,8 @@ export const uploadBulkImagesController = async (req: Request, res: Response) =>
       uploaded.push({
         id: dbImage._id,
         fileName: image.fileName,
-        url: image.imageUrl,
+        alt: file.originalname,
+        src: image.imageUrl,
         size: image.size,
         mimetype: image.mimetype,
       });
@@ -86,7 +88,8 @@ export const uploadImageController = async (req: Request, res: Response) => {
     data: {
       id: dbImage._id,
       fileName: image.fileName,
-      url: image.imageUrl,
+      alt: name,
+      src: image.imageUrl,
       size: image.size,
       width: image.width,
       height: image.height,

@@ -22,13 +22,14 @@ describe('document upload', () => {
       .attach('document', bytes, { filename: 'test.pdf', contentType: 'application/pdf' });
 
     expect(res.status).toBe(201);
-    expect(res.body.data.url).toContain('/uploads/documents/');
-    expect(res.body.data.url.endsWith('.pdf')).toBe(true);
+    expect(res.body.data.src).toContain('/uploads/documents/');
+    expect(res.body.data.src.endsWith('.pdf')).toBe(true);
     expect(res.body.data.mimetype).toBe('application/pdf');
     expect(res.body.data.size).toBe(bytes.length);
+    expect(res.body.data.alt).toBe('Test Doc');
 
     const doc = await Media.findOne({ alt: 'Test Doc' }).lean();
-    expect(doc?.src).toBe(res.body.data.url);
+    expect(doc?.src).toBe(res.body.data.src);
   });
 
   it('accepts a valid xlsx upload with extension preserved', async () => {
@@ -42,7 +43,7 @@ describe('document upload', () => {
       });
 
     expect(res.status).toBe(201);
-    expect(res.body.data.url.endsWith('.xlsx')).toBe(true);
+    expect(res.body.data.src.endsWith('.xlsx')).toBe(true);
     expect(res.body.data.mimetype).toBe(
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
@@ -91,13 +92,15 @@ describe('bulk document upload', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.data).toHaveLength(2);
-    expect(res.body.data[0].url).toContain('/uploads/documents/');
+    expect(res.body.data[0].src).toContain('/uploads/documents/');
     expect(res.body.data[0].mimetype).toBe('application/pdf');
     expect(res.body.data[0].size).toBe(pdf.length);
-    expect(res.body.data[1].url.endsWith('.xlsx')).toBe(true);
+    expect(res.body.data[0].alt).toBe('one.pdf');
+    expect(res.body.data[1].src.endsWith('.xlsx')).toBe(true);
+    expect(res.body.data[1].alt).toBe('two.xlsx');
 
-    const first = await Media.findOne({ src: res.body.data[0].url }).lean();
-    const second = await Media.findOne({ src: res.body.data[1].url }).lean();
+    const first = await Media.findOne({ src: res.body.data[0].src }).lean();
+    const second = await Media.findOne({ src: res.body.data[1].src }).lean();
     expect(first?.alt).toBe('one.pdf');
     expect(second?.alt).toBe('two.xlsx');
   });

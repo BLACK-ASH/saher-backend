@@ -27,12 +27,13 @@ describe('single image upload', () => {
       .field('name', 'Profile picture');
 
     expect(res.status).toBe(201);
-    expect(res.body.data.url).toContain('/uploads/images/');
-    expect(res.body.data.url.endsWith('.webp')).toBe(true);
+    expect(res.body.data.src).toContain('/uploads/images/');
+    expect(res.body.data.src.endsWith('.webp')).toBe(true);
     expect(res.body.data.mimetype).toBe('image/webp');
     expect(res.body.data.width).toBeGreaterThan(0);
+    expect(res.body.data.alt).toBe('Profile picture');
 
-    const media = await Media.findOne({ src: res.body.data.url }).lean();
+    const media = await Media.findOne({ src: res.body.data.src }).lean();
     expect(media?.alt).toBe('Profile picture');
   });
 
@@ -56,14 +57,16 @@ describe('bulk image upload', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.data).toHaveLength(2);
-    expect(res.body.data[0].url).toContain('/uploads/images/');
-    expect(res.body.data[0].url.endsWith('.webp')).toBe(true);
-    expect(res.body.data[1].url.endsWith('.webp')).toBe(true);
+    expect(res.body.data[0].src).toContain('/uploads/images/');
+    expect(res.body.data[0].src.endsWith('.webp')).toBe(true);
+    expect(res.body.data[1].src.endsWith('.webp')).toBe(true);
     expect(res.body.data[0].mimetype).toBe('image/webp');
     expect(res.body.data[1].mimetype).toBe('image/webp');
+    expect(res.body.data[0].alt).toBe('one.png');
+    expect(res.body.data[1].alt).toBe('two.jpg');
 
-    const first = await Media.findOne({ src: res.body.data[0].url }).lean();
-    const second = await Media.findOne({ src: res.body.data[1].url }).lean();
+    const first = await Media.findOne({ src: res.body.data[0].src }).lean();
+    const second = await Media.findOne({ src: res.body.data[1].src }).lean();
     expect(first?.alt).toBe('one.png');
     expect(second?.alt).toBe('two.jpg');
   });

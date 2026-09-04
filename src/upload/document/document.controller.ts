@@ -20,7 +20,8 @@ export const uploadBulkDocumentsController = async (req: Request, res: Response)
   const uploaded: Array<{
     id: Types.ObjectId;
     fileName: string;
-    url: string;
+    alt: string;
+    src: string;
     size: number;
     mimetype: string;
   }> = [];
@@ -39,7 +40,8 @@ export const uploadBulkDocumentsController = async (req: Request, res: Response)
       uploaded.push({
         id: dbDocument._id,
         fileName: document.fileName,
-        url: document.documentUrl,
+        alt: file.originalname,
+        src: document.documentUrl,
         size: document.size,
         mimetype: document.mimetype,
       });
@@ -89,7 +91,8 @@ export const uploadDocumentController = async (req: Request, res: Response) => {
     data: {
       id: dbDocument._id,
       fileName: document.fileName,
-      url: document.documentUrl,
+      alt: name,
+      src: document.documentUrl,
       size: document.size,
       mimetype: document.mimetype,
     },

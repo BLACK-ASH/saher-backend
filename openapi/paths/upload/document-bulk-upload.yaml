@@ -44,7 +44,10 @@ post:
                     fileName:
                       type: string
                       example: b1e5007d-eee0-461f-a22b-445fc1544a24.pdf
-                    url:
+                    alt:
+                      type: string
+                      example: document.pdf
+                    src:
                       type: string
                       example: /uploads/documents/b1e5007d-eee0-461f-a22b-445fc1544a24.pdf
                     size:
