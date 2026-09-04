@@ -8,7 +8,7 @@ import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 
 // Get all the soft Deleted bills
 export const recycleBillsController = async (req: Request, res: Response) => {
-  const recycles = await Bill.find({ isDeleted: true }).lean();
+  const recycles = await Bill.find({ isDeleted: true }).populate('images').lean();
   if (recycles.length === 0) throw new ApiError(200, 'No bills to show');
 
   const normalized = normalizeDoc(recycles);

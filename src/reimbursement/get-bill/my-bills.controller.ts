@@ -28,7 +28,7 @@ export const myBillsController = async (req: Request, res: Response) => {
     });
   }
 
-  const bills = await Bill.find({ user: userId, isDeleted }).lean();
+  const bills = await Bill.find({ user: userId, isDeleted }).populate('images').lean();
 
   const normalized = normalizeDoc(bills);
   const parsed = getBillResponseSchema.array().parse(normalized);

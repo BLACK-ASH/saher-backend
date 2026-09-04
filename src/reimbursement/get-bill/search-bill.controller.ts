@@ -44,7 +44,7 @@ export const searchBillController = async (req: Request, res: Response) => {
 
   const skip = (page - 1) * limit;
   const [bills, count] = await Promise.all([
-    Bill.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Bill.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate('images').lean(),
     Bill.countDocuments(query),
   ]);
 

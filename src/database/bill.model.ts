@@ -20,10 +20,12 @@ const billSchema = new mongoose.Schema(
     advance: {
       type: Number,
       default: 0,
+      min: [0, 'Advance cannot be negative'],
     },
     amount: {
       type: Number,
       default: 0,
+      min: [1, 'Amount must be greater than zero'],
     },
     date: {
       type: Date,

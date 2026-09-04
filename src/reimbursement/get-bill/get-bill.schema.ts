@@ -20,7 +20,13 @@ export const searchBillQuerySchema = z.object({
 export const getBillResponseSchema = z.object({
   id: z.string(),
   user: z.string(),
-  image: z.string().optional(),
+  images: z.array(
+    z.object({
+      id: z.string(),
+      src: z.string(),
+      alt: z.string(),
+    }),
+  ).default([]),
   amount: z.number(),
   advance: z.number(),
   date: dateField,
