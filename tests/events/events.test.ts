@@ -294,6 +294,29 @@ describe('sessions', () => {
     expect(redisState.kv.has('saher:calendar:2026:8')).toBe(false);
   });
 
+  it('edits a finished (past-dated) session — review/images are added after the event', async () => {
+    const { admin, speaker, program } = await mkProgramWithSpeaker();
+    await request(app)
+      .post(`/api/events/sessions/${program._id}`)
+      .set('Cookie', admin.cookie)
+      .send(sessionBody(speaker.userId));
+    const doc = await Session.findOne().lean();
+
+    // past date + new review body must not trip the create-only future-date rule
+    const res = await request(app)
+      .put(`/api/events/sessions/${doc?._id}`)
+      .set('Cookie', admin.cookie)
+      .send({
+        date: '2026-06-01T00:00:00Z',
+        startTime: '2026-06-01T03:30:00Z',
+        endTime: '2026-06-01T06:30:00Z',
+        review: '<p>Session went well</p>',
+      });
+    expect(res.status).toBe(200);
+    const fresh = await Session.findById(doc?._id).lean();
+    expect(fresh?.review).toBe('<p>Session went well</p>');
+  });
+
   it('deletes and restores sessions', async () => {
     const { admin, speaker, program } = await mkProgramWithSpeaker();
     await request(app)

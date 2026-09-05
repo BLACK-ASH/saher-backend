@@ -33,18 +33,28 @@ export const createSessionSchema = baseSchema.refine((data) => data.endTime > da
   path: ['endTime'],
 });
 
-export const updatedSessionSchema = baseSchema.partial().refine(
-  (data) => {
-    if (data.startTime && data.endTime) {
-      return data.endTime > data.startTime;
-    }
-    return true;
-  },
-  {
-    message: 'endTime must be after startTime',
-    path: ['endTime'],
-  },
-);
+export const updatedSessionSchema = baseSchema
+  // past/finished sessions stay editable — date/startTime must not be
+  // re-validated as future on update (the create schema enforces that)
+  .omit({ date: true, startTime: true, endTime: true })
+  .extend({
+    date: z.coerce.date(),
+    startTime: z.coerce.date(),
+    endTime: z.coerce.date(),
+  })
+  .partial()
+  .refine(
+    (data) => {
+      if (data.startTime && data.endTime) {
+        return data.endTime > data.startTime;
+      }
+      return true;
+    },
+    {
+      message: 'endTime must be after startTime',
+      path: ['endTime'],
+    },
+  );
 
 export const sessionResponse = baseSchema
   .omit({ images: true, speaker: true, bills: true })

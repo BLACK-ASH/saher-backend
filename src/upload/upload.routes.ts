@@ -20,10 +20,16 @@ uploadRouter.get('/', (req: Request, res: Response) => {
 
 uploadRouter.post('/image', uploadImage.single('image'), uploadImageController);
 
-uploadRouter.post('/images', uploadImage.array('images', 10), uploadBulkImagesController);
+// multer count cap: business limits live in domain schemas (e.g. bills max 10);
+// bulk image/document uploads themselves are unbounded to match nginx client_max_body_size
+uploadRouter.post('/images', uploadImage.array('images', 50), uploadBulkImagesController);
 
 uploadRouter.post('/document', uploadDocument.single('document'), uploadDocumentController);
 
-uploadRouter.post('/documents', uploadDocument.array('documents', 10), uploadBulkDocumentsController);
+uploadRouter.post(
+  '/documents',
+  uploadDocument.array('documents', 50),
+  uploadBulkDocumentsController,
+);
 
 export default uploadRouter;
