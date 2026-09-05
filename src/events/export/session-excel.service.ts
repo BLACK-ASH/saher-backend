@@ -13,15 +13,6 @@ const formatDate = (date: unknown) => {
   }).format(new Date(date as string));
 };
 
-const formatTime = (date: unknown) => {
-  if (!date) return '-';
-  return new Intl.DateTimeFormat('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).format(new Date(date as string));
-};
-
 type SessionDoc = HydratedDocument<SessionType>;
 // populate('participants'/'program.participants') hydrates ObjectIds into Participant docs
 type PopulatedParticipant = { name?: string | null; phoneNumber?: string | null; _id?: unknown };
@@ -61,8 +52,6 @@ export const createSessionExcel = async (
   details.addRow(['Program', titleOf(session.program)]);
   details.addRow(['Workshop', titleOf(session.workshop)]);
   details.addRow(['Date', formatDate(session.date)]);
-  details.addRow(['Time', `${formatTime(session.startTime)} - ${formatTime(session.endTime)}`]);
-  details.addRow(['Description', htmlToText(session.description ?? '-')]);
   details.columns = [{ width: 12 }, { width: 50 }];
 
   // ===== Attendance sheet =====

@@ -87,10 +87,13 @@ const renderPdf = async (job: Job, session: SessionDoc, page: PuppeteerPage) => 
       "
     >
       <div style="font-weight:600;color:#7a1cac;">
-        SAHER
+        SAHER Internal
       </div>
       <div>
-        Session Report
+        Designed & Developed by
+        <span style="font-weight:600;color:black">
+          BlackAsh
+        </span>
       </div>
       <div>
         Page

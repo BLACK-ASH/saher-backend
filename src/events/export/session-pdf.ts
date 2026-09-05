@@ -37,14 +37,6 @@ const formatDate = (date: unknown) => {
   }).format(new Date(date as string));
 };
 
-const formatTime = (date: unknown) => {
-  if (!date) return '-';
-  return new Intl.DateTimeFormat('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(date as string));
-};
-
 const titleOf = (ref: unknown): string => {
   if (ref && typeof ref === 'object' && 'title' in (ref as object)) {
     return String((ref as { title: unknown }).title ?? '-');
@@ -184,14 +176,15 @@ export const createSessionPdfBody = async (session: SessionDoc) => {
   <div class="meta">
     Program: ${escapeHtml(titleOf(program))}<br/>
     Workshop: ${escapeHtml(titleOf(read(session, 'workshop')))}<br/>
-    Date: ${formatDate(read(session, 'date'))} &nbsp; ${formatTime(read(session, 'startTime'))} – ${formatTime(read(session, 'endTime'))}<br/>
+    Date: ${formatDate(read(session, 'date'))}<br/>
     Speakers: ${speakers.map((s) => escapeHtml(s.name ?? '')).join(', ') || '-'}<br/>
     Register/Hour ID: ${escapeHtml(sessionId)}
   </div>
+  <h2>Session Details</h2>
   ${description ? `<p style="white-space:pre-wrap;" class="description">${escapeHtml(description)}</p>` : ''}
 
   ${review ? `
-  <h2>Review</h2>
+  <h2>Session Report</h2>
   <p style="white-space:pre-wrap;" class="description">${escapeHtml(review)}</p>
   ` : ''}
 
