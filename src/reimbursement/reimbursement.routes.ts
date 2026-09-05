@@ -11,6 +11,7 @@ import {
   userBillUpdateSchema,
 } from './bill/schema.js';
 import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
+import { restoreBillController } from './bill/restore-bill.controller.js';
 import { exportBillReportController } from './export/bill-report.js';
 import { getBillByIdController } from './get-bill/bill-by-id.controller.js';
 import { getAllBillsController } from './get-bill/get-all-bills.controller.js';
@@ -43,6 +44,11 @@ billRouter.patch(
   userUpdateBill,
 );
 billRouter.delete('/:billId', authorize('delete', 'postReimbursement'), userSoftDeleteBill);
+billRouter.patch(
+  '/:billId/restore',
+  authorize('update', 'preReimbursement'),
+  restoreBillController,
+);
 
 // Admin route
 billRouter.post(

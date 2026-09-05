@@ -99,7 +99,7 @@ export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): Outp
 
   if (shift === 'free') {
     return {
-      workHours: Number(actualWorkHour.toFixed(3)),
+      workHours: Math.max(0, Number(actualWorkHour.toFixed(3))),
       status: 'present',
     };
   }
@@ -135,7 +135,7 @@ export const calculateWorkStatus = ({ inTime, outTime, shift }: InputType): Outp
         : 'absent';
 
   return {
-    workHours: Number(workHours.toFixed(3)),
+    workHours: Math.max(0, Number(workHours.toFixed(3))),
     status,
   };
 };

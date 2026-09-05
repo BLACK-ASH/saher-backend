@@ -16,7 +16,7 @@ import {
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
-export const autoCheckoutCron = async (req: Request, res: Response) => {
+export const autoCheckoutSync = async () => {
   const today = standardDateString(new Date());
 
   // 🔍 Find pending records
@@ -27,11 +27,7 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
   }).lean();
 
   if (!records.length) {
-    return ApiResponse.success(res, {
-      message: 'No pending auto checkouts.',
-      data: { updated: 0 },
-      statusCode: 200,
-    });
+    return { updated: 0 };
   }
 
   // ✅ 1. Fetch all accounts in ONE query (NO Redis, NO N+1)
@@ -113,11 +109,18 @@ export const autoCheckoutCron = async (req: Request, res: Response) => {
 
   await deleteCacheGroup('today');
 
+  return { updated: bulkOps.length };
+};
+
+export const autoCheckoutCron = async (req: Request, res: Response) => {
+  const result = await autoCheckoutSync();
+
   return ApiResponse.success(res, {
-    message: 'Auto checkout completed successfully.',
-    data: {
-      updated: bulkOps.length,
-    },
+    message:
+      (result?.updated ?? 0) === 0
+        ? 'No Pending Auto Checkouts.'
+        : 'Auto Checkout Completed Successfully.',
+    data: result,
     statusCode: 200,
   });
 };

@@ -366,10 +366,6 @@ export const getLeaveBalance = async (req: Request, res: Response) => {
     year,
   }).lean();
 
-  if (!leaveBalance) {
-    throw new ApiError(404, 'Leave balance not found');
-  }
-
   const leaveTypes = await LeaveType.find({
     isActive: true,
   }).lean();
@@ -388,7 +384,7 @@ export const getLeaveBalance = async (req: Request, res: Response) => {
     let used = 0;
 
     // because mongoose Map becomes object in lean()
-    if (leaveBalance.used) {
+    if (leaveBalance?.used) {
       used = leaveBalance.used[code] ?? 0;
     }
 
@@ -404,7 +400,7 @@ export const getLeaveBalance = async (req: Request, res: Response) => {
     statusCode: 200,
     message: 'Leave balance fetched',
     data: {
-      id: leaveBalance._id,
+      id: leaveBalance?._id ?? null,
       user: userId,
       year,
       balance,

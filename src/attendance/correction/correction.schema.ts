@@ -19,6 +19,10 @@ export const attendanceCorrectionHandleSchema = z.object({
       status: z.enum(['absent', 'half-day', 'present']),
       isLate: z.boolean(),
     })
+    .refine(
+      (changes) => changes.outTime > changes.inTime,
+      { message: 'Check out time must be after check in time.', path: ['outTime'] },
+    )
     .optional(),
 
   reason: z.string().max(300, 'Maximum Reason Is 300 Characters.').optional(),
@@ -40,12 +44,17 @@ export const attendanceRecordSchema = z.object({
   isLate: z.boolean(),
 });
 
-export const attendanceChangesSchema = z.object({
-  inTime: z.coerce.date(),
-  outTime: z.coerce.date(),
-  status: z.enum(['absent', 'half-day', 'present']).optional(),
-  isLate: z.boolean().optional(),
-});
+export const attendanceChangesSchema = z
+  .object({
+    inTime: z.coerce.date(),
+    outTime: z.coerce.date(),
+    status: z.enum(['absent', 'half-day', 'present']).optional(),
+    isLate: z.boolean().optional(),
+  })
+  .refine(
+    (changes) => (changes.outTime as Date) > (changes.inTime as Date),
+    { message: 'Check out time must be after check in time.', path: ['outTime'] },
+  );
 
 export const correctionResponseSchema = z.object({
   id: z.string(),

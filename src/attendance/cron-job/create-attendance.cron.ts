@@ -7,7 +7,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { deleteCacheGroup } from '../../libs/redis/redis-utils.js';
 import { standardDateString } from '../../libs/utils/standard-date.js';
 
-export const createAttendanceCron = async (req: Request, res: Response) => {
+export const createAttendanceSync = async () => {
   const todayDate = new Date();
   const today = standardDateString(todayDate);
 
@@ -71,18 +71,21 @@ export const createAttendanceCron = async (req: Request, res: Response) => {
     }
   }
 
-  const create = createAttendance.length;
-  const skip = users.length - create;
-
   await deleteCacheGroup('today');
+
+  return {
+    total: users.length,
+    create: createAttendance.length,
+    skip: users.length - createAttendance.length,
+  };
+};
+
+export const createAttendanceCron = async (req: Request, res: Response) => {
+  const result = await createAttendanceSync();
 
   return ApiResponse.success(res, {
     message: 'Attendance Created Successfully',
-    data: {
-      total: users.length,
-      create,
-      skip,
-    },
+    data: result,
     statusCode: 200,
   });
 };

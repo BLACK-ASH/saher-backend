@@ -105,6 +105,43 @@ describe('reimbursement module', () => {
     expect(blocked.status).toBe(400);
   });
 
+  it('restores a trashed bill so it reappears in lists', async () => {
+    const bill = await Bill.create({
+      user: plain.userId,
+      amount: 60,
+      description: 'Restorable expense',
+      date: new Date(),
+      images: [new Types.ObjectId()],
+      isDeleted: true,
+    });
+
+    // restoring a live bill is a no-op route guard
+    const live = await Bill.create({
+      user: plain.userId,
+      amount: 20,
+      description: 'Still active expense',
+      date: new Date(),
+      images: [new Types.ObjectId()],
+    });
+    const liveRes = await request(app)
+      .patch(`/api/reimbursement/${live._id}/restore`)
+      .set('Cookie', plain.cookie);
+    expect(liveRes.status).toBe(404);
+
+    const restore = await request(app)
+      .patch(`/api/reimbursement/${bill._id}/restore`)
+      .set('Cookie', plain.cookie);
+    expect(restore.status).toBe(200);
+
+    expect((await Bill.findById(bill._id))?.isDeleted).toBe(false);
+
+    // visible again in the owner's list, cache cleared by the restore handler
+    const my = await request(app)
+      .get('/api/reimbursement/mybills')
+      .set('Cookie', plain.cookie);
+    expect(my.body.data.map((b: { id: string }) => b.id)).toContain(String(bill._id));
+  });
+
   it('admin accept creates a settlement; reject path reports duplicates', async () => {
     const bill = await Bill.create({
       user: plain.userId,

@@ -27,10 +27,12 @@ users who already have a record (uploads only missing ones). Users on approved l
 `today` cache group afterwards.
 
 - **Purpose:** seed attendance for the day so check-in/out has a row to fill.
-- **Mechanism:** external cron → HTTP POST.
-- **Public route:** `POST /api/cron/create-attendance` (`src/public/public.routes.ts`) — `requireCronSecret`
+- **Mechanism:** BullMQ self-scheduled (`upsertJobScheduler('attendance-create-daily', { pattern: '15 0 * * *', tz: 'Asia/Kolkata' })` — primary) or external cron → HTTP POST (backup).
+- **Worker registration:** `src/worker/attendance-sync.ts` (`createAttendanceQueue` / scheduler, idempotent upsert) registered in `src/worker/index.ts`
+- **Job name:** `attendance-create-daily`
+- **Public route (backup):** `POST /api/cron/create-attendance` (`src/public/public.routes.ts`) — `requireCronSecret`
 - **Legacy route:** `POST /api/attendance/cron/create/:pass` (`src/attendance/attendance.route.ts` — path secret)
-- **Handler:** `createAttendanceCron` — `src/attendance/cron-job/create-attendance.cron.ts`
+- **Handler:** `createAttendanceCron` is a thin wrapper over `createAttendanceSync()` (`src/attendance/cron-job/create-attendance.cron.ts`) — the same function the worker runs, so timing is identical either way.
 - **Suggested cadence:** once daily, ~just after IST midnight (before shift start).
 - **Notes:** uses `Attendance.insertMany(..., { ordered:false })` and swallows only E11000
   duplicate-key errors so racing cron triggers don't abort the batch (`ponytail` guard in source).
@@ -43,10 +45,12 @@ employee's shift end time (IST-aware). Skips users without an account/shift, and
 bulk-writes in chunks and clears the `today` cache group.
 
 - **Purpose:** backstop for employees who forget to check out — no dangling open records.
-- **Mechanism:** external cron → HTTP POST.
-- **Public route:** `POST /api/cron/auto-checkout` (`src/public/public.routes.ts`) — `requireCronSecret`
+- **Mechanism:** BullMQ self-scheduled (`upsertJobScheduler('attendance-auto-checkout-daily', { pattern: '30 23 * * *', tz: 'Asia/Kolkata' })` — primary) or external cron → HTTP POST (backup).
+- **Worker registration:** `src/worker/attendance-sync.ts` (`autoCheckoutQueue` / scheduler, idempotent upsert) registered in `src/worker/index.ts`
+- **Job name:** `attendance-auto-checkout-daily`
+- **Public route (backup):** `POST /api/cron/auto-checkout` (`src/public/public.routes.ts`) — `requireCronSecret`
 - **Legacy route:** `POST /api/attendance/cron/auto-checkout/:pass` (`src/attendance/attendance.route.ts` — path secret)
-- **Handler:** `autoCheckoutCron` — `src/attendance/cron-job/auto-checkout-attendance.cron.ts`
+- **Handler:** `autoCheckoutCron` is a thin wrapper over `autoCheckoutSync()` (`src/attendance/cron-job/auto-checkout-attendance.cron.ts`) — the same function the worker runs.
 - **Suggested cadence:** once daily, in the evening / after last shift ends (e.g. ~23:30 IST).
 - **Notes:** overtime for a day is finalized by the check-out flow (see
   `src/attendance/mark/check-out.controller.ts` / `overtime.controller.ts`), not by this cron.
@@ -92,8 +96,19 @@ export), not on a schedule — listed here so the full worker landscape is in on
 
 ## Running the crons
 
-The attendance and payroll crons are **HTTP-triggered** — you must point an external scheduler
-at them, e.g. a cron line:
+Attendance create + auto-checkout are now **BullMQ self-scheduled** — they fire from the worker
+process (`docker compose up -d --build worker`) with no external scheduler. `upsertJobScheduler`
+is idempotent, so restarts keep the same schedule. The HTTP routes remain as a fallback if the
+worker is down or you want an external scheduler instead (then drop the worker registration).
+
+The payroll cron is still **HTTP-triggered** — point an external scheduler at it, e.g.:
+
+```cron
+# 1st of month 01:00 — payroll
+0 1 1 * *    curl -sS -X POST https://<host>/api/payroll/cron -H "Authorization: Bearer <token>"
+```
+
+Optional backups for attendance (only if external scheduling is preferred):
 
 ```cron
 # IST 00:15 daily — seed attendance
@@ -101,9 +116,6 @@ at them, e.g. a cron line:
 
 # IST 23:30 daily — auto checkout
 30 23 * * *  curl -sS -X POST https://<host>/api/cron/auto-checkout -H "Authorization: Bearer $CRON_SECRET"
-
-# 1st of month 01:00 — payroll
-0 1 1 * *    curl -sS -X POST https://<host>/api/payroll/cron -H "Authorization: Bearer <token>"
 ```
 
 Notes:
@@ -112,5 +124,5 @@ Notes:
   `x-cron-secret`). Never put the secret in the URL path.
 - The payroll cron requires a user token with the `write:payroll` permission (it uses the
   normal `authorize` guard), not `CRON_SECRET`.
-- The temp-cleanup and report workers need the BullMQ worker process running and a reachable
-  Redis (see `src/libs/redis/`).
+- The temp-cleanup, attendance, and report workers need the BullMQ worker process running and a
+  reachable Redis (see `src/libs/redis/`).

@@ -270,9 +270,12 @@ describe('leave module', () => {
       expect(res.body.data.balance['Birthday']).toEqual({ used: 1, remaining: 11 });
     });
 
-    it('404s without a balance record', async () => {
+    it('returns zero balances without a balance record', async () => {
+      await makeType({ code: 'SL', name: 'Sick' });
       const res = await request(app).get('/api/leave/balance').set('Cookie', manager.cookie);
-      expect(res.status).toBe(404);
+      expect(res.status).toBe(200);
+      expect(res.body.data.id).toBeNull();
+      expect(res.body.data.balance['Sick']).toEqual({ used: 0, remaining: 12 });
     });
   });
 });
