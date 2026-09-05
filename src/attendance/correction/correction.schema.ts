@@ -3,13 +3,18 @@ import z from 'zod';
 import { userSchemaFinal } from '../../admin/_services/user.js';
 import { objectId } from '../../libs/utils/zod-object-id.js';
 
-export const attendanceCorrectionSchema = z.object({
-  attendanceId: objectId('Invalid Attendance Id.'),
-  message: z.string().min(3).max(300),
-  inTime: z.coerce.date(),
-  outTime: z.coerce.date(),
-  proof: z.string().optional(),
-});
+export const attendanceCorrectionSchema = z
+  .object({
+    attendanceId: objectId('Invalid Attendance Id.'),
+    message: z.string().min(3).max(300),
+    inTime: z.coerce.date(),
+    outTime: z.coerce.date(),
+    proof: z.string().optional(),
+  })
+  .refine(
+    (value) => value.outTime > value.inTime,
+    { message: 'Check Out Time Must Be After Check In Time.', path: ['outTime'] },
+  );
 
 export const attendanceCorrectionHandleSchema = z.object({
   changes: z
@@ -44,17 +49,12 @@ export const attendanceRecordSchema = z.object({
   isLate: z.boolean(),
 });
 
-export const attendanceChangesSchema = z
-  .object({
-    inTime: z.coerce.date(),
-    outTime: z.coerce.date(),
-    status: z.enum(['absent', 'half-day', 'present']).optional(),
-    isLate: z.boolean().optional(),
-  })
-  .refine(
-    (changes) => (changes.outTime as Date) > (changes.inTime as Date),
-    { message: 'Check out time must be after check in time.', path: ['outTime'] },
-  );
+export const attendanceChangesSchema = z.object({
+  inTime: z.coerce.date(),
+  outTime: z.coerce.date(),
+  status: z.enum(['absent', 'half-day', 'present']).optional(),
+  isLate: z.boolean().optional(),
+});
 
 export const correctionResponseSchema = z.object({
   id: z.string(),

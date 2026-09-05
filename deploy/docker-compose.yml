@@ -24,6 +24,8 @@ services:
     expose:
       - '4000'
     volumes:
+      # uploaded images/documents survive container recreation (deploys)
+      - uploads-data:/app/public/uploads
       # temp export artifacts (PDF/Excel reports) survive container restarts and
       # are shared with the worker, which writes them
       - temp-files:/app/public/temp
@@ -38,7 +40,9 @@ services:
     command: pnpm start:worker
     env_file: ../.env
     volumes:
+      - uploads-data:/app/public/uploads
       - temp-files:/app/public/temp
 
 volumes:
   temp-files:
+  uploads-data:

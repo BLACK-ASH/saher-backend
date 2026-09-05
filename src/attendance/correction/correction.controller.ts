@@ -56,7 +56,16 @@ export const getAttendanceCorrectionController = async (req: Request, res: Respo
     .lean();
 
   const normalize = normalizeDoc(requests);
-  const parsed = correctionResponsListSchema.parse(normalize);
+
+  // Legacy/edge records can carry `proof` as a bare ObjectId (media deleted, so
+  // populate left it unresolved) or null — drop it so the response schema's
+  // `{id,src,alt}` stays valid instead of 500ing the whole list.
+  const sanitized = (normalize as AttendanceCorrectionResponse[]).map((row) => {
+    if (typeof row.proof === 'string' || row.proof === null) delete row.proof;
+    return row;
+  });
+
+  const parsed = correctionResponsListSchema.parse(sanitized);
   const count = await AttendanceCorrection.countDocuments({ user: id });
 
   const body = {
@@ -98,7 +107,16 @@ export const getAllAttendanceCorrectionController = async (req: Request, res: Re
     .lean();
 
   const normalize = normalizeDoc(requests);
-  const parsed = correctionResponsListSchema.parse(normalize);
+
+  // Legacy/edge records can carry `proof` as a bare ObjectId (media deleted, so
+  // populate left it unresolved) or null — drop it so the response schema's
+  // `{id,src,alt}` stays valid instead of 500ing the whole list.
+  const sanitized = (normalize as AttendanceCorrectionResponse[]).map((row) => {
+    if (typeof row.proof === 'string' || row.proof === null) delete row.proof;
+    return row;
+  });
+
+  const parsed = correctionResponsListSchema.parse(sanitized);
   const count = await AttendanceCorrection.countDocuments();
 
   const body = {

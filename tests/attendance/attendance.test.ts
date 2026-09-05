@@ -693,6 +693,46 @@ describe('attendance corrections', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
   });
+
+  it('rejects corrections whose out time precedes the check-in time', async () => {
+    const { employee, row } = await mkCorrectionScenario();
+    const res = await request(app)
+      .post('/api/attendance/correction')
+      .set('Cookie', employee.cookie)
+      .send({
+        ...correctionBody(String(row._id)),
+        inTime: '2026-08-19T12:30:00Z',
+        outTime: '2026-08-19T03:30:00Z',
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toContain('Check Out Time Must Be After Check In Time');
+  });
+
+  it('lists stored corrections even when stored out/in times are out of order', async () => {
+    const { employee, admin, row } = await mkCorrectionScenario();
+    await AttendanceCorrection.create({
+      user: employee.userId,
+      attendance: row._id,
+      previous: {
+        inTime: new Date('2026-08-19T03:30:00Z'),
+        outTime: new Date('2026-08-19T12:30:00Z'),
+        status: 'present',
+        isLate: false,
+      },
+      changes: {
+        inTime: new Date('2026-08-19T03:30:00Z'),
+        outTime: new Date('2026-08-19T01:00:00Z'),
+      },
+      message: 'legacy out-of-order record',
+      status: 'pending',
+    });
+    const res = await request(app)
+      .get('/api/attendance/admin/correction')
+      .set('Cookie', admin.cookie);
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('Attendance Correction Retrieve Successful.');
+    expect(res.body.data.some((r) => r.message === 'legacy out-of-order record')).toBeTruthy();
+  });
 });
 
 describe('record retrieval', () => {

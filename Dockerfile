@@ -20,4 +20,8 @@ FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
 EXPOSE 4000
+# keep uploaded images/documents across container recreation — compose mounts
+# uploads-data here (see deploy/docker-compose.yml); the anonymous volume is a
+# fallback for hosts whose compose isn't updated yet
+VOLUME ["/app/public/uploads"]
 CMD [ "pnpm", "start" ]
