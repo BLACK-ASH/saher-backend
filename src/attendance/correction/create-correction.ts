@@ -64,6 +64,8 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
     proof: input?.proof,
   });
 
+  const populated = await AttendanceCorrection.findById(request._id).populate('proof').lean();
+
   await deleteCacheGroup('attendance', 'correction');
   const notificationTitle = 'Receieved New Attendance Correction request';
   const notificationDesc = `A new Attendance Correction Request for the date ${attendance.date} has been submitted `;
@@ -71,7 +73,7 @@ export const createAttendanceCorrectionController = async (req: Request, res: Re
   await notification.role.success('manager', notificationTitle, notificationDesc);
   return ApiResponse.success(res, {
     message: 'Attendance Correction Request Successful.',
-    data: request,
+    data: populated,
     statusCode: 201,
   });
 };

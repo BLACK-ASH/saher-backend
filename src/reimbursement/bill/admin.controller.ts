@@ -9,7 +9,7 @@ import { notificationService } from '../../libs/utils/notification.service.js';
 
 export const adminCreateBill = async (req: Request, res: Response) => {
   // write a code to create a admin bill
-  // step 1: take  {advance, date, reason} from req.body and user from req.user
+  // step 1: take  {advance, date, description} from req.body and user from req.user
   // step 2: create a bill and pass all of this
   // after that convert it into normalizedDoc and send notification to admin
   // adn pass the response
@@ -114,7 +114,7 @@ export const adminSoftDeleteBill = async (req: Request, res: Response) => {
 
   if (bill.status === 'pending') {
     bill.isDeleted = true;
-    bill.save();
+    await bill.save();
   } else throw new ApiError(400, "you can't delete this bill now");
 
   await deleteCache(createKey('reimbursement', 'mybill', String(bill.user)));

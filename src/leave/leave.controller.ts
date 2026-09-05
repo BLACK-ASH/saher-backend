@@ -233,7 +233,7 @@ export const updateLeaveApplicationController = async (req: Request, res: Respon
       new: true,
       runValidators: true,
     },
-  );
+  ).populate('proof');
 
   return ApiResponse.success(res, {
     statusCode: 200,
@@ -257,7 +257,7 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
 
   const payload = req.body;
 
-  const leave = await Leave.findById(id);
+  const leave = await Leave.findById(id).populate('proof');
 
   if (!leave) {
     throw new ApiError(404, 'Leave application not found');
@@ -296,6 +296,7 @@ export const reviewLeaveApplicationController = async (req: Request, res: Respon
 export const getLeaveApplicationController = async (req: Request, res: Response) => {
   const record = await Leave.find({ user: req.user?.id })
     .populate('type')
+    .populate('proof')
     .populate({
       path: 'user',
       populate: {
@@ -330,6 +331,7 @@ export const getAllLeaveApplicationController = async (req: Request, res: Respon
   }
   const record = await Leave.find()
     .populate('type')
+    .populate('proof')
     .populate({
       path: 'user',
       populate: {

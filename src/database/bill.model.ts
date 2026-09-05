@@ -25,7 +25,6 @@ const billSchema = new mongoose.Schema(
     amount: {
       type: Number,
       default: 0,
-      min: [1, 'Amount must be greater than zero'],
     },
     date: {
       type: Date,

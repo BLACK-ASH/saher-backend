@@ -10,6 +10,7 @@ export const getAllSessionController = async (req: Request, res: Response) => {
   const user = req.user;
   if (!user) throw new ApiError(403, 'Forbidden');
 
+  const currentSessionId = req.cookies?.saher_session_id ?? '';
   const sessionIds = await client.sMembers(createKey('user_session', user.id));
 
   type SessionSummary = {
@@ -18,6 +19,7 @@ export const getAllSessionController = async (req: Request, res: Response) => {
     device: string;
     browser: string;
     os: string;
+    current: boolean;
     createdAt: number;
     updatedAt: number;
   };
@@ -39,6 +41,7 @@ export const getAllSessionController = async (req: Request, res: Response) => {
           device: session.meta.device,
           browser: session.meta.browser,
           os: session.meta.os,
+          current: sessionId === currentSessionId,
           createdAt: session.createdAt,
           updatedAt: session.updatedAt,
         };

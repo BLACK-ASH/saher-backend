@@ -12,7 +12,9 @@ export type SessionMeta = {
 // ponytail: dropped ipapi.co geo lookup — leaked user IPs to a third party and blocked
 // login/logout up to 800ms; re-add only with a self-hosted geo source if product needs it.
 export const getSessionMeta = async (req: Request): Promise<SessionMeta> => {
-  const ip = req.ip || '';
+  // Cloudflare → nginx → backend: CF-Connecting-IP is always the real client IP.
+  // X-Forwarded-For is the fallback when behind a plain nginx proxy.
+  const ip = req.header('cf-connecting-ip') || req.header('x-forwarded-for')?.split(',')[0]?.trim() || req.ip || '';
   const userAgent = req.headers['user-agent'] || '';
 
   const parser = new UAParser(userAgent);

@@ -123,7 +123,7 @@ export const userSoftDeleteBill = async (req: Request, res: Response) => {
 
   if (bill.status === 'pending') {
     bill.isDeleted = true;
-    bill.save();
+    await bill.save();
   } else throw new ApiError(400, "you can't delete this bill now");
 
   await deleteCache(createKey('reimbursement', 'mybill', String(bill.user)));

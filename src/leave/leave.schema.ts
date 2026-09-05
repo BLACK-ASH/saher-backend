@@ -55,7 +55,7 @@ export const getLeaveApplicationSchema = z.object({
   totalDays: z.number(),
   reason: z.string(),
   type: z.object({ name: z.string(), code: z.string() }),
-  proof: z.string().optional(),
+  proof: z.object({ id: z.string(), src: z.string(), alt: z.string() }).nullish(),
   status: z.enum(['pending', 'approved', 'rejected', 'cancelled']),
   approvedBy: z.string().optional(),
   managerComment: z.string().optional(),
