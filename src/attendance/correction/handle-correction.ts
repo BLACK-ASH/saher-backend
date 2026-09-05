@@ -65,7 +65,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         await request.save({ session });
         const notificationTitle = 'Attendance correction request rejected';
         const notificationDescription = `Your Attendance Correction request of the date ${request.previous.inTime?.getDate()}/${request.previous.inTime?.getMonth()}/${request.previous.inTime?.getFullYear()} has been rejected rejected `;
-        await notification.specific.info(
+        await notification.specific.error(
           [request.user.toString()],
           notificationTitle,
           notificationDescription,
@@ -88,7 +88,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
         await request.save({ session });
         const notificationTitle = 'Attendance correction request on-hold';
         const notificationDescription = `Your Attendance Correction request of the date ${request.previous.inTime?.getDate()}/${request.previous.inTime?.getMonth()}/${request.previous.inTime?.getFullYear()} has been kept on-hold `;
-        await notification.specific.info(
+        await notification.specific.warn(
           [request.user.toString()],
           notificationTitle,
           notificationDescription,
@@ -156,7 +156,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       await request.save({ session });
       const notificationTitle = 'Attendance correction request approved';
       const notificationDescription = `Your Attendance Correction request of the date ${request.previous.inTime?.getDate()}/${request.previous.inTime?.getMonth()}/${request.previous.inTime?.getFullYear()} has been approved `;
-      await notification.specific.info(
+      await notification.specific.success(
         [request.user.toString()],
         notificationTitle,
         notificationDescription,

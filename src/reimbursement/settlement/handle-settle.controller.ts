@@ -78,7 +78,7 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
     const notificationDesc = `bill of amount ${settleBill.amount} is completed `;
     const notificationTitle = 'settlement bill Completed';
 
-    await notification.specific.info(
+    await notification.specific.success(
       [settleBill.user.toString()],
       notificationTitle,
       notificationDesc,

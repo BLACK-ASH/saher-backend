@@ -4,6 +4,7 @@ import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { notification } from '../../libs/utils/notification.js';
 
 export const handleBillController = async (req: Request, res: Response) => {
@@ -77,7 +78,7 @@ export const handleBillController = async (req: Request, res: Response) => {
     const notificationDesc = `bill of amount ${amount} is created`;
     const notificationTitle = 'New settlement bill created';
 
-    await notification.specific.info(
+    await notification.specific.success(
       [bill.user.toString()],
       notificationTitle,
       notificationDesc,
@@ -85,6 +86,10 @@ export const handleBillController = async (req: Request, res: Response) => {
     );
     message = 'Bill Accepted and Settlement bill created successfully';
   }
+
+  // Owner's /mybills list is cached 2h — drop it so the new status shows up
+  // instead of being served stale until TTL expiry.
+  await deleteCache(createKey('reimbursement', 'mybill', String(bill.user)));
 
   return ApiResponse.success(res, {
     message: message,

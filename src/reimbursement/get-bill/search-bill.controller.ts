@@ -4,7 +4,6 @@ import type { QueryFilter } from 'mongoose';
 import { searchBillQuerySchema, getBillResponseSchema, getSettleBillResponseSchema } from './get-bill.schema.js';
 import { Bill } from '../../database/bill.model.js';
 import { Settlement } from '../../database/settlement.model.js';
-import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { escapeRegex, buildKeywordOrConditions } from '../../libs/utils/keyword-filter.js';
@@ -14,9 +13,8 @@ export const searchBillController = async (req: Request, res: Response) => {
   const queryParams = searchBillQuerySchema.parse(req.query);
   const { description, amount, user, status, date, isDeleted, page, limit } = queryParams;
 
-  if (!description && !amount && !date && !user && !status)
-    throw new ApiError(400, 'Please provide search parameter.');
-
+  // No guard on empty searches: an empty filter set legitimately means "all
+  // bills" (the UI's Status=All + User=All view).
   const query: QueryFilter<typeof Bill.schema.obj> = { isDeleted };
 
   if (description) {

@@ -299,4 +299,61 @@ describe('reimbursement module', () => {
     expect(res.status).toBe(200);
     expect(JSON.stringify(res.body.data)).toContain('cab');
   });
+
+  it('returns all bills on an empty search (view-all filter)', async () => {
+    await Bill.create([
+      {
+        user: plain.userId,
+        amount: 11,
+        status: 'accept',
+        description: 'Searchable alpha bill',
+        date: new Date(),
+        images: [new Types.ObjectId()],
+      },
+      {
+        user: admin.userId,
+        amount: 22,
+        status: 'pending',
+        description: 'Searchable beta bill',
+        date: new Date(),
+        images: [new Types.ObjectId()],
+      },
+    ]);
+
+    const res = await request(app)
+      .get('/api/reimbursement?isDeleted=false')
+      .set('Cookie', admin.cookie);
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('shows a rejected bill status to the owner right away (cache invalidated)', async () => {
+    const bill = await Bill.create({
+      user: plain.userId,
+      amount: 90,
+      description: 'Cache freshness reject check',
+      date: new Date(),
+      images: [new Types.ObjectId()],
+    });
+
+    // warm the owner list cache with status 'pending'
+    const warm = await request(app)
+      .get('/api/reimbursement/mybills')
+      .set('Cookie', plain.cookie);
+    expect(warm.body.data[0].status).toBe('pending');
+
+    const reject = await request(app)
+      .post(`/api/reimbursement/handle/${bill._id}`)
+      .set('Cookie', admin.cookie)
+      .send({ status: 'reject', reason: 'No receipt attached' });
+    expect(reject.status).toBe(201);
+
+    const fresh = await request(app)
+      .get('/api/reimbursement/mybills')
+      .set('Cookie', plain.cookie);
+    const updated = fresh.body.data.find(
+      (b: { id: string }) => b.id === String(bill._id),
+    );
+    expect(updated?.status).toBe('reject');
+  });
 });
