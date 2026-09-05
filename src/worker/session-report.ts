@@ -59,10 +59,48 @@ const fetchSession = async (job: Job): Promise<SessionDoc> => {
 
 
 const renderPdf = async (job: Job, session: SessionDoc, page: PuppeteerPage) => {
-  await page.setContent(createSessionPdfBody(session), { waitUntil: 'domcontentloaded' });
+  await page.setContent(await createSessionPdfBody(session), { waitUntil: 'domcontentloaded' });
   ensureTempDir();
   const pdfPath = path.join(tempPath, `${job.id}.pdf`);
-  await page.pdf({ format: 'A4', path: pdfPath, printBackground: true });
+  await page.pdf({
+    format: 'A4',
+    path: pdfPath,
+    printBackground: true,
+    displayHeaderFooter: true,
+    margin: {
+      top: '40px',
+      bottom: '70px',
+      left: '20px',
+      right: '20px',
+    },
+    footerTemplate: `
+    <div
+      style="
+        width:100%;
+        padding:0 24px;
+        font-size:10px;
+        color:#71717a;
+        font-family:Arial,sans-serif;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+      "
+    >
+      <div style="font-weight:600;color:#7a1cac;">
+        SAHER
+      </div>
+      <div>
+        Session Report
+      </div>
+      <div>
+        Page
+        <span class="pageNumber"></span>
+        of
+        <span class="totalPages"></span>
+      </div>
+    </div>
+  `,
+  });
 };
 
 const notifyDownload = async (job: Job, sessionTitle: string, ext: 'pdf' | 'xlsx') => {

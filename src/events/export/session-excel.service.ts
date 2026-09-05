@@ -2,6 +2,7 @@ import ExcelJS from 'exceljs';
 import type { HydratedDocument } from 'mongoose';
 
 import type { SessionType } from '../../database/session.model.js';
+import { htmlToText } from '../../libs/utils/html-to-text.js';
 
 const formatDate = (date: unknown) => {
   if (!date) return '-';
@@ -61,7 +62,7 @@ export const createSessionExcel = async (
   details.addRow(['Workshop', titleOf(session.workshop)]);
   details.addRow(['Date', formatDate(session.date)]);
   details.addRow(['Time', `${formatTime(session.startTime)} - ${formatTime(session.endTime)}`]);
-  details.addRow(['Description', session.description ?? '-']);
+  details.addRow(['Description', htmlToText(session.description ?? '-')]);
   details.columns = [{ width: 12 }, { width: 50 }];
 
   // ===== Attendance sheet =====

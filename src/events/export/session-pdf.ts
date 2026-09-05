@@ -1,8 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import type { HydratedDocument } from 'mongoose';
 
 import type { SessionType } from '../../database/session.model.js';
-import { escapeHtml } from '../../libs/utils/html-escape.js';
 import { env } from '../../config/env.js';
+import { escapeHtml } from '../../libs/utils/html-escape.js';
+import { htmlToText } from '../../libs/utils/html-to-text.js';
 
 type SessionDoc = HydratedDocument<SessionType>;
 // populated refs aren't reflected in schema types
@@ -62,7 +66,7 @@ const participantIds = (doc: unknown): string[] => {
     .filter(Boolean);
 };
 
-export const createSessionPdfBody = (session: SessionDoc) => {
+export const createSessionPdfBody = async (session: SessionDoc) => {
   const sessionId = String((session as { _id?: unknown })?._id ?? '');
   const presentSet = new Set(participantIds(session));
 
@@ -75,8 +79,52 @@ export const createSessionPdfBody = (session: SessionDoc) => {
   const speakers = (read(session, 'speaker') ?? []) as unknown as PopulatedSpeaker[];
 
   const title = String(read(session, 'title') ?? '-');
-  const description = String(read(session, 'description') ?? '');
+  const description = htmlToText(String(read(session, 'description') ?? ''));
+  const review = htmlToText(String(read(session, 'review') ?? ''));
   const imageHost = env.BASE_URL;
+
+  // brand logo lives in public/saher-logo.png (worker cwd is repo root)
+  let logoDataUri = '';
+  try {
+    const logoPath = path.join(process.cwd(), 'public', 'saher-logo.png');
+    if (fs.existsSync(logoPath)) {
+      logoDataUri = `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`;
+    }
+  } catch {
+    // branding is cosmetic — keep the text header if the logo can't be read
+  }
+
+  // embed images as base64 so puppeteer renders them without network waits
+  const embedImage = async (src: string): Promise<string> => {
+    try {
+      const res = await fetch(imageHost + src);
+      if (!res.ok) return '';
+      const contentType = res.headers.get('content-type') ?? '';
+      const mime = contentType.startsWith('image/')
+        ? contentType
+        : `image/${(src.split('.').pop() ?? 'jpeg').replace(/[^a-z]/gi, '')}`;
+      const buf = Buffer.from(await res.arrayBuffer());
+      return `data:${mime};base64,${buf.toString('base64')}`;
+    } catch {
+      return '';
+    }
+  };
+
+  const galleryItems = await Promise.all(
+    images.map(async (img) => ({
+      src: await embedImage(img.src ?? ''),
+      alt: img.alt ?? '',
+    })),
+  );
+  const embedded = galleryItems.filter((i) => i.src);
+  const galleryRows = embedded
+    .map(
+      (img) => `<figure style="margin:0;width:calc(50% - 6px);">
+        <img src="${img.src}" style="width:100%;height:220px;object-fit:cover;border-radius:6px;display:block;" />
+        ${img.alt ? `<figcaption style="font-size:11px;color:#71717a;padding-top:6px;">${escapeHtml(img.alt)}</figcaption>` : ''}
+      </figure>`,
+    )
+    .join('');
 
   const attendanceRows = roster.length
     ? roster
@@ -90,13 +138,6 @@ export const createSessionPdfBody = (session: SessionDoc) => {
         })
         .join('')
     : '<tr><td colspan="3" style="color:#71717a;">No participants registered for the program.</td></tr>';
-
-  const imageRows = images
-    .map(
-      (img) =>
-        `<tr><td><img src="${escapeHtml(imageHost + (img.src ?? ''))}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;" /><br/><span style="font-size:11px;color:#71717a;">${escapeHtml(img.alt ?? '')}</span></td></tr>`,
-    )
-    .join('');
 
   const billRows = bills
     .map(
@@ -127,13 +168,16 @@ export const createSessionPdfBody = (session: SessionDoc) => {
     th { text-align: left; padding: 10px 12px; font-size: 12px; color: #71717a; border-bottom: 1px solid #e4e4e7; background: #fafafa; }
     td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #f4f4f5; }
     .grid { display: flex; flex-wrap: wrap; gap: 12px; }
-    @page { size: A4; margin: 8mm; }
+    @page { size: A4; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="brand-name">SAHER Internal</div>
-    <div style="font-size:11px;color:#71717a;">Society for Awareness, Harmony and Equal Rights</div>
+  <div class="header" style="display:flex;align-items:center;gap:14px;">
+    ${logoDataUri ? `<img src="${logoDataUri}" style="height:44px;width:auto;" alt="SAHER logo" />` : ''}
+    <div>
+      <div class="brand-name">SAHER</div>
+      <div style="font-size:11px;color:#71717a;">Society for Awareness, Harmony and Equal Rights</div>
+    </div>
   </div>
 
   <h1>Session Report — ${escapeHtml(title)}</h1>
@@ -144,7 +188,12 @@ export const createSessionPdfBody = (session: SessionDoc) => {
     Speakers: ${speakers.map((s) => escapeHtml(s.name ?? '')).join(', ') || '-'}<br/>
     Register/Hour ID: ${escapeHtml(sessionId)}
   </div>
-  ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
+  ${description ? `<p style="white-space:pre-wrap;" class="description">${escapeHtml(description)}</p>` : ''}
+
+  ${review ? `
+  <h2>Review</h2>
+  <p style="white-space:pre-wrap;" class="description">${escapeHtml(review)}</p>
+  ` : ''}
 
   <h2>Attendance (${roster.length})</h2>
   <table>
@@ -152,9 +201,9 @@ export const createSessionPdfBody = (session: SessionDoc) => {
     <tbody>${attendanceRows}</tbody>
   </table>
 
-  ${images.length ? `
-  <h2>Images (${images.length})</h2>
-  <div class="grid">${imageRows}</div>
+  ${embedded.length ? `
+  <h2>Images (${embedded.length})</h2>
+  <div class="grid">${galleryRows}</div>
   ` : ''}
 
   ${bills.length ? `
