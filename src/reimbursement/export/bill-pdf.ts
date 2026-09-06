@@ -29,6 +29,18 @@ const receiptDataUri = (src: string) => {
   return '';
 };
 
+const receiptThumbs = (b: BillDocumentT) => {
+  const thumbs = (b.images ?? [])
+    .map((img) => {
+      const src = receiptDataUri(img.src);
+      return src
+        ? `<img src="${src}" alt="${escapeHtml(img.alt ?? 'Receipt')}" class="thumb" />`
+        : '';
+    })
+    .join('');
+  return thumbs || '<span class="muted">—</span>';
+};
+
 const renderTable = (bills: BillDocumentT[]) => `
   <div class="header">
     <div class="brand-name">SAHER Internal</div>
@@ -36,13 +48,14 @@ const renderTable = (bills: BillDocumentT[]) => `
   </div>
   <h1 style="font-size:18px;">Bill Report</h1>
   <table>
-    <thead><tr><th>Employee</th><th>Description</th><th>Amount</th><th>Advance</th><th>Status</th><th>Date</th></tr></thead>
+    <thead><tr><th>Employee</th><th>Description</th><th>Receipts</th><th>Amount</th><th>Advance</th><th>Status</th><th>Date</th></tr></thead>
     <tbody>
       ${bills
         .map(
           (b) => `<tr>
             <td>${escapeHtml(b.user?.displayName ?? b.user?.email ?? '-')}</td>
             <td>${escapeHtml(b.description ?? '-')}</td>
+            <td>${receiptThumbs(b)}</td>
             <td>${b.amount ?? 0}</td>
             <td>${b.advance ?? 0}</td>
             <td>${escapeHtml(String(b.status))}</td>
@@ -175,6 +188,7 @@ export const createBillPdfBody = (bills: BillDocumentT[]) => {
     .amt-item.payable { background: #faf5ff; border-color: #d8b4fe; }
     .r-rcpts { display: flex; flex-direction: column; gap: 10px; }
     .rcpt { width: 160px; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #e4e4e7; }
+    .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid #e4e4e7; margin-right: 4px; }
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; text-transform: capitalize; }
     .status-pending { background: #fef3c7; color: #92400e; }
     .status-accept { background: #dcfce7; color: #166534; }
