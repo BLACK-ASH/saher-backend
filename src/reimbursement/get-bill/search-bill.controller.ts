@@ -55,8 +55,17 @@ export const searchBillController = async (req: Request, res: Response) => {
     });
   }
 
+  // join each bill's settlement status so the management table can show it
+  const settlements = await Settlement.find({
+    bill: { $in: bills.map((b) => b._id) },
+  }).lean();
+  const settleStatusByBill = new Map(settlements.map((s) => [String(s.bill), s.status]));
+
   const normalized = normalizeDoc(bills);
-  const parsed = getBillResponseSchema.array().parse(normalized);
+  const parsed = getBillResponseSchema.array().parse(normalized).map((p) => ({
+    ...p,
+    settlementStatus: settleStatusByBill.get(p.id) ?? null,
+  }));
   return ApiResponse.success(res, {
     message: 'Bills fetched successfully',
     data: parsed,

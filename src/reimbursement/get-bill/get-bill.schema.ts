@@ -34,6 +34,8 @@ export const getBillResponseSchema = z.object({
   status: z.enum(['pending', 'accept', 'reject', 'on-hold']),
   reason: z.string().optional(),
   isDeleted: z.boolean(),
+  // joined settlement status (null when the bill has no settlement yet)
+  settlementStatus: z.enum(['pending', 'settle', 'expired', 'on-hold']).nullable().optional(),
 });
 
 export const getSettleBillResponseSchema = z.object({
