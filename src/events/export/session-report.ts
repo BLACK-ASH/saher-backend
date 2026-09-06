@@ -14,6 +14,7 @@ import { ApiResponse } from '../../libs/class/api-response.js';
 import { bullmqConnection } from '../../libs/redis/redis-client.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { notification } from '../../libs/utils/notification.js';
+import { isReportStale } from '../../libs/utils/report-stale.js';
 
 export const sessionReportQueue = new Queue('pdf-session-report', {
   connection: bullmqConnection,
@@ -92,11 +93,13 @@ export const exportSessionReportController = async (req: Request, res: Response)
           message: 'request is processing',
         });
       } else {
-        // Completed — only claim "already generated" if the artifact is still
-        // servable. Otherwise (temp TTL cleanup, pre-volume orphan) regenerate.
+        // Completed — reuse only if the artifact is servable AND nothing in
+        // scope changed since the job finished; otherwise regenerate.
         const fileName = `${existingJobId}.${format}`;
         const reportPath = path.join(process.cwd(), 'public', 'temp', fileName);
-        if (fs.existsSync(reportPath)) {
+        const completedAt = new Date(job.finishedOn ?? Date.now());
+        const stale = await isReportStale(Session, { _id: sessionId }, completedAt);
+        if (fs.existsSync(reportPath) && !stale) {
           return ApiResponse.success(res, {
             message: 'report already generated, please check notifications',
           });

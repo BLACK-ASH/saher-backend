@@ -6,12 +6,13 @@ import type { QueryFilter } from 'mongoose';
 import z from 'zod';
 
 import { Bill, billStatus } from '../../database/bill.model.js';
-import { objectId } from '../../libs/utils/zod-object-id.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { bullmqConnection } from '../../libs/redis/redis-client.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { istDayRange } from '../../libs/utils/date-time.js';
+import { isReportStale } from '../../libs/utils/report-stale.js';
+import { objectId } from '../../libs/utils/zod-object-id.js';
 
 export const billReportQueue = new Queue('pdf-bill-report', {
   connection: bullmqConnection,
@@ -84,8 +85,8 @@ export const exportBillReportController = async (req: Request, res: Response) =>
       // finished — otherwise fall through and regenerate so exports never serve
       // stale data (bill mutations bump updatedAt; settle touches it too).
       const completedAt = new Date(job.finishedOn ?? Date.now());
-      const stale = await Bill.countDocuments({ ...query, updatedAt: { $gt: completedAt } });
-      if (stale === 0) {
+      const stale = await isReportStale(Bill, query, completedAt);
+      if (!stale) {
         return ApiResponse.success(res, {
           message: 'report already generated, please check notifications',
         });

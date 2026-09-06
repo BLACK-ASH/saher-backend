@@ -6,9 +6,12 @@ import type { Request, Response } from 'express';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
 import { DateRange } from '../../libs/class/date-range.js';
+import { Attendance } from '../../database/attendance.model.js';
 import { bullmqConnection } from '../../libs/redis/redis-client.js';
 import { createKey, deleteCache, getCache, setCache } from '../../libs/redis/redis-utils.js';
 import { notification } from '../../libs/utils/notification.js';
+import { isReportStale } from '../../libs/utils/report-stale.js';
+import { standardDateString } from '../../libs/utils/standard-date.js';
 
 export const attendanceReportQueue = new Queue('pdf-attendance-report', {
   connection: bullmqConnection,
@@ -119,23 +122,38 @@ export const exportReportController = async (req: Request, res: Response) => {
         });
       }
 
-      const action = {
-        type: 'download' as const,
-        label: 'Report',
-        url: data.result?.url,
-        method: 'GET' as const,
+      // Reuse the completed job only if no attendance record in this range
+      // changed since it finished — otherwise regenerate so exports are fresh.
+      const completedAt = new Date(job.finishedOn ?? Date.now());
+      const scope: Record<string, unknown> = {
+        date: {
+          $gte: standardDateString(dateRange.startDateString),
+          $lte: standardDateString(dateRange.endDateString),
+        },
       };
+      if (effectiveUser !== 'all') scope.user = effectiveUser;
 
-      await notification.specific.info(
-        [job.data.requestedBy ?? (job.data.user as string)],
-        `attendance report generated, type - ${job.data.type} `,
-        `attendance report from ${dateRange.startDateString} - ${dateRange.endDateString}`,
-        action,
-      );
+      if (!(await isReportStale(Attendance, scope, completedAt))) {
+        const action = {
+          type: 'download' as const,
+          label: 'Report',
+          url: data.result?.url,
+          method: 'GET' as const,
+        };
 
-      return ApiResponse.success(res, {
-        message: 'request is already process, please check notifications',
-      });
+        await notification.specific.info(
+          [job.data.requestedBy ?? (job.data.user as string)],
+          `attendance report generated, type - ${job.data.type} `,
+          `attendance report from ${dateRange.startDateString} - ${dateRange.endDateString}`,
+          action,
+        );
+
+        return ApiResponse.success(res, {
+          message: 'report already generated, please check notifications',
+        });
+      }
+
+      await deleteCache(key);
     }
   }
 
