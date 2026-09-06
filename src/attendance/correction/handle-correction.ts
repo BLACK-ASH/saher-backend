@@ -107,7 +107,7 @@ export const handleAttendanceCorrectionController = async (req: Request, res: Re
       // If isAdmin is false then system should calculate the all the attendance status if true accept what admin says
       const isAdmin = user.role === 'admin';
 
-      const account = await getAccountByUser(user.id);
+      const account = await getAccountByUser(String(request.user));
       if (!account) throw new ApiError(404, 'User Not Found.');
 
       const shift = getShift(account);

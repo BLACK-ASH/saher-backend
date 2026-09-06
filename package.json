@@ -20,6 +20,7 @@
     "prod": "pnpm clean && pnpm docs:lint && pnpm build && pnpm start",
     "spellcheck": "cspell .",
     "seed": "pnpm tsx src/seeds/runner.ts",
+    "backfill:attendance": "tsx scripts/backfill-attendance-status.ts",
     "test": "vitest run"
   },
   "type": "module",
