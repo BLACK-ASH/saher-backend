@@ -4,6 +4,7 @@ import { createLogSchema } from './audit-log/audit-log.schema.js';
 import { createAuditLogController } from './audit-log/create-audit-log.controller.js';
 import { userBalanceEnquiryController } from './balance-enquiry/user-balance-enquiry.controller.js';
 import { adminCreateBill, adminSoftDeleteBill, adminUpdateBill } from './bill/admin.controller.js';
+import { restoreBillController } from './bill/restore-bill.controller.js';
 import {
   adminBillCreatSchema,
   adminBillUpdateSchema,
@@ -11,22 +12,22 @@ import {
   userBillUpdateSchema,
 } from './bill/schema.js';
 import { userCreateBill, userSoftDeleteBill, userUpdateBill } from './bill/user.controller.js';
-import { restoreBillController } from './bill/restore-bill.controller.js';
+import { exportAuditLogReportController } from './export/audit-log-report.js';
 import { exportBillReportController } from './export/bill-report.js';
 import { getBillByIdController } from './get-bill/bill-by-id.controller.js';
 import { getAllBillsController } from './get-bill/get-all-bills.controller.js';
 import { getAuditLogController } from './get-bill/get-audit-log.controller.js';
 import { myBillsController } from './get-bill/my-bills.controller.js';
 import { recycleBillsController } from './get-bill/recycle-bill.controller.js';
+import {
+  searchBillController,
+  searchSettleBillController,
+} from './get-bill/search-bill.controller.js';
 import { handleBillController } from './settlement/handle-bill.controller.js';
 import { handleSettlementRequest } from './settlement/handle-settle.controller.js';
 import { handleBillSchema, handleSettleSchema } from './settlement/schema.js';
 import { validate } from '../libs/middleware/validate-zod-schema.js';
 import { authorize } from '../permission/authorize.js';
-import {
-  searchBillController,
-  searchSettleBillController,
-} from './get-bill/search-bill.controller.js';
 
 const billRouter = Router();
 
@@ -98,6 +99,12 @@ billRouter.get(
   '/export/report',
   authorize('read', 'preReimbursement'),
   exportBillReportController,
+);
+// Audit log (books of account) export — must precede /:billId param routes
+billRouter.get(
+  '/export/audit-log-report',
+  authorize('read', 'preReimbursement'),
+  exportAuditLogReportController,
 );
 billRouter.get('/bills', authorize('write', 'preReimbursement'), getAllBillsController);
 billRouter.get('/', authorize('read', 'preReimbursement'), searchBillController);

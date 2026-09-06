@@ -209,8 +209,9 @@ export const createBillPdfBody = (bills: BillDocumentT[]) => {
     .amt-item { display: flex; flex-direction: column; gap: 4px; border: 1px solid #e4e4e7; border-radius: 8px; padding: 14px; font-size: 15px; }
     .amt-item .muted { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
     .amt-item.payable { background: #faf5ff; border-color: #d8b4fe; }
-    .r-rcpts { display: flex; flex-direction: column; gap: 10px; }
-    .rcpt { width: 160px; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #e4e4e7; }
+    .r-rcpts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .r-rcpts h2 { grid-column: 1 / -1; margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #52525b; }
+    .rcpt { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #e4e4e7; }
     .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid #e4e4e7; margin-right: 4px; }
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; text-transform: capitalize; }
     .status-pending { background: #fef3c7; color: #92400e; }
