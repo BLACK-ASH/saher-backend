@@ -9,23 +9,40 @@ export const userBalanceEnquiryController = async (req: Request, res: Response) 
   const userId = req.user?.id;
   if (!userId) throw new ApiError(400, 'User ID is required');
 
-  const bills = await Bill.find({ user: userId, isDeleted: false, status: 'accept' });
+  // A bill's amount only counts once it is approved AND settled: at that point
+  // amount - advance decides the direction — org pays the user when amount >
+  // advance, the user pays the org back when advance > amount.
+  const bills = await Bill.find({ user: userId, isDeleted: false, status: 'accept' })
+    .select('advance amount')
+    .lean();
+
+  const settledBillIds = new Set(
+    bills.length === 0
+      ? []
+      : (
+          await Settlement.find({
+            bill: { $in: bills.map((b) => b._id) },
+            status: 'settle',
+          })
+            .select('bill')
+            .lean()
+        ).map((s) => String(s.bill)),
+  );
 
   let advance = 0;
   let amount = 0;
-  if (bills.length > 0) {
-    for (const b of bills) {
-      advance += b.advance ?? 0;
-      amount += b.amount ?? 0;
-    }
+  let settled = 0;
+  for (const b of bills) {
+    if (!settledBillIds.has(String(b._id))) continue;
+    const diff = (b.amount ?? 0) - (b.advance ?? 0);
+    advance += b.advance ?? 0;
+    amount += b.amount ?? 0;
+    settled += Math.abs(diff);
   }
 
-  // money actually paid out via settled settlements nets against the outstanding total
-  const settledDocs = await Settlement.find({ user: userId, status: 'settle' }).select('amount');
-  const settled = settledDocs.reduce((acc, s) => acc + (s.amount ?? 0), 0);
-
-  const netOutstanding = Math.abs(amount - advance - settled);
-  const record = amount - advance >= 0 ? 'Amount to Received' : 'Amount to Paid';
+  const net = amount - advance;
+  const netOutstanding = Math.abs(net);
+  const record = net >= 0 ? 'Amount to Received' : 'Amount to Paid';
 
   return ApiResponse.success(res, {
     message: 'User Balance Enquiry',
@@ -34,7 +51,7 @@ export const userBalanceEnquiryController = async (req: Request, res: Response) 
       AdvanceUse: advance,
       SettledUse: settled,
       Total: `${netOutstanding} ${record}`,
-      ...(bills.length === 0 && { Empty: true }),
+      ...(settledBillIds.size === 0 && { Empty: true }),
     },
     statusCode: 200,
   });
