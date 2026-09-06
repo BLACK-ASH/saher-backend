@@ -80,9 +80,18 @@ export const exportBillReportController = async (req: Request, res: Response) =>
         });
       }
 
-      return ApiResponse.success(res, {
-        message: 'report already generated, please check notifications',
-      });
+      // Reuse the completed job ONLY if nothing in its scope changed since it
+      // finished — otherwise fall through and regenerate so exports never serve
+      // stale data (bill mutations bump updatedAt; settle touches it too).
+      const completedAt = new Date(job.finishedOn ?? Date.now());
+      const stale = await Bill.countDocuments({ ...query, updatedAt: { $gt: completedAt } });
+      if (stale === 0) {
+        return ApiResponse.success(res, {
+          message: 'report already generated, please check notifications',
+        });
+      }
+
+      await deleteCache(key);
     }
   }
 

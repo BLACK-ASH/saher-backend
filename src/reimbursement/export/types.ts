@@ -13,7 +13,14 @@ export type BillMediaSubset = {
   alt: string;
 };
 
+export type BillSettlementSubset = {
+  status: string;
+  mode?: string;
+  settleDate?: Date | null;
+};
+
 export type BillDocumentT = Omit<HydratedDocument<BillType>, 'user' | 'images'> & {
   user: BillUserSubset;
   images?: BillMediaSubset[];
+  settlement?: BillSettlementSubset | null;
 };

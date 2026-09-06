@@ -6,6 +6,7 @@ import { Settlement } from '../../database/settlement.model.js';
 import { User } from '../../database/user.model.js';
 import { ApiError } from '../../libs/class/api-error.js';
 import { ApiResponse } from '../../libs/class/api-response.js';
+import { createKey, deleteCache } from '../../libs/redis/redis-utils.js';
 import { auditLog } from '../../libs/utils/audit-log.js';
 import { normalizeDoc } from '../../libs/utils/normailize-doc.js';
 import { notification } from '../../libs/utils/notification.js';
@@ -67,6 +68,14 @@ export const handleSettlementRequest = async (req: Request, res: Response) => {
     settleBill.settleDate = settleDate;
     settleBill.description = description;
     await settleBill.save();
+
+    // drop the 2h redis cache for the bill-settlement lookup (getBillById) so the
+    // UI refetch sees the new status instead of the cached 'pending'
+    await deleteCache(createKey('reimbursement', 'bill', String(settleBill.bill)));
+
+    // bump the bill's updatedAt so completed bill-report exports are flagged stale
+    // and regenerate with the new settlement status
+    await Bill.updateOne({ _id: settleBill.bill }, { $currentDate: { updatedAt: true } });
 
     const action = {
       type: 'none' as const,
