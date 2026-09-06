@@ -20,6 +20,8 @@ export const billReportQueue = new Queue('pdf-bill-report', {
 export const billReportQuerySchema = z.object({
   user: objectId().optional(),
   status: z.enum(billStatus).optional(),
+  // export a single bill's record by id
+  bill: objectId().optional(),
   // inclusive IST day windows
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
@@ -29,11 +31,12 @@ export const billReportQuerySchema = z.object({
 export const exportBillReportController = async (req: Request, res: Response) => {
   const parsed = billReportQuerySchema.safeParse(req.query);
   if (!parsed.success) throw new ApiError(400, z.prettifyError(parsed.error));
-  const { user, status, from, to, format } = parsed.data;
+  const { user, status, bill, from, to, format } = parsed.data;
 
   const query: QueryFilter<typeof Bill.schema.obj> = { isDeleted: false };
   if (user) query.user = user;
   if (status) query.status = status;
+  if (bill) query._id = bill;
   if (from || to) {
     query.date = {};
     if (from) query.date.$gte = istDayRange(from)[0];
@@ -57,6 +60,7 @@ export const exportBillReportController = async (req: Request, res: Response) =>
     req.user?.id as string,
     user ?? 'all',
     status ?? 'any',
+    bill ?? 'all',
     from ?? 'start',
     to ?? 'end',
   );

@@ -15,6 +15,7 @@ import { bullmqConnection } from '../libs/redis/redis-client.js';
 import { getBrowser } from '../libs/utils/browser.js';
 import { escapeHtml } from '../libs/utils/html-escape.js';
 import { notification } from '../libs/utils/notification.js';
+import { pdfFooterTemplate, pdfPageConfig } from '../libs/utils/pdf-config.js';
 import 'dotenv/config';
 
 const tempPath = path.join(process.cwd(), 'public', 'temp');
@@ -48,9 +49,9 @@ const renderPdf = async (job: Job, bills: BillDocumentT[], page: PuppeteerPage) 
   await page.setContent(createBillPdfBody(bills), { waitUntil: 'domcontentloaded' });
   ensureTempDir();
   await page.pdf({
-    format: 'A4',
+    ...pdfPageConfig,
     path: path.join(tempPath, `${job.id}.pdf`),
-    printBackground: true,
+    footerTemplate: pdfFooterTemplate,
   });
 };
 

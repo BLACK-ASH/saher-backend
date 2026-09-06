@@ -1,7 +1,20 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import type { AttendanceResponseT } from '../../../attendance/retrieve/attendance.schema.js';
 import { formatTime } from '../../../libs/utils/format-time.js';
 import { escapeHtml } from '../../../libs/utils/html-escape.js';
-import 'dotenv/config';
+
+// brand logo lives in public/saher-logo.png (worker cwd is repo root)
+let logoDataUri = '';
+try {
+  const logoPath = path.join(process.cwd(), 'public', 'saher-logo.png');
+  if (fs.existsSync(logoPath)) {
+    logoDataUri = `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`;
+  }
+} catch {
+  // branding is cosmetic — keep the text header if the logo can't be read
+}
 
 const formatDate = (date: string) => {
   return new Intl.DateTimeFormat('en-IN', {
@@ -89,11 +102,6 @@ export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
 
     .brand-subtitle {
       font-size: 11px;
-      color: #71717a;
-    }
-
-    .generated-at {
-      font-size: 12px;
       color: #71717a;
     }
 
@@ -239,11 +247,11 @@ export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
 
         <div class="brand">
 
-          <img
-            src="https://${process.env.BASE_URL}/saher-logo.png"
-            alt="SAHER Logo"
-            class="logo"
-          />
+          ${
+            logoDataUri
+              ? `<img src="${logoDataUri}" alt="SAHER Logo" class="logo" />`
+              : ''
+          }
 
           <div class="brand-content">
 
@@ -259,12 +267,7 @@ export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
 
         </div>
 
-        <div class="generated-at">
-          Generated on ${formatDate(new Date().toISOString())}
-        </div>
-
       </div>
-
 
     </div>
 

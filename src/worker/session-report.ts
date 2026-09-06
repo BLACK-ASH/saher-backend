@@ -15,6 +15,7 @@ import { bullmqConnection } from '../libs/redis/redis-client.js';
 import { getBrowser } from '../libs/utils/browser.js';
 import { notification } from '../libs/utils/notification.js';
 import { escapeHtml } from '../libs/utils/html-escape.js';
+import { pdfFooterTemplate, pdfPageConfig } from '../libs/utils/pdf-config.js';
 import 'dotenv/config';
 
 const tempPath = path.join(process.cwd(), 'public', 'temp');
@@ -63,46 +64,9 @@ const renderPdf = async (job: Job, session: SessionDoc, page: PuppeteerPage) => 
   ensureTempDir();
   const pdfPath = path.join(tempPath, `${job.id}.pdf`);
   await page.pdf({
-    format: 'A4',
+    ...pdfPageConfig,
     path: pdfPath,
-    printBackground: true,
-    displayHeaderFooter: true,
-    margin: {
-      top: '40px',
-      bottom: '70px',
-      left: '20px',
-      right: '20px',
-    },
-    footerTemplate: `
-    <div
-      style="
-        width:100%;
-        padding:0 24px;
-        font-size:10px;
-        color:#71717a;
-        font-family:Arial,sans-serif;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-      "
-    >
-      <div style="font-weight:600;color:#7a1cac;">
-        SAHER Internal
-      </div>
-      <div>
-        Designed & Developed by
-        <span style="font-weight:600;color:black">
-          BlackAsh
-        </span>
-      </div>
-      <div>
-        Page
-        <span class="pageNumber"></span>
-        of
-        <span class="totalPages"></span>
-      </div>
-    </div>
-  `,
+    footerTemplate: pdfFooterTemplate,
   });
 };
 

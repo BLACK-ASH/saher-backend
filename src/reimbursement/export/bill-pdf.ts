@@ -32,12 +32,13 @@ export const createBillPdfBody = (bills: BillDocumentT[]) => `
   </div>
   <h1 style="font-size:18px;">Bill Report</h1>
   <table>
-    <thead><tr><th>Employee</th><th>Amount</th><th>Advance</th><th>Status</th><th>Date</th></tr></thead>
+    <thead><tr><th>Employee</th><th>Description</th><th>Amount</th><th>Advance</th><th>Status</th><th>Date</th></tr></thead>
     <tbody>
       ${bills
         .map(
           (b) => `<tr>
             <td>${escapeHtml(b.user?.displayName ?? b.user?.email ?? '-')}</td>
+            <td>${escapeHtml(b.description ?? '-')}</td>
             <td>${b.amount ?? 0}</td>
             <td>${b.advance ?? 0}</td>
             <td>${escapeHtml(String(b.status))}</td>
