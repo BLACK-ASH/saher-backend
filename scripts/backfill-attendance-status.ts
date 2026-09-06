@@ -10,6 +10,7 @@ import { Account } from '../src/database/account.model.js';
 import { Attendance } from '../src/database/attendance.model.js';
 import '../src/database/media-upload.model.js'; // registers the 'Media' model referenced by user.image populate
 import { env } from '../src/config/env.js';
+import { connectRedis } from '../src/libs/redis/redis-client.js';
 import { deleteCacheGroup } from '../src/libs/redis/redis-utils.js';
 import { calculateWorkStatus, getShift } from '../src/libs/utils/calculate-work-status.js';
 import { normalizeDoc } from '../src/libs/utils/normailize-doc.js';
@@ -81,6 +82,7 @@ const run = async () => {
     `Updated ${bulkOps.length} rows (skipped: overtime=${skippedOvertime}, no-account=${skippedNoAccount}).`,
   );
 
+  await connectRedis();
   await deleteCacheGroup('attendance');
   await deleteCacheGroup('today');
   console.log('Cache invalidated.');
