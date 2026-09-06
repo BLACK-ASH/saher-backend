@@ -4,6 +4,7 @@
 // Run: pnpm backfill:attendance
 /* eslint-disable no-console */
 import mongoose from 'mongoose';
+import { z } from 'zod';
 
 import { Account } from '../src/database/account.model.js';
 import { Attendance } from '../src/database/attendance.model.js';
@@ -36,7 +37,7 @@ const run = async () => {
       populate: [{ path: 'image', model: 'Media' }],
     })
     .lean();
-  const parsed = accountSchemaFinal.parse(normalizeDoc(accounts));
+  const parsed = z.array(accountSchemaFinal).parse(normalizeDoc(accounts));
   const shiftByUser = new Map(parsed.map((acc) => [acc.user.id.toString(), getShift(acc)]));
 
   const bulkOps = [];
