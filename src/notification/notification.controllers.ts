@@ -1,12 +1,12 @@
 import type { Request, Response } from 'express';
+import { Types, type QueryFilter } from 'mongoose';
 
-import type { NotificationAction, NotificationResponseListT } from './notification.schema.js';
+import type { NotificationAction } from './notification.schema.js';
 import { notificationResponseListSchema } from './notification.schema.js';
 import { Notification } from '../database/notification.model.js';
 import { ApiError } from '../libs/class/api-error.js';
 import { ApiResponse } from '../libs/class/api-response.js';
 import type { NotificationType } from '../libs/class/notification.js';
-import { createKey, getCache, setCache } from '../libs/redis/redis-utils.js';
 import { markSeenNotification } from '../libs/utils/mark-seen.js';
 import { normalizeDoc } from '../libs/utils/normailize-doc.js';
 import { notification } from '../libs/utils/notification.js';
@@ -73,38 +73,34 @@ export const getAllNotificationsController = async (req: Request, res: Response)
   const limit = Math.min(Number(req.query.limit) || 10, 50);
 
   const userId = user.id;
-  const key = createKey('notification', 'user', userId.toString());
-  let parsed: NotificationResponseListT;
+  const role = req.user?.role;
 
-  const cacheRaw = await getCache(key);
-  if (cacheRaw) {
-    parsed = notificationResponseListSchema.parse(cacheRaw);
-  } else {
-    const role = req.user?.role;
-    const notifications = await Notification.find({
-      $or: [{ user: user?.id, scope: 'specific' }, { scope: role }, { scope: 'global' }],
-    })
+  // Page straight from the DB — the old per-user Redis cache was append-only
+  // and capped at 100, so lists drifted from the real (seen/unseen) state.
+  const filter: QueryFilter<typeof Notification.schema.obj> = {
+    $or: [
+      { user: new Types.ObjectId(userId), scope: 'specific' },
+      { scope: role },
+      { scope: 'global' },
+    ],
+  };
+
+  const [notifications, count] = await Promise.all([
+    Notification.find(filter)
       .sort({ createdAt: -1 })
-      .lean();
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean() as Promise<unknown[]>,
+    Notification.countDocuments(filter),
+  ]);
 
-    parsed = notificationResponseListSchema.parse(normalizeDoc(notifications));
-    await setCache(key, parsed, 604800);
-  }
-
-  // Slice after cache/DB so both paths paginate identically
-  const skip = (page - 1) * limit;
-  const pageData = parsed.slice(skip, skip + limit);
+  const pageData = notificationResponseListSchema.parse(normalizeDoc(notifications));
 
   return ApiResponse.success(res, {
     message: 'Notifications fetched',
     statusCode: 200,
     data: pageData,
-    meta: {
-      page,
-      limit,
-      count: parsed.length,
-      total: Math.ceil(parsed.length / limit),
-    },
+    meta: { page, limit, count, total: Math.ceil(count / limit) },
   });
 };
 

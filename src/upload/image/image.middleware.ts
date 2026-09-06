@@ -28,4 +28,4 @@ const fileFilter: multer.Options['fileFilter'] = (req: Request, file, cb) => {
   cb(null, true);
 };
 
-export const uploadImage = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+export const uploadImage = multer({ storage, fileFilter, limits: { fileSize: 20 * 1024 * 1024 } });
