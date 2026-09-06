@@ -41,6 +41,23 @@ const receiptThumbs = (b: BillDocumentT) => {
   return thumbs || '<span class="muted">—</span>';
 };
 
+const settlementBadge = (b: BillDocumentT) =>
+  b.settlement
+    ? `<span class="status-badge status-${escapeHtml(b.settlement.status)}">${escapeHtml(b.settlement.status)}</span>`
+    : '<span class="muted">—</span>';
+
+const settlementMeta = (b: BillDocumentT) => {
+  if (!b.settlement) return '';
+  const parts = [settlementBadge(b)];
+  if (b.settlement.mode && b.settlement.mode !== '-') {
+    parts.push(`via ${escapeHtml(b.settlement.mode)}`);
+  }
+  if (b.settlement.settleDate) {
+    parts.push(`on ${formatDate(b.settlement.settleDate)}`);
+  }
+  return parts.join(' ');
+};
+
 const renderTable = (bills: BillDocumentT[]) => `
   <div class="header">
     <div class="brand-name">SAHER Internal</div>
@@ -48,7 +65,7 @@ const renderTable = (bills: BillDocumentT[]) => `
   </div>
   <h1 style="font-size:18px;">Bill Report</h1>
   <table>
-    <thead><tr><th>Employee</th><th>Description</th><th>Receipts</th><th>Amount</th><th>Advance</th><th>Status</th><th>Date</th></tr></thead>
+    <thead><tr><th>Employee</th><th>Description</th><th>Receipts</th><th>Amount</th><th>Advance</th><th>Status</th><th>Settlement</th><th>Date</th></tr></thead>
     <tbody>
       ${bills
         .map(
@@ -59,6 +76,7 @@ const renderTable = (bills: BillDocumentT[]) => `
             <td>${b.amount ?? 0}</td>
             <td>${b.advance ?? 0}</td>
             <td>${escapeHtml(String(b.status))}</td>
+            <td>${settlementBadge(b)}</td>
             <td>${formatDate(b.date)}</td>
           </tr>`,
         )
@@ -131,6 +149,11 @@ const renderDetail = (b: BillDocumentT) => {
         <span class="muted">Bill Date</span>
         <span class="row-value">${formatDate(b.date)}</span>
       </div>
+      ${
+        b.settlement
+          ? `<div class="row"><span class="muted">Settlement</span><span class="row-value">${settlementMeta(b)}</span></div>`
+          : ''
+      }
     </div>
 
     <div class="amt-card">
@@ -194,6 +217,8 @@ export const createBillPdfBody = (bills: BillDocumentT[]) => {
     .status-accept { background: #dcfce7; color: #166534; }
     .status-reject { background: #fee2e2; color: #991b1b; }
     .status-on-hold { background: #e4e4e7; color: #44403c; }
+    .status-settle { background: #dcfce7; color: #166534; }
+    .status-expired { background: #fee2e2; color: #991b1b; }
   </style>
 </head>
 <body>
