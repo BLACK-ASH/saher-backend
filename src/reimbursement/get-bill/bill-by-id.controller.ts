@@ -30,7 +30,7 @@ export const getBillByIdController = async (req: Request, res: Response) => {
     });
   }
 
-  const bill = await Settlement.findById(billId).lean();
+  const bill = await Settlement.findOne({ bill: billId }).lean();
   if (!bill) {
     return ApiResponse.success(res, {
       message: 'Bill not found',
