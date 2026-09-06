@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 // Single source of truth for export PDF page layout — attendance's puppeteer
 // config is the reference; session and bill exports share it via this helper.
 export const pdfPageConfig = {
@@ -11,6 +14,18 @@ export const pdfPageConfig = {
     right: '20px',
   },
 } as const;
+
+let logoDataUri = '';
+try {
+  const logoPath = path.join(process.cwd(), 'public', 'saher-logo.png');
+  if (fs.existsSync(logoPath)) {
+    logoDataUri = `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`;
+  }
+} catch {
+  // branding is cosmetic — render a text-only header if the logo can't be read
+}
+
+export const getLogoDataUri = () => logoDataUri;
 
 export const pdfFooterTemplate = `
     <div

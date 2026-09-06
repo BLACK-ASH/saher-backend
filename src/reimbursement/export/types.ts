@@ -8,6 +8,12 @@ export type BillUserSubset = {
   email?: string | null;
 };
 
-export type BillDocumentT = Omit<HydratedDocument<BillType>, 'user'> & {
+export type BillMediaSubset = {
+  src: string;
+  alt: string;
+};
+
+export type BillDocumentT = Omit<HydratedDocument<BillType>, 'user' | 'images'> & {
   user: BillUserSubset;
+  images?: BillMediaSubset[];
 };

@@ -1,20 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import type { AttendanceResponseT } from '../../../attendance/retrieve/attendance.schema.js';
 import { formatTime } from '../../../libs/utils/format-time.js';
 import { escapeHtml } from '../../../libs/utils/html-escape.js';
-
-// brand logo lives in public/saher-logo.png (worker cwd is repo root)
-let logoDataUri = '';
-try {
-  const logoPath = path.join(process.cwd(), 'public', 'saher-logo.png');
-  if (fs.existsSync(logoPath)) {
-    logoDataUri = `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`;
-  }
-} catch {
-  // branding is cosmetic — keep the text header if the logo can't be read
-}
+import { getLogoDataUri } from '../../../libs/utils/pdf-config.js';
 
 const formatDate = (date: string) => {
   return new Intl.DateTimeFormat('en-IN', {
@@ -25,6 +12,8 @@ const formatDate = (date: string) => {
 };
 
 export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
+  const logo = getLogoDataUri();
+
   const totalPresent = data.filter((d) => d.status === 'present').length;
 
   const totalAbsent = data.filter((d) => d.status === 'absent').length;
@@ -248,8 +237,8 @@ export const createAttendancePdfBody = (data: AttendanceResponseT[]) => {
         <div class="brand">
 
           ${
-            logoDataUri
-              ? `<img src="${logoDataUri}" alt="SAHER Logo" class="logo" />`
+            logo
+              ? `<img src="${logo}" alt="SAHER Logo" class="logo" />`
               : ''
           }
 
